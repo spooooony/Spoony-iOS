@@ -6,7 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		71F8F73F2D230EFE00B822F3 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 71F8F73E2D230EF100B822F3 /* .swiftlint.yml */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		71F8F73E2D230EF100B822F3 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		78C002082D1D9FC400DA101C /* SpoonMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SpoonMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -32,6 +37,7 @@
 		78C001FF2D1D9FC300DA101C = {
 			isa = PBXGroup;
 			children = (
+				71F8F73E2D230EF100B822F3 /* .swiftlint.yml */,
 				78C0020A2D1D9FC400DA101C /* SpoonMe */,
 				78C002092D1D9FC400DA101C /* Products */,
 			);
@@ -55,6 +61,7 @@
 				78C002042D1D9FC400DA101C /* Sources */,
 				78C002052D1D9FC400DA101C /* Frameworks */,
 				78C002062D1D9FC400DA101C /* Resources */,
+				71F8F7662D230F8600B822F3 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -109,10 +116,32 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				71F8F73F2D230EFE00B822F3 /* .swiftlint.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		71F8F7662D230F8600B822F3 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif [[ \"$(uname -m)\" == arm64 ]]; then\n    export PATH=\"/opt/homebrew/bin:$PATH\"\nfi\n \nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		78C002042D1D9FC400DA101C /* Sources */ = {
@@ -254,6 +283,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"SpoonMe/Preview Content\"";
 				DEVELOPMENT_TEAM = D2DRA3F792;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -283,6 +313,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"SpoonMe/Preview Content\"";
 				DEVELOPMENT_TEAM = D2DRA3F792;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
