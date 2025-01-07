@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct SpoonMeApp: App {
+    @StateObject private var navigationManager = NavigationManager()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SpoonyTabView()
+                .environmentObject(navigationManager)
         }
     }
 }
