@@ -21,7 +21,7 @@ struct SpoonyTabView: View {
                     }
             }
             .tabItem { Label("내 지도", systemImage: "safari") }
-            .tag(TabViewType.map)
+            .tag(TabType.map)
             
             NavigationStack(path: $navigationManager.explorePath) {
                 Detail()
@@ -30,7 +30,7 @@ struct SpoonyTabView: View {
                     }
             }
             .tabItem { Label("탐색", systemImage: "magnifyingglass") }
-            .tag(TabViewType.explore)
+            .tag(TabType.explore)
             
             NavigationStack(path: $navigationManager.registerPath) {
                 Register()
@@ -39,7 +39,7 @@ struct SpoonyTabView: View {
                     }
             }
             .tabItem { Label("등록", systemImage: "plus.circle") }
-            .tag(TabViewType.register)
+            .tag(TabType.register)
         }
         
     }

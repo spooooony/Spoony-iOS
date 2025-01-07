@@ -9,7 +9,7 @@ import SwiftUI
 
 final class NavigationManager: ObservableObject {
     
-    @Published var selectedTab: TabViewType = .map
+    @Published var selectedTab: TabType = .map
     
     @Published var mapPath: [ViewType] = []
     @Published var explorePath: [ViewType] = []
