@@ -47,4 +47,5 @@ struct SpoonyTabView: View {
 
 #Preview {
     SpoonyTabView()
+        .environmentObject(NavigationManager())
 }
