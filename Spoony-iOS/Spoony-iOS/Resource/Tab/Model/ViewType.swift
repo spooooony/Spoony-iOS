@@ -11,12 +11,10 @@ enum ViewType: Hashable {
     // 임시
     case test
     
-    //MARK: - Map
+    // MARK: - Map
     
+    // MARK: - Explore
     
-    //MARK: - Explore
-    
-    
-    //MARK: - Register
+    // MARK: - Register
     
 }

@@ -20,7 +20,7 @@ opt_in_rules:
     - let_var_whitespace
 
 included:
-    - SpoonMe
+    - Spoony-iOS
 excluded:
     # ex) SceneDelegate, config file 무시
 
