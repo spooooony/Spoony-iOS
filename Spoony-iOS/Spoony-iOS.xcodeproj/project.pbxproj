@@ -13,13 +13,13 @@
 /* Begin PBXFileReference section */
 		71F8F73E2D230EF100B822F3 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		71F8F8B72D27EE0700B822F3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		78C002082D1D9FC400DA101C /* SpoonMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SpoonMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		78C002082D1D9FC400DA101C /* Spoony-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Spoony-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		78C0020A2D1D9FC400DA101C /* SpoonMe */ = {
+		78C0020A2D1D9FC400DA101C /* Spoony-iOS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SpoonMe;
+			path = "Spoony-iOS";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -39,7 +39,7 @@
 			isa = PBXGroup;
 			children = (
 				71F8F73E2D230EF100B822F3 /* .swiftlint.yml */,
-				78C0020A2D1D9FC400DA101C /* SpoonMe */,
+				78C0020A2D1D9FC400DA101C /* Spoony-iOS */,
 				71F8F8B72D27EE0700B822F3 /* Info.plist */,
 				78C002092D1D9FC400DA101C /* Products */,
 			);
@@ -48,7 +48,7 @@
 		78C002092D1D9FC400DA101C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				78C002082D1D9FC400DA101C /* SpoonMe.app */,
+				78C002082D1D9FC400DA101C /* Spoony-iOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -56,9 +56,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		78C002072D1D9FC400DA101C /* SpoonMe */ = {
+		78C002072D1D9FC400DA101C /* Spoony-iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 78C002162D1D9FC500DA101C /* Build configuration list for PBXNativeTarget "SpoonMe" */;
+			buildConfigurationList = 78C002162D1D9FC500DA101C /* Build configuration list for PBXNativeTarget "Spoony-iOS" */;
 			buildPhases = (
 				78C002042D1D9FC400DA101C /* Sources */,
 				78C002052D1D9FC400DA101C /* Frameworks */,
@@ -70,13 +70,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				78C0020A2D1D9FC400DA101C /* SpoonMe */,
+				78C0020A2D1D9FC400DA101C /* Spoony-iOS */,
 			);
-			name = SpoonMe;
+			name = "Spoony-iOS";
 			packageProductDependencies = (
 			);
 			productName = SpoonMe;
-			productReference = 78C002082D1D9FC400DA101C /* SpoonMe.app */;
+			productReference = 78C002082D1D9FC400DA101C /* Spoony-iOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -94,7 +94,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 78C002032D1D9FC300DA101C /* Build configuration list for PBXProject "SpoonMe" */;
+			buildConfigurationList = 78C002032D1D9FC300DA101C /* Build configuration list for PBXProject "Spoony-iOS" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -108,7 +108,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				78C002072D1D9FC400DA101C /* SpoonMe */,
+				78C002072D1D9FC400DA101C /* Spoony-iOS */,
 			);
 		};
 /* End PBXProject section */
@@ -282,8 +282,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"SpoonMe/Preview Content\"";
-				DEVELOPMENT_TEAM = D2DRA3F792;
+				DEVELOPMENT_ASSET_PATHS = "\"Spoony-iOS/Preview Content\"";
+				DEVELOPMENT_TEAM = L9J3VF6GK2;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -299,7 +299,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = SpoonMe.com.SpoonMe;
+				PRODUCT_BUNDLE_IDENTIFIER = "Spoony-iOS.com.Spoony-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -318,8 +318,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"SpoonMe/Preview Content\"";
-				DEVELOPMENT_TEAM = D2DRA3F792;
+				DEVELOPMENT_ASSET_PATHS = "\"Spoony-iOS/Preview Content\"";
+				DEVELOPMENT_TEAM = L9J3VF6GK2;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -335,7 +335,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = SpoonMe.com.SpoonMe;
+				PRODUCT_BUNDLE_IDENTIFIER = "Spoony-iOS.com.Spoony-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -350,7 +350,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		78C002032D1D9FC300DA101C /* Build configuration list for PBXProject "SpoonMe" */ = {
+		78C002032D1D9FC300DA101C /* Build configuration list for PBXProject "Spoony-iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				78C002142D1D9FC500DA101C /* Debug */,
@@ -359,7 +359,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		78C002162D1D9FC500DA101C /* Build configuration list for PBXNativeTarget "SpoonMe" */ = {
+		78C002162D1D9FC500DA101C /* Build configuration list for PBXNativeTarget "Spoony-iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				78C002172D1D9FC500DA101C /* Debug */,
