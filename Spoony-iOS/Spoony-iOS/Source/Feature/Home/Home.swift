@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
-
+// 사용 예시
 struct Home: View {
+    
+    @EnvironmentObject private var navigationManager: NavigationManager
+    
     var body: some View {
         Text("Home")
     }
