@@ -1,4 +1,4 @@
-# 35-APPJAM-iOS-SPOONY
+# Spoony
 
 
 ```swift
