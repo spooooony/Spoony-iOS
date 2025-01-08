@@ -33,6 +33,9 @@
 
 # **✳️ Coding Convention**
 
+> [스타일쉐어 Swift 가이드](https://github.com/StyleShare/swift-style-guide) 를 기반으로 작성되었으며 스푸니 iOS에 맞게 일부 변경되었습니다.<br>
+> 또한 일부내용은 [SwiftLint](https://github.com/SOPT-all/35-APPJAM-iOS-SPOONY/blob/juri/SpoonMe/.swiftlint.yml) 를 사용해 Xcode 내 컨벤션으로 사용중입니다.
+
 [코딩 컨벤션 보러가기](https://www.notion.so/Coding-Convention-bdd28ced2cae4f4697f8c4d98f69f089?pvs=21)
 
 # 📝 **Tag & Commit Convention**
