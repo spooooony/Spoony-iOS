@@ -28,16 +28,13 @@
 
 # **🌀 Library**
 
-| library | description |
-| --- | --- |
-| **Moya** | 추상화된 네트워크 레이어를 보다 간편하게 사용 |
-| **Kingfisher** | 이미지 캐싱 처리  |
-| **NMFMaps** | 지도 구현 |
+| library | description | version |
+| --- | --- | --- |
+| **Moya** | 추상화된 네트워크 레이어를 보다 간편하게 사용 | 15.0.3 |
+| **Kingfisher** | 이미지 캐싱 처리 | 8.1.3 |
+| **NMFMaps** | 지도 구현 | 3.20.0 |
 
 # **✳️ Coding Convention**
-
-> [스타일쉐어 Swift 가이드](https://github.com/StyleShare/swift-style-guide) 를 기반으로 작성되었으며 스푸니 iOS에 맞게 일부 변경되었습니다.<br>
-> 또한 일부내용은 [SwiftLint](https://github.com/SOPT-all/35-APPJAM-iOS-SPOONY/blob/juri/SpoonMe/.swiftlint.yml) 를 사용해 Xcode 내 컨벤션으로 사용중입니다.
 
 [코딩 컨벤션 보러가기](https://www.notion.so/Coding-Convention-bdd28ced2cae4f4697f8c4d98f69f089?pvs=21)
 
@@ -70,12 +67,77 @@
 feat: #1 로그인 기능 구현
 add: #2 이미지 에셋 추가
 juri: #3 주리야 도와줘
+
 ```
+
+# 💿Git Flow
+
+[우아한 형제들 Git Flow를 기반으로 진행합니다.](https://techblog.woowahan.com/2553/)
 
 ### PR 규칙
 
 - 1 issue = 1 PR
-- Merge 조건: 리드 승인 + 2인 승인
+- Merge= 리드 승인 + 2인 승인
+- Squash and Merge, Rebase and Merge는 사용하지 않습니다.
+
+## 📂Foldering
+
+```
+
+📁 Project
+├── App.swift
+├── 📁 Source
+│ ├── 🗂️ Features
+│ │ ├── 🗂️ Home
+│ │ │ ├── 🗂️ View
+│ │ │ │ ├── MovieView.swift
+│ │ │ │ └── 🗂️ Components
+│ │ │ │     └── MovieCell.swift
+│ │ │ ├── 🗂️ Intent
+│ │ │ │ └── MovieIntent.swift
+│ │ │ ├── 🗂️ State
+│ │ │ │ ├── MovieState.swift
+│ │ │ │ └── MovieStore.swift
+│ │ │ ├── 🗂️ Model
+│ │ │ │ └── MovieModel.swift
+│ │ │ └── 🗂️ Service
+│ │ │     └── MovieAPIService.swift
+│ │ ├── 🗂️ Detail
+│ │ ├── 🗂️ Quest
+│ │ ├── 🗂️ Register
+│ │
+├── 📁 Network
+│ ├── 🗂️ Network
+│ │ ├── NetworkManager.swift
+│ │ ├── Endpoints.swift
+│ │ ├── APIError.swift
+│ │
+│ ├── 🗂️ Services
+│ │ ├── AuthService.swift
+│ │ ├── StorageService.swift
+│ │
+├── 📁 Resources
+│ ├── 🗂️ Extensions
+│ │ ├── View+.swift
+│ │ ├── Color+.swift
+│ │ ├── Date+.swift
+│ │
+│ ├── 🗂️ Helpers
+│ │ ├── Constants.swift
+│ │ ├── Utilities.swift
+│ │
+│ ├── 🗂️ Theme
+│ │ ├── Colors.swift
+│ │ ├── Typography.swift
+│ │ ├── Spacing.swift
+│ │
+│ ├── 🗂️ Fonts
+│ │ ├── CustomFont.ttf
+│ │
+│ ├── Assets.xcassets
+│ ├── Info.plist
+
+```
 
 
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FSOPT-all%2F35-APPJAM-iOS-SPOONY&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
