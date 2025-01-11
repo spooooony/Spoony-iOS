@@ -15,3 +15,8 @@ public struct Toast: Equatable {
     var width: Double = .infinity
     var yOffset: CGFloat = 638
 }
+
+public enum ToastStyle {
+    case grey
+}
+
