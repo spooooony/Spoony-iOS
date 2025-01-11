@@ -21,7 +21,9 @@
 
 <img width="750" alt="스크린샷 2025-01-07 오후 3 08 01" src="https://github.com/user-attachments/assets/be8e0f11-aa88-43d5-8050-1a798a12ec47" />
 
+# 🌊Data Flow Diagram
 
+![의존관계도](https://github.com/user-attachments/assets/aa247fb7-ce0b-4300-8753-e884c24cffcb)
 
 
 # **🌀 Library**
