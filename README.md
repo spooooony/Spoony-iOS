@@ -1,4 +1,5 @@
-# Spoony
+
+<img src="https://github.com/user-attachments/assets/e3c2fbad-5220-426b-97ff-11760a197503" width="100%" height="200" alt="Thumbnail" />
 
 
 ```swift
