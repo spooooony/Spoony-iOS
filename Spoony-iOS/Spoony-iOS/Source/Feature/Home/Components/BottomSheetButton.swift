@@ -11,7 +11,7 @@ struct BottomSheetButton: View {
     @Binding var isPresented: Bool
     
     var body: some View {
-        CustomBottomSheet(style: .half, isPresented: $isPresented) {
+        CustomBottomSheet(style: .button, isPresented: $isPresented) {
             VStack(alignment: .leading, spacing: 0) {
                 Text("타이틀")
                     .font(.system(size: 18, weight: .bold))

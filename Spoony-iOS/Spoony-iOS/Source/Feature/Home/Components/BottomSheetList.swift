@@ -52,10 +52,9 @@ struct BottomSheetListItem: View {
 
 struct BottomSheetList: View {
     @Binding var isPresented: Bool
-    let style: BottomSheetStyle
     
     var body: some View {
-        CustomBottomSheet(style: style, isPresented: $isPresented) {
+        CustomBottomSheet(style: .half, isPresented: $isPresented) {
             VStack(alignment: .leading, spacing: 0) {
                 Text("타이틀")
                     .font(.system(size: 18, weight: .bold))

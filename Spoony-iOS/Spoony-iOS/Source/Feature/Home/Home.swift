@@ -53,7 +53,7 @@ struct Home: View {
             .padding()
             
             if showListSheet {
-                BottomSheetList(isPresented: $showListSheet, style: .half)
+                BottomSheetList(isPresented: $showListSheet)
             }
             
             if showButtonSheet {

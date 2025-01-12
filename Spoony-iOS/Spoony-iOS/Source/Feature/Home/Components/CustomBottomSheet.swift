@@ -47,6 +47,44 @@ struct CustomBottomSheet<Content: View>: View {
         BottomSheetStyle.minimal.height
     }
     
+    private func handleDragGesture(value: DragGesture.Value) {
+        if style == .button {
+            if value.translation.height > 30 {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    dragOffset = 0
+                    isPresented = false
+                }
+            } else {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    dragOffset = 0
+                }
+            }
+            return
+        }
+        
+        let newHeight = currentHeight - value.translation.height
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            if value.translation.height > 0 {
+                if newHeight < BottomSheetStyle.minimal.height + 50 {
+                    isPresented = false
+                } else if newHeight < BottomSheetStyle.half.height {
+                    currentHeight = BottomSheetStyle.minimal.height
+                } else if newHeight < BottomSheetStyle.full.height {
+                    currentHeight = BottomSheetStyle.half.height
+                }
+            } else {
+                if newHeight > BottomSheetStyle.half.height + 50 {
+                    currentHeight = BottomSheetStyle.full.height
+                } else if newHeight > BottomSheetStyle.minimal.height + 50 {
+                    currentHeight = BottomSheetStyle.half.height
+                } else {
+                    currentHeight = BottomSheetStyle.minimal.height
+                }
+            }
+            dragOffset = 0
+        }
+    }
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .bottom) {
@@ -63,36 +101,20 @@ struct CustomBottomSheet<Content: View>: View {
                     .background(Color.white)
                     .cornerRadius(20, corners: [.topLeft, .topRight])
                     .gesture(
-                        style == .button ? nil : DragGesture()
-                            .onChanged { value in
-                                let newHeight = currentHeight - value.translation.height
-                                if newHeight >= minHeight && newHeight <= maxHeight {
-                                    dragOffset = value.translation.height
-                                }
-                            }
-                            .onEnded { value in
-                                let newHeight = currentHeight - value.translation.height
-                                
-                                // 드래그 방향에 따라 가장 가까운 높이로 스냅
-                                if value.translation.height > 0 {
-                                    if newHeight < BottomSheetStyle.minimal.height + 50 {
-                                        isPresented = false
-                                    } else if newHeight < BottomSheetStyle.half.height {
-                                        currentHeight = BottomSheetStyle.minimal.height
-                                    } else if newHeight < BottomSheetStyle.full.height {
-                                        currentHeight = BottomSheetStyle.half.height
+                        DragGesture()
+                            .onChanged({ value in
+                                if style == .button {
+                                    if value.translation.height > 0 {
+                                        dragOffset = min(value.translation.height, 100)
                                     }
                                 } else {
-                                    if newHeight > BottomSheetStyle.half.height + 50 {
-                                        currentHeight = BottomSheetStyle.full.height
-                                    } else if newHeight > BottomSheetStyle.minimal.height + 50 {
-                                        currentHeight = BottomSheetStyle.half.height
-                                    } else {
-                                        currentHeight = BottomSheetStyle.minimal.height
+                                    let newHeight = currentHeight - value.translation.height
+                                    if newHeight >= minHeight && newHeight <= maxHeight {
+                                        dragOffset = value.translation.height
                                     }
                                 }
-                                dragOffset = 0
-                            }
+                            })
+                            .onEnded(handleDragGesture)
                     )
                     .transition(.move(edge: .bottom))
                     .offset(y: -geometry.safeAreaInsets.bottom)
@@ -100,8 +122,8 @@ struct CustomBottomSheet<Content: View>: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
             .ignoresSafeArea()
-            .animation(.spring(), value: isPresented)
-            .animation(.spring(), value: currentHeight)
         }
+        .animation(.spring(response: 0.3, dampingFraction: 0.7, blendDuration: 0), value: isPresented)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7, blendDuration: 0), value: currentHeight)
     }
 } 
