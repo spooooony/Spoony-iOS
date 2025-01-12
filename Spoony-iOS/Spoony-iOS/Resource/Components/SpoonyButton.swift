@@ -9,6 +9,8 @@ import SwiftUI
 
 public struct SpoonyButton: View {
     
+    // MARK: - Properties
+    
     let state: SpoonyButtonStyle
     let size: SpoonyButtonSize
     let title: String
@@ -27,6 +29,8 @@ public struct SpoonyButton: View {
     
     @State private var isSelected: Bool = false
     
+    // MARK: - Init
+    
     public init(
         state: SpoonyButtonStyle,
         size: SpoonyButtonSize,
@@ -41,6 +45,8 @@ public struct SpoonyButton: View {
         self._disabled = disabled
         self.action = action
     }
+    
+    // MARK: - Body
     
     public var body: some View {
         Button {
@@ -67,6 +73,8 @@ public struct SpoonyButton: View {
     }
 }
 
+
+// MARK: - SpoonyButtonSize
 @frozen
 public enum SpoonyButtonSize {
     case xlarge
@@ -118,6 +126,7 @@ public enum SpoonyButtonSize {
     }
 }
 
+// MARK: - SpoonyButtonStyle
 @frozen
 public enum SpoonyButtonStyle {
     case primary
