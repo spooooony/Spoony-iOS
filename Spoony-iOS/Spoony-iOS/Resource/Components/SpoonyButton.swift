@@ -10,7 +10,6 @@ import SwiftUI
 public struct SpoonyButton: View {
     
     // MARK: - Properties
-    
     let state: SpoonyButtonStyle
     let size: SpoonyButtonSize
     let title: String
@@ -30,7 +29,6 @@ public struct SpoonyButton: View {
     @State private var isSelected: Bool = false
     
     // MARK: - Init
-    
     public init(
         state: SpoonyButtonStyle,
         size: SpoonyButtonSize,
@@ -47,7 +45,6 @@ public struct SpoonyButton: View {
     }
     
     // MARK: - Body
-    
     public var body: some View {
         Button {
             
@@ -72,7 +69,6 @@ public struct SpoonyButton: View {
         .disabled(disabled)
     }
 }
-
 
 // MARK: - SpoonyButtonSize
 @frozen
