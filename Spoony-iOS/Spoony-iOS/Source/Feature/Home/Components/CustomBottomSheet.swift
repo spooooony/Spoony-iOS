@@ -48,64 +48,60 @@ struct CustomBottomSheet<Content: View>: View {
     }
     
     var body: some View {
-        ZStack(alignment: .bottom) {
-            if isPresented {
-                Color.black
-                    .opacity(0.3)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        isPresented = false
+        GeometryReader { geometry in
+            ZStack(alignment: .bottom) {
+                if isPresented {
+                    VStack(spacing: 0) {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(Color.gray)
+                            .frame(width: 40, height: 5)
+                            .padding(.top, 8)
+                        
+                        content
                     }
-                
-                VStack {
-                    RoundedRectangle(cornerRadius: 3)
-                        .fill(Color.gray)
-                        .frame(width: 40, height: 5)
-                        .padding(.top, 8)
-                    
-                    content
-                }
-                .frame(height: currentHeight - dragOffset)
-                .background(Color.white)
-                .cornerRadius(20, corners: [.topLeft, .topRight])
-                .gesture(
-                    DragGesture()
-                        .onChanged { value in
-                            let newHeight = currentHeight - value.translation.height
-                            if newHeight >= minHeight && newHeight <= maxHeight {
-                                dragOffset = value.translation.height
-                            }
-                        }
-                        .onEnded { value in
-                            let newHeight = currentHeight - value.translation.height
-                            
-                            // 드래그 방향에 따라 가장 가까운 높이로 스냅
-                            if value.translation.height > 0 {
-                                if newHeight < BottomSheetStyle.minimal.height + 50 {
-                                    isPresented = false
-                                } else if newHeight < BottomSheetStyle.half.height {
-                                    currentHeight = BottomSheetStyle.minimal.height
-                                } else if newHeight < BottomSheetStyle.full.height {
-                                    currentHeight = BottomSheetStyle.half.height
+                    .frame(height: currentHeight - dragOffset)
+                    .background(Color.white)
+                    .cornerRadius(20, corners: [.topLeft, .topRight])
+                    .gesture(
+                        style == .button ? nil : DragGesture()
+                            .onChanged { value in
+                                let newHeight = currentHeight - value.translation.height
+                                if newHeight >= minHeight && newHeight <= maxHeight {
+                                    dragOffset = value.translation.height
                                 }
-                            } else {
-                                if newHeight > BottomSheetStyle.half.height + 50 {
-                                    currentHeight = BottomSheetStyle.full.height
-                                } else if newHeight > BottomSheetStyle.minimal.height + 50 {
-                                    currentHeight = BottomSheetStyle.half.height
+                            }
+                            .onEnded { value in
+                                let newHeight = currentHeight - value.translation.height
+                                
+                                // 드래그 방향에 따라 가장 가까운 높이로 스냅
+                                if value.translation.height > 0 {
+                                    if newHeight < BottomSheetStyle.minimal.height + 50 {
+                                        isPresented = false
+                                    } else if newHeight < BottomSheetStyle.half.height {
+                                        currentHeight = BottomSheetStyle.minimal.height
+                                    } else if newHeight < BottomSheetStyle.full.height {
+                                        currentHeight = BottomSheetStyle.half.height
+                                    }
                                 } else {
-                                    currentHeight = BottomSheetStyle.minimal.height
+                                    if newHeight > BottomSheetStyle.half.height + 50 {
+                                        currentHeight = BottomSheetStyle.full.height
+                                    } else if newHeight > BottomSheetStyle.minimal.height + 50 {
+                                        currentHeight = BottomSheetStyle.half.height
+                                    } else {
+                                        currentHeight = BottomSheetStyle.minimal.height
+                                    }
                                 }
+                                dragOffset = 0
                             }
-                            dragOffset = 0
-                        }
-                )
-                .transition(.move(edge: .bottom))
+                    )
+                    .transition(.move(edge: .bottom))
+                    .offset(y: -geometry.safeAreaInsets.bottom)
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .ignoresSafeArea()
+            .animation(.spring(), value: isPresented)
+            .animation(.spring(), value: currentHeight)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-        .ignoresSafeArea()
-        .animation(.spring(), value: isPresented)
-        .animation(.spring(), value: currentHeight)
     }
 } 

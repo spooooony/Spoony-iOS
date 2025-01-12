@@ -53,54 +53,11 @@ struct Home: View {
             .padding()
             
             if showListSheet {
-                CustomBottomSheet(style: .half, isPresented: $showListSheet) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text("타이틀")
-                            .font(.system(size: 18, weight: .bold))
-                            .padding()
-                        
-                        ScrollView {
-                            VStack(spacing: 0) {
-                                ForEach(0..<5) { _ in
-                                    BottomSheetListItem(
-                                        title: "상품명",
-                                        subtitle: "주소",
-                                        product: "제품",
-                                        hasChip: true
-                                    )
-                                    Divider()
-                                }
-                            }
-                        }
-                    }
-                }
+                BottomSheetList(isPresented: $showListSheet, style: .half)
             }
             
             if showButtonSheet {
-                CustomBottomSheet(style: .button, isPresented: $showButtonSheet) {
-                    VStack(spacing: 16) {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.gray.opacity(0.1))
-                            .frame(width: 100, height: 100)
-                        
-                        Text("텍스트")
-                            .font(.system(size: 16))
-                        
-                        Button(action: {
-                            showButtonSheet = false
-                        }) {
-                            Text("버튼")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(Color.black)
-                                .cornerRadius(8)
-                        }
-                        .padding(.horizontal)
-                    }
-                    .padding(.bottom, 32)
-                }
+                BottomSheetButton(isPresented: $showButtonSheet)
             }
         }
     }

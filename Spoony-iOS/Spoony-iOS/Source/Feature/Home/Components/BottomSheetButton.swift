@@ -12,10 +12,13 @@ struct BottomSheetButton: View {
     
     var body: some View {
         CustomBottomSheet(style: .button, isPresented: $isPresented) {
-            VStack(spacing: 16) {
+            VStack(spacing: 20) {
+                Spacer()
+                    .frame(height: 10)
+                
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color.gray.opacity(0.1))
-                    .frame(width: 100, height: 100)
+                    .frame(width: 80, height: 80)
                 
                 Text("텍스트")
                     .font(.system(size: 16))
@@ -32,11 +35,13 @@ struct BottomSheetButton: View {
                         .cornerRadius(8)
                 }
                 .padding(.horizontal)
+                
+                Spacer()
+                    .frame(height: 34)
             }
-            .padding(.bottom, 32)
         }
     }
 }
 #Preview {
-    BottomSheetButton(isPresented: .constant(false))
+    BottomSheetButton(isPresented: .constant(true))
 }

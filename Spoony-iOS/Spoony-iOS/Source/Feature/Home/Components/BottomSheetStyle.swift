@@ -16,13 +16,13 @@ enum BottomSheetStyle {
     var height: CGFloat {
         switch self {
         case .full:
-            return UIScreen.main.bounds.height * 0.9
+            return UIScreen.main.bounds.height * 0.75
         case .half:
-            return UIScreen.main.bounds.height * 0.5
+            return UIScreen.main.bounds.height * 0.4
         case .minimal:
-            return UIScreen.main.bounds.height * 0.3
+            return UIScreen.main.bounds.height * 0.2
         case .button:
-            return UIScreen.main.bounds.height * 0.15
+            return 250
         }
     }
 } 
