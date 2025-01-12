@@ -104,24 +104,24 @@ public enum SpoonyButtonSize {
     var width: CGFloat {
         switch self {
         case .xlarge:
-            return 335
+            return 335.adjusted
         case .large:
-            return 295
+            return 295.adjusted
         case .medium:
-            return 263
+            return 263.adjusted
         case .small:
-            return 216
+            return 216.adjusted
         case .xsmall:
-            return 141
+            return 141.adjusted
         }
     }
     
     var height: CGFloat {
         switch self {
         case .xlarge, .large, .medium, .small:
-            return 56
+            return 56.adjustedH
         case .xsmall:
-            return 44
+            return 44.adjustedH
         }
     }
 }
