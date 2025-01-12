@@ -22,7 +22,7 @@ enum BottomSheetStyle {
         case .minimal:
             return UIScreen.main.bounds.height * 0.2
         case .button:
-            return 250
+            return UIScreen.main.bounds.height * 0.4
         }
     }
 } 
