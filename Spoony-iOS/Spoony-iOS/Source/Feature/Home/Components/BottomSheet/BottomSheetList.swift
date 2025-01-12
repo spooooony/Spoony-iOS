@@ -1,5 +1,5 @@
 //
-//  BottomSheetList.swift
+//  BottomSheetListItem.swift
 //  SpoonMe
 //
 //  Created by 이지훈 on 1/12/25.
@@ -76,4 +76,4 @@ struct BottomSheetList: View {
             }
         }
     }
-} 
+}
