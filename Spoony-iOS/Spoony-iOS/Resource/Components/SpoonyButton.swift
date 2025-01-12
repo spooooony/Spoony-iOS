@@ -10,19 +10,20 @@ import SwiftUI
 public struct SpoonyButton: View {
     
     // MARK: - Properties
-    let state: SpoonyButtonStyle
+    let style: SpoonyButtonStyle
     let size: SpoonyButtonSize
     let title: String
+    let isIcon: Bool
     @Binding var disabled: Bool
     var action: () -> Void
     
     private var backgroundColor: Color {
         if disabled {
-            return state.disabledColor
+            return style.disabledColor
         } else if isSelected {
-            return state.pressedColor
+            return style.pressedColor
         } else {
-            return state.enabledColor
+            return style.enabledColor
         }
     }
     
@@ -30,16 +31,18 @@ public struct SpoonyButton: View {
     
     // MARK: - Init
     public init(
-        state: SpoonyButtonStyle,
+        style: SpoonyButtonStyle,
         size: SpoonyButtonSize,
         title: String,
+        isIcon: Bool = false,
         disabled: Binding<Bool>,
         action: @escaping () -> Void
     ) {
         
-        self.state = state
+        self.style = style
         self.size = size
         self.title = title
+        self.isIcon = isIcon
         self._disabled = disabled
         self.action = action
     }
@@ -47,11 +50,20 @@ public struct SpoonyButton: View {
     // MARK: - Body
     public var body: some View {
         Button {
-            
+            if !disabled {
+                action()
+            }
         } label: {
-            Text(title)
-                .font(size.font)
-                .foregroundStyle(state.foregroundColor)
+            HStack(spacing: 8) {
+                if isIcon {
+                    if let image = style.image {
+                        image
+                    }
+                }
+                Text(title)
+                    .font(size.font)
+                    .foregroundStyle(style.foregroundColor)
+            }
         }
         .frame(width: size.width, height: size.height)
         .background(backgroundColor)
@@ -170,4 +182,19 @@ public enum SpoonyButtonStyle {
             return .gray600
         }
     }
+    
+    var image: Image? {
+        switch self {
+        case .primary:
+            return Image(.icSpoonPrimary)
+        case .secondary:
+            return Image(.icSpoonSecondary)
+        case .teritary:
+            return nil
+        }
+    }
+}
+
+#Preview {
+    ContentView()
 }
