@@ -1,5 +1,5 @@
 //
-//  BottomSheetListItem.swift
+//  BottomSheetList.swift
 //  SpoonMe
 //
 //  Created by 이지훈 on 1/12/25.
@@ -10,11 +10,11 @@ import SwiftUI
 struct BottomSheetListItem: View {
     let title: String
     let subtitle: String
-    let product: String
+    let cellTitle: String
     let hasChip: Bool
     
     var body: some View {
-        HStack {
+        HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(title)
@@ -34,18 +34,26 @@ struct BottomSheetListItem: View {
                     .font(.system(size: 14))
                     .foregroundColor(.gray)
                 
-                Text(product)
+                Text(cellTitle)
                     .font(.system(size: 14))
                     .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
             }
             
-            Spacer()
+            Spacer(minLength: 10)
             
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color.gray.opacity(0.1))
-                .frame(width: 60, height: 60)
+                .frame(width: 98, height: 98)
         }
-        .padding(.horizontal)
+        .padding(.leading, 16)
+        .padding(.trailing, 16)
         .padding(.vertical, 8)
     }
 }
@@ -55,18 +63,19 @@ struct BottomSheetList: View {
     
     var body: some View {
         CustomBottomSheet(style: .half, isPresented: $isPresented) {
-            VStack(alignment: .leading, spacing: 0) {
-                Text("타이틀")
+            VStack(alignment: .center, spacing: 0) {
+                Text("타이틀 5")
                     .font(.system(size: 18, weight: .bold))
+                    .frame(maxWidth: .infinity)
                     .padding()
                 
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(0..<5) { _ in
                             BottomSheetListItem(
-                                title: "상품명",
+                                title: "상호명",
                                 subtitle: "주소",
-                                product: "제품",
+                                cellTitle: "제목 셀",
                                 hasChip: true
                             )
                             Divider()
