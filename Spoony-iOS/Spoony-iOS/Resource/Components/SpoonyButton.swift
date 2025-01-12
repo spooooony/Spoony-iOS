@@ -7,6 +7,14 @@
 
 import SwiftUI
 
+/// SpoonyButton
+/// - Parameters:
+///   - style: 버튼 스타일
+///   - size: 버튼 크기
+///   - title: 버튼 Text
+///   - isIcon: ICon 존재 유무
+///   - disabled: 비활성화 유무
+///   - action: 사용자 Action
 public struct SpoonyButton: View {
     
     // MARK: - Properties
