@@ -8,10 +8,33 @@
 import SwiftUI
 // 사용 예시
 struct Home: View {
-    
-    @EnvironmentObject private var navigationManager: NavigationManager
+    @State private var searchText = ""
     
     var body: some View {
-        Text("Home")
+        VStack(spacing: 0) {
+            // 기본형 네비게이션
+            CustomNavigationBar(
+                style: .primary,
+                title: "수저 뽑기",
+                onBackTapped: { }
+            )
+            
+            // 검색형 네비게이션
+            CustomNavigationBar(
+                style: .search,
+                searchText: $searchText,
+                onBackTapped: { },
+                onSearchSubmit: { }
+            )
+            
+            // 위치 선택형 네비게이션
+            CustomNavigationBar(
+                style: .location,
+                title: "서울특별시 마포구",
+                onBackTapped: { }
+            )
+            
+            Spacer()
+        }
     }
 }
