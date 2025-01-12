@@ -7,6 +7,66 @@
 
 import SwiftUI
 
+public struct SpoonyButton: View {
+    
+    let state: SpoonyButtonStyle
+    let size: SpoonyButtonSize
+    let title: String
+    @Binding var disabled: Bool
+    var action: () -> Void
+    
+    private var backgroundColor: Color {
+        if disabled {
+            return state.disabledColor
+        } else if isSelected {
+            return state.pressedColor
+        } else {
+            return state.enabledColor
+        }
+    }
+    
+    @State private var isSelected: Bool = false
+    
+    public init(
+        state: SpoonyButtonStyle,
+        size: SpoonyButtonSize,
+        title: String,
+        disabled: Binding<Bool>,
+        action: @escaping () -> Void
+    ) {
+        
+        self.state = state
+        self.size = size
+        self.title = title
+        self._disabled = disabled
+        self.action = action
+    }
+    
+    public var body: some View {
+        Button {
+            
+        } label: {
+            Text(title)
+                .font(size.font)
+                .foregroundStyle(state.foregroundColor)
+        }
+        .frame(width: size.width, height: size.height)
+        .background(backgroundColor)
+        .cornerRadius(size.cornerRadius)
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    isSelected = true
+                }
+                .onEnded { _ in
+                    isSelected = false
+                    action()
+                }
+        )
+        .disabled(disabled)
+    }
+}
+
 @frozen
 public enum SpoonyButtonSize {
     case xlarge
