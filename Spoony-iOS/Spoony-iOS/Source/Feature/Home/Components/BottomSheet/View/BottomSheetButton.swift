@@ -44,7 +44,4 @@ struct BottomSheetButton: View {
             }
         }
     }
-}
-#Preview {
-    BottomSheetButton(isPresented: .constant(true))
-}
+} 
