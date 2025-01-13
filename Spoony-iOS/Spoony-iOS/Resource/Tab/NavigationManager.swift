@@ -18,9 +18,17 @@ final class NavigationManager: ObservableObject {
     @ViewBuilder
     func build(_ view: ViewType) -> some View {
         switch view {
-            // 임시
         case .test:
             Quest()
+       
+        case .searchView:
+            Home()
+        case .locationView:
+            Home()
+
+        case .detailView:
+            Home()
+
         }
     }
     
