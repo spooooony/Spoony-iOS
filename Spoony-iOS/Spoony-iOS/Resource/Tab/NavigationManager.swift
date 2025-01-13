@@ -27,7 +27,7 @@ final class NavigationManager: ObservableObject {
             Home()
 
         case .detailView:
-            Home()
+            DetailView(showTitle: true)
 
         }
     }

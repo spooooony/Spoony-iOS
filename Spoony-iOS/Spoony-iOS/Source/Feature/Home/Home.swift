@@ -12,6 +12,7 @@ struct Home: View {
     @State private var showSearchView = false
     @State private var showLocationView = false
     @State private var showDetailView = false
+    @State private var showDetailWithChipView = false
     
     var body: some View {
         NavigationStack {
@@ -28,8 +29,12 @@ struct Home: View {
                     showLocationView = true
                 }
                 
-                Button("상세 화면으로") {
+                Button("상세 화면으로 (타이틀)") {
                     showDetailView = true
+                }
+                
+                Button("상세 화면으로 (칩)") {
+                    showDetailWithChipView = true
                 }
             }
             .padding()
@@ -41,6 +46,9 @@ struct Home: View {
             }
             .navigationDestination(isPresented: $showDetailView) {
                 DetailView()
+            }
+            .navigationDestination(isPresented: $showDetailWithChipView) {
+                DetailView(showTitle: false)
             }
         }
     }
@@ -97,20 +105,53 @@ struct LocationView: View {
 
 struct DetailView: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var isLiked: Bool = false
+    var showTitle: Bool = true
+    
+    init(showTitle: Bool = true) {
+        self.showTitle = showTitle
+    }
     
     var body: some View {
         VStack(spacing: 0) {
-            CustomNavigationBar(
-                style: .primary,
-                title: "상세 정보",
-                onBackTapped: {
-                    dismiss()
-                }
-            )
+            if showTitle {
+                CustomNavigationBar(
+                    style: .detail(isLiked: isLiked),
+                    title: "상세 정보",
+                    onBackTapped: {
+                        dismiss()
+                    },
+                    onLikeTapped: {
+                        isLiked.toggle()
+                    }
+                )
+            } else {
+                CustomNavigationBar(
+                    style: .detailWithChip(count: 99),
+                    onBackTapped: {
+                        dismiss()
+                    }
+                )
+            }
             
             // 상세 화면 컨텐츠
+            ScrollView {
+                VStack(spacing: 0) {
+                    Text(showTitle ? "타이틀이 있는 상세 화면" : "칩이 있는 상세 화면")
+                        .padding()
+                    
+                    Spacer()
+                }
+            }
         }
+        .navigationBarHidden(true)
     }
 }
 
-            // 상세 화면 컨텐츠
+// 프리뷰에서 두 가지 스타일 모두 확인
+#Preview {
+    Group {
+        DetailView(showTitle: true)
+        DetailView(showTitle: false)
+    }
+}

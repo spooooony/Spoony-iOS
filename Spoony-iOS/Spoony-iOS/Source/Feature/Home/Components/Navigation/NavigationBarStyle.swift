@@ -8,7 +8,9 @@
 import SwiftUI
 
 enum NavigationBarStyle {
-    case primary     // 뒤로가기만 있는 기본형
-    case search     // 검색창이 있는 형태
-    case location   // 지역 선택이 있는 형태
+    case primary
+    case search
+    case location
+    case detail(isLiked: Bool)
+    case detailWithChip(count: Int)  // 오른쪽에 칩이 있는 스타일 추가
 } 

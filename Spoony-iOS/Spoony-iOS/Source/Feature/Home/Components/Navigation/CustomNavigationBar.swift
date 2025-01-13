@@ -13,19 +13,22 @@ struct CustomNavigationBar: View {
     @Binding var searchText: String
     let onBackTapped: () -> Void
     let onSearchSubmit: (() -> Void)?
+    let onLikeTapped: (() -> Void)?
     
     init(
         style: NavigationBarStyle,
         title: String = "",
         searchText: Binding<String> = .constant(""),
         onBackTapped: @escaping () -> Void,
-        onSearchSubmit: (() -> Void)? = nil
+        onSearchSubmit: (() -> Void)? = nil,
+        onLikeTapped: (() -> Void)? = nil
     ) {
         self.style = style
         self.title = title
         self._searchText = searchText
         self.onBackTapped = onBackTapped
         self.onSearchSubmit = onSearchSubmit
+        self.onLikeTapped = onLikeTapped
     }
     
     var body: some View {
@@ -87,6 +90,39 @@ struct CustomNavigationBar: View {
                     .padding(.vertical, 4)
                     .background(Color.black)
                     .cornerRadius(12)
+                
+            case .detail(let isLiked):
+                Text(title)
+                    .font(.system(size: 16, weight: .medium))
+                
+                Spacer()
+                
+                HStack(spacing: 16) {
+                    Button(action: { onLikeTapped?() }) {
+                        Image(isLiked ? "ic_heart_filled" : "ic_heart")
+                            .frame(width: 24, height: 24)
+                    }
+                    
+                    Button(action: {}) {
+                        Image("ic_share")
+                            .frame(width: 24, height: 24)
+                    }
+                }
+                
+            case .detailWithChip(let count):
+                Spacer()
+                
+                HStack(spacing: 4) {
+                    Text("\(count)")
+                        .font(.system(size: 14))
+                    Image("ic_spoon")
+                        .frame(width: 16, height: 16)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.spoonBlack)
+                .foregroundColor(Color.white)
+                .cornerRadius(16)
             }
         }
         .padding(.horizontal, 16)
