@@ -64,11 +64,6 @@ struct BottomSheetList: View {
     var body: some View {
         CustomBottomSheet(style: .half, isPresented: $isPresented) {
             VStack(alignment: .center, spacing: 0) {
-                Text("타이틀 5")
-                    .font(.system(size: 18, weight: .bold))
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(0..<5) { _ in

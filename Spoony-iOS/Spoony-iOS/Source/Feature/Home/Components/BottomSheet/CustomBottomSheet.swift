@@ -29,96 +29,97 @@ struct CustomBottomSheet<Content: View>: View {
     let style: BottomSheetStyle
     let content: Content
     @Binding var isPresented: Bool
-    @State private var currentHeight: CGFloat
-    @State private var dragOffset: CGFloat = 0
+    @State private var offset: CGFloat = 0
     @GestureState private var isDragging: Bool = false
     
-    private var maxHeight: CGFloat { style.height }
+    private var maxHeight: CGFloat { BottomSheetStyle.full.height }
+    private var halfHeight: CGFloat { BottomSheetStyle.half.height }
     private var minHeight: CGFloat { BottomSheetStyle.minimal.height }
     
+    private var currentHeight: CGFloat {
+        maxHeight - offset
+    }
+     
     init(style: BottomSheetStyle, isPresented: Binding<Bool>, @ViewBuilder content: () -> Content) {
         self.style = style
         self._isPresented = isPresented
         self.content = content()
-        self._currentHeight = State(initialValue: style.height)
     }
     
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .bottom) {
-                if isPresented {
-                    VStack(spacing: 0) {
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(Color.gray)
-                            .frame(width: 40, height: 5)
-                            .padding(.top, 8)
-                        
-                        Text("타이틀")
-                            .font(.system(size: 18, weight: .bold))
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                        
-                        if currentHeight > minHeight {
-                            content
-                        }
+                VStack(spacing: 0) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.gray)
+                        .frame(width: 40, height: 5)
+                        .padding(.top, 8)
+                    
+                    Text("타이틀")
+                        .font(.system(size: 18, weight: .bold))
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                    
+                    if currentHeight > minHeight {
+                        content
+                            .frame(maxHeight: .infinity)
                     }
-                    .frame(height: max(currentHeight - dragOffset, minHeight))
-                    .background(Color.white)
-                    .cornerRadius(20, corners: [.topLeft, .topRight])
-                    .gesture(
-                        DragGesture(minimumDistance: 0, coordinateSpace: .local)
-                            .updating($isDragging) { _, state, _ in
-                                state = true
+                }
+                .frame(height: currentHeight)
+                .frame(maxWidth: .infinity)
+                .background(Color.white)
+                .cornerRadius(20, corners: [.topLeft, .topRight])
+                .gesture(
+                    DragGesture()
+                        .updating($isDragging) { value, state, _ in
+                            state = true
+                        }
+                        .onChanged { value in
+                            let translation = value.translation.height
+                            let newOffset = max(0, min(maxHeight - minHeight, offset + translation))
+                            withAnimation(.interactiveSpring()) {
+                                offset = newOffset
                             }
-                            .onChanged { value in
-                                let newHeight = currentHeight - value.translation.height
-                                if newHeight >= minHeight && newHeight <= maxHeight {
-                                    dragOffset = value.translation.height
+                        }
+                        .onEnded { value in
+                            let velocity = value.predictedEndLocation.y - value.location.y
+                            
+                            withAnimation(.interpolatingSpring(
+                                mass: 1.0,
+                                stiffness: 200,
+                                damping: 25,
+                                initialVelocity: 0
+                            )) {
+                                if velocity < -100 {
+                                    // 빠르게 위로 스와이프
+                                    if currentHeight < halfHeight {
+                                        offset = maxHeight - halfHeight  // half로
+                                    } else {
+                                        offset = 0  // full로
+                                    }
+                                } else if velocity > 100 {
+                                    // 빠르게 아래로 스와이프
+                                    if currentHeight > halfHeight {
+                                        offset = maxHeight - halfHeight  // half로
+                                    } else {
+                                        offset = maxHeight - minHeight  // minimal로
+                                    }
+                                } else {
+                                    // 일반적인 드래그
+                                    if currentHeight > (maxHeight + halfHeight) / 2 {
+                                        offset = 0  // full로
+                                    } else if currentHeight > (halfHeight + minHeight) / 2 {
+                                        offset = maxHeight - halfHeight  // half로
+                                    } else {
+                                        offset = maxHeight - minHeight  // minimal로
+                                    }
                                 }
                             }
-                            .onEnded(handleDragGesture)
-                    )
-                    .transition(.move(edge: .bottom))
-                    .offset(y: -geometry.safeAreaInsets.bottom)
-                }
+                        }
+                )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-            .ignoresSafeArea()
         }
-        .animation(nil, value: dragOffset)
-        .animation(
-            isDragging ? nil : .interpolatingSpring(stiffness: 300, damping: 30),
-            value: currentHeight
-        )
-    }
-    
-    private func handleDragGesture(value: DragGesture.Value) {
-        let verticalVelocity = value.predictedEndLocation.y - value.location.y
-        let newHeight = currentHeight - value.translation.height
-        
-        if abs(verticalVelocity) > 300 {
-            if verticalVelocity > 0 {
-                currentHeight = minHeight
-            } else {
-                currentHeight = maxHeight
-            }
-        } else {
-            if value.translation.height > 0 {
-                if newHeight < minHeight + 50 {
-                    currentHeight = minHeight
-                } else if newHeight < BottomSheetStyle.half.height {
-                    currentHeight = minHeight
-                } else {
-                    currentHeight = BottomSheetStyle.half.height
-                }
-            } else {
-                if newHeight > BottomSheetStyle.half.height + 50 {
-                    currentHeight = maxHeight
-                } else {
-                    currentHeight = BottomSheetStyle.half.height
-                }
-            }
-        }
-        dragOffset = 0
+        .ignoresSafeArea()
     }
 }
