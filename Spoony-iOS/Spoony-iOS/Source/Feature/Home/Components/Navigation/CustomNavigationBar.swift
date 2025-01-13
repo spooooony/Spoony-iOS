@@ -31,8 +31,7 @@ struct CustomNavigationBar: View {
     var body: some View {
         HStack(spacing: 12) {
             Button(action: onBackTapped) {
-                Image(systemName: "chevron.left")
-                    .foregroundColor(.black)
+                Image("ic_arrow_left_gray700")
                     .frame(width: 24, height: 24)
             }
             

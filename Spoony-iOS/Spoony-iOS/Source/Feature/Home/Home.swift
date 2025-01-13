@@ -16,7 +16,7 @@ struct Home: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                Text("SpoonMe")
+                Text("Spoony")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                 
@@ -52,16 +52,23 @@ struct SearchView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CustomNavigationBar(
-                style: .search,
-                searchText: $searchText,
-                onBackTapped: {
-                    dismiss()
-                },
-                onSearchSubmit: {
-                    // 검색 로직
+            HStack(spacing: 12) {
+                Button(action: { dismiss() }) {
+                    Image("ic_arrow_left_gray700")
+                        .frame(width: 24, height: 24)
                 }
-            )
+                
+                CustomSearchBar(
+                    text: $searchText,
+                    placeholder: "플레이스 홀더",
+                    onSubmit: {
+                        // 검색 로직
+                    }
+                )
+            }
+            .padding(.horizontal, 16)
+            .frame(height: 56)
+            .background(Color.white)
             
             ScrollView {
                 // 검색 결과 컨텐츠
