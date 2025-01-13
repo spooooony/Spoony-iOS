@@ -58,9 +58,7 @@ public struct SpoonyButton: View {
     // MARK: - Body
     public var body: some View {
         Button {
-            if !disabled {
-                action()
-            }
+            
         } label: {
             HStack(spacing: 8) {
                 if isIcon {
@@ -91,7 +89,6 @@ public struct SpoonyButton: View {
 }
 
 // MARK: - SpoonyButtonSize
-@frozen
 public enum SpoonyButtonSize {
     case xlarge
     case large
@@ -143,7 +140,6 @@ public enum SpoonyButtonSize {
 }
 
 // MARK: - SpoonyButtonStyle
-@frozen
 public enum SpoonyButtonStyle {
     case primary
     case secondary
@@ -201,8 +197,4 @@ public enum SpoonyButtonStyle {
             return nil
         }
     }
-}
-
-#Preview {
-    ContentView()
 }
