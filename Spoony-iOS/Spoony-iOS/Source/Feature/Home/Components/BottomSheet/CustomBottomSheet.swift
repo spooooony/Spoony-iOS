@@ -31,78 +31,16 @@ struct CustomBottomSheet<Content: View>: View {
     @Binding var isPresented: Bool
     @State private var currentHeight: CGFloat
     @State private var dragOffset: CGFloat = 0
-    
     @GestureState private var isDragging: Bool = false
-    @State private var velocity: CGFloat = 0
+    
+    private var maxHeight: CGFloat { style.height }
+    private var minHeight: CGFloat { BottomSheetStyle.minimal.height }
     
     init(style: BottomSheetStyle, isPresented: Binding<Bool>, @ViewBuilder content: () -> Content) {
         self.style = style
         self._isPresented = isPresented
         self.content = content()
         self._currentHeight = State(initialValue: style.height)
-    }
-    
-    private var maxHeight: CGFloat {
-        BottomSheetStyle.full.height
-    }
-    
-    private var minHeight: CGFloat {
-        BottomSheetStyle.minimal.height
-    }
-    
-    private func handleDragGesture(value: DragGesture.Value) {
-        let verticalVelocity = value.predictedEndLocation.y - value.location.y
-        
-        if style == .button {
-            if value.translation.height > 30 || verticalVelocity > 100 {
-                withAnimation(.spring(response: 0.2, dampingFraction: 0.8, blendDuration: 0)) {
-                    dragOffset = 0
-                    isPresented = false
-                }
-            } else {
-                withAnimation(.spring(response: 0.2, dampingFraction: 0.8, blendDuration: 0)) {
-                    dragOffset = 0
-                }
-            }
-            return
-        }
-        
-        let newHeight = currentHeight - value.translation.height
-        let velocityThreshold: CGFloat = 300
-        
-        withAnimation(.spring(response: 0.2, dampingFraction: 0.8, blendDuration: 0)) {
-            if verticalVelocity > velocityThreshold {
-                // 빠르게 아래로 스와이프
-                if currentHeight <= BottomSheetStyle.half.height {
-                    isPresented = false
-                } else {
-                    currentHeight = BottomSheetStyle.half.height
-                }
-            } else if verticalVelocity < -velocityThreshold {
-                // 빠르게 위로 스와이프
-                currentHeight = BottomSheetStyle.full.height
-            } else {
-                // 일반적인 드래그
-                if value.translation.height > 0 {
-                    if newHeight < BottomSheetStyle.minimal.height + 50 {
-                        isPresented = false
-                    } else if newHeight < BottomSheetStyle.half.height {
-                        currentHeight = BottomSheetStyle.minimal.height
-                    } else if newHeight < BottomSheetStyle.full.height {
-                        currentHeight = BottomSheetStyle.half.height
-                    }
-                } else {
-                    if newHeight > BottomSheetStyle.half.height + 50 {
-                        currentHeight = BottomSheetStyle.full.height
-                    } else if newHeight > BottomSheetStyle.minimal.height + 50 {
-                        currentHeight = BottomSheetStyle.half.height
-                    } else {
-                        currentHeight = BottomSheetStyle.minimal.height
-                    }
-                }
-            }
-            dragOffset = 0
-        }
     }
     
     var body: some View {
@@ -115,48 +53,72 @@ struct CustomBottomSheet<Content: View>: View {
                             .frame(width: 40, height: 5)
                             .padding(.top, 8)
                         
-                        content
+                        Text("타이틀")
+                            .font(.system(size: 18, weight: .bold))
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                        
+                        if currentHeight > minHeight {
+                            content
+                        }
                     }
-                    .frame(height: currentHeight - dragOffset)
+                    .frame(height: max(currentHeight - dragOffset, minHeight))
                     .background(Color.white)
                     .cornerRadius(20, corners: [.topLeft, .topRight])
                     .gesture(
-                        DragGesture()
-                            .updating($isDragging) { value, state, _ in
+                        DragGesture(minimumDistance: 0, coordinateSpace: .local)
+                            .updating($isDragging) { _, state, _ in
                                 state = true
                             }
-                            .onChanged({ value in
-                                withAnimation(.interactiveSpring()) {
-                                    if style == .button {
-                                        if value.translation.height > 0 {
-                                            dragOffset = min(value.translation.height, 100)
-                                        }
-                                    } else {
-                                        let newHeight = currentHeight - value.translation.height
-                                        if newHeight >= minHeight && newHeight <= maxHeight {
-                                            dragOffset = value.translation.height
-                                        }
-                                    }
+                            .onChanged { value in
+                                let newHeight = currentHeight - value.translation.height
+                                if newHeight >= minHeight && newHeight <= maxHeight {
+                                    dragOffset = value.translation.height
                                 }
-                            })
+                            }
                             .onEnded(handleDragGesture)
                     )
-                    .transition(
-                        .asymmetric(
-                            insertion: .move(edge: .bottom).combined(with: .opacity),
-                            removal: .move(edge: .bottom).combined(with: .opacity)
-                        )
-                    )
+                    .transition(.move(edge: .bottom))
                     .offset(y: -geometry.safeAreaInsets.bottom)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
             .ignoresSafeArea()
         }
+        .animation(nil, value: dragOffset)
         .animation(
-            isDragging ? .interactiveSpring() : .spring(response: 0.2, dampingFraction: 0.8, blendDuration: 0),
+            isDragging ? nil : .interpolatingSpring(stiffness: 300, damping: 30),
             value: currentHeight
         )
-        .animation(.spring(response: 0.2, dampingFraction: 0.8, blendDuration: 0), value: isPresented)
+    }
+    
+    private func handleDragGesture(value: DragGesture.Value) {
+        let verticalVelocity = value.predictedEndLocation.y - value.location.y
+        let newHeight = currentHeight - value.translation.height
+        
+        if abs(verticalVelocity) > 300 {
+            if verticalVelocity > 0 {
+                currentHeight = minHeight
+            } else {
+                currentHeight = maxHeight
+            }
+        } else {
+            if value.translation.height > 0 {
+                if newHeight < minHeight + 50 {
+                    currentHeight = minHeight
+                } else if newHeight < BottomSheetStyle.half.height {
+                    currentHeight = minHeight
+                } else {
+                    currentHeight = BottomSheetStyle.half.height
+                }
+            } else {
+                if newHeight > BottomSheetStyle.half.height + 50 {
+                    currentHeight = maxHeight
+                } else {
+                    currentHeight = BottomSheetStyle.half.height
+                }
+            }
+        }
+        dragOffset = 0
     }
 }
