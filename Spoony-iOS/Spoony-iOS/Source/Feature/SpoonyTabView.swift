@@ -11,11 +11,6 @@ struct SpoonyTabView: View {
     
     @EnvironmentObject var navigationManager: NavigationManager
     
-    init() {
-        UITabBar.appearance().scrollEdgeAppearance = .init()
-        UITabBar.appearance().scrollEdgeAppearance?.backgroundColor = .white
-    }
-    
     var body: some View {
         
         TabView(selection: $navigationManager.selectedTab) {
@@ -52,6 +47,8 @@ struct SpoonyTabView: View {
                     )
                 }
                 .tag(tab)
+                .toolbarBackground(.white, for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
             }
         }
         .accentColor(.main400)
