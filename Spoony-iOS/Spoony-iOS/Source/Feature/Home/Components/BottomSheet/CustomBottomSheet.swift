@@ -46,8 +46,41 @@ struct CustomBottomSheet<Content: View>: View {
         self.content = content()
     }
     
+    private func handleDragGesture(value: DragGesture.Value) {
+        let velocity = value.predictedEndLocation.y - value.location.y
+        
+        withAnimation(.interpolatingSpring(
+            mass: 1.0,
+            stiffness: 200,
+            damping: 25,
+            initialVelocity: 0
+        )) {
+            if velocity < -100 {
+                if currentHeight < halfHeight {
+                    offset = maxHeight - halfHeight
+                } else {
+                    offset = 0
+                }
+            } else if velocity > 100 {
+                if currentHeight > halfHeight {
+                    offset = maxHeight - halfHeight
+                } else {
+                    offset = maxHeight - minHeight
+                }
+            } else {
+                if currentHeight > (maxHeight + halfHeight) / 2 {
+                    offset = 0
+                } else if currentHeight > (halfHeight + minHeight) / 2 {
+                    offset = maxHeight - halfHeight
+                } else {
+                    offset = maxHeight - minHeight
+                }
+            }
+        }
+    }
+    
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             ZStack(alignment: .bottom) {
                 VStack(spacing: 0) {
                     RoundedRectangle(cornerRadius: 3)
@@ -71,7 +104,7 @@ struct CustomBottomSheet<Content: View>: View {
                 .cornerRadius(20, corners: [.topLeft, .topRight])
                 .gesture(
                     DragGesture()
-                        .updating($isDragging) { value, state, _ in
+                        .updating($isDragging) { _, state, _ in
                             state = true
                         }
                         .onChanged { value in
@@ -81,41 +114,7 @@ struct CustomBottomSheet<Content: View>: View {
                                 offset = newOffset
                             }
                         }
-                        .onEnded { value in
-                            let velocity = value.predictedEndLocation.y - value.location.y
-                            
-                            withAnimation(.interpolatingSpring(
-                                mass: 1.0,
-                                stiffness: 200,
-                                damping: 25,
-                                initialVelocity: 0
-                            )) {
-                                if velocity < -100 {
-                                    // 빠르게 위로 스와이프
-                                    if currentHeight < halfHeight {
-                                        offset = maxHeight - halfHeight  // half로
-                                    } else {
-                                        offset = 0  // full로
-                                    }
-                                } else if velocity > 100 {
-                                    // 빠르게 아래로 스와이프
-                                    if currentHeight > halfHeight {
-                                        offset = maxHeight - halfHeight  // half로
-                                    } else {
-                                        offset = maxHeight - minHeight  // minimal로
-                                    }
-                                } else {
-                                    // 일반적인 드래그
-                                    if currentHeight > (maxHeight + halfHeight) / 2 {
-                                        offset = 0  // full로
-                                    } else if currentHeight > (halfHeight + minHeight) / 2 {
-                                        offset = maxHeight - halfHeight  // half로
-                                    } else {
-                                        offset = maxHeight - minHeight  // minimal로
-                                    }
-                                }
-                            }
-                        }
+                        .onEnded(handleDragGesture)
                 )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
