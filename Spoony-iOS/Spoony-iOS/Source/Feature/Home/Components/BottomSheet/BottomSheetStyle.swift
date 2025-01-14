@@ -18,7 +18,7 @@ enum BottomSheetStyle {
         
         switch self {
         case .full:
-            return screenHeight * 0.8
+            return screenHeight * 0.876
         case .half:
             return screenHeight * 0.5
         case .minimal:

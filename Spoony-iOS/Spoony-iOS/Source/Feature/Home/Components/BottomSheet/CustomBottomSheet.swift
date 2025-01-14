@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-extension View {
-    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape(RoundedCorner(radius: radius, corners: corners))
-    }
-}
-
 struct RoundedCorner: Shape {
     var radius: CGFloat = .infinity
     var corners: UIRectCorner = .allCorners
@@ -33,7 +27,7 @@ struct CustomBottomSheet<Content: View>: View {
     @GestureState private var translation: CGFloat = 0
     @State private var offsetY: CGFloat = 0
     
-    private let headerHeight: CGFloat = 60  // 핸들바와 타이틀의 전체 높이
+    private let headerHeight: CGFloat = 60
     
     init(style: BottomSheetStyle, isPresented: Binding<Bool>, @ViewBuilder content: () -> Content) {
         self.style = style
@@ -44,7 +38,6 @@ struct CustomBottomSheet<Content: View>: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
-                // 배경 오버레이
                 if isPresented {
                     Color.black
                         .opacity(0.3)
@@ -55,24 +48,21 @@ struct CustomBottomSheet<Content: View>: View {
                 }
                 
                 VStack(spacing: 0) {
-                    // 고정된 헤더 영역
                     VStack(spacing: 8) {
-                        // 핸들바
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(Color.gray.opacity(0.5))
+                            .fill(Color.gray300)
                             .frame(width: 36, height: 5)
                             .padding(.top, 10)
                         
-                        // 타이틀
                         Text("타이틀")
-                            .font(.system(size: 18, weight: .semibold))
+                            .font(.body2b)
                             .padding(.bottom, 8)
                     }
                     .frame(height: headerHeight)
                     .background(Color.white)
-                    .zIndex(1)  // 헤더를 항상 위에 표시
+                    .zIndex(1)  //헤더 맨위에 표기용
                     
-                    // 스크롤 가능한 컨텐츠
+                    // 스크롤 가능한 컨텐츠 표기용
                     content
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color.white)
