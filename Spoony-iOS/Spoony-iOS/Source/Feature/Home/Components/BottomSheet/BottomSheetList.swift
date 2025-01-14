@@ -25,7 +25,7 @@ struct BottomSheetListItem: View {
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                             .background(Color.red.opacity(0.1))
-                            .foregroundColor(.red)
+                            .foregroundColor(Color.red)
                             .cornerRadius(12)
                     }
                 }
