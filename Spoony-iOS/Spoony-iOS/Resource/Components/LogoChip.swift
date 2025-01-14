@@ -21,19 +21,19 @@ struct LogoChip: View {
             Text("\(count)")
                 .font(type == .large ? .body1sb : .body2sb)
                 .foregroundStyle(.white)
-            Image(.icBarBlue)
+            Image(type == .large ? .imageSpoonLarge : .imageSpoonSmall)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 20, height: 20)
+                .frame(width: type == .large ? 24 : 20)
         }
         .padding(.top, 4)
         .padding(.bottom, type == .large ? 5 : 4)
         .padding(.leading, type == .large ? 12 : 8)
         .background(
             LinearGradient(
-                gradient: Gradient(colors: [.gray500, .black]),
-                startPoint: .bottomLeading,
-                endPoint: .topTrailing
+                gradient: Gradient(colors: [.spoonBlack, .gray500]),
+                startPoint: .topTrailing,
+                endPoint: .bottomLeading
             ),
             in: RoundedRectangle(
                 cornerRadius: 999
@@ -43,5 +43,5 @@ struct LogoChip: View {
 }
 
 #Preview {
-    LogoChip(type: .large, count: 1)
+    LogoChip(type: .small, count: 1)
 }
