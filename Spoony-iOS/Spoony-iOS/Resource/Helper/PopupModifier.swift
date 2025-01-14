@@ -33,7 +33,6 @@ enum PopupType {
 struct PopupView: View {
     let popup: PopupType
     @Binding var isPresented: Bool
-    @State private var disabled: Bool = false
     
     var body: some View {
         VStack(spacing: 20) {
@@ -57,7 +56,7 @@ struct PopupView: View {
                         style: .teritary,
                         size: .xsmall,
                         title: title,
-                        disabled: $disabled
+                        disabled: .constant(false)
                     ) {
                         print("gray button tapped")
                         isPresented = false
@@ -68,7 +67,7 @@ struct PopupView: View {
                         style: .secondary,
                         size: .xsmall,
                         title: blackButtonTitle,
-                        disabled: $disabled
+                        disabled: .constant(false)
                     ) {
                         confirmAction()
                         isPresented = false
@@ -78,11 +77,11 @@ struct PopupView: View {
                         style: .secondary,
                         size: .large,
                         title: blackButtonTitle,
-                        disabled: $disabled
+                        isIcon: true,
+                        disabled: .constant(true)
                     ) {
                         confirmAction()
                         isPresented = false
-                        print("ispresented: \(isPresented)")
                     }
                 }
             }
