@@ -78,7 +78,7 @@ struct SearchView: View {
                     text: $searchText,
                     placeholder: "플레이스 홀더",
                     onSubmit: {
-                        // 검색 로직
+                      
                     }
                 )
             }
@@ -87,7 +87,6 @@ struct SearchView: View {
             .background(Color.white)
             
             ScrollView {
-                // 검색 결과 컨텐츠
             }
         }
     }
@@ -180,12 +179,5 @@ struct DetailView: View {
             }
         }
         .navigationBarHidden(true)
-    }
-}
-
-#Preview {
-    Group {
-        DetailView(showTitle: true)
-        DetailView(showTitle: false)
     }
 }

@@ -33,35 +33,39 @@ struct CustomNavigationBar: View {
     }
     
     var body: some View {
-        ZStack {
-            if case .locationDetail = style {} else if case .locationTitle = style {} else {
-                HStack {
-                    Button(action: onBackTapped) {
-                        Image("ic_arrow_left_gray700")
-                            .frame(width: 24, height: 24)
-                    }
-                    Spacer()
+            ZStack {
+                if style.showsBackButton {
+                    backButton
                 }
-                .padding(.horizontal, 16)
+                
+                switch style {
+                case .primary:
+                    primaryContent
+                case .search:
+                    searchContent
+                case .locationDetail:
+                    locationDetailContent
+                case .locationTitle:
+                    locationTitleContent
+                case .detail(let isLiked):
+                    detailContent(isLiked: isLiked)
+                case .detailWithChip(let count):
+                    detailWithChipContent(count: count)
+                }
             }
-            
-            switch style {
-            case .primary:
-                primaryContent
-            case .search:
-                searchContent
-            case .locationDetail:
-                locationContent
-            case .detail(let isLiked):
-                detailContent(isLiked: isLiked)
-            case .detailWithChip(let count):
-                detailWithChipContent(count: count)
-            case .locationTitle:
-                locationTitleContent
-            }
+            .frame(height: 56)
+            .background(.white)
         }
-        .frame(height: 56)
-        .background(.white)
+    
+    private var backButton: some View {
+        HStack {
+            Button(action: onBackTapped) {
+                Image("ic_arrow_left_gray700")
+                    .frame(width: 24, height: 24)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 16)
     }
     
     private var primaryContent: some View {
@@ -153,7 +157,7 @@ struct CustomNavigationBar: View {
     
     private var locationTitleContent: some View {
         HStack {
-            Text(title.isEmpty ? "홍대입구역" : title) 
+            Text(title.isEmpty ? "홍대입구역" : title)  // title이 비어있으면 기본값 사용
                 .font(.title2b)
                 .foregroundColor(.black)
             Spacer()
