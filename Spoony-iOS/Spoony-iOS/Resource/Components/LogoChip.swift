@@ -31,7 +31,13 @@ struct LogoChip: View {
         .padding(.leading, type == .large ? 12 : 8)
         .background(
             LinearGradient(
-                gradient: Gradient(colors: [.spoonBlack, .spoonBlack, .gray500]),
+                gradient: Gradient(
+                    colors: [
+                        .spoonBlack,
+                        .spoonBlack,
+                        .gray500
+                    ]
+                ),
                 startPoint: .topTrailing,
                 endPoint: .bottomLeading
             ),

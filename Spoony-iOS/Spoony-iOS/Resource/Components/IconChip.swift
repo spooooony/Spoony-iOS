@@ -13,6 +13,7 @@ enum FoodType: CaseIterable {
     case chinese
     case american
     case world
+    case cafe
     case bar
     
     var title: String {
@@ -27,6 +28,8 @@ enum FoodType: CaseIterable {
             "양식"
         case .world:
             "퓨전/세계요리"
+        case .cafe:
+            "카페"
         case .bar:
             "주류"
         }
