@@ -12,7 +12,7 @@ enum NavigationBarStyle {
     case primary
     
     // 검색 관련
-    case search
+    case search(showBackButton: Bool = true) // 뒤로가기 버튼 표시 여부 추가
     
     // 위치 관련
     case locationTitle    // 위치 제목만 표시
@@ -27,6 +27,8 @@ enum NavigationBarStyle {
         switch self {
         case .locationDetail, .locationTitle:
             return false
+        case .search(let showBackButton):
+            return showBackButton
         default:
             return true
         }

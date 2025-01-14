@@ -68,27 +68,16 @@ struct SearchView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                Button(action: { dismiss() }) {
-                    Image("ic_arrow_left_gray700")
-                        .frame(width: 24, height: 24)
-                }
-                
-                CustomSearchBar(
-                    text: $searchText,
-                    placeholder: "플레이스 홀더",
-                    onSubmit: {
-                      
-                    }
-                )
-            }
-            .padding(.horizontal, 16)
-            .frame(height: 56)
-            .background(Color.white)
+            CustomNavigationBar(
+                style: .search(showBackButton: true),
+                searchText: $searchText,
+                onBackTapped: { dismiss() }
+            )
             
             ScrollView {
             }
         }
+        .navigationBarHidden(true)
     }
 }
 
@@ -98,7 +87,7 @@ struct LocationView: View {
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
-                style: .locationDetail, 
+                style: .locationDetail,
                 title: "서울특별시 마포구",
                 onBackTapped: {
                     dismiss()
@@ -108,6 +97,7 @@ struct LocationView: View {
             Spacer()
         }
         .background(Color.white)
+        .navigationBarHidden(true)
     }
 }
 
@@ -119,7 +109,7 @@ struct TextInputView: View {
         VStack(spacing: 0) {
             CustomNavigationBar(
                 style: .locationTitle,
-                searchText: $searchText,
+                title: "홍대입구역",
                 onBackTapped: {
                     dismiss()
                 }
@@ -181,3 +171,4 @@ struct DetailView: View {
         .navigationBarHidden(true)
     }
 }
+

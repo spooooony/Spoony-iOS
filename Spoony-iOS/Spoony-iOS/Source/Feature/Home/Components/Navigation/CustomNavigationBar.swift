@@ -33,30 +33,29 @@ struct CustomNavigationBar: View {
     }
     
     var body: some View {
-            ZStack {
-                if style.showsBackButton {
-                    backButton
-                }
-                
-                switch style {
-                case .primary:
-                    primaryContent
-                case .search:
-                    searchContent
-                case .locationDetail:
-                    locationDetailContent
-                case .locationTitle:
-                    locationTitleContent
-                case .detail(let isLiked):
-                    detailContent(isLiked: isLiked)
-                case .detailWithChip(let count):
-                    detailWithChipContent(count: count)
-                }
-            }
-            .frame(height: 56)
-            .background(.white)
-        }
-    
+         ZStack {
+             if style.showsBackButton {
+                 backButton
+             }
+             
+             switch style {
+             case .primary:
+                 primaryContent
+             case .search:
+                 searchContent
+             case .locationDetail:
+                 locationDetailContent
+             case .locationTitle:
+                 locationTitleContent
+             case .detail(let isLiked):
+                 detailContent(isLiked: isLiked)
+             case .detailWithChip(let count):
+                 detailWithChipContent(count: count)
+             }
+         }
+         .frame(height: 56)
+         .background(.white)
+     }
     private var backButton: some View {
         HStack {
             Button(action: onBackTapped) {
@@ -79,27 +78,43 @@ struct CustomNavigationBar: View {
     }
     
     private var searchContent: some View {
-        HStack {
-            Image(.icSearchGray600)
-            
-            TextField("", text: $searchText)
-                .placeholder(when: searchText.isEmpty) {
-                    Text("플레이스 홀더")
-                }
-            
-            if !searchText.isEmpty {
-                Button(action: { searchText = "" }) {
-                    Image(.icDeleteGray400)
+        HStack(spacing: 12) {
+            if style.showsBackButton {
+                Button(action: onBackTapped) {
+                    Image("ic_arrow_left_gray700")
+                        .frame(width: 24, height: 24)
                 }
             }
+            
+            HStack(spacing: 8) {
+                Image(.icSearchGray600)
+                
+                TextField("", text: $searchText)
+                    .frame(height: 44)
+                    .placeholder(when: searchText.isEmpty) {
+                        Text("플레이스 홀더")
+                            .foregroundColor(Color(.gray600))
+                    }
+                
+                if !searchText.isEmpty {
+                    Button(action: { searchText = "" }) {
+                        Image(.icCloseGray400)
+                            .foregroundColor(Color(.gray600))
+                            .frame(width: 24)
+                    }
+                }
+            }
+            .padding(.horizontal, 12)
+            .background(Color.white)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color(.gray600), lineWidth: 1)
+            )
+            .frame(height: 44)
         }
-        .padding(.horizontal, 12)
-        .frame(height: 40)
-        .background(Color.gray)
-        .cornerRadius(10)
+        .padding(.horizontal, 16)
     }
-    
-    private var locationContent: some View {
+    private var locationDetailContent: some View {
         HStack {
             Button(action: {}) {
                 HStack {
@@ -113,7 +128,6 @@ struct CustomNavigationBar: View {
             
             Spacer()
             
-            // TODO: 주리 컴포넌트 작업 다하면 이후 가져다 넣기
             Text("99+")
                 .font(.system(size: 12))
                 .foregroundColor(.white)
@@ -132,7 +146,6 @@ struct CustomNavigationBar: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(1)
             Spacer()
-            
         }
     }
     
@@ -140,7 +153,6 @@ struct CustomNavigationBar: View {
         HStack {
             Spacer()
             
-            // TODO: 주리 컴포넌트 작업 다하면 이후 가져다 넣기
             HStack(spacing: 4) {
                 Text("\(count)")
                     .font(.system(size: 14))
@@ -157,7 +169,7 @@ struct CustomNavigationBar: View {
     
     private var locationTitleContent: some View {
         HStack {
-            Text(title.isEmpty ? "홍대입구역" : title)  // title이 비어있으면 기본값 사용
+            Text(title.isEmpty ? "홍대입구역" : title)
                 .font(.title2b)
                 .foregroundColor(.black)
             Spacer()
