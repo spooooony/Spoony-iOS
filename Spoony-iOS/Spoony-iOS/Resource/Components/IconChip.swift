@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum FoodType {
+enum FoodType: CaseIterable {
     case korean
     case japanese
     case chinese
@@ -38,53 +38,106 @@ enum Chiptype {
     case small
 }
 
-struct IconChip: View {
-    let foodType: FoodType
-    let chipType: Chiptype
-    var color: Color?
+enum ChipColorType: String {
+    case main
+    case orange
+    case pink
+    case green
+    case blue
+    case purple
+    case gray600
+    case black
+    case main400
     
-    init(foodType: FoodType, chipType: Chiptype, color: Color? = nil) {
-        self.foodType = foodType
-        self.chipType = chipType
-        self.color = color
+    var textColor: Color {
+        switch self {
+        case .main:
+                .main400
+        case .orange:
+                .orange400
+        case .pink:
+                .pink400
+        case .green:
+                .green400
+        case .blue:
+                .blue400
+        case .purple:
+                .purple400
+        case .gray600:
+                .gray600
+        case .black, .main400:
+                .white
+        }
     }
+    
+    var backgroundColor: Color {
+        switch self {
+        case .main:
+                .main0
+        case .orange:
+                .orange100
+        case .pink:
+                .pink100
+        case .green:
+                .green100
+        case .blue:
+                .blue100
+        case .purple:
+                .purple100
+        case .gray600:
+                .gray0
+        case .black:
+                .spoonBlack
+        case .main400:
+                .main400
+        }
+    }
+}
+
+struct IconChip: View {
+    let title: String
+    let foodType: FoodType?
+    let chipType: Chiptype
+    var color: ChipColorType
     
     var body: some View {
         HStack(spacing: 4) {
-            Image(.icBarBlue)
-            Text(foodType.title)
+            Image(imageString)
+                .resizable()
+                .frame(width: 16, height: 16)
+            Text(title)
                 .font(chipType == .large ? .body2sb : .caption1m)
-                .foregroundStyle(.gray600)
+                .foregroundStyle(color.textColor)
         }
-        .padding(.vertical, 6)
-        .padding(.horizontal, 16)
-        .background(.gray0, in: RoundedRectangle(cornerRadius: 12))
+        .padding(.vertical, chipType == .large ? 6 : 4)
+        .padding(.horizontal, chipType == .large ? 14 : 10)
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: color == .black ? [.spoonBlack, .spoonBlack, .spoonBlack, .gray500] : [color.backgroundColor]),
+                startPoint: .topTrailing,
+                endPoint: .bottomLeading
+            ),
+            in: RoundedRectangle(cornerRadius: 12)
+        )
         .overlay {
             RoundedRectangle(cornerRadius: 12)
-                .stroke(.gray100)
+                .stroke(chipType == .large ? .gray100 : .clear)
         }
     }
 }
 
 extension IconChip {
-    private var image: ImageResource {
-        switch foodType {
-        case .korean where chipType == .large:
-            <#code#>
-        case .japanese:
-            <#code#>
-        case .chinese:
-            <#code#>
-        case .american:
-            <#code#>
-        case .world:
-            <#code#>
-        case .bar:
-            <#code#>
+    private var imageString: String {
+        if let foodType {
+            return "ic_\(foodType)_\(color)"
+        } else if title == "전체" {
+            return "ic_spoon_white"
+        } else {
+            return "ic_pin_gray600"
         }
     }
 }
 
 #Preview {
-    IconChip(foodType: .american, chipType: .large)
+    IconChip(title: "로컬 수저", foodType: .american, chipType: .large, color: .gray600)
 }
