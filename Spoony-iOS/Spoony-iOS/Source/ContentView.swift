@@ -16,10 +16,7 @@ struct ContentView: View {
             NavigationStack(path: $navigationManager.mapPath) {
                 Home()
             }
-            .tabItem {
-                Image(navigationManager.selectedTab == .map ? "ic_map_selected" : "ic_map")
-            }
-            .tag(TabType.map)
+            
         }
         .environmentObject(navigationManager)
     }
