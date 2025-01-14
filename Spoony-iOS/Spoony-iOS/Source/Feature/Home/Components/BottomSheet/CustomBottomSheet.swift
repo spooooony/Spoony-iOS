@@ -27,97 +27,79 @@ struct RoundedCorner: Shape {
 
 struct CustomBottomSheet<Content: View>: View {
     let style: BottomSheetStyle
-    let content: Content
     @Binding var isPresented: Bool
-    @State private var offset: CGFloat = 0
-    @GestureState private var isDragging: Bool = false
+    let content: Content
     
-    private var maxHeight: CGFloat { BottomSheetStyle.full.height }
-    private var halfHeight: CGFloat { BottomSheetStyle.half.height }
-    private var minHeight: CGFloat { BottomSheetStyle.minimal.height }
+    @GestureState private var translation: CGFloat = 0
+    @State private var offsetY: CGFloat = 0
     
-    private var currentHeight: CGFloat {
-        maxHeight - offset
-    }
-     
+    private let headerHeight: CGFloat = 60  // 핸들바와 타이틀의 전체 높이
+    
     init(style: BottomSheetStyle, isPresented: Binding<Bool>, @ViewBuilder content: () -> Content) {
         self.style = style
         self._isPresented = isPresented
         self.content = content()
     }
     
-    private func handleDragGesture(value: DragGesture.Value) {
-        let velocity = value.predictedEndLocation.y - value.location.y
-        
-        withAnimation(.interpolatingSpring(
-            mass: 1.0,
-            stiffness: 200,
-            damping: 25,
-            initialVelocity: 0
-        )) {
-            if velocity < -100 {
-                if currentHeight < halfHeight {
-                    offset = maxHeight - halfHeight
-                } else {
-                    offset = 0
-                }
-            } else if velocity > 100 {
-                if currentHeight > halfHeight {
-                    offset = maxHeight - halfHeight
-                } else {
-                    offset = maxHeight - minHeight
-                }
-            } else {
-                if currentHeight > (maxHeight + halfHeight) / 2 {
-                    offset = 0
-                } else if currentHeight > (halfHeight + minHeight) / 2 {
-                    offset = maxHeight - halfHeight
-                } else {
-                    offset = maxHeight - minHeight
-                }
-            }
-        }
-    }
-    
     var body: some View {
-        GeometryReader { _ in
-            ZStack(alignment: .bottom) {
-                VStack(spacing: 0) {
-                    RoundedRectangle(cornerRadius: 3)
-                        .fill(Color.gray)
-                        .frame(width: 40, height: 5)
-                        .padding(.top, 8)
-                    
-                    Text("타이틀")
-                        .font(.system(size: 18, weight: .bold))
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                    
-                    if currentHeight > minHeight {
-                        content
-                            .frame(maxHeight: .infinity)
-                    }
+        GeometryReader { geometry in
+            ZStack(alignment: .top) {
+                // 배경 오버레이
+                if isPresented {
+                    Color.black
+                        .opacity(0.3)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            isPresented = false
+                        }
                 }
-                .frame(height: currentHeight)
-                .frame(maxWidth: .infinity)
+                
+                VStack(spacing: 0) {
+                    // 고정된 헤더 영역
+                    VStack(spacing: 8) {
+                        // 핸들바
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(Color.gray.opacity(0.5))
+                            .frame(width: 36, height: 5)
+                            .padding(.top, 10)
+                        
+                        // 타이틀
+                        Text("타이틀")
+                            .font(.system(size: 18, weight: .semibold))
+                            .padding(.bottom, 8)
+                    }
+                    .frame(height: headerHeight)
+                    .background(Color.white)
+                    .zIndex(1)  // 헤더를 항상 위에 표시
+                    
+                    // 스크롤 가능한 컨텐츠
+                    content
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.white)
+                }
+                .frame(height: style.height - offsetY)
                 .background(Color.white)
-                .cornerRadius(20, corners: [.topLeft, .topRight])
+                .cornerRadius(10)
+                .offset(y: max(geometry.size.height - style.height + offsetY + translation, 0))
+                .animation(.interactiveSpring(), value: isPresented)
                 .gesture(
                     DragGesture()
-                        .updating($isDragging) { _, state, _ in
-                            state = true
+                        .updating($translation) { value, state, _ in
+                            state = value.translation.height
                         }
-                        .onChanged { value in
-                            let translation = value.translation.height
-                            let newOffset = max(0, min(maxHeight - minHeight, offset + translation))
-                            withAnimation(.interactiveSpring()) {
-                                offset = newOffset
+                        .onEnded { value in
+                            let snapDistance = style.height * 0.25
+                            let dragDistance = value.translation.height
+                            
+                            if dragDistance > snapDistance {
+                                isPresented = false
+                            } else {
+                                offsetY = 0
                             }
                         }
-                        .onEnded(handleDragGesture)
                 )
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .ignoresSafeArea()
     }

@@ -8,17 +8,15 @@
 import SwiftUI
 
 struct Home: View {
-    
     @EnvironmentObject private var navigationManager: NavigationManager
-    @State private var showSheet = false
     @State private var searchText = ""
     
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack(alignment: .bottom) {
             NMapView()
                 .edgesIgnoringSafeArea(.all)
             
-            VStack(spacing: 0) {
+            VStack {
                 CustomNavigationBar(
                     style: .search(showBackButton: false),
                     searchText: $searchText,
@@ -29,15 +27,10 @@ struct Home: View {
                 .padding(.top, 44)
                 
                 Spacer()
-                
-                BottomSheetButton(isPresented: $showSheet)
             }
-            .frame(maxHeight: .infinity, alignment: .top)
+            
+            BottomSheetListView()
+                .ignoresSafeArea(.keyboard)
         }
     }
-}
-
-#Preview {
-    Home()
-        .environmentObject(NavigationManager())
 }

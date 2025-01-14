@@ -8,18 +8,21 @@
 import SwiftUI
 
 enum BottomSheetStyle {
-    case full    // 네비게이션 바 아래까지
-    case half    // 화면 중간까지
-    case minimal // 타이틀만 보이는 경우
+    case full
+    case half
+    case minimal
     
     var height: CGFloat {
+        let screenHeight = UIScreen.main.bounds.height
+        let bottomSafeArea = UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0
+        
         switch self {
         case .full:
-            return UIScreen.main.bounds.height * 0.8
+            return screenHeight * 0.8
         case .half:
-            return UIScreen.main.bounds.height * 0.4
+            return screenHeight * 0.5
         case .minimal:
-            return UIScreen.main.bounds.height * 0.25
+            return screenHeight * 0.25
         }
     }
-} 
+}
