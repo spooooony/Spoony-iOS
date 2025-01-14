@@ -59,7 +59,7 @@ struct CustomNavigationBar: View {
     
     private var backButtonView: some View {
         Button(action: onBackTapped) {
-            Image("ic_arrow_left_gray700")
+            Image(.icArrowLeftGray700)
                 .frame(width: 24, height: 24)
         }
     }
@@ -116,6 +116,7 @@ struct CustomNavigationBar: View {
         }
         .padding(.horizontal, 16)
     }
+    
     private var locationDetailContent: some View {
         HStack {
             Button(action: {}) {
@@ -158,7 +159,7 @@ struct CustomNavigationBar: View {
             HStack(spacing: 4) {
                 Text("\(count)")
                     .font(.system(size: 14))
-                Image("ic_spoon_white")
+                Image(.icSpoonWhite)
                     .frame(width: 16, height: 16)
             }
             .padding(.horizontal, 12)
@@ -176,7 +177,7 @@ struct CustomNavigationBar: View {
                 .foregroundColor(.black)
             Spacer()
             Button(action: onBackTapped) {
-                Image(systemName: "xmark")
+                Image(.icCloseGray400)
                     .foregroundColor(.gray)
                     .frame(width: 24, height: 24)
             }
@@ -184,4 +185,3 @@ struct CustomNavigationBar: View {
         .padding(.horizontal, 16)
     }
 }
-
