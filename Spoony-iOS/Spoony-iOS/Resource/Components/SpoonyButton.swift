@@ -70,20 +70,20 @@ public struct SpoonyButton: View {
                     .font(size.font)
                     .foregroundStyle(style.foregroundColor)
             }
+            .frame(width: size.width, height: size.height)
+            .background(backgroundColor)
+            .cornerRadius(size.cornerRadius)
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        isSelected = true
+                    }
+                    .onEnded { _ in
+                        isSelected = false
+                        action()
+                    }
+            )
         }
-        .frame(width: size.width, height: size.height)
-        .background(backgroundColor)
-        .cornerRadius(size.cornerRadius)
-        .gesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    isSelected = true
-                }
-                .onEnded { _ in
-                    isSelected = false
-                    action()
-                }
-        )
         .disabled(disabled)
     }
 }
