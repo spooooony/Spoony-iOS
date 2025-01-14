@@ -10,6 +10,8 @@ import SwiftUI
 struct Home: View {
     
     @EnvironmentObject private var navigationManager: NavigationManager
+    @State private var showListSheet = false
+    @State private var showButtonSheet = false
     
     var body: some View {
         ZStack(alignment: .top) {
@@ -19,6 +21,7 @@ struct Home: View {
         }
     }
 }
+
 #Preview {
     Home()
         .environmentObject(NavigationManager())
