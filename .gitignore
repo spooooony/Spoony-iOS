@@ -144,3 +144,12 @@ iOSInjectionProject/
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,swift,xcode,cocoapods
+# Privacy Info
+PrivacyInfo.plist
+
+# API Keys
+**/NaverMapAPIKeys.plist
+**/APIKeys.plist
+
+# Configuration
+Config/Config.xcconfig
