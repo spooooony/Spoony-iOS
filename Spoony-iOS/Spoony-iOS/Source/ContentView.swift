@@ -6,18 +6,21 @@
 //
 
 import SwiftUI
+import NMapsMap
 
 struct ContentView: View {
+    @StateObject private var navigationManager = NavigationManager()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView(selection: $navigationManager.selectedTab) {
+            NavigationStack(path: $navigationManager.mapPath) {
+                Home()
+            }
+            
         }
-        .padding()
+        .environmentObject(navigationManager)
     }
-}//test
+}
 
 #Preview {
     ContentView()

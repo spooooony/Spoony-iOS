@@ -17,13 +17,13 @@ public struct Toast: Equatable {
 }
 
 public enum ToastStyle {
-    case grey
+    case gray
 }
 
 extension ToastStyle {
     var themeColor: Color {
         switch self {
-        case .grey: return .gray600
+        case .gray: return .gray600
         }
     }
 }
