@@ -56,17 +56,22 @@ struct CustomNavigationBar: View {
          .frame(height: 56)
          .background(.white)
      }
+    
+    private var backButtonView: some View {
+        Button(action: onBackTapped) {
+            Image("ic_arrow_left_gray700")
+                .frame(width: 24, height: 24)
+        }
+    }
+    
     private var backButton: some View {
         HStack {
-            Button(action: onBackTapped) {
-                Image("ic_arrow_left_gray700")
-                    .frame(width: 24, height: 24)
-            }
+            backButtonView
             Spacer()
         }
         .padding(.horizontal, 16)
     }
-    
+
     private var primaryContent: some View {
         HStack {
             if !title.isEmpty {
@@ -76,14 +81,11 @@ struct CustomNavigationBar: View {
             Spacer()
         }
     }
-    
+
     private var searchContent: some View {
         HStack(spacing: 12) {
             if style.showsBackButton {
-                Button(action: onBackTapped) {
-                    Image("ic_arrow_left_gray700")
-                        .frame(width: 24, height: 24)
-                }
+                backButtonView
             }
             
             HStack(spacing: 8) {
@@ -183,16 +185,3 @@ struct CustomNavigationBar: View {
     }
 }
 
-// TextField placeholder를 위한 extension
-extension View {
-    func placeholder<Content: View>(
-        when shouldShow: Bool,
-        alignment: Alignment = .leading,
-        @ViewBuilder placeholder: () -> Content
-    ) -> some View {
-        ZStack(alignment: alignment) {
-            placeholder().opacity(shouldShow ? 1 : 0)
-            self
-        }
-    }
-}
