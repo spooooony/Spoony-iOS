@@ -196,7 +196,3 @@ extension View {
         }
     }
 }
-
-#Preview {
-    DetailView()
-}
