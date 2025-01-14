@@ -53,7 +53,7 @@ struct CustomNavigationBar: View {
                  detailWithChipContent(count: count)
              }
          }
-         .frame(height: 56)
+         .frame(height: 56.adjusted)
          .background(.white)
      }
     
@@ -91,7 +91,7 @@ struct CustomNavigationBar: View {
                 Image(.icSearchGray600)
                 
                 TextField("", text: $searchText)
-                    .frame(height: 44)
+                    .frame(height: 44.adjusted)
                     .placeholder(when: searchText.isEmpty) {
                         Text("플레이스 홀더")
                             .foregroundColor(Color(.gray600))
@@ -110,7 +110,7 @@ struct CustomNavigationBar: View {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(Color(.gray600), lineWidth: 1)
             )
-            .frame(height: 44)
+            .frame(height: 44.adjusted)
         }
         .padding(.horizontal, 16)
     }
