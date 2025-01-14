@@ -33,7 +33,7 @@ struct BottomSheetButton: View {
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
-                                .background(Color.black)
+                                .background(.black)
                                 .cornerRadius(8)
                         }
                     )
