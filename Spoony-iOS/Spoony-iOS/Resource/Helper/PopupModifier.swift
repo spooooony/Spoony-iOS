@@ -58,9 +58,7 @@ struct PopupView: View {
                         title: title,
                         disabled: .constant(false)
                     ) {
-                        print("gray button tapped")
                         isPresented = false
-                        print("ispresented: \(isPresented)")
                     }
                     
                     SpoonyButton(
@@ -77,8 +75,7 @@ struct PopupView: View {
                         style: .secondary,
                         size: .large,
                         title: blackButtonTitle,
-                        isIcon: true,
-                        disabled: .constant(true)
+                        disabled: .constant(false)
                     ) {
                         confirmAction()
                         isPresented = false
@@ -154,15 +151,7 @@ extension PopupView {
             12
         }
     }
-    
-    private var isTwoButton: Bool {
-        switch popup {
-        case .useSpoon:
-            true
-        case .registerSuccess, .reportSuccess:
-            false
-        }
-    }
+
 }
 
 #Preview {
