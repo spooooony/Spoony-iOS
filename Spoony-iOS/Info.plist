@@ -8,6 +8,10 @@
 	<string>$(ClientSecret)</string>
 	<key>NMFClientId</key>
 	<string>$(NMFClientId)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>nmap</string>
+	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSAppTransportSecurity</key>
