@@ -13,6 +13,7 @@ struct Home: View {
     @State private var showLocationView = false
     @State private var showDetailView = false
     @State private var showDetailWithChipView = false
+    @State private var showTextInputView = false
     
     var body: some View {
         NavigationStack {
@@ -36,6 +37,10 @@ struct Home: View {
                 Button("상세 화면으로 (칩)") {
                     showDetailWithChipView = true
                 }
+                
+                Button("지도 화면으로") {
+                    showTextInputView = true
+                }
             }
             .padding()
             .navigationDestination(isPresented: $showSearchView) {
@@ -49,6 +54,9 @@ struct Home: View {
             }
             .navigationDestination(isPresented: $showDetailWithChipView) {
                 DetailView(showTitle: false)
+            }
+            .navigationDestination(isPresented: $showTextInputView) {
+                TextInputView()
             }
         }
     }
@@ -91,15 +99,43 @@ struct LocationView: View {
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
-                style: .location,
+                style: .locationDetail, 
                 title: "서울특별시 마포구",
                 onBackTapped: {
                     dismiss()
                 }
             )
             
-            // 위치 선택 화면 컨텐츠
+            Spacer()
         }
+        .background(Color.white)
+    }
+}
+
+struct TextInputView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var searchText = ""
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            CustomNavigationBar(
+                style: .locationTitle,
+                searchText: $searchText,
+                onBackTapped: {
+                    dismiss()
+                }
+            )
+            
+            ScrollView {
+                VStack(spacing: 0) {
+                    Text("지도 화면 컨텐츠")
+                        .padding()
+                    
+                    Spacer()
+                }
+            }
+        }
+        .navigationBarHidden(true)
     }
 }
 

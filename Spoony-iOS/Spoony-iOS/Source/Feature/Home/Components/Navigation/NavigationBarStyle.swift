@@ -10,7 +10,8 @@ import SwiftUI
 enum NavigationBarStyle {
     case primary
     case search
-    case location
+    case locationDetail
     case detail(isLiked: Bool)
     case detailWithChip(count: Int)
+    case locationTitle
 }

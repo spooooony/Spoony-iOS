@@ -14,9 +14,7 @@ struct CustomSearchBar: View {
     
     var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(Color(.gray600))
-                .frame(width: 24)
+            Image(.icSearchGray600)
             
             TextField("", text: $text)
                 .frame(height: 44)
@@ -27,7 +25,7 @@ struct CustomSearchBar: View {
             
             if !text.isEmpty {
                 Button(action: { text = "" }) {
-                    Image(systemName: "xmark.circle.fill")
+                    Image(.icCloseGray400)
                         .foregroundColor(Color(.gray600))
                         .frame(width: 24)
                 }
