@@ -44,7 +44,7 @@ struct PopupView: View {
                 .frame(height: 20)
             if let image {
                 Image(image)
-//                    .resizable()
+                    .resizable()
                     .scaledToFit()
                     .frame(width: 150, height: 150)
             }
