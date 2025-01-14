@@ -10,6 +10,7 @@ import SwiftUI
 struct PopupModifier: ViewModifier {
     let popup: PopupType
     @Binding var isPresented: Bool
+    let confirmAction: () -> Void
     
     func body(content: Content) -> some View {
         ZStack {
@@ -17,22 +18,25 @@ struct PopupModifier: ViewModifier {
             if isPresented {
                 Color.black.opacity(0.6)
                     .ignoresSafeArea()
-                    
-                PopupView(popup: popup, isPresented: $isPresented)
+                
+                PopupView(popup: popup, isPresented: $isPresented) {
+                    confirmAction()
+                }
             }
         }
     }
 }
 
 enum PopupType {
-    case useSpoon(action: () -> Void)
-    case reportSuccess(action: () -> Void)
-    case registerSuccess(action: () -> Void)
+    case useSpoon
+    case reportSuccess
+    case registerSuccess
 }
 
 struct PopupView: View {
     let popup: PopupType
     @Binding var isPresented: Bool
+    let confirmAction: () -> Void
     
     var body: some View {
         VStack(spacing: 20) {
@@ -40,7 +44,7 @@ struct PopupView: View {
                 .frame(height: 20)
             if let image {
                 Image(image)
-                    .resizable()
+//                    .resizable()
                     .scaledToFit()
                     .frame(width: 150, height: 150)
             }
@@ -60,26 +64,15 @@ struct PopupView: View {
                     ) {
                         isPresented = false
                     }
-                    
-                    SpoonyButton(
-                        style: .secondary,
-                        size: .xsmall,
-                        title: blackButtonTitle,
-                        disabled: .constant(false)
-                    ) {
-                        confirmAction()
-                        isPresented = false
-                    }
-                } else {
-                    SpoonyButton(
-                        style: .secondary,
-                        size: .large,
-                        title: blackButtonTitle,
-                        disabled: .constant(false)
-                    ) {
-                        confirmAction()
-                        isPresented = false
-                    }
+                }
+                SpoonyButton(
+                    style: .secondary,
+                    size: grayButtonTitle == nil ? .large : .xsmall,
+                    title: blackButtonTitle,
+                    disabled: .constant(false)
+                ) {
+                    confirmAction()
+                    isPresented = false
                 }
             }
         }
@@ -132,17 +125,6 @@ extension PopupView {
         }
     }
     
-    private var confirmAction: () -> Void {
-        switch popup {
-        case .useSpoon(let action):
-            action
-        case .registerSuccess(let action):
-            action
-        case .reportSuccess(let action):
-            action
-        }
-    }
-    
     private var descriptionYOffset: CGFloat {
         switch popup {
         case .useSpoon, .registerSuccess:
@@ -151,9 +133,11 @@ extension PopupView {
             12
         }
     }
-
+    
 }
 
 #Preview {
-    PopupView(popup: .useSpoon(action: {}), isPresented: .constant(true))
+    PopupView(popup: .useSpoon, isPresented: .constant(true)) {
+        print("dd")
+    }
 }
