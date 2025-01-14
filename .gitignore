@@ -144,6 +144,5 @@ iOSInjectionProject/
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 # Configuration
-Config/Config.xcconfig
-
+Spoony-iOS/Config/Config.xcconfig
 # End of https://www.toptal.com/developers/gitignore/api/macos,swift,xcode,cocoapods
