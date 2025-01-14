@@ -60,7 +60,6 @@ struct CustomNavigationBar: View {
     private var backButtonView: some View {
         Button(action: onBackTapped) {
             Image(.icArrowLeftGray700)
-                .frame(width: 24, height: 24)
         }
     }
     
@@ -102,7 +101,6 @@ struct CustomNavigationBar: View {
                     Button(action: { searchText = "" }) {
                         Image(.icCloseGray400)
                             .foregroundColor(Color(.gray600))
-                            .frame(width: 24)
                     }
                 }
             }
@@ -160,7 +158,6 @@ struct CustomNavigationBar: View {
                 Text("\(count)")
                     .font(.system(size: 14))
                 Image(.icSpoonWhite)
-                    .frame(width: 16, height: 16)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
@@ -179,7 +176,6 @@ struct CustomNavigationBar: View {
             Button(action: onBackTapped) {
                 Image(.icCloseGray400)
                     .foregroundColor(.gray)
-                    .frame(width: 24, height: 24)
             }
         }
         .padding(.horizontal, 16)
