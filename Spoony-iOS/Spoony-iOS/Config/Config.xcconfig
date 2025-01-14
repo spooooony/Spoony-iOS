@@ -1,0 +1,15 @@
+// Config.xcconfig
+
+// 네이버 지도 설정
+NMFClientId = tpg1bqpkex
+NAVER_CLIENT_SECRET = bFwC4KUqxNaAySrDhoWeWr5fSEMyzquliZP7vU4Z
+
+BASE_URL = $(inherited) http:$()/43.201.58.47:8080
+
+// Info.plist에서 사용할 변수
+INFOPLIST_KEY_NMFClientId = $(NMFClientId)
+INFOPLIST_KEY_BASE_URL = $(BASE_URL)
+
+// 필수 설정
+PRODUCT_NAME = SpoonMe
+PRODUCT_BUNDLE_IDENTIFIER = com.jihoon.SpoonMe
