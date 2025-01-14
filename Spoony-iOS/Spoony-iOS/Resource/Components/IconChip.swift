@@ -113,7 +113,15 @@ struct IconChip: View {
         .padding(.horizontal, chipType == .large ? 14 : 10)
         .background(
             LinearGradient(
-                gradient: Gradient(colors: color == .black ? [.spoonBlack, .spoonBlack, .spoonBlack, .gray500] : [color.backgroundColor]),
+                gradient: Gradient(
+                    colors: color ==
+                        .black ? [
+                        .spoonBlack,
+                        .spoonBlack,
+                        .spoonBlack,
+                        .gray500
+                    ] : [color.backgroundColor]
+                ),
                 startPoint: .topTrailing,
                 endPoint: .bottomLeading
             ),
