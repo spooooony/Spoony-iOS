@@ -12,20 +12,7 @@ struct SpoonyTabView: View {
     @EnvironmentObject var navigationManager: NavigationManager
     
     init() {
-        let tabBarAppearance = UITabBarAppearance()
-        
-        tabBarAppearance.backgroundColor = .white
-        tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: UIColor.main400,
-            .font: UIFont.caption2b
-        ]
-        tabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-            .foregroundColor: UIColor.gray400,
-            .font: UIFont.caption2b
-        ]
-        
-        UITabBar.appearance().standardAppearance = tabBarAppearance
-        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+        setTabBarAppearance()
     }
     
     var body: some View {
@@ -66,6 +53,27 @@ struct SpoonyTabView: View {
                 .tag(tab)
             }
         }
+    }
+    
+    
+}
+
+extension SpoonyTabView {
+    private func setTabBarAppearance() {
+        let tabBarAppearance = UITabBarAppearance()
+        
+        tabBarAppearance.backgroundColor = .white
+        tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+            .foregroundColor: UIColor.main400,
+            .font: UIFont.caption2b
+        ]
+        tabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+            .foregroundColor: UIColor.gray400,
+            .font: UIFont.caption2b
+        ]
+        
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
     }
 }
 
