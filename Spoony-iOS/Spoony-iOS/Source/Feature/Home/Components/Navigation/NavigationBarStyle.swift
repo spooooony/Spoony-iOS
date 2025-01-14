@@ -12,5 +12,5 @@ enum NavigationBarStyle {
     case search
     case location
     case detail(isLiked: Bool)
-    case detailWithChip(count: Int)  // 오른쪽에 칩이 있는 스타일 추가
-} 
+    case detailWithChip(count: Int)
+}

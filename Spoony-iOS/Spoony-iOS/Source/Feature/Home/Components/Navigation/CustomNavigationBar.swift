@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct CustomNavigationBar: View {
+    
+    @Binding var searchText: String
+
     let style: NavigationBarStyle
     let title: String
-    @Binding var searchText: String
     let onBackTapped: () -> Void
     let onSearchSubmit: (() -> Void)?
     let onLikeTapped: (() -> Void)?
@@ -92,20 +94,31 @@ struct CustomNavigationBar: View {
                     .cornerRadius(12)
                 
             case .detail(let isLiked):
-                Text(title)
-                    .font(.system(size: 16, weight: .medium))
-                
-                Spacer()
-                
-                HStack(spacing: 16) {
-                    Button(action: { onLikeTapped?() }) {
-                        Image(isLiked ? "ic_heart_filled" : "ic_heart")
+                HStack {
+                    Button(action: onBackTapped) {
+                        Image("ic_arrow_left_gray700")
                             .frame(width: 24, height: 24)
                     }
                     
-                    Button(action: {}) {
-                        Image("ic_share")
-                            .frame(width: 24, height: 24)
+                    Spacer()
+                    
+                    Text(title)
+                        .font(.title2b)
+                        .frame(maxWidth: .infinity)
+                        .multilineTextAlignment(.center)
+                    
+                    Spacer()
+                    
+                    HStack(spacing: 16) {
+                        Button(action: { onLikeTapped?() }) {
+                            Image(isLiked ? "ic_heart_filled" : "ic_heart")
+                                .frame(width: 24, height: 24)
+                        }
+                        
+                        Button(action: {}) {
+                            Image("ic_share")
+                                .frame(width: 24, height: 24)
+                        }
                     }
                 }
                 
@@ -115,7 +128,7 @@ struct CustomNavigationBar: View {
                 HStack(spacing: 4) {
                     Text("\(count)")
                         .font(.system(size: 14))
-                    Image("ic_spoon")
+                    Image("ic_spoon_white")
                         .frame(width: 16, height: 16)
                 }
                 .padding(.horizontal, 12)

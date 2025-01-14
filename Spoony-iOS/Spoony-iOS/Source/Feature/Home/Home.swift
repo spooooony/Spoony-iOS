@@ -134,7 +134,6 @@ struct DetailView: View {
                 )
             }
             
-            // 상세 화면 컨텐츠
             ScrollView {
                 VStack(spacing: 0) {
                     Text(showTitle ? "타이틀이 있는 상세 화면" : "칩이 있는 상세 화면")
@@ -148,7 +147,6 @@ struct DetailView: View {
     }
 }
 
-// 프리뷰에서 두 가지 스타일 모두 확인
 #Preview {
     Group {
         DetailView(showTitle: true)

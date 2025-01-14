@@ -41,4 +41,4 @@ struct CustomSearchBar: View {
         )
         .frame(height: 44)
     }
-} 
+}
