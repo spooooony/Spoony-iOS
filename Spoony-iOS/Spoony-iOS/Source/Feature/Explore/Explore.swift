@@ -15,6 +15,7 @@ struct Explore: View {
     @State private var isPresentedFilter: Bool = false
     
     @State private var selectedLocation: SeoulType?
+    @State private var selectedCategory: String = "전체"
     @State private var selectedFilter: FilterType = .latest
     
     private var navigationTitle: String {
@@ -64,14 +65,27 @@ struct Explore: View {
 
 extension Explore {
     private var categoryList: some View {
-        ScrollView(.horizontal) {
+        
+        let additionalArray: [String] = [
+            "전체",
+            "로컬 수저"
+        ]
+        let categoryArray = additionalArray + FoodType.allCases.map { $0.title }
+            
+        return ScrollView(.horizontal) {
             HStack {
                 Spacer()
                     .frame(width: 20.adjusted)
-                IconChip(title: "전체", foodType: nil, chipType: .large, color: .black)
-                IconChip(title: "로컬 수저", foodType: nil, chipType: .large, color: .gray600)
-                ForEach(FoodType.allCases, id: \.self) { food in
-                    IconChip(title: food.title, foodType: food, chipType: .large, color: .gray600)
+                ForEach(categoryArray, id: \.self) { item in
+                    IconChip(
+                        title: item,
+                        foodType: FoodType(title: item),
+                        chipType: .large,
+                        color: selectedCategory == item ? .black : .gray600
+                    )
+                    .onTapGesture {
+                        selectedCategory = item
+                    }
                 }
                 Spacer()
                     .frame(width: 20.adjusted)
