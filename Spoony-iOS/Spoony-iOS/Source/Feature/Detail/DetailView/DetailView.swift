@@ -1,5 +1,5 @@
 //
-//  Detail.swift
+//  DetailView.swift
 //  SpoonMe
 //
 //  Created by 이지훈 on 1/2/25.
@@ -8,7 +8,7 @@
 import SwiftUI
 import NMapsMap
 
-struct Detail: View {
+struct DetailView: View {
     
     private let userImage = Image(.icCafeBlue)
     private let userName: String = "럭키 백희"
@@ -60,7 +60,7 @@ struct Detail: View {
     }
 }
 
-extension Detail {
+extension DetailView {
     private var firstSection: some View {
         
         HStack(spacing: 16.0) {
@@ -213,7 +213,7 @@ extension Detail {
 }
 
 #Preview {
-    Detail()
+    DetailView()
 }
 
 struct Line: Shape {
