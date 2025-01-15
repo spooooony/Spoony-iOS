@@ -54,7 +54,7 @@ struct LocationPickerBottomSheet: View {
     
     var body: some View {
         VStack {
-            HStack(spacing: 114) {
+            HStack(spacing: 114.adjusted) {
                 Spacer()
                 Text("지역 선택")
                     .font(.body1b)
@@ -63,8 +63,9 @@ struct LocationPickerBottomSheet: View {
                         isPresented = false
                     }
             }
-            .padding(.trailing, 33)
+            .padding(.trailing, 20)
             .padding(.top, 16)
+            .padding(.bottom, 12)
             
             HStack(alignment: .top, spacing: 0) {
                 VStack(spacing: 0) {
