@@ -51,7 +51,7 @@ struct CustomBottomSheet<Content: View>: View {
                     VStack(spacing: 8) {
                         RoundedRectangle(cornerRadius: 3)
                             .fill(Color.gray300)
-                            .frame(width: 36, height: 5)
+                            .frame(width: 36.adjusted, height: 5.adjusted)
                             .padding(.top, 10)
                         
                         Text("타이틀")
@@ -60,7 +60,6 @@ struct CustomBottomSheet<Content: View>: View {
                     }
                     .frame(height: headerHeight)
                     .background(Color.white)
-                    .zIndex(1)  //헤더 맨위에 표기용
                     
                     // 스크롤 가능한 컨텐츠 표기용
                     content
@@ -93,4 +92,8 @@ struct CustomBottomSheet<Content: View>: View {
         }
         .ignoresSafeArea()
     }
+}
+
+#Preview {
+    Home()
 }

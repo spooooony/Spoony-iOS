@@ -14,53 +14,49 @@ struct BottomSheetListItem: View {
     let hasChip: Bool
     
     var body: some View {
-        GeometryReader { geometry in
-            HStack(spacing: 10) {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text(title)
-                            .font(.system(size: 16, weight: .medium))
-                            .lineLimit(1)
-                        if hasChip {
-                            Text("chip")
-                                .font(.system(size: 12))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.red.opacity(0.1))
-                                .foregroundColor(Color.red)
-                                .cornerRadius(12)
-                        }
-                        Spacer()
-                    }
-                    
-                    Text(subtitle)
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(title)
+                        .font(.system(size: 16, weight: .medium))
                         .lineLimit(1)
-                    
-                    Text(cellTitle)
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 4)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                        )
+                    if hasChip {
+                        Text("chip")
+                            .font(.system(size: 12))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.red.opacity(0.1))
+                            .foregroundColor(Color.red)
+                            .cornerRadius(12)
+                    }
                 }
-                .frame(width: geometry.size.width * 0.7)  // 전체 너비의 70%
                 
-                Spacer()
+                Text(subtitle)
+                    .font(.caption1m)
+                    .foregroundColor(.gray)
+                    .lineLimit(1)
                 
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.gray.opacity(0.1))
-                    .frame(width: min(geometry.size.width * 0.25, 98), height: min(geometry.size.width * 0.25, 98))  // 최대 크기 제한
+                Text(cellTitle)
+                    .font(.body1b)
+                    .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
             }
-            .padding(.horizontal, 16)
-            .frame(height: min(geometry.size.width * 0.3, 120))  // 전체 높이 제한
+            .layoutPriority(1)
+
+            //Todo: 실제 이미지로 교체
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.gray.opacity(0.1))
+                .frame(width: 98.adjusted, height: 98.adjusted)
+                .layoutPriority(0)
         }
-        .frame(height: 120)  // 기본 높이 설정
+        .padding(.horizontal, 16)
+        .frame(height: 120.adjusted)
     }
 }
 
@@ -94,7 +90,7 @@ struct BottomSheetListView: View {
     }
     
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             VStack(spacing: 0) {
                 // 핸들바 영역
                 VStack(spacing: 8) {
@@ -175,4 +171,8 @@ struct BottomSheetListView: View {
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentStyle)
         }
     }
+}
+
+#Preview {
+    Home()
 }
