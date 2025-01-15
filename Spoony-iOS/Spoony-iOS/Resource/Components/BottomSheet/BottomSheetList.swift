@@ -9,7 +9,7 @@ import SwiftUI
 
 struct BottomSheetListItem: View {
     let title: String
-    let subtitle: String
+    let subTitle: String
     let cellTitle: String
     let hasChip: Bool
     
