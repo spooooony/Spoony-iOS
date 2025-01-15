@@ -28,7 +28,6 @@ struct PlaceCard: View {
                         Text(placeName)
                             .font(.body1b)
                         
-                    
                         // TODO: chip으로 대체
                         HStack(spacing: 4) {
                             Image(systemName: "mug.fill")

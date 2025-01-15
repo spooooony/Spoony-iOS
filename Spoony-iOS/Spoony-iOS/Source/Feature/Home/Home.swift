@@ -12,7 +12,6 @@ struct Home: View {
     @State private var searchText = ""
     @State private var selectedPlace: Bool = true
     
-    // 샘플 데이터 업데이트 - subTitle과 description 추가
     let samplePlaces = [
         CardPlace(
             name: "파오리",
@@ -45,11 +44,9 @@ struct Home: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            // 지도 뷰
             NMapView()
                 .edgesIgnoringSafeArea(.all)
             
-            // 상단 검색바와 PlaceCards
             VStack {
                 CustomNavigationBar(
                     style: .search(showBackButton: false),
@@ -60,13 +57,14 @@ struct Home: View {
                 )
                 .padding(.top, 44)
                 
+                Spacer()
+                
                 if selectedPlace {
                     PlaceCardsContainer(places: samplePlaces)
-                        .padding(.top, 8)
+                        .padding(.bottom, 4)
                 }
-                
-                Spacer()
             }
+            .safeAreaInset(edge: .bottom) { Color.clear.frame(height: 0) }
         }
     }
 }

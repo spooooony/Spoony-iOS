@@ -59,37 +59,3 @@ struct PlaceImagesLayout: View {
     }
 }
 
-
-
-
-#Preview {
-    PlaceCardsContainer(places: [
-        CardPlace(
-            name: "스타벅스",
-            visitorCount: "45",
-            address: "서울특별시 마포구 어울마당로",
-            images: ["testImage1", "testImage2", "testImage3"],
-            title: "클레오가트라",
-            subTitle: "성동구 수제",
-            description: "포켓몬 중 하나의 이름을 가졌지만 카페에요"
-        ),
-        CardPlace(
-            name: "스타벅스",
-            visitorCount: "45",
-            address: "서울특별시 마포구 어울마당로",
-            images: ["testImage1", "testImage2", "testImage3"],
-            title: "클레오가트라",
-            subTitle: "성동구 수제",
-            description: "포켓몬 중 하나의 이름을 가졌지만 카페에요"
-        ),
-        CardPlace(
-            name: "스타벅스",
-            visitorCount: "45",
-            address: "서울특별시 마포구 어울마당로",
-            images: ["testImage1", "testImage2", "testImage3"],
-            title: "클레오가트라",
-            subTitle: "성동구 수제",
-            description: "포켓몬 중 하나의 이름을 가졌지만 카페에요"
-        )
-    ])
-}
