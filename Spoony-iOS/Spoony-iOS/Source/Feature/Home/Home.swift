@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct Home: View {
-    @EnvironmentObject private var navigationManager: NavigationManager
-    @State private var searchText = ""
     @State private var selectedPlace: Bool = true
     @State private var currentPage = 0
     

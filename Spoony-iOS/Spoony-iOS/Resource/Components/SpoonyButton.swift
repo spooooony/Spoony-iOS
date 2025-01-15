@@ -95,12 +95,13 @@ public enum SpoonyButtonSize {
     case medium
     case small
     case xsmall
+    case bottomSheet
     
     var font: Font {
         switch self {
         case .xlarge:
             return .body1b
-        case .large, .medium, .small, .xsmall:
+        case .large, .medium, .small, .xsmall, .bottomSheet:
             return .body2b
         }
     }
@@ -109,14 +110,14 @@ public enum SpoonyButtonSize {
         switch self {
         case .xlarge:
             return 8
-        case .large, .medium, .small, .xsmall:
+        case .large, .medium, .small, .xsmall, .bottomSheet:
             return 10
         }
     }
     
     var width: CGFloat {
         switch self {
-        case .xlarge:
+        case .xlarge, .bottomSheet:
             return 335.adjusted
         case .large:
             return 295.adjusted
@@ -131,7 +132,7 @@ public enum SpoonyButtonSize {
     
     var height: CGFloat {
         switch self {
-        case .xlarge, .large, .medium, .small:
+        case .xlarge, .bottomSheet, .large, .medium, .small:
             return 56.adjustedH
         case .xsmall:
             return 44.adjustedH
@@ -144,6 +145,8 @@ public enum SpoonyButtonStyle {
     case primary
     case secondary
     case teritary
+    case activate
+    case deactivate
     
     var enabledColor: Color {
         switch self {
@@ -151,8 +154,11 @@ public enum SpoonyButtonStyle {
             return .main400
         case .secondary:
             return .spoonBlack
-        case .teritary:
+        case .teritary, .activate:
             return .gray0
+        case .deactivate:
+            return .white
+            
         }
     }
     
@@ -164,6 +170,10 @@ public enum SpoonyButtonStyle {
             return .gray800
         case .teritary:
             return .gray100
+        case .activate:
+            return .gray0
+        case .deactivate:
+            return .white
         }
     }
     
@@ -175,6 +185,10 @@ public enum SpoonyButtonStyle {
             return .gray300
         case .teritary:
             return .gray100
+        case .activate:
+            return .gray0
+        case .deactivate:
+            return .white
         }
     }
     
@@ -184,6 +198,10 @@ public enum SpoonyButtonStyle {
             return .white
         case .teritary:
             return .gray600
+        case .activate:
+            return .gray900
+        case .deactivate:
+            return .gray400
         }
     }
     
@@ -193,7 +211,7 @@ public enum SpoonyButtonStyle {
             return Image(.icSpoonPrimary)
         case .secondary:
             return Image(.icSpoonSecondary)
-        case .teritary:
+        case .teritary, .activate, .deactivate:
             return nil
         }
     }
