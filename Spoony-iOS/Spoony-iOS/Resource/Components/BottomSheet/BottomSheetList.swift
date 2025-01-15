@@ -48,7 +48,7 @@ struct BottomSheetListItem: View {
                     )
             }
             .layoutPriority(1)
-
+            
             //Todo: 실제 이미지로 교체
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color.gray.opacity(0.1))
@@ -89,7 +89,7 @@ struct BottomSheetListView: View {
     }
     
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             VStack(spacing: 0) {
                 // 핸들바 영역
                 VStack(spacing: 8) {
@@ -123,17 +123,17 @@ struct BottomSheetListView: View {
                                                 firstItemFrame = itemGeometry.frame(in: .named("scrollView"))
                                             }
                                         }
-                                        .onChange(of: itemGeometry.frame(in: .named("scrollView"))) { frame in
+                                        .onChange(of: itemGeometry.frame(in: .named("scrollView"))) { _, newFrame in
                                             if index == 0 {
-                                                firstItemFrame = frame
+                                                firstItemFrame = newFrame
                                                 
                                                 // 첫 번째 셀의 위치에 따라 바텀시트 상태 변경
                                                 let threshold: CGFloat = -30
-                                                if frame.minY < threshold && currentStyle == .half {
+                                                if newFrame.minY < threshold && currentStyle == .half {
                                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                                         currentStyle = .full
                                                     }
-                                                } else if frame.minY > threshold && currentStyle == .full {
+                                                } else if newFrame.minY > threshold && currentStyle == .full {
                                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                                         currentStyle = .half
                                                     }
@@ -145,8 +145,7 @@ struct BottomSheetListView: View {
                                 Divider()
                             }
                         }
-                        // 탭바 높이 + 추가 여백만큼 패딩 추가
-                        Color.clear.frame(height: 83) // 탭바 높이(49) + 추가 여백(34)
+                        Color.clear.frame(height: 90)
                     }
                 }
                 .coordinateSpace(name: "scrollView")
