@@ -15,6 +15,7 @@ struct Explore: View {
     @State private var isPresentedFilter: Bool = false
     
     @State private var selectedLocation: SeoulType?
+    @State private var selectedFilter: FilterType = .latest
     
     private var navigationTitle: String {
         if let selectedLocation {
@@ -43,12 +44,18 @@ struct Explore: View {
             }
         }
         .sheet(isPresented: $isPresentedFilter) {
-            FilterBottomSheet(isPresented: $isPresentedFilter)
+            FilterBottomSheet(
+                isPresented: $isPresentedFilter,
+                selectedFilter: $selectedFilter
+            )
                 .presentationDetents([.height(264.adjustedH)])
                 .presentationCornerRadius(16)
         }
         .sheet(isPresented: $isPresentedLocation) {
-            LocationPickerBottomSheet(isPresented: $isPresentedLocation, selectedRegion: $selectedLocation)
+            LocationPickerBottomSheet(
+                isPresented: $isPresentedLocation,
+                selectedRegion: $selectedLocation
+            )
                 .presentationDetents([.height(542.adjustedH)])
                 .presentationCornerRadius(16)
         }
@@ -76,7 +83,7 @@ extension Explore {
     private var filterButton: some View {
         HStack(spacing: 2) {
             Spacer()
-            Text("최신순")
+            Text(selectedFilter.title)
                 .font(.caption1m)
                 .foregroundStyle(.gray700)
             Image(.icFilterGray700)
@@ -100,7 +107,12 @@ extension Explore {
                 .foregroundStyle(.gray500)
                 .padding(.top, 30)
             
-            SpoonyButton(style: .secondary, size: .xsmall, title: "등록하러 가기", disabled: .constant(false)) {
+            SpoonyButton(
+                style: .secondary,
+                size: .xsmall,
+                title: "등록하러 가기",
+                disabled: .constant(false)
+            ) {
                 
             }
             .padding(.top, 18)
