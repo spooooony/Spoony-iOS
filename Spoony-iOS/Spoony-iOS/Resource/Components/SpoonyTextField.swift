@@ -21,38 +21,28 @@ public struct SpoonyTextField: View {
     
     let placeholder: String
     let style: SpoonyTextFieldStyle
-    var action: () -> Void
+    var action: (() -> Void)?
     
     // MARK: - Init
     public init(
         placeholder: String,
         style: SpoonyTextFieldStyle,
         text: Binding<String>,
-        action: @escaping () -> Void
+        action: (() -> Void)? = nil
     ) {
         self.placeholder = placeholder
         self.style = style
         self._text = text
         self.action = action
     }
-        
+    
     // MARK: - Body
     public var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             customTextField
             
-            if errorState != .noError  && style == .count {
-                if let message = errorState.errorMessage {
-                    HStack(spacing: 6) {
-                        Image(.icErrorRed)
-                            .resizable()
-                            .frame(width: 16.adjusted, height: 16.adjusted)
-                        
-                        Text("\(message)")
-                            .font(.caption1m)
-                            .foregroundStyle(.error400)
-                    }
-                }
+            if let message = errorState.errorMessage, isErrorMessageVisible() {
+                errorMessageView(message)
             }
         }
     }
@@ -62,13 +52,21 @@ extension SpoonyTextField {
     
     // MARK: - customTextField
     private var customTextField: some View {
-        HStack(spacing: 8) {
-            if style.isLeadingIcon {
-                if let icon = style.leadingIcon {
-                    Image(icon)
-                        .resizable()
-                        .frame(width: 20.adjusted, height: 20.adjusted)
-                }
+        let borderColor: Color = {
+            if errorState != .noError, style == .count {
+                return .error400
+            } else if isFocused, style.isBorder {
+                return .main400
+            } else {
+                return .gray100
+            }
+        }()
+        
+        return HStack(spacing: 8) {
+            if let icon = style.leadingIcon, style.isLeadingIcon {
+                Image(icon)
+                    .resizable()
+                    .frame(width: 20.adjusted, height: 20.adjusted)
             }
             
             TextField(text: $text) {
@@ -76,6 +74,9 @@ extension SpoonyTextField {
                     .font(.body2m)
                     .foregroundStyle(.gray500)
             }
+            .autocapitalization(.none) 
+            .autocorrectionDisabled()
+            .focused($isFocused)
             .font(.body2m)
             .foregroundStyle(.gray900)
             .onChange(of: text) { oldValue, newValue in
@@ -93,28 +94,37 @@ extension SpoonyTextField {
                     }
                 }
             }
+            .onChange(of: isFocused) { _, newValue in
+                if !newValue, errorState == .maximumInputError {
+                    errorState = .noError
+                }
+            }
             
             if style.isTrailingItem {
                 switch style {
                 case .normal:
                     Button {
-                        action()
+                        if let action = action {
+                            action()
+                        }
                     } label: {
-                        if let icon = style.trailingIcon {
+                        if let icon = style.trailingIcon,
+                           let size = style.iconSize {
                             Image(icon)
                                 .resizable()
-                                .frame(width: style.iconSize, height: style.iconSize)
+                                .frame(width: size, height: size)
                         }
                     }
                 case .icon:
                     if isFocused {
                         Button {
-                            action()
+                            text = ""
                         } label: {
-                            if let icon = style.trailingIcon {
+                            if let icon = style.trailingIcon,
+                               let size = style.iconSize {
                                 Image(icon)
                                     .resizable()
-                                    .frame(width: style.iconSize, height: style.iconSize)
+                                    .frame(width: size, height: size)
                             }
                         }
                     }
@@ -126,11 +136,23 @@ extension SpoonyTextField {
             }
         }
         .padding(.horizontal, style.interSpacing)
-        .frame(width: 335.adjusted, height: 44.adjusted)
-        .focused($isFocused)
+        .frame(width: 335.adjusted, height: 44.adjustedH)
         .background {
             RoundedRectangle(cornerRadius: 8)
-                .stroke(isFocused && style.isBorder ? .main400 : .gray100, lineWidth: 1)
+                .stroke(borderColor, lineWidth: 1)
+        }
+    }
+    
+    // MARK: - errorMessageView
+    private func errorMessageView(_ message: String) -> some View {
+        HStack(spacing: 6) {
+            Image(.icErrorRed)
+                .resizable()
+                .frame(width: 16.adjusted, height: 16.adjustedH)
+            
+            Text("\(message)")
+                .font(.caption1m)
+                .foregroundStyle(.error400)
         }
     }
 }
@@ -141,7 +163,7 @@ extension SpoonyTextField {
         let trimmedText = text.replacingOccurrences(of: " ", with: "")
         let regex = "^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣\\x20\\p{P}]*$"
         let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
-
+        
         if !predicate.evaluate(with: input) {
             return .invalidInputError
         }
@@ -150,11 +172,18 @@ extension SpoonyTextField {
             return .minimumInputError
         } else if input.count > 30 {
             return .maximumInputError
-        } else if input.count == 30 && errorState == .maximumInputError {
+        } else if input.count == 30, errorState == .maximumInputError {
             return .maximumInputError
         } else {
             return .noError
         }
+    }
+    
+    private func isErrorMessageVisible() -> Bool {
+        guard errorState != .noError, style == .count else {
+            return false
+        }
+        return (errorState == .maximumInputError && isFocused) || errorState == .minimumInputError
     }
 }
 
