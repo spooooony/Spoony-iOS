@@ -21,6 +21,7 @@ struct CardPlace: Identifiable {
 // 이미지 레이아웃 컴포넌트
 struct PlaceImagesLayout: View {
     let images: [String]
+    let containerHeight: CGFloat
     
     var body: some View {
         HStack(spacing: 1) {
@@ -30,7 +31,7 @@ struct PlaceImagesLayout: View {
                     .resizable()
                     .scaledToFill()
                     .frame(maxWidth: .infinity)
-                    .frame(height: 132)
+                    .frame(height: containerHeight * 0.35) // 이미지 높이를 컨테이너의 35%로 설정
                     .clipShape(RoundedCorner(radius: 12, corners: [.topLeft, .topRight]))
                 
             case 2:
@@ -39,7 +40,7 @@ struct PlaceImagesLayout: View {
                         .resizable()
                         .scaledToFill()
                         .frame(maxWidth: .infinity)
-                        .frame(height: 132)
+                        .frame(height: containerHeight * 0.35)
                         .clipShape(
                             RoundedCorner(
                                 radius: 12,
@@ -54,7 +55,7 @@ struct PlaceImagesLayout: View {
                         .resizable()
                         .scaledToFill()
                         .frame(maxWidth: .infinity)
-                        .frame(height: 132)
+                        .frame(height: containerHeight * 0.35)
                         .clipShape(
                             RoundedCorner(
                                 radius: 12,
@@ -80,60 +81,63 @@ struct PlaceCard: View {
     let description: String
     
     var body: some View {
-        VStack(spacing: 0) {
-            PlaceImagesLayout(images: images)
+        GeometryReader { geometry in
+            let containerHeight = geometry.size.height
             
-            VStack(alignment: .leading) {
-                HStack(spacing: 6) {
-                    
-                    Text(placeName)
-                        .font(.body1b)
-                    
-                    // TODO: 칩으로 대체
-                    HStack(spacing: 4) {
-                        Image(systemName: "mug.fill")
-                            .font(.system(size: 12))
-                        Text("카페")
-                            .font(.system(size: 14.5))
-                    }
-                    .foregroundColor(.pink400)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 4)
-                    .background(Color.pink400.opacity(0.1))
-                    .cornerRadius(16)
-                    
-                    Spacer()
-                    HStack(spacing: 4) {
-                        Image(.icAddmapGray400)
-                        Text(visitorCount)
-                            .font(.caption2b)
+            VStack(spacing: 0) {
+                PlaceImagesLayout(images: images, containerHeight: containerHeight)
+                
+                VStack(alignment: .leading) {
+                    HStack(spacing: 6) {
+                        Text(placeName)
+                            .font(.body1b)
+                        
+                        HStack(spacing: 4) {
+                            Image(systemName: "mug.fill")
+                                .font(.system(size: containerHeight * 0.032))
+                            Text("카페")
+                                .font(.system(size: containerHeight * 0.038))
+                        }
+                        .foregroundColor(.pink400)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 4)
+                        .background(Color.pink400.opacity(0.1))
+                        .cornerRadius(16)
+                        
+                        Spacer()
+                        HStack(spacing: 4) {
+                            Image(.icAddmapGray400)
+                            Text(visitorCount)
+                                .font(.caption2b)
+                        }
                     }
                 }
-            }
-            .padding(15)
-            
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text(title)
-                        .font(.body2b)
-                    Text(subTitle)
+                .padding(containerHeight * 0.04)
+                
+                VStack(alignment: .leading, spacing: containerHeight * 0.016) {
+                    HStack {
+                        Text(title)
+                            .font(.body2b)
+                        Text(subTitle)
+                            .font(.caption1m)
+                            .foregroundColor(.gray600)
+                    }
+                    Text(description)
                         .font(.caption1m)
-                        .foregroundColor(.gray600)
-                    
+                        .foregroundColor(.spoonBlack)
                 }
-                Text(description)
-                    .font(.caption1m)
-                    .foregroundColor(.spoonBlack)
+                .padding(containerHeight * 0.04)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.gray0)
+                .cornerRadius(10)
+                .padding(.horizontal, containerHeight * 0.04)
+                .padding(.bottom, containerHeight * 0.04)
+                
+                Spacer()
             }
-            .padding(15)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.gray0)
-            .cornerRadius(10)
-            .padding(.horizontal, 15)
-            .padding(.bottom, 15)
+            .background(Color.white)
+            .cornerRadius(16)
         }
-        .background(Color.white)
-        .cornerRadius(16)
     }
 }
 
@@ -142,37 +146,42 @@ struct PlaceCardsContainer: View {
     @State private var currentPage = 0
     
     var body: some View {
-        VStack(spacing: 0) {
-            TabView(selection: $currentPage) {
-                ForEach(Array(places.enumerated()), id: \.element.id) { index, place in
-                    PlaceCard(
-                        placeName: place.name,
-                        visitorCount: place.visitorCount,
-                        address: place.address,
-                        images: place.images,
-                        title: place.title,
-                        subTitle: place.subTitle,
-                        description: place.description
-                    )
-                    .padding(.horizontal, 16)
-                    .tag(index)
-                }
-            }
-            .frame(minHeight: 350)  // 최소 높이 설정
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+        GeometryReader { geometry in
+            let screenHeight = UIScreen.main.bounds.height
+            let containerHeight = screenHeight * (240/812) // 화면 높이의 240/812 비율로 설정
             
-            // 페이지 인디케이터
-            HStack(spacing: 8) {
-                ForEach(0..<places.count, id: \.self) { index in
-                    Circle()
-                        .fill(currentPage == index ? Color.spoonBlack : Color.gray500)
-                        .frame(width: 6, height: 6)
+            VStack(spacing: 0) {
+                TabView(selection: $currentPage) {
+                    ForEach(Array(places.enumerated()), id: \.element.id) { index, place in
+                        PlaceCard(
+                            placeName: place.name,
+                            visitorCount: place.visitorCount,
+                            address: place.address,
+                            images: place.images,
+                            title: place.title,
+                            subTitle: place.subTitle,
+                            description: place.description
+                        )
+                        .padding(.horizontal, 26)
+                        .frame(height: containerHeight)
+                        .tag(index)
+                    }
                 }
+                .frame(height: containerHeight)
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                
+                HStack(spacing: 8) {
+                    ForEach(0..<places.count, id: \.self) { index in
+                        Circle()
+                            .fill(currentPage == index ? Color.spoonBlack : Color.gray500)
+                            .frame(width: 6, height: 6)
+                    }
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(Color.gray200)
+                .cornerRadius(48)
             }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
-            .background(Color.gray200)
-            .cornerRadius(48)
         }
     }
 }
