@@ -24,7 +24,7 @@ struct LogoChip: View {
             Image(type == .large ? .imageSpoonLarge : .imageSpoonSmall)
                 .resizable()
                 .scaledToFit()
-                .frame(width: type == .large ? 24 : 20)
+                .frame(width: type == .large ? 24.adjusted : 20.adjusted)
         }
         .padding(.top, 4)
         .padding(.bottom, type == .large ? 5 : 4)
