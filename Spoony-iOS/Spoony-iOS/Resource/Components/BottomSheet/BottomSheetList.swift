@@ -132,7 +132,7 @@ struct BottomSheetListView: View {
             .offset(y: UIScreen.main.bounds.height - currentStyle.height + offset)
             .gesture(
                 DragGesture()
-                    .updating($isDragging) { value, state, _ in
+                    .updating($isDragging) { _, state, _ in
                         state = true
                     }
                     .onChanged { value in
