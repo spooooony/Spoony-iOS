@@ -13,7 +13,7 @@ struct CardPlace: Identifiable {
     let name: String
     let visitorCount: String
     let address: String
-    let images: [String] // 이미지 배열 추가
+    let images: [String] 
 }
 
 // 이미지 레이아웃 컴포넌트
@@ -21,46 +21,49 @@ struct PlaceImagesLayout: View {
     let images: [String]
     
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 1) {
             switch images.count {
             case 1:
-                // 첫 번째 카드: 하나의 큰 이미지
+                // 하나의 이미지일 때 전체 너비
                 Image(images[0])
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 248, height: 120)
-                    .clipped()
-                    .cornerRadius(8)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 132)
+                    .clipShape(RoundedCorner(radius: 16, corners: [.topLeft, .topRight]))
+
                 
             case 2:
-                // 두 번째 카드: 두 개의 이미지
+                // 두 개의 이미지일 때 반반 너비
                 ForEach(0..<2, id: \.self) { index in
                     Image(images[index])
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 120, height: 120)
-                        .clipped()
-                        .cornerRadius(8)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 132)
+                        .clipShape(
+                            RoundedCorner(
+                                radius: 16,
+                                corners: index == 0 ? [.topLeft] : [.topRight]
+                            )
+                        )
                 }
                 
             case 3...:
-                // 세 번째 카드: 세 개의 이미지
+                // 세 개의 이미지일 때 1:1:1 비율
                 ForEach(0..<3, id: \.self) { index in
                     Image(images[index])
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 80, height: 120)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 132)
                         .clipped()
-                        .cornerRadius(8)
                 }
                 
             default:
                 EmptyView()
             }
-            
-            Spacer()
         }
-        .padding(.horizontal, 16)
     }
 }
 
@@ -75,7 +78,7 @@ struct PlaceCard: View {
         VStack(spacing: 0) {
             // 이미지 영역
             PlaceImagesLayout(images: images)
-                .padding(.top, 16)
+
             
             // 장소 정보
             VStack(alignment: .leading, spacing: 4) {
@@ -127,7 +130,7 @@ struct PlaceCardsContainer: View {
                     .tag(index)
                 }
             }
-            .frame(height: 200)
+            .frame(height: 240)
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             
             // 페이지 인디케이터
