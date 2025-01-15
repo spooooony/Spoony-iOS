@@ -48,7 +48,7 @@ struct PlaceImagesLayout: View {
                         )
                 }
                 
-            case 3...:
+            case 3:
                 ForEach(0..<3, id: \.self) { index in
                     Image(images[index])
                         .resizable()
@@ -70,7 +70,6 @@ struct PlaceImagesLayout: View {
     }
 }
 
-
 struct PlaceCard: View {
     let placeName: String
     let visitorCount: String
@@ -82,24 +81,20 @@ struct PlaceCard: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // 이미지 영역
             PlaceImagesLayout(images: images)
             
-            // 장소 정보
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 8) {
-                    // 매장명
-                    Text(placeName)
-                        .font(.system(size: 18))
-                        .foregroundColor(.black)
-                        .fontWeight(.semibold)
+            VStack(alignment: .leading) {
+                HStack(spacing: 6) {
                     
-                    // 카페 태그
+                    Text(placeName)
+                        .font(.body1b)
+                    
+                    // TODO: 칩으로 대체
                     HStack(spacing: 4) {
                         Image(systemName: "mug.fill")
                             .font(.system(size: 12))
                         Text("카페")
-                            .font(.system(size: 14))
+                            .font(.system(size: 14.5))
                     }
                     .foregroundColor(.pink400)
                     .padding(.horizontal, 12)
@@ -108,49 +103,37 @@ struct PlaceCard: View {
                     .cornerRadius(16)
                     
                     Spacer()
-                    
-                    // 방문객 수
                     HStack(spacing: 4) {
-                        Image(systemName: "mappin.circle.fill")
+                        Image(.icAddmapGray400)
                         Text(visitorCount)
+                            .font(.caption2b)
                     }
-                    .foregroundColor(Color.gray)
-                    .font(.system(size: 16))
                 }
-                
-                // 주소
-                Text(address)
-                    .font(.system(size: 16))
-                    .foregroundColor(Color.gray)
             }
-            .padding(.leading, 10)
-            .padding(.trailing, 10)
-            .padding(.vertical, 10)
+            .padding(15)
             
-            // 추가 정보 박스
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text(title)
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.body2b)
                     Text(subTitle)
-                        .font(.system(size: 16))
+                        .font(.caption1m)
                         .foregroundColor(.gray600)
+                    
                 }
                 Text(description)
-                    .font(.system(size: 16))
-                    .foregroundColor(.gray600)
+                    .font(.caption1m)
+                    .foregroundColor(.spoonBlack)
             }
-            .padding(10)
+            .padding(15)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.gray100)
-            .cornerRadius(8)
-            .padding(.horizontal, 10)
-            .padding(.bottom, 10)
-            
+            .background(Color.gray0)
+            .cornerRadius(10)
+            .padding(.horizontal, 15)
+            .padding(.bottom, 15)
         }
         .background(Color.white)
         .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 2)
     }
 }
 
@@ -182,11 +165,14 @@ struct PlaceCardsContainer: View {
             HStack(spacing: 8) {
                 ForEach(0..<places.count, id: \.self) { index in
                     Circle()
-                        .fill(currentPage == index ? Color.black : Color.gray.opacity(0.3))
+                        .fill(currentPage == index ? Color.spoonBlack : Color.gray500)
                         .frame(width: 6, height: 6)
                 }
             }
-            .padding(.top, 12)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .background(Color.gray200)
+            .cornerRadius(48)
         }
     }
 }
