@@ -14,22 +14,23 @@ import SwiftUI
 public struct SpoonyTextEditor: View {
     
     // MARK: - Properties
-    @State var errorState: TextEditorErrorState = .noError
-    @Binding var text: String
+    @State private var errorState: TextEditorErrorState = .noError
     @FocusState private var isFocused
+    @Binding var text: String
     
-    let placeholder: String
-    let style: SpoonyTextEditorStyle
+    private let placeholder: String
+    private let style: SpoonyTextEditorStyle
     
     // MARK: - Init
     public init(
         text: Binding<String>,
-        placeholder: String,
-        style: SpoonyTextEditorStyle
+        style: SpoonyTextEditorStyle,
+        placeholder: String
+        
     ) {
         self._text = text
-        self.placeholder = placeholder
         self.style = style
+        self.placeholder = placeholder
     }
     
     // MARK: - Body
@@ -63,20 +64,19 @@ extension SpoonyTextEditor {
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
                 .focused($isFocused)
-                .font(.body2m)
-                .background(.red)
+                .font(.body2m)                
                 .overlay(alignment: .topLeading) {
                     Text("\(placeholder)")
                         .font(.body2m)
                         .foregroundStyle(text.isEmpty ? .gray500 : .clear)
                         .offset(x: 5.adjusted, y: 8.adjustedH)
                 }
-                .onChange(of: text) { _, newValue in
+                .onChange(of: text) { oldValue, newValue in
                     switch checkInputError(newValue) {
-                    case .maximumInputError(style: let style):
+                    case .maximumInputError(let style):
                         errorState = .maximumInputError(style: style)
                         text = String(newValue.prefix(style.maximumInput))
-                    case .minimumInputError(style: let style):
+                    case .minimumInputError(let style):
                         errorState = .minimumInputError(style: style)
                     case .noError:
                         errorState = .noError
@@ -121,33 +121,19 @@ extension SpoonyTextEditor {
 extension SpoonyTextEditor {
     private func checkInputError(_ input: String) -> TextEditorErrorState {
         let trimmedText = text.replacingOccurrences(of: " ", with: "")
-        
-        switch style {
-        case .review:
-            if input.count < style.minimumInput {
-                return .minimumInputError(style: .review)
-            } else if input.count > style.maximumInput {
-                return .maximumInputError(style: .review)
-            } else if errorState == .maximumInputError(style: .review),
-                      input.count == style.maximumInput {
-                return .maximumInputError(style: .review)
-            } else {
-                return .noError
-            }
-        case .report:
-            if trimmedText.count < style.minimumInput {
-                return .minimumInputError(style: .report)
-            } else if input.count > style.maximumInput {
-                return .maximumInputError(style: .report)
-            } else if errorState == .maximumInputError(style: .report),
-                      input.count == style.maximumInput {
-                return .maximumInputError(style: .report)
-            } else {
-                return .noError
-            }
-        }
-    }
+        let currentInputLength = style == .report ? trimmedText.count : input.count
 
+         if currentInputLength < style.minimumInput {
+             return .minimumInputError(style: style)
+         } else if input.count > style.maximumInput {
+             return .maximumInputError(style: style)
+         } else if errorState == .maximumInputError(style: style),
+                   input.count == style.maximumInput {
+             return .maximumInputError(style: style)
+         } else {
+             return .noError
+         }
+    }
 }
 
 // MARK: - SpoonyTextEditorStyle
@@ -183,10 +169,7 @@ public enum TextEditorErrorState: Equatable {
     var errorMessage: String? {
         switch self {
         case .maximumInputError(let style):
-            switch style {
-            default:
-                return "글자 수 \(style.maximumInput)자 이하로 입력해 주세요"
-            }
+            return "글자 수 \(style.maximumInput)자 이하로 입력해 주세요"
         case .minimumInputError(let style):
             switch style {
             case .review:

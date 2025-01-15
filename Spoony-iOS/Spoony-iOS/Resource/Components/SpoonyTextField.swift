@@ -15,24 +15,24 @@ import SwiftUI
 public struct SpoonyTextField: View {
     
     // MARK: - Properties
-    @State var errorState: TextFieldErrorState = .noError
-    @Binding var text: String
+    @State private var errorState: TextFieldErrorState = .noError
     @FocusState private var isFocused
+    @Binding var text: String
     
-    let placeholder: String
-    let style: SpoonyTextFieldStyle
+    private let placeholder: String
+    private let style: SpoonyTextFieldStyle
     var action: (() -> Void)?
     
     // MARK: - Init
     public init(
-        placeholder: String,
-        style: SpoonyTextFieldStyle,
         text: Binding<String>,
+        style: SpoonyTextFieldStyle,
+        placeholder: String,
         action: (() -> Void)? = nil
     ) {
-        self.placeholder = placeholder
-        self.style = style
         self._text = text
+        self.style = style
+        self.placeholder = placeholder
         self.action = action
     }
     
@@ -53,7 +53,7 @@ extension SpoonyTextField {
     // MARK: - customTextField
     private var customTextField: some View {
         let borderColor: Color = {
-            if errorState != .noError, style == .count {
+            if errorState != .noError, style == .helper {
                 return .error400
             } else if isFocused, style.isBorder {
                 return .main400
@@ -63,7 +63,7 @@ extension SpoonyTextField {
         }()
         
         return HStack(spacing: 8) {
-            if let icon = style.leadingIcon, style.isLeadingIcon {
+            if let icon = style.leadingIcon {
                 Image(icon)
                     .resizable()
                     .frame(width: 20.adjusted, height: 20.adjusted)
@@ -128,7 +128,7 @@ extension SpoonyTextField {
                             }
                         }
                     }
-                case .count:
+                case .helper:
                     Text("\(text.count) / 30")
                         .font(.caption1m)
                         .foregroundStyle(errorState != .noError ? .error400 : .gray500)
@@ -170,29 +170,28 @@ extension SpoonyTextField {
         
         if trimmedText.isEmpty {
             return .minimumInputError
-        } else if input.count > 30 {
-            return .maximumInputError
-        } else if input.count == 30, errorState == .maximumInputError {
-            return .maximumInputError
-        } else {
-            return .noError
         }
+        
+        if input.count > 30 || (input.count == 30 && errorState == .maximumInputError) {
+            return .maximumInputError
+        }
+        
+        return .noError
     }
     
     private func isErrorMessageVisible() -> Bool {
-        guard errorState != .noError, style == .count else {
+        guard errorState != .noError, style == .helper else {
             return false
         }
         return (errorState == .maximumInputError && isFocused) || errorState == .minimumInputError
     }
 }
 
-
 // MARK: - SpoonyTextFieldStyle
 public enum SpoonyTextFieldStyle: Equatable {
     case normal(isIcon: Bool)
     case icon
-    case count
+    case helper
     
     var iconSize: CGFloat? {
         switch self {
@@ -200,14 +199,14 @@ public enum SpoonyTextFieldStyle: Equatable {
             return 24.adjusted
         case .icon:
             return 20.adjusted
-        case .count:
+        case .helper:
             return nil
         }
     }
     
     var interSpacing: CGFloat {
         switch self {
-        case .normal, .count:
+        case .normal, .helper:
             return 12
         case .icon:
             return 16
@@ -216,7 +215,7 @@ public enum SpoonyTextFieldStyle: Equatable {
     
     var leadingIcon: String? {
         switch self {
-        case .normal, .count:
+        case .normal, .helper:
             return nil
         case .icon:
             return "ic_search_gray600"
@@ -229,25 +228,16 @@ public enum SpoonyTextFieldStyle: Equatable {
             return "ic_minus_gray400"
         case .icon:
             return "ic_delete_gray400"
-        case .count:
+        case .helper:
             return nil
         }
     }
     
     var isBorder: Bool {
         switch self {
-        case .normal, .count:
+        case .normal, .helper:
             return true
         case .icon:
-            return false
-        }
-    }
-    
-    var isLeadingIcon: Bool {
-        switch self {
-        case .icon:
-            return true
-        case .normal, .count:
             return false
         }
     }
@@ -256,7 +246,7 @@ public enum SpoonyTextFieldStyle: Equatable {
         switch self {
         case .normal(let isIcon):
             return isIcon
-        case .icon, .count:
+        case .icon, .helper:
             return true
         }
     }
