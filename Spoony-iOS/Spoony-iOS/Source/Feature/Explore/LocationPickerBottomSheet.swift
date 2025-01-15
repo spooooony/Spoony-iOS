@@ -127,6 +127,7 @@ struct LocationPickerBottomSheet: View {
         .onAppear {
             if let selectedRegion {
                 tempRegion = selectedRegion
+                isDisabled = false
             }
         }
     }
