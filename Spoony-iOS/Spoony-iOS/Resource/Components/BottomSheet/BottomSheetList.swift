@@ -145,7 +145,8 @@ struct BottomSheetListView: View {
                                 Divider()
                             }
                         }
-                        Color.clear.frame(height: 83)
+                        // 탭바 높이 + 추가 여백만큼 패딩 추가
+                        Color.clear.frame(height: 83) // 탭바 높이(49) + 추가 여백(34)
                     }
                 }
                 .coordinateSpace(name: "scrollView")
@@ -162,7 +163,13 @@ struct BottomSheetListView: View {
                     }
                     .onChanged { value in
                         let translation = value.translation.height
-                        offset = translation
+                        
+                        // full 상태에서는 위로 드래그 방지 (translation이 음수일 때)
+                        if currentStyle == .full && translation < 0 {
+                            offset = 0
+                        } else {
+                            offset = translation
+                        }
                     }
                     .onEnded { value in
                         let translation = value.translation.height
@@ -199,6 +206,7 @@ struct BottomSheetListView: View {
         }
     }
 }
+
 struct ScrollOffsetPreferenceKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
