@@ -12,7 +12,7 @@ struct PlaceCardsContainer: View {
     @State private var currentPage = 0
     
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 0) {
             TabView(selection: $currentPage) {
                 ForEach(Array(places.enumerated()), id: \.element.id) { index, place in
                     PlaceCard(
@@ -24,14 +24,14 @@ struct PlaceCardsContainer: View {
                         subTitle: place.subTitle,
                         description: place.description
                     )
-                    .padding(.horizontal, 26)
+                    .padding(.horizontal, 16)
                     .tag(index)
                 }
             }
-            .frame(height: UIScreen.main.bounds.height * (240/812))
+            .frame(minHeight: 350)
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             
-            // 인디케이터
+    
             HStack(spacing: 8) {
                 ForEach(0..<places.count, id: \.self) { index in
                     Circle()
