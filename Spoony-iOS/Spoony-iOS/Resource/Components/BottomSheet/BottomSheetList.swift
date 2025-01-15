@@ -31,7 +31,7 @@ struct BottomSheetListItem: View {
                     }
                 }
                 
-                Text(subtitle)
+                Text(subTitle)
                     .font(.caption1m)
                     .foregroundColor(.gray)
                     .lineLimit(1)
@@ -112,7 +112,7 @@ struct BottomSheetListView: View {
                         ForEach(0..<5) { _ in
                             BottomSheetListItem(
                                 title: "상호명",
-                                subtitle: "주소",
+                                subTitle: "주소",
                                 cellTitle: "제목 셀",
                                 hasChip: true
                             )
@@ -132,9 +132,13 @@ struct BottomSheetListView: View {
                         state = true
                     }
                     .onChanged { value in
-                        // 드래그 중일 때 오프셋 업데이트
                         let translation = value.translation.height
-                        offset = translation
+                        
+                        if currentStyle == .full && translation < 0 {
+                            offset = 0
+                        } else {
+                            offset = translation
+                        }
                     }
                     .onEnded { value in
                         let translation = value.translation.height
