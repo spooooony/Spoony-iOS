@@ -64,8 +64,9 @@ struct BottomSheetListView: View {
     @State private var currentStyle: BottomSheetStyle = .minimal
     @State private var offset: CGFloat = 0
     @GestureState private var isDragging: Bool = false
+    @State private var scrollOffset: CGFloat = 0
+    @State private var firstItemFrame: CGRect = .zero
     
-    // 각 상태별 높이값을 저장
     private var snapPoints: [CGFloat] {
         [
             BottomSheetStyle.minimal.height,
@@ -78,19 +79,17 @@ struct BottomSheetListView: View {
         let screenHeight = UIScreen.main.bounds.height
         let currentHeight = screenHeight - offset
         
-        // 현재 높이와 각 스냅 포인트와의 거리를 계산
         let distances = [
             (abs(currentHeight - BottomSheetStyle.minimal.height), BottomSheetStyle.minimal),
             (abs(currentHeight - BottomSheetStyle.half.height), BottomSheetStyle.half),
             (abs(currentHeight - BottomSheetStyle.full.height), BottomSheetStyle.full)
         ]
         
-        // 가장 가까운 스냅 포인트 반환
         return distances.min(by: { $0.0 < $1.0 })?.1 ?? .minimal
     }
     
     var body: some View {
-        GeometryReader { _ in
+        GeometryReader { geometry in
             VStack(spacing: 0) {
                 // 핸들바 영역
                 VStack(spacing: 8) {
@@ -107,19 +106,50 @@ struct BottomSheetListView: View {
                 .background(Color.white)
                 
                 // 컨텐츠 영역
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(0..<5) { _ in
-                            BottomSheetListItem(
-                                title: "상호명",
-                                subTitle: "주소",
-                                cellTitle: "제목 셀",
-                                hasChip: true
-                            )
-                            Divider()
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 0) {
+                        LazyVStack(spacing: 0) {
+                            ForEach(0..<20) { index in
+                                BottomSheetListItem(
+                                    title: "상호명",
+                                    subTitle: "주소",
+                                    cellTitle: "제목 셀",
+                                    hasChip: true
+                                )
+                                .background(
+                                    GeometryReader { itemGeometry in
+                                        Color.clear.onAppear {
+                                            if index == 0 {
+                                                firstItemFrame = itemGeometry.frame(in: .named("scrollView"))
+                                            }
+                                        }
+                                        .onChange(of: itemGeometry.frame(in: .named("scrollView"))) { frame in
+                                            if index == 0 {
+                                                firstItemFrame = frame
+                                                
+                                                // 첫 번째 셀의 위치에 따라 바텀시트 상태 변경
+                                                let threshold: CGFloat = -30
+                                                if frame.minY < threshold && currentStyle == .half {
+                                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                        currentStyle = .full
+                                                    }
+                                                } else if frame.minY > threshold && currentStyle == .full {
+                                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                        currentStyle = .half
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                )
+                                Divider()
+                            }
                         }
+                        // 탭바 높이만큼 추가 패딩
+                        Color.clear.frame(height: 49)
                     }
                 }
+                .coordinateSpace(name: "scrollView")
                 .disabled(currentStyle == .minimal)
             }
             .frame(maxHeight: .infinity)
@@ -133,12 +163,7 @@ struct BottomSheetListView: View {
                     }
                     .onChanged { value in
                         let translation = value.translation.height
-                        
-                        if currentStyle == .full && translation < 0 {
-                            offset = 0
-                        } else {
-                            offset = translation
-                        }
+                        offset = translation
                     }
                     .onEnded { value in
                         let translation = value.translation.height
@@ -166,7 +191,6 @@ struct BottomSheetListView: View {
                             currentStyle = getClosestSnapPoint(to: currentOffset)
                         }
                         
-                        // 오프셋 초기화
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                             offset = 0
                         }
@@ -176,7 +200,12 @@ struct BottomSheetListView: View {
         }
     }
 }
-
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
 #Preview {
     Home()
 }
