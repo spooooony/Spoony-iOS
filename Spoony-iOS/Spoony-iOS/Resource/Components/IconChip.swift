@@ -107,7 +107,7 @@ struct IconChip: View {
         HStack(spacing: 4) {
             Image(imageString)
                 .resizable()
-                .frame(width: 16, height: 16)
+                .frame(width: 16.adjusted, height: 16.adjustedH)
             Text(title)
                 .font(chipType == .large ? .body2sb : .caption1m)
                 .foregroundStyle(color.textColor)
