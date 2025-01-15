@@ -13,8 +13,8 @@ struct CardPlace: Identifiable {
     let visitorCount: String
     let address: String
     let images: [String]
-    let title: String      // 클레오가트라
-    let subTitle: String   // 성동구 수제
+    let title: String
+    let subTitle: String
     let description: String
 }
 
@@ -123,28 +123,30 @@ struct PlaceCard: View {
                     .font(.system(size: 16))
                     .foregroundColor(Color.gray)
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
+            .padding(.leading, 10)
+            .padding(.trailing, 10)
+            .padding(.vertical, 10)
             
             // 추가 정보 박스
-            VStack(alignment: .leading, spacing: 8) {
-                VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
                     Text(title)
                         .font(.system(size: 18, weight: .semibold))
                     Text(subTitle)
                         .font(.system(size: 16))
                         .foregroundColor(.gray600)
-                    Text(description)
-                        .font(.system(size: 16))
-                        .foregroundColor(.gray600)
                 }
-                .padding(16)
+                Text(description)
+                    .font(.system(size: 16))
+                    .foregroundColor(.gray600)
             }
-            .frame(maxWidth: .infinity)
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.gray100)
             .cornerRadius(8)
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
+            .padding(.horizontal, 10)
+            .padding(.bottom, 10)
+            
         }
         .background(Color.white)
         .cornerRadius(16)
