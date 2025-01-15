@@ -25,10 +25,10 @@ struct DetailView: View {
         
         ScrollView(.vertical) {
             VStack(spacing: 0) {
-                firstSection
-                secondSection
-                thirdSection
-                fourthSection
+                userProfileSection
+                ImageSection
+                ReviewSection
+                PlaceInfoSection
             }
         }
         
@@ -61,7 +61,7 @@ struct DetailView: View {
 }
 
 extension DetailView {
-    private var firstSection: some View {
+    private var userProfileSection: some View {
         
         HStack(spacing: 16.0) {
             
@@ -88,7 +88,7 @@ extension DetailView {
             .padding(.bottom, 24.adjustedH)
     }
     
-    private var secondSection: some View {
+    private var ImageSection: some View {
         
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 16) {
@@ -108,7 +108,7 @@ extension DetailView {
         }
     }
     
-    private var thirdSection: some View {
+    private var ReviewSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Rectangle()
                 .frame(width: 61, height: 24)
@@ -134,7 +134,7 @@ extension DetailView {
         .padding(.bottom, 32.adjustedH)
     }
     
-    private var fourthSection: some View {
+    private var PlaceInfoSection: some View {
         VStack(spacing: 0) {
             ZStack(alignment: .bottom) {
                 
@@ -143,7 +143,7 @@ extension DetailView {
                     .cornerRadius(20)
                     .foregroundStyle(.gray0)
                     .overlay {
-                        fifthSection
+                        menuInfo
                     }
                 Line()
                     .stroke(style: StrokeStyle(lineWidth: 1, dash: [8.adjustedH]))
@@ -157,12 +157,12 @@ extension DetailView {
                     .cornerRadius(20)
                     .foregroundStyle(.gray0)
                 
-                sixthSection
+                LocationInfo
             }
         }.padding(.horizontal, 20.adjusted)
     }
     
-    private var fifthSection: some View {
+    private var menuInfo: some View {
         HStack {
             VStack(alignment: .leading, spacing: 12.adjustedH) {
                 Text("Menu")
@@ -176,7 +176,7 @@ extension DetailView {
         }.padding(.leading, 16.adjusted)
     }
     
-    private var sixthSection: some View {
+    private var LocationInfo: some View {
         HStack {
             VStack(alignment: .leading, spacing: 12.adjustedH) {
                 Text("Location")
