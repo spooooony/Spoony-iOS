@@ -5,7 +5,6 @@
 //  Created by 이지훈 on 1/16/25.
 //
 
-
 import SwiftUI
 
 struct PageIndicator: View {
