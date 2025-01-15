@@ -4,6 +4,8 @@
 <dict>
 	<key>BASE_URL</key>
 	<string>${INFOPLIST_KEY_BASE_URL}</string>
+    <key>UIUserInterfaceStyle</key>
+    <string>Light</string>
 	<key>ClientSectet</key>
 	<string>$(ClientSecret)</string>
 	<key>NMFClientId</key>
