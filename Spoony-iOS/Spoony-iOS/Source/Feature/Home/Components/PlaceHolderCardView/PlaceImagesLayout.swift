@@ -87,5 +87,5 @@ struct PlaceImagesLayout: View {
             subTitle: "성동구 수제",
             description: "포켓몬 중 하나의 이름을 가졌지만 카페에요"
         )
-    ])
+    ], currentPage: .constant(0))
 }

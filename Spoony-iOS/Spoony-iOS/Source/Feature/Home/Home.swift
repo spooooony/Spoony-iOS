@@ -11,6 +11,7 @@ struct Home: View {
     @EnvironmentObject private var navigationManager: NavigationManager
     @State private var searchText = ""
     @State private var selectedPlace: Bool = true
+    @State private var currentPage = 0
     
     let samplePlaces = [
         CardPlace(
@@ -43,33 +44,37 @@ struct Home: View {
     ]
     
     var body: some View {
-        ZStack(alignment: .top) {
-            NMapView()
-                .edgesIgnoringSafeArea(.all)
-            
-            VStack {
-                CustomNavigationBar(
-                    style: .search(showBackButton: false),
-                    searchText: $searchText,
-                    onBackTapped: {},
-                    onSearchSubmit: nil,
-                    onLikeTapped: nil
-                )
-                .padding(.top, 44)
-                
-                Spacer()
-                
-                if selectedPlace {
-                    PlaceCardsContainer(places: samplePlaces)
-                        .padding(.bottom, 4)
-                }
-            }
-            .safeAreaInset(edge: .bottom) { Color.clear.frame(height: 0) }
-        }
-    }
-}
+           ZStack(alignment: .top) {
+               NMapView()
+                   .edgesIgnoringSafeArea(.all)
+               
+               VStack(spacing: 0) {
+                   CustomNavigationBar(
+                       style: .search(showBackButton: false),
+                       searchText: $searchText,
+                       onBackTapped: {},
+                       onSearchSubmit: nil,
+                       onLikeTapped: nil
+                   )
+                   
+                   if selectedPlace {
+                       ZStack { 
+                           VStack(spacing: 0) {
+                               Spacer()
+                               
+                               PlaceCardsContainer(places: samplePlaces, currentPage: $currentPage)
+                                   .padding(.bottom, 4)
+                               
+                               PageIndicator(currentPage: currentPage, pageCount: samplePlaces.count)
+                                   .padding(.bottom, 4)
+                           }
+                       }
+                   }
+               }
+           }
+       }
+   }
 
 #Preview {
     Home()
-        .environmentObject(NavigationManager())
 }
