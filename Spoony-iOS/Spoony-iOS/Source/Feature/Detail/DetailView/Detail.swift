@@ -8,23 +8,7 @@
 import SwiftUI
 
 struct Detail: View {
-    @State private var isPresented: Bool = false
-    
     var body: some View {
-        VStack {
-            Text("Detail")
-                .onTapGesture {
-                    isPresented = true
-                }
-        }
-        .sheet(isPresented: $isPresented) {
-            FilterBottomSheet(isPresented: $isPresented)
-                .presentationDetents([.height(264)])
-                .presentationCornerRadius(16)
-        }
+        Text("Detail")
     }
-}
-
-#Preview {
-    Detail()
 }
