@@ -7,13 +7,15 @@
 
 import SwiftUI
 
-// 데이터 모델
 struct CardPlace: Identifiable {
     let id = UUID()
     let name: String
     let visitorCount: String
     let address: String
-    let images: [String] 
+    let images: [String]
+    let title: String      // 클레오가트라
+    let subTitle: String   // 성동구 수제
+    let description: String
 }
 
 // 이미지 레이아웃 컴포넌트
@@ -24,17 +26,14 @@ struct PlaceImagesLayout: View {
         HStack(spacing: 1) {
             switch images.count {
             case 1:
-                // 하나의 이미지일 때 전체 너비
                 Image(images[0])
                     .resizable()
                     .scaledToFill()
                     .frame(maxWidth: .infinity)
                     .frame(height: 132)
-                    .clipShape(RoundedCorner(radius: 16, corners: [.topLeft, .topRight]))
-
+                    .clipShape(RoundedCorner(radius: 12, corners: [.topLeft, .topRight]))
                 
             case 2:
-                // 두 개의 이미지일 때 반반 너비
                 ForEach(0..<2, id: \.self) { index in
                     Image(images[index])
                         .resizable()
@@ -43,21 +42,25 @@ struct PlaceImagesLayout: View {
                         .frame(height: 132)
                         .clipShape(
                             RoundedCorner(
-                                radius: 16,
+                                radius: 12,
                                 corners: index == 0 ? [.topLeft] : [.topRight]
                             )
                         )
                 }
                 
             case 3...:
-                // 세 개의 이미지일 때 1:1:1 비율
                 ForEach(0..<3, id: \.self) { index in
                     Image(images[index])
                         .resizable()
                         .scaledToFill()
                         .frame(maxWidth: .infinity)
                         .frame(height: 132)
-                        .clipped()
+                        .clipShape(
+                            RoundedCorner(
+                                radius: 12,
+                                corners: index == 0 ? [.topLeft] : (index == 2 ? [.topRight] : [])
+                            )
+                        )
                 }
                 
             default:
@@ -67,42 +70,80 @@ struct PlaceImagesLayout: View {
     }
 }
 
-// 개별 카드 컴포넌트
+
 struct PlaceCard: View {
     let placeName: String
     let visitorCount: String
     let address: String
     let images: [String]
+    let title: String
+    let subTitle: String
+    let description: String
     
     var body: some View {
         VStack(spacing: 0) {
             // 이미지 영역
             PlaceImagesLayout(images: images)
-
             
             // 장소 정보
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    // 매장명
                     Text(placeName)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 18))
+                        .foregroundColor(.black)
+                        .fontWeight(.semibold)
                     
-                    Text(visitorCount)
-                        .font(.system(size: 14))
-                        .foregroundColor(.pink)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(Color.pink.opacity(0.1))
-                        .cornerRadius(12)
+                    // 카페 태그
+                    HStack(spacing: 4) {
+                        Image(systemName: "mug.fill")
+                            .font(.system(size: 12))
+                        Text("카페")
+                            .font(.system(size: 14))
+                    }
+                    .foregroundColor(.pink400)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(Color.pink400.opacity(0.1))
+                    .cornerRadius(16)
                     
                     Spacer()
+                    
+                    // 방문객 수
+                    HStack(spacing: 4) {
+                        Image(systemName: "mappin.circle.fill")
+                        Text(visitorCount)
+                    }
+                    .foregroundColor(Color.gray)
+                    .font(.system(size: 16))
                 }
                 
+                // 주소
                 Text(address)
-                    .font(.system(size: 14))
-                    .foregroundColor(.gray)
+                    .font(.system(size: 16))
+                    .foregroundColor(Color.gray)
             }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            
+            // 추가 정보 박스
+            VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(title)
+                        .font(.system(size: 18, weight: .semibold))
+                    Text(subTitle)
+                        .font(.system(size: 16))
+                        .foregroundColor(.gray600)
+                    Text(description)
+                        .font(.system(size: 16))
+                        .foregroundColor(.gray600)
+                }
+                .padding(16)
+            }
+            .frame(maxWidth: .infinity)
+            .background(Color.gray100)
+            .cornerRadius(8)
             .padding(.horizontal, 16)
-            .padding(.top, 12)
             .padding(.bottom, 16)
         }
         .background(Color.white)
@@ -111,7 +152,6 @@ struct PlaceCard: View {
     }
 }
 
-// 카드 컨테이너 컴포넌트
 struct PlaceCardsContainer: View {
     let places: [CardPlace]
     @State private var currentPage = 0
@@ -124,13 +164,16 @@ struct PlaceCardsContainer: View {
                         placeName: place.name,
                         visitorCount: place.visitorCount,
                         address: place.address,
-                        images: place.images
+                        images: place.images,
+                        title: place.title,
+                        subTitle: place.subTitle,
+                        description: place.description
                     )
                     .padding(.horizontal, 16)
                     .tag(index)
                 }
             }
-            .frame(height: 240)
+            .frame(minHeight: 350)  // 최소 높이 설정
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             
             // 페이지 인디케이터
@@ -149,22 +192,31 @@ struct PlaceCardsContainer: View {
 #Preview {
     PlaceCardsContainer(places: [
         CardPlace(
-            name: "파오리",
-            visitorCount: "21",
-            address: "서울특별시 마포구 와우산로",
-            images: ["testImage1"]
+            name: "스타벅스",
+            visitorCount: "45",
+            address: "서울특별시 마포구 어울마당로",
+            images: ["testImage1", "testImage2", "testImage3"],
+            title: "클레오가트라",
+            subTitle: "성동구 수제",
+            description: "포켓몬 중 하나의 이름을 가졌지만 카페에요"
         ),
         CardPlace(
             name: "스타벅스",
             visitorCount: "45",
             address: "서울특별시 마포구 어울마당로",
-            images: ["testImage1", "testImage2"]
+            images: ["testImage1", "testImage2", "testImage3"],
+            title: "클레오가트라",
+            subTitle: "성동구 수제",
+            description: "포켓몬 중 하나의 이름을 가졌지만 카페에요"
         ),
         CardPlace(
-            name: "블루보틀",
-            visitorCount: "33",
-            address: "서울특별시 마포구 성미산로",
-            images: ["testImage1", "testImage2", "testImage3"]
+            name: "스타벅스",
+            visitorCount: "45",
+            address: "서울특별시 마포구 어울마당로",
+            images: ["testImage1", "testImage2", "testImage3"],
+            title: "클레오가트라",
+            subTitle: "성동구 수제",
+            description: "포켓몬 중 하나의 이름을 가졌지만 카페에요"
         )
     ])
 }
