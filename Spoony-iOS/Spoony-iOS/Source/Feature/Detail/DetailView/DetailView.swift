@@ -10,12 +10,16 @@ import NMapsMap
 
 struct DetailView: View {
     
+    // MARK: - Properties
+    
     private let userImage = Image(.icCafeBlue)
     private let userName: String = "럭키 백희"
     private let placeAdress: String = "서울시 마포구 수저"
     
     private var searchName = "연남"
     private var appName: String = "Spoony"
+    
+    // MARK: - body
     
     var body: some View {
         
@@ -35,6 +39,8 @@ struct DetailView: View {
         bottomView
     }
 }
+
+// MARK: - SubViews
 
 extension DetailView {
     private var userProfileSection: some View {
@@ -72,11 +78,11 @@ extension DetailView {
                     Image(.imgFood)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 278)
+                        .frame(width: 278.adjusted)
                     //                        .blur(radius: 12)
                         .cornerRadius(11.16)
                 }
-                .frame(height: 278)
+                .frame(height: 278.adjustedH)
             }
             .padding(.leading, 20.adjusted)
             .padding(.trailing, 20.adjusted)
@@ -87,7 +93,7 @@ extension DetailView {
     private var ReviewSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Rectangle()
-                .frame(width: 61, height: 24)
+                .frame(width: 61.adjusted, height: 24.adjustedH)
                 .cornerRadius(12)
                 .foregroundStyle(.purple400)
             
@@ -129,7 +135,7 @@ extension DetailView {
             }
             ZStack {
                 Rectangle()
-                    .frame(height: 134)
+                    .frame(height: 134.adjustedH)
                     .cornerRadius(20)
                     .foregroundStyle(.gray0)
                 
@@ -163,7 +169,7 @@ extension DetailView {
                     Image(.icMapGray400)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 20, height: 20)
+                        .frame(width: 20.adjusted, height: 20.adjustedH)
                     
                     Text("주소")
                         .font(.body2m)
@@ -179,7 +185,7 @@ extension DetailView {
             Image(.icSpoonGray600)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 20, height: 20)
+                .frame(width: 20.adjusted, height: 20.adjustedH)
             Text("메뉴")
                 .font(.body2m)
             Spacer()
