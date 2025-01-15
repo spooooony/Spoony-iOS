@@ -17,17 +17,11 @@ struct SearchView: View {
                 style: .search(showBackButton: true),
                 searchText: $searchText,
                 onBackTapped: {
-                    // 뒤로가기
                     navigationManager.pop(1)
                 },
                 onSearchSubmit: nil
             )
-            
-            Spacer()
         }
+        .toolbar(.hidden, for: .tabBar)
     }
-}
-
-#Preview {
-    SearchView()
 }
