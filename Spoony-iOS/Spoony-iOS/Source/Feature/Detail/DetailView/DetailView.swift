@@ -139,17 +139,15 @@ extension DetailView {
     }
     
     private var menuInfo: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 12.adjustedH) {
-                Text("Menu")
-                    .font(.body1b)
-                    .foregroundStyle(.spoonBlack)
-                menuList
-                menuList
-                menuList
-            }
-            Spacer()
+        VStack(alignment: .leading, spacing: 12.adjustedH) {
+            Text("Menu")
+                .font(.body1b)
+                .foregroundStyle(.spoonBlack)
+            menuList
+            menuList
+            menuList
         }.padding(.leading, 16.adjusted)
+        
     }
     
     private var LocationInfo: some View {
@@ -184,6 +182,7 @@ extension DetailView {
                 .frame(width: 20, height: 20)
             Text("메뉴")
                 .font(.body2m)
+            Spacer()
         }
     }
     
