@@ -21,10 +21,11 @@ struct Home: View {
                     style: .search(showBackButton: false),
                     searchText: $searchText,
                     onBackTapped: {},
-                    onSearchSubmit: nil,
+                    onSearchSubmit: {
+                        navigationManager.push(.searchView)
+                    },
                     onLikeTapped: nil
                 )
-                .padding(.top, 44)
                 
                 Spacer()
             }
@@ -33,4 +34,9 @@ struct Home: View {
                 .ignoresSafeArea(.keyboard)
         }
     }
+}
+
+#Preview {
+    Home()
+        .environmentObject(NavigationManager())
 }

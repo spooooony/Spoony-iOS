@@ -22,7 +22,7 @@ final class NavigationManager: ObservableObject {
             Explore()
        
         case .searchView:
-            Home()
+            SearchView()
         case .locationView:
             Home()
 

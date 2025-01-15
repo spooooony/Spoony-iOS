@@ -33,29 +33,29 @@ struct CustomNavigationBar: View {
     }
     
     var body: some View {
-         ZStack {
-             if style.showsBackButton {
-                 backButton
-             }
-             
-             switch style {
-             case .primary:
-                 primaryContent
-             case .search:
-                 searchContent
-             case .locationDetail:
-                 locationDetailContent
-             case .locationTitle:
-                 locationTitleContent
-             case .detail(let isLiked):
-                 detailContent(isLiked: isLiked)
-             case .detailWithChip(let count):
-                 detailWithChipContent(count: count)
-             }
-         }
-         .frame(height: 56.adjusted)
-         .background(.white)
-     }
+        ZStack {
+            if style.showsBackButton {
+                backButton
+            }
+            
+            switch style {
+            case .primary:
+                primaryContent
+            case .search:
+                searchContent
+            case .locationDetail:
+                locationDetailContent
+            case .locationTitle:
+                locationTitleContent
+            case .detail(let isLiked):
+                detailContent(isLiked: isLiked)
+            case .detailWithChip(let count):
+                detailWithChipContent(count: count)
+            }
+        }
+        .frame(height: 56.adjusted)
+        .background(.clear)
+    }
     
     private var backButtonView: some View {
         Button(action: onBackTapped) {
@@ -70,7 +70,7 @@ struct CustomNavigationBar: View {
         }
         .padding(.horizontal, 16)
     }
-
+    
     private var primaryContent: some View {
         HStack {
             if !title.isEmpty {
@@ -80,37 +80,31 @@ struct CustomNavigationBar: View {
             Spacer()
         }
     }
-
+    
     private var searchContent: some View {
         HStack(spacing: 12) {
-            if style.showsBackButton {
-                backButtonView
-            }
+            LogoChip(type: .small, count: 10)
             
             HStack(spacing: 8) {
                 Image(.icSearchGray600)
                 
-                TextField("", text: $searchText)
-                    .frame(height: 44.adjusted)
-                    .placeholder(when: searchText.isEmpty) {
-                        Text("플레이스 홀더")
-                            .foregroundColor(Color(.gray600))
-                    }
-                
-                if !searchText.isEmpty {
-                    Button(action: { searchText = "" }) {
-                        Image(.icCloseGray400)
-                            .foregroundColor(Color(.gray600))
-                    }
-                }
+                Text("오늘은 어디서 먹어볼까요?")
+                    .foregroundColor(Color(.gray500))
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.horizontal, 12)
-            .background(Color.white)
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color(.gray600), lineWidth: 1)
+            .frame(height: 44.adjustedH)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color(.gray200), lineWidth: 1)
+                    )
             )
-            .frame(height: 44.adjusted)
+            .onTapGesture {
+                onSearchSubmit?()
+            }
         }
         .padding(.horizontal, 16)
     }
@@ -180,4 +174,8 @@ struct CustomNavigationBar: View {
         }
         .padding(.horizontal, 16)
     }
+}
+
+#Preview {
+    Home()
 }
