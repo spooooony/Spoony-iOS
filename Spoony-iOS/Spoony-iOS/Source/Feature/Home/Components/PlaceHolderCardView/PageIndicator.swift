@@ -16,7 +16,7 @@ struct PageIndicator: View {
             ForEach(0..<pageCount, id: \.self) { index in
                 Circle()
                     .fill(currentPage == index ? Color.spoonBlack : Color.gray500)
-                    .frame(width: 6, height: 6)
+                    .frame(width: 6.adjusted, height: 6.adjustedH)
             }
         }
         .padding(.vertical, 4)

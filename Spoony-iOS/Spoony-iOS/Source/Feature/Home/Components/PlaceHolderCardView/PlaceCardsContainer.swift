@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PlaceCardsContainer: View {
-    let places: [CardPlace]
+    private let places: [CardPlace]
     @Binding var currentPage: Int
     
     var body: some View {
@@ -27,7 +27,7 @@ struct PlaceCardsContainer: View {
                 .tag(index)
             }
         }
-        .frame(height: 280)
+        .frame(height: 280.adjusted)
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
     }
 }
