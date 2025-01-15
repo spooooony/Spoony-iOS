@@ -110,9 +110,15 @@ struct LocationPickerBottomSheet: View {
                 
             }
             
-            SpoonyButton(style: .secondary, size: .xlarge, title: "선택하기", disabled: $isDisabled) {
+            SpoonyButton(
+                style: .secondary,
+                size: .xlarge,
+                title: "선택하기",
+                disabled: $isDisabled
+            ) {
                 isPresented = false
             }
+            .padding(.bottom, 22)
         }
     }
 }
