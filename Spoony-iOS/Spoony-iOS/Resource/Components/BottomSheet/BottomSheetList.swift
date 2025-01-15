@@ -145,8 +145,7 @@ struct BottomSheetListView: View {
                                 Divider()
                             }
                         }
-                        // 탭바 높이만큼 추가 패딩
-                        Color.clear.frame(height: 49)
+                        Color.clear.frame(height: 83)
                     }
                 }
                 .coordinateSpace(name: "scrollView")
