@@ -32,31 +32,7 @@ struct DetailView: View {
             }
         }
         
-        HStack(spacing: 0) {
-            SpoonyButton(style: .secondary, size: .medium, title: "길찾기", disabled: .constant(false)) {
-                let url = URL(string: "nmap://search?query=\(searchName)&appname=\(appName)")!
-                let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
-                
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url)
-                } else {
-                    UIApplication.shared.open(appStoreURL)
-                }
-            }
-            
-            Spacer()
-            
-            VStack(spacing: 4) {
-                Image(.icAddmapGray400)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 56.adjusted, height: 32.adjustedH)
-                
-                Text("99")
-                    .font(.caption1m)
-                    .foregroundStyle(.gray800)
-            }
-        }.padding(.horizontal, 20.adjusted)
+        bottomView
     }
 }
 
@@ -209,6 +185,34 @@ extension DetailView {
             Text("메뉴")
                 .font(.body2m)
         }
+    }
+    
+    private var bottomView: some View {
+        HStack(spacing: 0) {
+            SpoonyButton(style: .secondary, size: .medium, title: "길찾기", disabled: .constant(false)) {
+                let url = URL(string: "nmap://search?query=\(searchName)&appname=\(appName)")!
+                let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
+                
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url)
+                } else {
+                    UIApplication.shared.open(appStoreURL)
+                }
+            }
+            
+            Spacer()
+            
+            VStack(spacing: 4) {
+                Image(.icAddmapGray400)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 56.adjusted, height: 32.adjustedH)
+                
+                Text("99")
+                    .font(.caption1m)
+                    .foregroundStyle(.gray800)
+            }
+        }.padding(.horizontal, 20.adjusted)
     }
 }
 
