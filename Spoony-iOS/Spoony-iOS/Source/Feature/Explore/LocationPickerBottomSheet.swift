@@ -119,6 +119,7 @@ struct LocationPickerBottomSheet: View {
             ) {
                 isPresented = false
             }
+            .padding(.top, 12)
             .padding(.bottom, 22)
         }
     }
