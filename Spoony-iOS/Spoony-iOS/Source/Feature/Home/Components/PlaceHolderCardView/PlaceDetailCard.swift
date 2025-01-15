@@ -7,13 +7,15 @@
 
 import SwiftUI
 
-//
-//  PlaceCard.swift
-//  SpoonMe
-//
+// 데이터 모델
+struct CardPlace: Identifiable {
+    let id = UUID()
+    let name: String
+    let visitorCount: String
+    let address: String
+}
 
-import SwiftUI
-
+// 개별 카드 컴포넌트
 struct PlaceCard: View {
     let placeName: String
     let visitorCount: String
@@ -71,21 +73,44 @@ struct PlaceCard: View {
     }
 }
 
-// Preview를 위한 extension
-extension PlaceCard {
-    static var preview: PlaceCard {
-        PlaceCard(
-            placeName: "파오리",
-            visitorCount: "21",
-            address: "서울특별시 마포구 와우산로 수익형"
-        )
+// 카드 컨테이너 컴포넌트
+struct PlaceCardsContainer: View {
+    let places: [CardPlace]
+    @State private var currentPage = 0
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            TabView(selection: $currentPage) {
+                ForEach(Array(places.enumerated()), id: \.element.id) { index, place in
+                    PlaceCard(
+                        placeName: place.name,
+                        visitorCount: place.visitorCount,
+                        address: place.address
+                    )
+                    .padding(.horizontal, 16)
+                    .tag(index)
+                }
+            }
+            .frame(height: 200)
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            
+            // 페이지 인디케이터
+            HStack(spacing: 8) {
+                ForEach(0..<places.count, id: \.self) { index in
+                    Circle()
+                        .fill(currentPage == index ? Color.black : Color.gray.opacity(0.3))
+                        .frame(width: 6, height: 6)
+                }
+            }
+            .padding(.top, 12)
+        }
     }
 }
 
 #Preview {
-    ZStack {
-        Color.gray.opacity(0.1)
-        PlaceCard.preview
-            .padding(.horizontal, 16)
-    }
+    PlaceCardsContainer(places: [
+        CardPlace(name: "파오리", visitorCount: "21", address: "서울특별시 마포구 와우산로"),
+        CardPlace(name: "스타벅스", visitorCount: "45", address: "서울특별시 마포구 어울마당로"),
+        CardPlace(name: "블루보틀", visitorCount: "33", address: "서울특별시 마포구 성미산로")
+    ])
 }

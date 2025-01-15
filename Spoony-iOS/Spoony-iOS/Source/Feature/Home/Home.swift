@@ -10,7 +10,19 @@ import SwiftUI
 struct Home: View {
     @EnvironmentObject private var navigationManager: NavigationManager
     @State private var searchText = ""
-    @State private var selectedPlace: Bool = true 
+    @State private var selectedPlace: Bool = true
+    
+    // 샘플 데이터
+    let samplePlaces = [
+            CardPlace(name: "파오리", visitorCount: "21", address: "서울특별시 마포구 와우산로"),
+            CardPlace(name: "스타벅스", visitorCount: "45", address: "서울특별시 마포구 어울마당로"),
+            CardPlace(name: "블루보틀", visitorCount: "33", address: "서울특별시 마포구 성미산로"),
+            CardPlace(name: "블루보틀", visitorCount: "33", address: "서울특별시 마포구 성미산로"),
+            CardPlace(name: "블루보틀", visitorCount: "33", address: "서울특별시 마포구 성미산로"),
+            CardPlace(name: "블루보틀", visitorCount: "33", address: "서울특별시 마포구 성미산로"),
+            CardPlace(name: "블루보틀", visitorCount: "33", address: "서울특별시 마포구 성미산로"),
+            CardPlace(name: "블루보틀", visitorCount: "33", address: "서울특별시 마포구 성미산로")
+        ]
     
     var body: some View {
         ZStack(alignment: .top) {
@@ -18,7 +30,7 @@ struct Home: View {
             NMapView()
                 .edgesIgnoringSafeArea(.all)
             
-            // 상단 검색바
+            // 상단 검색바와 PlaceCards
             VStack {
                 CustomNavigationBar(
                     style: .search(showBackButton: false),
@@ -30,13 +42,8 @@ struct Home: View {
                 .padding(.top, 44)
                 
                 if selectedPlace {
-                    PlaceCard(
-                        placeName: "파오리",
-                        visitorCount: "21",
-                        address: "서울특별시 마포구 와우산로 수익형"
-                    )
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
+                    PlaceCardsContainer(places: samplePlaces)
+                        .padding(.top, 8)
                 }
                 
                 Spacer()
