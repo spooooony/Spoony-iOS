@@ -7,6 +7,13 @@
 
 import SwiftUI
 
+// 검색 결과를 위한 모델
+struct SearchResult: Identifiable {
+    let id = UUID()
+    let title: String
+    let address: String
+}
+
 struct SearchViewTest: View {
     @State private var searchText = ""
     @State private var searchResults: [SearchResult] = []
@@ -31,11 +38,14 @@ struct SearchViewTest: View {
                 
                 switch searchState {
                 case .empty:
-                    emptyStateView
+                    if recentSearches.isEmpty {
+                        emptyStateView
+                    } else {
+                        recentSearchesView
+                    }
                 case .typing:
                     recentSearchesView
                 case .searched:
-                    // 검색 결과 리스트
                     List {
                         ForEach(getFilteredResults(), id: \.id) { result in
                             SearchResultRow(result: result)
@@ -140,12 +150,7 @@ struct SearchViewTest: View {
     }
 }
 
-struct SearchResult: Identifiable {
-    let id = UUID()
-    let title: String
-    let address: String
-}
-
+// 검색 결과 행을 위한 뷰
 struct SearchResultRow: View {
     let result: SearchResult
     
