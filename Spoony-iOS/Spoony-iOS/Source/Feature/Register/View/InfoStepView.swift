@@ -14,7 +14,6 @@ struct InfoStepView: View {
             print(isDropDown)
         }
     }
-    @State private var isError: Bool = true
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -50,7 +49,12 @@ extension InfoStepView {
                 .font(.body1sb)
                 .foregroundStyle(.spoonBlack)
             
-            SpoonyTextField(text: $store.text, style: .icon, placeholder: "어떤 장소를 한 입 줄까요?", isError: $isError)
+            SpoonyTextField(
+                text: $store.text,
+                style: .icon,
+                placeholder: "어떤 장소를 한 입 줄까요?",
+                isError: .constant(false)
+            )
                 .onSubmit {
                     isDropDown = true
                 }
@@ -75,7 +79,12 @@ extension InfoStepView {
                 .font(.body1sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 12)
-            SpoonyTextField(text: $store.text, style: .normal(isIcon: false), placeholder: "메뉴 이름", isError: $isError)
+            SpoonyTextField(
+                text: $store.text,
+                style: .normal(isIcon: false),
+                placeholder: "메뉴 이름",
+                isError: .constant(false)
+            )
         }
     }
     
