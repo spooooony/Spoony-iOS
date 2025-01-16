@@ -20,7 +20,7 @@ struct DetailView: View {
     private var appName: String = "Spoony"
     @State private var isMyPost: Bool = true
     @State private var isPresented: Bool = false
-    @State private var privateMode: Bool = true
+    @State private var privateMode: Bool = false
     
     // MARK: - body
     
@@ -38,23 +38,34 @@ struct DetailView: View {
                 PlaceInfoSection
             }
         }
-        .overlay(alignment: .topTrailing) {
-            if isPresented {
-                DropDownMenu(items: ["신고하기"], isPresented: $isPresented) { menu in
-                    print("선택된 메뉴: \(menu)")
-                    isPresented = false
-                }
-                .frame(alignment: .topTrailing)
-                .padding(.top, 48.adjustedH)
-                .padding(.trailing, 20.adjusted)
-            }
+        .gesture(dragGesture)
+        .onTapGesture {
+            dismissDropDown()
         }
+        .overlay(dropDownView, alignment: .topTrailing)
         
         bottomView
     }
 }
 
-// MARK: - SubViews
+// MARK: Gesture
+extension DetailView {
+    private var dragGesture: some Gesture {
+        DragGesture()
+            .onChanged { _ in
+                dismissDropDown()
+            }
+    }
+}
+
+// MARK: Method
+extension DetailView {
+    private func dismissDropDown() {
+        isPresented = false
+    }
+}
+
+// MARK: - Subviews
 
 extension DetailView {
     private var userProfileSection: some View {
@@ -256,6 +267,23 @@ extension DetailView {
             }
         }
         .padding(.horizontal, 20.adjusted)
+    }
+    
+    private var dropDownView: some View {
+        Group {
+            if isPresented {
+                DropDownMenu(
+                    items: ["신고하기"],
+                    isPresented: $isPresented
+                ) { menu in
+                    print("선택된 메뉴: \(menu)")
+                    isPresented = false
+                }
+                .frame(alignment: .topTrailing)
+                .padding(.top, 48.adjustedH)
+                .padding(.trailing, 20.adjusted)
+            }
+        }
     }
 }
 
