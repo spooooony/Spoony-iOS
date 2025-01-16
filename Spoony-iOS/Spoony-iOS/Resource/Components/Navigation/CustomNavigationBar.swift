@@ -92,7 +92,7 @@ struct CustomNavigationBar: View {
                     .fill(Color.white)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(.gray200), lineWidth: 1)
+                            .strokeBorder(.gray200)
                     )
             )
             .onTapGesture {
@@ -129,7 +129,7 @@ struct CustomNavigationBar: View {
             Spacer()
             Button(action: onBackTapped) {
                 Image(.icCloseGray400)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.gray400)
             }
         }
         .padding(.horizontal, 16)
@@ -182,10 +182,10 @@ struct CustomNavigationBar: View {
                 }
             }
             .padding(.horizontal, 12)
-            .background(Color(.white))
+            .background(.white)
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color(.gray400), lineWidth: 1)
+                    .strokeBorder(.gray400)
             )
             .cornerRadius(10)
             .frame(height: 44.adjusted)
