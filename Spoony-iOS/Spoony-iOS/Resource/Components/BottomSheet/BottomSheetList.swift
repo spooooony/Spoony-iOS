@@ -25,8 +25,8 @@ struct BottomSheetListItem: View {
                             .font(.system(size: 12))
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Color.red.opacity(0.1))
-                            .foregroundColor(Color.red)
+                            .background(.red.opacity(0.1))
+                            .foregroundColor(.red)
                             .cornerRadius(12)
                     }
                 }
@@ -65,7 +65,7 @@ struct BottomSheetListView: View {
     @State private var offset: CGFloat = 0
     @GestureState private var isDragging: Bool = false
     @State private var scrollOffset: CGFloat = 0
-    @State private var firstItemFrame: CGRect = .zero
+    @State private var isScrollEnabled: Bool = false
     
     private var snapPoints: [CGFloat] {
         [
@@ -103,7 +103,7 @@ struct BottomSheetListView: View {
                         .padding(.bottom, 8)
                 }
                 .frame(height: 60)
-                .background(Color.white)
+                .background(.white)
                 
                 // 컨텐츠 영역
                 ScrollView(showsIndicators: false) {
@@ -116,43 +116,37 @@ struct BottomSheetListView: View {
                                     cellTitle: "제목 셀",
                                     hasChip: true
                                 )
-                                .background(
-                                    GeometryReader { itemGeometry in
-                                        Color.clear.onAppear {
-                                            if index == 0 {
-                                                firstItemFrame = itemGeometry.frame(in: .named("scrollView"))
-                                            }
-                                        }
-                                        .onChange(of: itemGeometry.frame(in: .named("scrollView"))) { _, newFrame in
-                                            if index == 0 {
-                                                firstItemFrame = newFrame
-                                                
-                                                // 첫 번째 셀의 위치에 따라 바텀시트 상태 변경
-                                                let threshold: CGFloat = -30
-                                                if newFrame.minY < threshold && currentStyle == .half {
-                                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                                        currentStyle = .full
-                                                    }
-                                                } else if newFrame.minY > threshold && currentStyle == .full {
-                                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                                        currentStyle = .half
-                                                    }
-                                                }
-                                            }
+                                .background(Color.white)
+                                .onTapGesture {
+                                    if currentStyle == .half {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                            currentStyle = .full
+                                            isScrollEnabled = true
                                         }
                                     }
-                                )
+                                }
                                 Divider()
                             }
                         }
-                        Color.clear.frame(height: 90)
+                        Color.clear.frame(height: 90.adjusted)
                     }
                 }
                 .coordinateSpace(name: "scrollView")
-                .disabled(currentStyle == .minimal)
+                .simultaneousGesture(
+                    DragGesture()
+                        .onChanged { value in
+                            if currentStyle == .half && value.translation.height < 0 {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    currentStyle = .full
+                                    isScrollEnabled = true
+                                }
+                            }
+                        }
+                )
+                .disabled(!isScrollEnabled)
             }
             .frame(maxHeight: .infinity)
-            .background(Color.white)
+            .background(.white)
             .cornerRadius(10, corners: [.topLeft, .topRight])
             .offset(y: UIScreen.main.bounds.height - currentStyle.height + offset)
             .gesture(
@@ -163,7 +157,6 @@ struct BottomSheetListView: View {
                     .onChanged { value in
                         let translation = value.translation.height
                         
-                        // full 상태에서는 위로 드래그 방지 (translation이 음수일 때)
                         if currentStyle == .full && translation < 0 {
                             offset = 0
                         } else {
@@ -174,26 +167,32 @@ struct BottomSheetListView: View {
                         let translation = value.translation.height
                         let velocity = value.predictedEndTranslation.height - translation
                         
-                        // 속도가 빠른 경우 (빠른 스와이프)
                         if abs(velocity) > 500 {
-                            if velocity > 0 { // 아래로 빠른 스와이프
+                            if velocity > 0 {
                                 switch currentStyle {
-                                case .full: currentStyle = .half
-                                case .half: currentStyle = .minimal
+                                case .full:
+                                    currentStyle = .half
+                                    isScrollEnabled = false
+                                case .half:
+                                    currentStyle = .minimal
                                 case .minimal: break
                                 }
-                            } else { // 위로 빠른 스와이프
+                            } else {
                                 switch currentStyle {
                                 case .full: break
-                                case .half: currentStyle = .full
-                                case .minimal: currentStyle = .half
+                                case .half:
+                                    currentStyle = .full
+                                    isScrollEnabled = true
+                                case .minimal:
+                                    currentStyle = .half
                                 }
                             }
                         } else {
-                            // 일반적인 드래그의 경우
                             let screenHeight = UIScreen.main.bounds.height
                             let currentOffset = screenHeight - currentStyle.height + translation
-                            currentStyle = getClosestSnapPoint(to: currentOffset)
+                            let newStyle = getClosestSnapPoint(to: currentOffset)
+                            currentStyle = newStyle
+                            isScrollEnabled = (newStyle == .full)
                         }
                         
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -202,6 +201,9 @@ struct BottomSheetListView: View {
                     }
             )
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentStyle)
+            .onChange(of: currentStyle) { _, newStyle in
+                isScrollEnabled = (newStyle == .full)
+            }
         }
     }
 }
