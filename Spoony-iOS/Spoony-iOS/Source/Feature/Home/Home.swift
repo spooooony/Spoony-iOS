@@ -49,7 +49,7 @@ struct Home: View {
                
                VStack(spacing: 0) {
                    CustomNavigationBar(
-                    style: .detail(isLiked: false), 
+                    style: .detail, 
                        searchText: $searchText,
                        onBackTapped: {},
                        onSearchSubmit: nil,
