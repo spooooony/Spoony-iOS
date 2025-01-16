@@ -91,10 +91,10 @@ extension SpoonyTextEditor {
                 }
                 .onChange(of: errorState) {
                     switch errorState {
-                    case .noError, .maximumInputError, .initial:
-                        isError = false
                     case .minimumInputError:
                         isError = true
+                    default:
+                        isError = false
                     }
                 }
 
