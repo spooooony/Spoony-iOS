@@ -14,25 +14,25 @@ import SwiftUI
 public struct SpoonyTextEditor: View {
     
     // MARK: - Properties
-    @Binding var errorState: TextEditorErrorState
+    @State private var errorState: TextEditorErrorState = .initial
     @FocusState private var isFocused
     @Binding var text: String
+    @Binding var isError: Bool
     
     private let placeholder: String
     private let style: SpoonyTextEditorStyle
     
     // MARK: - Init
     public init(
-        errorState: Binding<TextEditorErrorState>,
         text: Binding<String>,
         style: SpoonyTextEditorStyle,
-        placeholder: String
-        
+        placeholder: String,
+        isError: Binding<Bool>
     ) {
-        self._errorState = errorState
         self._text = text
         self.style = style
         self.placeholder = placeholder
+        self._isError = isError
     }
     
     // MARK: - Body
@@ -80,13 +80,21 @@ extension SpoonyTextEditor {
                         text = String(newValue.prefix(style.maximumInput))
                     case .minimumInputError(let style):
                         errorState = .minimumInputError(style: style)
-                    case .noError:
+                    case .noError, .initial:
                         errorState = .noError
                     }
                 }
                 .onChange(of: isFocused) { _, newValue in
                     if !newValue, errorState.isMaximumInputError {
                         errorState = .noError
+                    }
+                }
+                .onChange(of: errorState) {
+                    switch errorState {
+                    case .noError, .maximumInputError, .initial:
+                        isError = false
+                    case .minimumInputError:
+                        isError = true
                     }
                 }
 
@@ -167,6 +175,7 @@ public enum TextEditorErrorState: Equatable {
     case maximumInputError(style: SpoonyTextEditorStyle)
     case minimumInputError(style: SpoonyTextEditorStyle)
     case noError
+    case initial
     
     var errorMessage: String? {
         switch self {
@@ -179,7 +188,7 @@ public enum TextEditorErrorState: Equatable {
             case .report:
                 return "내용 작성은 필수예요"
             }
-        case .noError:
+        case .noError, .initial:
             return nil
         }
     }
