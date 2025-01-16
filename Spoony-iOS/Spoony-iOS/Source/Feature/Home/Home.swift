@@ -10,6 +10,7 @@ import SwiftUI
 struct Home: View {
     @State private var selectedPlace: Bool = true
     @State private var currentPage = 0
+    @State private var searchText = ""
     
     let samplePlaces = [
         CardPlace(
