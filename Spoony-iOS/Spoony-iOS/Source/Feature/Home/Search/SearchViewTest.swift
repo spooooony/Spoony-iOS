@@ -86,6 +86,7 @@ struct SearchViewTest: View {
                 Spacer()
                 Button("전체삭제") {
                     recentSearches.removeAll()
+                    searchState = .empty
                 }
                 .font(.caption1m)
                 .foregroundColor(.gray600)
