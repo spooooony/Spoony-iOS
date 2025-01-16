@@ -23,7 +23,7 @@ struct SpoonyTabView: View {
                     switch tab {
                     case .map:
                         NavigationStack(path: $navigationManager.mapPath) {
-                            Home()
+                            SearchViewTest()
                                 .navigationDestination(for: ViewType.self) { view in
                                     navigationManager.build(view)
                                 }

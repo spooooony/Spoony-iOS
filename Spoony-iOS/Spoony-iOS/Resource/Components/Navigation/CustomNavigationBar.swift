@@ -98,6 +98,9 @@ struct CustomNavigationBar: View {
                         Text("플레이스 홀더")
                             .foregroundColor(Color(.gray600))
                     }
+                    .onSubmit {
+                        onSearchSubmit?()
+                    }
                 
                 if !searchText.isEmpty {
                     Button(action: { searchText = "" }) {
@@ -197,6 +200,9 @@ struct CustomNavigationBar: View {
                     .placeholder(when: searchText.isEmpty) {
                         Text("마포구,성수동,강남역")
                             .foregroundColor(Color(.gray600))
+                    }
+                    .onSubmit {
+                        onSearchSubmit?()
                     }
                 
                 if !searchText.isEmpty {
