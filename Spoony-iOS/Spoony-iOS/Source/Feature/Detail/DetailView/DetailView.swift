@@ -18,14 +18,16 @@ struct DetailView: View {
     
     private var searchName = "연남"
     private var appName: String = "Spoony"
+    @State private var isMyPost: Bool = true
+    @State private var isMenu: Bool = true
     
     // MARK: - body
     
     var body: some View {
         
-        CustomNavigationBar(style: .detailWithChip(count: 99)) {
+        CustomNavigationBar(style: .detailWithChip(count: 99), onLocationTapped: {
             print("하이")
-        }
+        })
         
         ScrollView(.vertical) {
             VStack(spacing: 0) {
@@ -33,6 +35,17 @@ struct DetailView: View {
                 ImageSection
                 ReviewSection
                 PlaceInfoSection
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            if isMenu {
+                DropDownMenu(items: ["신고하기"], isPresented: $isMenu) { menu in
+                    print("선택된 메뉴: \(menu)")
+                    isMenu = false
+                }
+                .frame(alignment: .topTrailing)
+                .padding(.top, 48.adjustedH)
+                .padding(.trailing, 20.adjusted)
             }
         }
         
@@ -45,14 +58,14 @@ struct DetailView: View {
 extension DetailView {
     private var userProfileSection: some View {
         
-        HStack(spacing: 16.0) {
+        HStack(alignment: .center, spacing: 14.adjustedH) {
             
             Circle()
                 .fill(Color.pink)
                 .scaledToFit()
-                .frame(width: 48, height: 48)
+                .frame(width: 48.adjusted, height: 48.adjustedH)
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 4.adjustedH) {
                 Text(userName)
                     .font(.body2b)
                     .foregroundStyle(.black)
@@ -64,10 +77,16 @@ extension DetailView {
             
             Spacer()
             
-            Image(.icMenu)
+            if isMyPost {
+                Image(.icMenu)
+                    .onTapGesture {
+                        isMenu.toggle()
+                    }
+            }
             
-        }.padding(EdgeInsets(top: 11.5, leading: 20, bottom: 11.5, trailing: 20))
-            .padding(.bottom, 24.adjustedH)
+        }
+        .padding(EdgeInsets(top: 8.adjustedH, leading: 20.adjusted, bottom: 8.adjustedH, trailing: 20.adjusted))
+        .padding(.bottom, 24.adjustedH)
     }
     
     private var ImageSection: some View {
