@@ -7,11 +7,10 @@
 
 import SwiftUI
 
-// 검색 결과를 위한 모델
-struct SearchResult: Identifiable {
-    let id = UUID()
-    let title: String
-    let address: String
+enum SearchState {
+    case empty
+    case typing
+    case searched
 }
 
 struct SearchViewTest: View {
@@ -19,13 +18,7 @@ struct SearchViewTest: View {
     @State private var searchResults: [SearchResult] = []
     @State private var searchState: SearchState = .empty
     @State private var recentSearches = ["홍대입구역", "성수동", "망원동"]
-    
-    enum SearchState {
-        case empty
-        case typing
-        case searched
-    }
-    
+        
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -57,7 +50,7 @@ struct SearchViewTest: View {
                 Spacer()
             }
         }
-        .onChange(of: searchText) { newValue in
+        .onChange(of: searchText) { newValue, _ in
             if newValue.isEmpty {
                 searchState = .empty
             } else if searchState != .searched {
@@ -72,35 +65,36 @@ struct SearchViewTest: View {
         updateSearchResults()
     }
     
+    // TODO: 추후 로티로 수정
     private var emptyStateView: some View {
         VStack {
             Spacer()
             VStack(spacing: 8) {
                 Rectangle()
-                    .fill(Color(.gray200))
-                    .frame(width: 200, height: 200)
+                    .fill(.gray200)
+                    .frame(width: 200.adjusted, height: 200.adjustedH)
                     .padding(.bottom, 12)
                 
                 Text("구체적인 장소를 검색해 보세요")
-                    .font(.system(size: 16))
-                    .foregroundColor(Color(.gray600))
+                    .font(.body2m)
+                    .foregroundColor(.gray600)
             }
             Spacer()
-                .frame(height: 100)
+                .frame(height: 100.adjustedH)
         }
     }
     
     private var recentSearchesView: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("최근 검색")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.body2b)
                 Spacer()
                 Button("전체삭제") {
                     recentSearches.removeAll()
                 }
-                .font(.system(size: 14))
-                .foregroundColor(Color(.gray600))
+                .font(.caption1m)
+                .foregroundColor(.gray600)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -109,7 +103,7 @@ struct SearchViewTest: View {
                 ForEach(recentSearches, id: \.self) { search in
                     HStack {
                         Text(search)
-                            .font(.system(size: 16))
+                            .font(.body1b)
                         Spacer()
                         Button(action: {
                             if let index = recentSearches.firstIndex(of: search) {
@@ -127,7 +121,8 @@ struct SearchViewTest: View {
     }
     
     private func updateSearchResults() {
-        if !searchText.isEmpty {
+        switch searchText.isEmpty {
+        case false:
             searchResults = [
                 SearchResult(title: "\(searchText)구역", address: "서울 마포구 양화로 160 \(searchText)구역"),
                 SearchResult(title: "\(searchText)동", address: "서울 마포구 양화로 160 \(searchText)구역"),
@@ -140,7 +135,8 @@ struct SearchViewTest: View {
                     recentSearches.removeLast()
                 }
             }
-        } else {
+            
+        case true:
             searchResults.removeAll()
         }
     }
@@ -150,23 +146,22 @@ struct SearchViewTest: View {
     }
 }
 
-// 검색 결과 행을 위한 뷰
 struct SearchResultRow: View {
     let result: SearchResult
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 Image(.icPinGray600)
                 Text(result.title)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.black)
+                    .font(.body1b)
+                    .foregroundStyle(.black)
             }
             
             Text(result.address)
-                .font(.system(size: 14))
-                .foregroundColor(Color(.gray600))
-                .padding(.leading, 28)
+                .font(.body2b)
+                .foregroundStyle(.gray600)
+                .padding(.leading, 30)
         }
         .padding(.vertical, 8)
     }
