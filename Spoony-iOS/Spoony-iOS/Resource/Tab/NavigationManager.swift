@@ -10,7 +10,6 @@ import SwiftUI
 final class NavigationManager: ObservableObject {
     
     @Published var selectedTab: TabType = .map
-    
     @Published var mapPath: [ViewType] = []
     @Published var explorePath: [ViewType] = []
     @Published var registerPath: [ViewType] = []
@@ -20,15 +19,15 @@ final class NavigationManager: ObservableObject {
         switch view {
         case .test:
             Explore()
-       
+            
         case .searchView:
-            Home()
+            SearchView()
         case .locationView:
             Home()
-
+            
         case .detailView:
             Home()
-
+            
         }
     }
     
@@ -42,7 +41,7 @@ final class NavigationManager: ObservableObject {
             registerPath.append(view)
         }
     }
-    
+
     func pop(_ depth: Int) {
         switch selectedTab {
         case .map:
