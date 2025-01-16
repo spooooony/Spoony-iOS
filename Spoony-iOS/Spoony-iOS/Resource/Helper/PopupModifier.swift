@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+import Lottie
+
 struct PopupModifier: ViewModifier {
     let popup: PopupType
     @Binding var isPresented: Bool
@@ -17,7 +19,7 @@ struct PopupModifier: ViewModifier {
             content
             if isPresented {
                 Color.black.opacity(0.6)
-                    .ignoresSafeArea()
+                    .ignoresSafeArea(.all)
                 
                 PopupView(popup: popup, isPresented: $isPresented) {
                     confirmAction()
@@ -42,11 +44,19 @@ struct PopupView: View {
         VStack(spacing: 20) {
             Spacer()
                 .frame(height: 20)
-            if let image {
-                Image(image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 150, height: 150)
+            
+            if let animationString {
+                Group {
+                    if popup == .useSpoon {
+                        LottieView(animation: .named(animationString))
+                            .looping()
+                    } else {
+                        LottieView(animation: .named(animationString))
+                            .playing()
+                    }
+                }
+                .frame(width: 250.adjusted, height: 150.adjustedH)
+                .padding(.top, -20)
             }
             
             Text(description)
@@ -66,7 +76,7 @@ struct PopupView: View {
                     }
                 }
                 SpoonyButton(
-                    style: .secondary,
+                    style: popup == .registerSuccess ? .primary : .secondary,
                     size: grayButtonTitle == nil ? .large : .xsmall,
                     title: blackButtonTitle,
                     disabled: .constant(false)
@@ -82,13 +92,12 @@ struct PopupView: View {
 }
 
 extension PopupView {
-    // 임시
-    private var image: ImageResource? {
+    private var animationString: String? {
         switch popup {
         case .useSpoon:
-            return .icBarBlue
+            return "lottie_popup_use"
         case .registerSuccess:
-            return .icAmericanBlue
+            return "lottie_popup_get"
         case .reportSuccess:
             return nil
         }
@@ -110,7 +119,7 @@ extension PopupView {
         case .useSpoon:
             "떠먹을래요"
         case .registerSuccess:
-            "갈래요!"
+            "좋아요!"
         case .reportSuccess:
             "확인"
         }
