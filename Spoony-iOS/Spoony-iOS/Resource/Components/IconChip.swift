@@ -34,6 +34,14 @@ enum FoodType: CaseIterable {
             "주류"
         }
     }
+    
+    init?(title: String) {
+        if let food = FoodType.allCases.first(where: { $0.title == title }) {
+            self = food
+        } else {
+            return nil
+        }
+    }
 }
 
 enum Chiptype {
@@ -136,15 +144,27 @@ struct IconChip: View {
         }
     }
 }
-
+// icon chip 변경하면 고칠 예정
 extension IconChip {
     private var imageString: String {
         if let foodType {
-            return "ic_\(foodType)_\(color)"
+            if color == .black {
+                return "ic_\(foodType)_white"
+            } else {
+                return "ic_\(foodType)_\(color)"
+            }
         } else if title == "전체" {
-            return "ic_spoon_white"
+            if color == .black {
+                return "ic_spoon_white"
+            } else {
+                return "ic_spoon_\(color)"
+            }
         } else {
-            return "ic_pin_gray600"
+            if color == .black {
+                return "ic_pin_white"
+            } else {
+                return "ic_pin_\(color)"
+            }
         }
     }
 }

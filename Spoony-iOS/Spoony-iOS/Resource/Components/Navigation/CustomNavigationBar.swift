@@ -12,17 +12,19 @@ struct CustomNavigationBar: View {
     
     let style: NavigationBarStyle
     let title: String
-    let onBackTapped: () -> Void
+    let onBackTapped: (() -> Void)?
     let onSearchSubmit: (() -> Void)?
     let onLikeTapped: (() -> Void)?
+    let onLocationTapped: (() -> Void)?
     
     init(
         style: NavigationBarStyle,
         title: String = "",
         searchText: Binding<String> = .constant(""),
-        onBackTapped: @escaping () -> Void,
+        onBackTapped: (() -> Void)? = nil,
         onSearchSubmit: (() -> Void)? = nil,
-        onLikeTapped: (() -> Void)? = nil
+        onLikeTapped: (() -> Void)? = nil,
+        onLocationTapped: (() -> Void)? = nil
     ) {
         self.style = style
         self.title = title
@@ -30,6 +32,7 @@ struct CustomNavigationBar: View {
         self.onBackTapped = onBackTapped
         self.onSearchSubmit = onSearchSubmit
         self.onLikeTapped = onLikeTapped
+        self.onLocationTapped = onLocationTapped
     }
     
     var body: some View {
@@ -60,7 +63,7 @@ struct CustomNavigationBar: View {
     }
     
     private var backButtonView: some View {
-        Button(action: onBackTapped) {
+        Button(action: onBackTapped ?? { print("error") }) {
             Image(.icArrowLeftGray700)
         }
     }
@@ -71,6 +74,16 @@ struct CustomNavigationBar: View {
             Spacer()
         }
         .padding(.horizontal, 16)
+    }
+    
+    private var primaryContent: some View {
+        HStack {
+            if !title.isEmpty {
+                Text(title)
+                    .font(.title2b)
+            }
+            Spacer()
+        }
     }
     
     private var searchContent: some View {
@@ -84,6 +97,7 @@ struct CustomNavigationBar: View {
                     .foregroundStyle(.gray500)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.body2m)
+
             }
             .padding(.horizontal, 12)
             .frame(height: 44.adjustedH)
@@ -104,7 +118,7 @@ struct CustomNavigationBar: View {
     
     private var locationDetail: some View {
         HStack {
-            Button(action: {}) {
+            Button(action: onLocationTapped ?? { print("error") }) {
                 HStack {
                     Text(title)
                         .font(.title2sb)
@@ -127,10 +141,10 @@ struct CustomNavigationBar: View {
                 .font(.title2b)
                 .foregroundStyle(.spoonBlack)
             Spacer()
-            Button(action: onBackTapped) {
-                Image(.icCloseGray400)
-                    .foregroundStyle(.gray)
-            }
+//            Button(action: onBackTapped) {
+//                Image(.icCloseGray400)
+//                    .foregroundStyle(.gray)
+//            }
         }
         .padding(.horizontal, 16)
     }

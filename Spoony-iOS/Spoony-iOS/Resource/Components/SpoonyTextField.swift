@@ -38,7 +38,7 @@ public struct SpoonyTextField: View {
     
     // MARK: - Body
     public var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
             customTextField
             
             if let message = errorState.errorMessage, isErrorMessageVisible() {
@@ -116,9 +116,11 @@ extension SpoonyTextField {
                         }
                     }
                 case .icon:
-                    if isFocused {
+                    if !text.isEmpty {
                         Button {
-                            text = ""
+                            if let action = action {
+                                action()
+                            }
                         } label: {
                             if let icon = style.trailingIcon,
                                let size = style.iconSize {
@@ -154,6 +156,7 @@ extension SpoonyTextField {
                 .font(.caption1m)
                 .foregroundStyle(.error400)
         }
+        .padding(.top, 8)
     }
 }
 
