@@ -73,19 +73,93 @@ struct CustomNavigationBar: View {
         .padding(.horizontal, 16)
     }
     
-    private var primaryContent: some View {
-        HStack {
-            if !title.isEmpty {
-                Text(title)
-                    .font(.title2b)
+    private var searchContent: some View {
+        HStack(spacing: 12) {
+            LogoChip(type: .small, count: 10)
+            
+            HStack(spacing: 8) {
+                Image(.icSearchGray600)
+                
+                Text("오늘은 어디서 먹어볼까요?")
+                    .foregroundStyle(.gray500)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .font(.body2m)
             }
+            .padding(.horizontal, 12)
+            .frame(height: 44.adjustedH)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .strokeBorder(.gray200)
+                    )
+            )
+            .onTapGesture {
+                onSearchSubmit?()
+            }
+        }
+        .padding(.horizontal, 16)
+    }
+    
+    private var locationDetail: some View {
+        HStack {
+            Button(action: {}) {
+                HStack {
+                    Text(title)
+                        .font(.title2sb)
+                        .foregroundStyle(.spoonBlack)
+                    Image(.icArrowRightGray700)
+                }
+            }
+            .padding(.leading, 16)
+            
+            Spacer()
+            
+            LogoChip(type: .small, count: 99)
+                .padding(.trailing, 20)
+        }
+    }
+    
+    private var locationTitle: some View {
+        HStack {
+            Text(title.isEmpty ? "홍대입구역" : title)
+                .font(.title2b)
+                .foregroundStyle(.spoonBlack)
+            Spacer()
+            Button(action: onBackTapped) {
+                Image(.icCloseGray400)
+                    .foregroundStyle(.gray400)
+            }
+        }
+        .padding(.horizontal, 16)
+    }
+    
+    private func detail(isLiked: Bool) -> some View {
+        HStack {
+            Spacer()
+            Text(title)
+                .font(.title2b)
+                .multilineTextAlignment(.center)
+                .lineLimit(1)
             Spacer()
         }
     }
     
-    private var searchContent: some View {
+    private func detailWithChip(count: Int) -> some View {
+        HStack {
+            Spacer()
+            
+            LogoChip(type: .small, count: count)
+                .padding(.trailing, 20)
+        }
+    }
+    
+    private var searchBar: some View {
         HStack(spacing: 12) {
-            LogoChip(type: .small, count: 10)
+            if style.showsBackButton {
+                backButtonView
+            }
             
             HStack(spacing: 8) {
                 Image(.icSearchGray600)
@@ -108,18 +182,13 @@ struct CustomNavigationBar: View {
                 }
             }
             .padding(.horizontal, 12)
-            .frame(height: 44.adjustedH)
-            .background(
+            .background(.white)
+            .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(.gray200), lineWidth: 1)
-                    )
+                    .strokeBorder(.gray400)
             )
-            .onTapGesture {
-                onSearchSubmit?()
-            }
+            .cornerRadius(10)
+            .frame(height: 44.adjusted)
         }
         .padding(.horizontal, 16)
     }
@@ -172,8 +241,4 @@ struct CustomNavigationBar_Previews: PreviewProvider {
         .padding()
         .previewLayout(.sizeThatFits)
     }
-}
-
-#Preview {
-    Home()
 }
