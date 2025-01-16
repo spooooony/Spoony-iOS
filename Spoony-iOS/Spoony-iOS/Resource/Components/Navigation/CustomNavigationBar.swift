@@ -81,7 +81,7 @@ struct CustomNavigationBar: View {
                 Image(.icSearchGray600)
                 
                 Text("오늘은 어디서 먹어볼까요?")
-                    .foregroundColor(Color(.gray500))
+                    .foregroundStyle(.gray500)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.body2m)
             }
@@ -108,7 +108,7 @@ struct CustomNavigationBar: View {
                 HStack {
                     Text(title)
                         .font(.title2sb)
-                        .foregroundColor(.spoonBlack)
+                        .foregroundStyle(.spoonBlack)
                     Image(.icArrowRightGray700)
                 }
             }
@@ -125,11 +125,11 @@ struct CustomNavigationBar: View {
         HStack {
             Text(title.isEmpty ? "홍대입구역" : title)
                 .font(.title2b)
-                .foregroundColor(.black)
+                .foregroundStyle(.spoonBlack)
             Spacer()
             Button(action: onBackTapped) {
                 Image(.icCloseGray400)
-                    .foregroundColor(.gray)
+                    .foregroundStyle(.gray)
             }
         }
         .padding(.horizontal, 16)
@@ -168,7 +168,7 @@ struct CustomNavigationBar: View {
                     .frame(height: 44.adjusted)
                     .placeholder(when: searchText.isEmpty) {
                         Text("마포구,성수동,강남역")
-                            .foregroundColor(Color(.gray600))
+                            .foregroundStyle(.gray600)
                     }
                     .onSubmit {
                         onSearchSubmit?()
@@ -177,7 +177,7 @@ struct CustomNavigationBar: View {
                 if !searchText.isEmpty {
                     Button(action: { searchText = "" }) {
                         Image(.icCloseGray400)
-                            .foregroundColor(Color(.gray600))
+                            .foregroundStyle(.gray600)
                     }
                 }
             }
