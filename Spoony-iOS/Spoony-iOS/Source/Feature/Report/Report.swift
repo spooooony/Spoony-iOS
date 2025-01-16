@@ -19,15 +19,13 @@ enum ReportType: String, CaseIterable {
 struct Report: View {
     @State private var selectedReport: ReportType = .commercial
     @State private var text: String = ""
-    @State private var errorState: TextEditorErrorState = .noError
+    @State private var isError: Bool = true
     @State private var isDisabled: Bool = true
     
     var body: some View {
         VStack(spacing: 0) {
             //TODO: 변경 예정
-            CustomNavigationBar(style: .primary, title: "신고하기") {
-                
-            }
+            CustomNavigationBar(style: .primary, title: "신고하기")
             Divider()
             
             reportTitle
@@ -41,25 +39,17 @@ struct Report: View {
             ) {
                 
             }
-            .padding(.top, errorState == .noError ? 12 : 20)
+            .padding(.top, !isError ? 12 : 20)
             .padding(.bottom, 20)
         }
         .frame(maxHeight: .infinity)
+        .background(.white)
         .onTapGesture {
-            if errorState == .maximumInputError(style: .report) {
-                errorState = .noError
-            }
+            hideKeyboard()
         }
-        .onChange(of: errorState) {
-            if errorState == .minimumInputError(style: .report) {
-                isDisabled = true
-            } else {
-                isDisabled = false
-            }
-            
-            if errorState == .maximumInputError(style: .report) {
-                isDisabled = true
-            }
+        .onChange(of: isError) {
+            print("error: \(isError)")
+            isDisabled = isError
         }
     }
     
@@ -92,9 +82,7 @@ extension Report {
                 )
                 .onTapGesture {
                     selectedReport = report
-                    if errorState == .maximumInputError(style: .report) {
-                        errorState = .noError
-                    }
+                    hideKeyboard()
                 }
             }
         }
@@ -110,10 +98,10 @@ extension Report {
                 .padding(.bottom, 12.adjustedH)
             
             SpoonyTextEditor(
-                errorState: $errorState,
                 text: $text,
                 style: .report,
-                placeholder: "내용을 자세히 적어주시면 신고에 도움이 돼요"
+                placeholder: "내용을 자세히 적어주시면 신고에 도움이 돼요",
+                isError: $isError
             )
             
             HStack(alignment: .top, spacing: 10) {
