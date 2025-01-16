@@ -30,7 +30,7 @@ struct SpoonyTabView: View {
                         }
                     case .explore:
                         NavigationStack(path: $navigationManager.explorePath) {
-                            DetailView()
+                            Explore()
                                 .navigationDestination(for: ViewType.self) { view in
                                     navigationManager.build(view)
                                 }
