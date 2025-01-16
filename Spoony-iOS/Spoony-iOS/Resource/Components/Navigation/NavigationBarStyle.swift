@@ -8,9 +8,6 @@
 import SwiftUI
 
 enum NavigationBarStyle {
-    // 기본 네비게이션
-    //지도뷰 에 왼쪽 타이틀 오른쪽에 X버튼 있는뷰 (검색상세로 넘어갈때)
-   //case primary
     
     // 검색 관련
     case searchContent //지도에서 왼쪽에 칩 있는거
