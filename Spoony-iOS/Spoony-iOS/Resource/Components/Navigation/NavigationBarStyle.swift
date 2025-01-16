@@ -9,19 +9,20 @@ import SwiftUI
 
 enum NavigationBarStyle {
     // 기본 네비게이션
-    case primary
+    //지도뷰 에 왼쪽 타이틀 오른쪽에 X버튼 있는뷰 (검색상세로 넘어갈때)
+   //case primary
     
     // 검색 관련
     case search(showBackButton: Bool = true) // 뒤로가기 버튼 표시 여부 추가
     case searchBar
     
     // 위치 관련
-    case locationTitle    // 위치 제목만 표시
-    case locationDetail   // 위치 상세 정보 표시
+    case locationTitle    // 위치 제목 + 오른쪽 X 버튼
+    case locationDetail   // 탐색 리스트 - 현위치 + > + 오른쪽 칩 아이콘
     
     // 상세 화면 관련
     case detail(isLiked: Bool)         // 좋아요 기능이 있는 상세
-    case detailWithChip(count: Int)    // 카운트 칩이 있는 상세
+    case detailWithChip(count: Int)    // < + 오른쪽 칩 (가운데 타이틀 없음)
     
     // 백 버튼 표시 여부
     var showsBackButton: Bool {

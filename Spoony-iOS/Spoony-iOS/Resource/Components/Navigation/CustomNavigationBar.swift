@@ -39,20 +39,20 @@ struct CustomNavigationBar: View {
             }
             
             switch style {
-            case .primary:
-                primaryContent
+//            case .primary:
+//                primary
             case .search:
-                searchContent
-            case .locationDetail:
-                locationDetailContent
-            case .locationTitle:
-                locationTitleContent
-            case .detail(let isLiked):
-                detailContent(isLiked: isLiked)
-            case .detailWithChip(let count):
-                detailWithChipContent(count: count)
+                search
             case .searchBar:
-                searchBarContent
+                searchBar
+            case .locationTitle:
+                locationTitle
+            case .locationDetail:
+                locationDetail
+            case .detail(let isLiked):
+                detail(isLiked: isLiked)
+            case .detailWithChip(let count):
+                detailWithChip(count: count)
             }
         }
         .frame(height: 56.adjusted)
@@ -73,19 +73,19 @@ struct CustomNavigationBar: View {
         .padding(.horizontal, 16)
     }
     
-    private var primaryContent: some View {
-        HStack {
-            if !title.isEmpty {
-                Text(title)
-                    .font(.title2b)
-            }
-            Spacer()
-        }
-    }
+//    private var primary: some View {
+//        HStack {
+//            if !title.isEmpty {
+//                Text(title)
+//                    .font(.title2b)
+//            }
+//            Spacer()
+//        }
+//    }
     
-    private var searchContent: some View {
+    private var search: some View {
         HStack(spacing: 12) {
-            if style.showsBackButton {
+            if case .search(let showBackButton) = style, showBackButton {
                 backButtonView
             }
             
@@ -120,7 +120,7 @@ struct CustomNavigationBar: View {
         .padding(.horizontal, 16)
     }
     
-    private var locationDetailContent: some View {
+    private var locationDetail: some View {
         HStack {
             Button(action: {}) {
                 HStack {
@@ -139,7 +139,7 @@ struct CustomNavigationBar: View {
         }
     }
     
-    private func detailContent(isLiked: Bool) -> some View {
+    private func detail(isLiked: Bool) -> some View {
         HStack {
             Spacer()
             Text(title)
@@ -150,7 +150,7 @@ struct CustomNavigationBar: View {
         }
     }
     
-    private func detailWithChipContent(count: Int) -> some View {
+    private func detailWithChip(count: Int) -> some View {
         HStack {
             Spacer()
             
@@ -159,7 +159,7 @@ struct CustomNavigationBar: View {
         }
     }
     
-    private var locationTitleContent: some View {
+    private var locationTitle: some View {
         HStack {
             Text(title.isEmpty ? "홍대입구역" : title)
                 .font(.title2b)
@@ -173,7 +173,7 @@ struct CustomNavigationBar: View {
         .padding(.horizontal, 16)
     }
     
-    private var searchBarContent: some View {
+    private var searchBar: some View {
         HStack(spacing: 12) {
             if style.showsBackButton {
                 backButtonView
@@ -198,7 +198,6 @@ struct CustomNavigationBar: View {
                             .foregroundColor(Color(.gray600))
                     }
                 }
-                
             }
             .padding(.horizontal, 12)
             .background(Color(.white))
@@ -211,21 +210,20 @@ struct CustomNavigationBar: View {
         }
         .padding(.horizontal, 16)
     }
-    
 }
 
 struct CustomNavigationBar_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 20) {
-            CustomNavigationBar(
-                style: .primary,
-                title: "Primary 스타일",
-                onBackTapped: {}
-            )
-            .border(.gray)
+//            CustomNavigationBar(
+//                style: .primary,
+//                title: "Primary 스타일",
+//                onBackTapped: {}
+//            )
+//            .border(.gray)
             
             CustomNavigationBar(
-                style: .searchBar,
+                style: .search(showBackButton: true),
                 searchText: .constant("검색어"),
                 onBackTapped: {}
             )
