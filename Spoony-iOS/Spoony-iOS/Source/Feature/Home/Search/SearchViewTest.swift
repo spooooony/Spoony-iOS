@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-enum SearchState {
-    case empty
-    case typing
-    case searched
-}
-
 struct SearchViewTest: View {
     @State private var searchText = ""
     @State private var searchResults: [SearchResult] = []
@@ -124,14 +118,14 @@ struct SearchViewTest: View {
         switch searchText.isEmpty {
         case false:
             searchResults = [
-                SearchResult(title: "\(searchText)구역", address: "서울 마포구 양화로 160 \(searchText)구역"),
-                SearchResult(title: "\(searchText)동", address: "서울 마포구 양화로 160 \(searchText)구역"),
-                SearchResult(title: "\(searchText)구", address: "서울 마포구 양화로 160 \(searchText)구역")
+                SearchResult(title: "\(searchText)", address: "\(searchText)"),
+                SearchResult(title: "\(searchText)", address: "\(searchText)"),
+                SearchResult(title: "\(searchText)", address: "\(searchText)")
             ]
             
             if !recentSearches.contains(searchText) {
                 recentSearches.insert(searchText, at: 0)
-                if recentSearches.count > 5 {
+            if recentSearches.count > 5 {
                     recentSearches.removeLast()
                 }
             }
@@ -143,27 +137,6 @@ struct SearchViewTest: View {
     
     private func getFilteredResults() -> [SearchResult] {
         return searchResults
-    }
-}
-
-struct SearchResultRow: View {
-    let result: SearchResult
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 6) {
-                Image(.icPinGray600)
-                Text(result.title)
-                    .font(.body1b)
-                    .foregroundStyle(.black)
-            }
-            
-            Text(result.address)
-                .font(.body2b)
-                .foregroundStyle(.gray600)
-                .padding(.leading, 30)
-        }
-        .padding(.vertical, 8)
     }
 }
 
