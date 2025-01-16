@@ -49,8 +49,9 @@ enum SeoulType: String, CaseIterable {
 
 struct LocationPickerBottomSheet: View {
     @Binding var isPresented: Bool
-    @State private var selectedRegion: SeoulType?
+    @Binding var selectedRegion: SeoulType?
     @State private var isDisabled: Bool = true
+    @State private var tempRegion: SeoulType?
     
     var body: some View {
         VStack {
@@ -93,7 +94,7 @@ struct LocationPickerBottomSheet: View {
                             Text(type.rawValue)
                                 .font(.body2m)
                                 .foregroundStyle(
-                                    selectedRegion?.rawValue != type.rawValue ? .gray400 : .spoonBlack
+                                    tempRegion?.rawValue != type.rawValue ? .gray400 : .spoonBlack
                                 )
                                 .frame(width: 240.adjusted, height: 44.adjustedH)
                                 .background(
@@ -101,7 +102,7 @@ struct LocationPickerBottomSheet: View {
                                         .stroke(Color.gray0, lineWidth: 1)
                                 )
                                 .onTapGesture {
-                                    selectedRegion = type
+                                    tempRegion = type
                                     isDisabled = false
                                 }
                         }
@@ -117,14 +118,21 @@ struct LocationPickerBottomSheet: View {
                 title: "선택하기",
                 disabled: $isDisabled
             ) {
+                selectedRegion = tempRegion
                 isPresented = false
             }
             .padding(.top, 12)
             .padding(.bottom, 22)
         }
+        .onAppear {
+            if let selectedRegion {
+                tempRegion = selectedRegion
+                isDisabled = false
+            }
+        }
     }
 }
 
 #Preview {
-    LocationPickerBottomSheet(isPresented: .constant(true))
+    LocationPickerBottomSheet(isPresented: .constant(true), selectedRegion: .constant(.mapo))
 }

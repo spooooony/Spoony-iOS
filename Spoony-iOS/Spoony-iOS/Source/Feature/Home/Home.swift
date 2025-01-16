@@ -8,32 +8,74 @@
 import SwiftUI
 
 struct Home: View {
-    @EnvironmentObject private var navigationManager: NavigationManager
+    @State private var selectedPlace: Bool = true
+    @State private var currentPage = 0
     @State private var searchText = ""
     
+    let samplePlaces = [
+        CardPlace(
+            name: "파오리",
+            visitorCount: "21",
+            address: "서울특별시 마포구 와우산로",
+            images: ["testImage1"],
+            title: "클레오가트라",
+            subTitle: "성동구 수제",
+            description: "포켓몬 중 하나의 이름을 가졌지만 카페에요"
+        ),
+        CardPlace(
+            name: "스타벅스",
+            visitorCount: "45",
+            address: "서울특별시 마포구 어울마당로",
+            images: ["testImage1", "testImage2"],
+            title: "클레오가트라",
+            subTitle: "성동구 수제",
+            description: "포켓몬 중 하나의 이름을 가졌지만 카페에요"
+        ),
+        CardPlace(
+            name: "스타벅스",
+            visitorCount: "45",
+            address: "서울특별시 마포구 어울마당로",
+            images: ["testImage1", "testImage2", "testImage3"],
+            title: "클레오가트라",
+            subTitle: "성동구 수제",
+            description: "포켓몬 중 하나의 이름을 가졌지만 카페에요"
+        )
+    ]
+    
     var body: some View {
-        ZStack(alignment: .bottom) {
-            NMapView()
-                .edgesIgnoringSafeArea(.all)
-            
-            VStack {
-                CustomNavigationBar(
-                    style: .search(showBackButton: false),
-                    searchText: $searchText,
-                    onBackTapped: {},
-                    onSearchSubmit: {
-                        navigationManager.push(.searchView)
-                    },
-                    onLikeTapped: nil
-                )
-                
-                Spacer()
-            }
-            
-            BottomSheetListView()
-                .ignoresSafeArea(.keyboard)
-        }
-    }
+           ZStack(alignment: .top) {
+               NMapView()
+                   .edgesIgnoringSafeArea(.all)
+               
+               VStack(spacing: 0) {
+                   CustomNavigationBar(
+                       style: .search(showBackButton: false),
+                       searchText: $searchText,
+                       onBackTapped: {},
+                       onSearchSubmit: nil,
+                       onLikeTapped: nil
+                   )
+                   
+                   if selectedPlace {
+                       ZStack { 
+                           VStack(spacing: 0) {
+                               Spacer()
+                               
+                               PlaceCardsContainer(places: samplePlaces, currentPage: $currentPage)
+                                   .padding(.bottom, 4)
+                               
+                               PageIndicator(currentPage: currentPage, pageCount: samplePlaces.count)
+                                   .padding(.bottom, 4)
+                           }
+                       }
+                   }
+               }
+           }
+       }
+   }
+
+#Preview {
+    Home()
 }
 
 #Preview {
