@@ -13,6 +13,7 @@ enum NavigationBarStyle {
     
     // 검색 관련
     case search(showBackButton: Bool = true) // 뒤로가기 버튼 표시 여부 추가
+    case searchBar
     
     // 위치 관련
     case locationTitle    // 위치 제목만 표시

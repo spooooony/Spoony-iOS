@@ -51,6 +51,8 @@ struct CustomNavigationBar: View {
                  detailContent(isLiked: isLiked)
              case .detailWithChip(let count):
                  detailWithChipContent(count: count)
+             case .searchBar:
+                 searchBarContent
              }
          }
          .frame(height: 56.adjusted)
@@ -180,4 +182,48 @@ struct CustomNavigationBar: View {
         }
         .padding(.horizontal, 16)
     }
+    
+    private var searchBarContent: some View {
+        HStack(spacing: 12) {
+            if style.showsBackButton {
+                backButtonView
+            }
+            
+            HStack(spacing: 8) {
+                Image(.icSearchGray600)
+                
+                TextField("", text: $searchText)
+                    .frame(height: 44.adjusted)
+                    .placeholder(when: searchText.isEmpty) {
+                        Text("검색어를 입력하세요")
+                            .foregroundColor(Color(.gray600))
+                    }
+                
+                if !searchText.isEmpty {
+                    Button(action: { searchText = "" }) {
+                        Image(.icCloseGray400)
+                            .foregroundColor(Color(.gray600))
+                    }
+                }
+                
+                if let onSearchSubmit = onSearchSubmit {
+                    Button(action: onSearchSubmit) {
+                        Text("검색")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.spoonBlack)
+                            .cornerRadius(8)
+                    }
+                }
+            }
+            .padding(.horizontal, 12)
+            .background(Color(.gray100))
+            .cornerRadius(8)
+            .frame(height: 44.adjusted)
+        }
+        .padding(.horizontal, 16)
+    }
+
 }
