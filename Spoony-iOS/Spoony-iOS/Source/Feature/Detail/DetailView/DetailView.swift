@@ -33,9 +33,9 @@ struct DetailView: View {
         ScrollView(.vertical) {
             VStack(spacing: 0) {
                 userProfileSection
-                ImageSection
-                ReviewSection
-                PlaceInfoSection
+                imageSection
+                reviewSection
+                placeInfoSection
             }
         }
         .gesture(dragGesture)
@@ -101,8 +101,7 @@ extension DetailView {
         .padding(.bottom, 24.adjustedH)
     }
     
-    private var ImageSection: some View {
-        
+    private var imageSection: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 16) {
                 ForEach(0..<4) { _ in
@@ -115,13 +114,11 @@ extension DetailView {
                 }
                 .frame(height: 278.adjustedH)
             }
-            .padding(.leading, 20.adjusted)
-            .padding(.trailing, 20.adjusted)
-            .padding(.bottom, 32.adjustedH)
+            .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
         }
     }
     
-    private var ReviewSection: some View {
+    private var reviewSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Rectangle()
                 .frame(width: 61.adjusted, height: 24.adjustedH)
@@ -147,16 +144,15 @@ extension DetailView {
         .padding(.bottom, 32.adjustedH)
     }
     
-    private var PlaceInfoSection: some View {
+    private var placeInfoSection: some View {
         VStack(spacing: 0) {
             ZStack(alignment: .bottom) {
-                
-                Rectangle()
-                    .frame(height: 166.adjustedH)
-                    .cornerRadius(20)
-                    .foregroundStyle(.gray0)
-                    .overlay {
-                        menuInfo
+                menuInfo
+                    .background {
+                        Rectangle()
+                            .frame(height: .infinity)
+                            .cornerRadius(20)
+                            .foregroundStyle(.gray0)
                     }
                 Line()
                     .stroke(style: StrokeStyle(lineWidth: 1, dash: [8.adjustedH]))
@@ -165,12 +161,13 @@ extension DetailView {
                 
             }
             ZStack {
-                Rectangle()
-                    .frame(height: 134.adjustedH)
-                    .cornerRadius(20)
-                    .foregroundStyle(.gray0)
-                
                 LocationInfo
+                    .background {
+                        Rectangle()
+                            .frame(height: 134.adjustedH)
+                            .cornerRadius(20)
+                            .foregroundStyle(.gray0)
+                    }
             }
         }
         .padding(.horizontal, 20.adjusted)
@@ -182,12 +179,9 @@ extension DetailView {
             Text("Menu")
                 .font(.body1b)
                 .foregroundStyle(.spoonBlack)
-            menuList
-            menuList
-            menuList
+            menuList()
         }
-        .padding(.leading, 16.adjusted)
-        
+        .padding(EdgeInsets(top: 20.adjustedH, leading: 16.adjusted, bottom: 28.adjustedH, trailing: 20.adjusted))
     }
     
     private var LocationInfo: some View {
@@ -205,26 +199,15 @@ extension DetailView {
                         .scaledToFit()
                         .frame(width: 20.adjusted, height: 20.adjustedH)
                     
-                    Text("주소")
+                    Text("서울 마포구 연희로11가길 39")
                         .font(.body2m)
                         .foregroundStyle(.spoonBlack)
                 }
             }
+            
             Spacer()
         }
-        .padding(.leading, 16.adjusted)
-    }
-    
-    private var menuList: some View {
-        HStack(spacing: 4) {
-            Image(.icSpoonGray600)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 20.adjusted, height: 20.adjustedH)
-            Text("메뉴")
-                .font(.body2m)
-            Spacer()
-        }
+        .padding(EdgeInsets(top: 21.adjustedH, leading: 16.adjusted, bottom: 25.adjustedH, trailing: 20.adjusted))
     }
     
     private var bottomView: some View {
@@ -287,8 +270,25 @@ extension DetailView {
     }
 }
 
-#Preview {
-    DetailView()
+struct menuList: View {
+    var menus: [String] = ["고등어봉초밥", "고등어봉초밥", "고등어봉초밥"]
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(0..<menus.count, id: \.self) { index in
+                HStack(spacing: 4) {
+                    Image(.icSpoonGray600)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20.adjusted, height: 20.adjustedH)
+                    Text(menus[index])
+                        .font(.body2m)
+                        .lineLimit(2)
+                    Spacer()
+                }
+            }
+        }
+    }
 }
 
 struct Line: Shape {
@@ -298,4 +298,8 @@ struct Line: Shape {
         path.addLine(to: CGPoint(x: rect.width, y: 0))
         return path
     }
+}
+
+#Preview {
+    DetailView()
 }
