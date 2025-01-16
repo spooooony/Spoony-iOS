@@ -20,7 +20,7 @@ struct DetailView: View {
     private var appName: String = "Spoony"
     @State private var isMyPost: Bool = true
     @State private var isMenu: Bool = false
-    @State private var privateMode: Bool = false
+    @State private var privateMode: Bool = true
     
     // MARK: - body
     
@@ -174,7 +174,8 @@ extension DetailView {
             menuList
             menuList
             menuList
-        }.padding(.leading, 16.adjusted)
+        }
+        .padding(.leading, 16.adjusted)
         
     }
     
@@ -199,7 +200,8 @@ extension DetailView {
                 }
             }
             Spacer()
-        }.padding(.leading, 16.adjusted)
+        }
+        .padding(.leading, 16.adjusted)
     }
     
     private var menuList: some View {
