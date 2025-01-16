@@ -15,8 +15,10 @@ struct ContentView: View {
         TabView(selection: $navigationManager.selectedTab) {
             NavigationStack(path: $navigationManager.mapPath) {
                 Home()
+                    .navigationDestination(for: ViewType.self) { viewType in
+                        navigationManager.build(viewType)
+                    }
             }
-            
         }
         .environmentObject(navigationManager)
     }
