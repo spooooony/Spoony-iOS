@@ -10,8 +10,6 @@ import SwiftUI
 final class NavigationManager: ObservableObject {
     
     @Published var selectedTab: TabType = .map
-    @Published var isTabBarVisible: Bool = true
-    
     @Published var mapPath: [ViewType] = []
     @Published var explorePath: [ViewType] = []
     @Published var registerPath: [ViewType] = []
@@ -36,9 +34,6 @@ final class NavigationManager: ObservableObject {
     func push(_ view: ViewType) {
         switch selectedTab {
         case .map:
-            if view == .searchView {
-                isTabBarVisible = false
-            }
             mapPath.append(view)
         case .explore:
             explorePath.append(view)
@@ -51,9 +46,6 @@ final class NavigationManager: ObservableObject {
         switch selectedTab {
         case .map:
             mapPath.removeLast(depth)
-            if mapPath.isEmpty || !mapPath.contains(.searchView) {
-                isTabBarVisible = true
-            }
         case .explore:
             explorePath.removeLast(depth)
         case .register:
