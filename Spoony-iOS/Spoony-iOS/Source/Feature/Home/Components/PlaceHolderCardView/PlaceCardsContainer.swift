@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PlaceCardsContainer: View {
-    private let places: [CardPlace]
+    let places: [CardPlace]
     @Binding var currentPage: Int
     
     var body: some View {
