@@ -90,12 +90,12 @@ extension Report {
                     report: report,
                     isSelected: selectedReport == report
                 )
-                    .onTapGesture {
-                        selectedReport = report
-                        if errorState == .maximumInputError(style: .report) {
-                            errorState = .noError
-                        }
+                .onTapGesture {
+                    selectedReport = report
+                    if errorState == .maximumInputError(style: .report) {
+                        errorState = .noError
                     }
+                }
             }
         }
         .padding(.top, 31)
@@ -124,6 +124,7 @@ extension Report {
                     .foregroundStyle(.gray400)
             }
             .padding(10)
+            .frame(width: 335.adjusted, height: 71.adjustedH)
             .background(.gray0, in: RoundedRectangle(cornerRadius: 8))
             .padding(.top, 8)
         }
