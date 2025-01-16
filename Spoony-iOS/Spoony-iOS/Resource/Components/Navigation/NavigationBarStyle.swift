@@ -8,26 +8,26 @@
 import SwiftUI
 
 enum NavigationBarStyle {
-    // 기본 네비게이션
-    case primary
+    //기본네비
+    case navTopPrimaryOneCenter(isLiked: Bool)   
+
     
     // 검색 관련
-    case search(showBackButton: Bool = true) // 뒤로가기 버튼 표시 여부 추가
+    case navTopSearchNormalDefault(showBackButton: Bool = true)
     
     // 위치 관련
-    case locationTitle    // 위치 제목만 표시
-    case locationDetail   // 위치 상세 정보 표시
+    case navTopPrimaryOneLeft      // 위치 제목만 표시
+    case navTopPrimaryTwoLeft      // 위치 상세 정보 표시
     
     // 상세 화면 관련
-    case detail(isLiked: Bool)         // 좋아요 기능이 있는 상세
-    case detailWithChip(count: Int)    // 카운트 칩이 있는 상세
+    case navTopPrimaryOneChip(count: Int)        // 카운트 칩이 있는 상세
     
     // 백 버튼 표시 여부
     var showsBackButton: Bool {
         switch self {
-        case .locationDetail, .locationTitle:
+        case .navTopPrimaryTwoLeft, .navTopPrimaryOneLeft:
             return false
-        case .search(let showBackButton):
+        case .navTopSearchNormalDefault(let showBackButton):
             return showBackButton
         default:
             return true

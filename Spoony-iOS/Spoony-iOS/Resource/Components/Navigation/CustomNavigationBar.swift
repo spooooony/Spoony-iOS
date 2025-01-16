@@ -10,12 +10,12 @@ import SwiftUI
 struct CustomNavigationBar: View {
     @Binding var searchText: String
     
-    let style: NavigationBarStyle
-    let title: String
-    let onBackTapped: (() -> Void)?
-    let onSearchSubmit: (() -> Void)?
-    let onLikeTapped: (() -> Void)?
-    let onLocationTapped: (() -> Void)?
+    private let style: NavigationBarStyle
+    private let title: String
+    private let onBackTapped: (() -> Void)?
+    private let onSearchSubmit: (() -> Void)?
+    private let onLikeTapped: (() -> Void)?
+    private let onLocationTapped: (() -> Void)?
     
     init(
         style: NavigationBarStyle,
@@ -42,17 +42,15 @@ struct CustomNavigationBar: View {
              }
              
              switch style {
-             case .primary:
-                 primaryContent
-             case .search:
+             case .navTopSearchNormalDefault:
                  searchContent
-             case .locationDetail:
+             case .navTopPrimaryTwoLeft:
                  locationDetailContent
-             case .locationTitle:
+             case .navTopPrimaryOneLeft:
                  locationTitleContent
-             case .detail(let isLiked):
+             case .navTopPrimaryOneCenter(let isLiked):
                  detailContent(isLiked: isLiked)
-             case .detailWithChip(let count):
+             case .navTopPrimaryOneChip(let count):
                  detailWithChipContent(count: count)
              }
          }
@@ -182,5 +180,45 @@ struct CustomNavigationBar: View {
             }
         }
         .padding(.horizontal, 16)
+    }
+}
+
+struct CustomNavigationBar_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack(spacing: 20) {
+            CustomNavigationBar(
+                style: .navTopPrimaryOneCenter(isLiked: true),
+                title: "Primary 스타일"
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .navTopSearchNormalDefault(showBackButton: true),
+                searchText: .constant("검색어")
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .navTopPrimaryTwoLeft,
+                title: "위치 상세",
+                onLocationTapped: {}
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .navTopPrimaryOneLeft,
+                title: "홍대입구역",
+                onBackTapped: {}
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .navTopPrimaryOneChip(count: 42),
+                onBackTapped: {}
+            )
+            .border(.gray)
+        }
+        .padding()
+        .previewLayout(.sizeThatFits)
     }
 }
