@@ -19,7 +19,8 @@ struct DetailView: View {
     private var searchName = "연남"
     private var appName: String = "Spoony"
     @State private var isMyPost: Bool = true
-    @State private var isMenu: Bool = true
+    @State private var isMenu: Bool = false
+    @State private var privateMode: Bool = false
     
     // MARK: - body
     
@@ -98,7 +99,7 @@ extension DetailView {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 278.adjusted)
-                    //                        .blur(radius: 12)
+                        .blur(radius: privateMode ? 12 : 0)
                         .cornerRadius(11.16)
                 }
                 .frame(height: 278.adjustedH)
@@ -160,7 +161,9 @@ extension DetailView {
                 
                 LocationInfo
             }
-        }.padding(.horizontal, 20.adjusted)
+        }
+        .padding(.horizontal, 20.adjusted)
+        .blur(radius: privateMode ? 8 : 0)
     }
     
     private var menuInfo: some View {
@@ -213,30 +216,44 @@ extension DetailView {
     
     private var bottomView: some View {
         HStack(spacing: 0) {
-            SpoonyButton(style: .secondary, size: .medium, title: "길찾기", disabled: .constant(false)) {
-                let url = URL(string: "nmap://search?query=\(searchName)&appname=\(appName)")!
-                let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
+            SpoonyButton(
+                style: .secondary,
+                size: privateMode ? .xlarge : .medium,
+                title: privateMode ? "떠먹기" : "길찾기",
+                isIcon: privateMode ? true : false,
+                disabled: .constant(false)
+            ) {
                 
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url)
+                if privateMode {
+                    // TODO: 모달창 기능 구현 하기
                 } else {
-                    UIApplication.shared.open(appStoreURL)
+                    let url = URL(string: "nmap://search?query=\(searchName)&appname=\(appName)")!
+                    let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
+                    
+                    if UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(url)
+                    } else {
+                        UIApplication.shared.open(appStoreURL)
+                    }
                 }
             }
             
-            Spacer()
-            
-            VStack(spacing: 4) {
-                Image(.icAddmapGray400)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 56.adjusted, height: 32.adjustedH)
+            if !privateMode {
+                Spacer()
                 
-                Text("99")
-                    .font(.caption1m)
-                    .foregroundStyle(.gray800)
+                VStack(spacing: 4) {
+                    Image(.icAddmapGray400)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 56.adjusted, height: 32.adjustedH)
+                    
+                    Text("99")
+                        .font(.caption1m)
+                        .foregroundStyle(.gray800)
+                }
             }
-        }.padding(.horizontal, 20.adjusted)
+        }
+        .padding(.horizontal, 20.adjusted)
     }
 }
 
