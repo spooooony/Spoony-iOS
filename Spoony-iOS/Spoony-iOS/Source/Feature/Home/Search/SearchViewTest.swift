@@ -33,12 +33,7 @@ struct SearchViewTest: View {
                 case .typing:
                     recentSearchesView
                 case .searched:
-                    List {
-                        ForEach(getFilteredResults(), id: \.id) { result in
-                            SearchResultRow(result: result)
-                        }
-                    }
-                    .listStyle(PlainListStyle())
+                    searchResultListView
                 }
                 
                 Spacer()
@@ -79,7 +74,7 @@ struct SearchViewTest: View {
     }
     
     private var recentSearchesView: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("최근 검색")
                     .font(.body2b)
@@ -110,6 +105,30 @@ struct SearchViewTest: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
+                    
+                    if search != recentSearches.last {
+                        Divider()
+                            .foregroundStyle(.gray400)
+                            .padding(.horizontal, 16)
+                    }
+                }
+            }
+        }
+    }
+    
+    private var searchResultListView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(getFilteredResults(), id: \.id) { result in
+                    SearchResultRow(result: result)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                    
+                    if result.id != getFilteredResults().last?.id {
+                        Divider()
+                            .foregroundStyle(.gray400)
+                            .padding(.horizontal, 16)
+                    }
                 }
             }
         }
