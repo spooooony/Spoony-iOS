@@ -19,14 +19,14 @@ struct DetailView: View {
     private var searchName = "연남"
     private var appName: String = "Spoony"
     @State private var isMyPost: Bool = true
-    @State private var isMenu: Bool = false
+    @State private var isPresented: Bool = false
     @State private var privateMode: Bool = true
     
     // MARK: - body
     
     var body: some View {
         
-        CustomNavigationBar(style: .detailWithChip(count: 99), onLocationTapped: {
+        CustomNavigationBar(style: .detailWithChip(count: 99), onBackTapped: {
             print("하이")
         })
         
@@ -39,10 +39,10 @@ struct DetailView: View {
             }
         }
         .overlay(alignment: .topTrailing) {
-            if isMenu {
-                DropDownMenu(items: ["신고하기"], isPresented: $isMenu) { menu in
+            if isPresented {
+                DropDownMenu(items: ["신고하기"], isPresented: $isPresented) { menu in
                     print("선택된 메뉴: \(menu)")
-                    isMenu = false
+                    isPresented = false
                 }
                 .frame(alignment: .topTrailing)
                 .padding(.top, 48.adjustedH)
@@ -81,7 +81,7 @@ extension DetailView {
             if isMyPost {
                 Image(.icMenu)
                     .onTapGesture {
-                        isMenu.toggle()
+                        isPresented.toggle()
                     }
             }
             
