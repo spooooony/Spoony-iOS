@@ -195,7 +195,7 @@ struct CustomNavigationBar: View {
                 TextField("", text: $searchText)
                     .frame(height: 44.adjusted)
                     .placeholder(when: searchText.isEmpty) {
-                        Text("검색어를 입력하세요")
+                        Text("마포구,성수동,강남역")
                             .foregroundColor(Color(.gray600))
                     }
                 
@@ -206,24 +206,21 @@ struct CustomNavigationBar: View {
                     }
                 }
                 
-                if let onSearchSubmit = onSearchSubmit {
-                    Button(action: onSearchSubmit) {
-                        Text("검색")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.spoonBlack)
-                            .cornerRadius(8)
-                    }
-                }
             }
             .padding(.horizontal, 12)
-            .background(Color(.gray100))
-            .cornerRadius(8)
+            .background(Color(.white))
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color(.gray400), lineWidth: 1)
+            )
+            .cornerRadius(10)
             .frame(height: 44.adjusted)
         }
         .padding(.horizontal, 16)
     }
 
+}
+
+#Preview {
+    SearchViewTest()
 }
