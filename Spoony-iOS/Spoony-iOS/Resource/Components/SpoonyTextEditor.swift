@@ -71,7 +71,7 @@ extension SpoonyTextEditor {
                         .foregroundStyle(text.isEmpty ? .gray500 : .clear)
                         .offset(x: 5.adjusted, y: 8.adjustedH)
                 }
-                .onChange(of: text) { oldValue, newValue in
+                .onChange(of: text) { _, newValue in
                     switch checkInputError(newValue) {
                     case .maximumInputError(let style):
                         errorState = .maximumInputError(style: style)
