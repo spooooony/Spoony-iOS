@@ -33,31 +33,31 @@ struct CustomNavigationBar: View {
     }
     
     var body: some View {
-         ZStack {
-             if style.showsBackButton {
-                 backButton
-             }
-             
-             switch style {
-             case .primary:
-                 primaryContent
-             case .search:
-                 searchContent
-             case .locationDetail:
-                 locationDetailContent
-             case .locationTitle:
-                 locationTitleContent
-             case .detail(let isLiked):
-                 detailContent(isLiked: isLiked)
-             case .detailWithChip(let count):
-                 detailWithChipContent(count: count)
-             case .searchBar:
-                 searchBarContent
-             }
-         }
-         .frame(height: 56.adjusted)
-         .background(.white)
-     }
+        ZStack {
+            if style.showsBackButton {
+                backButton
+            }
+            
+            switch style {
+            case .primary:
+                primaryContent
+            case .search:
+                searchContent
+            case .locationDetail:
+                locationDetailContent
+            case .locationTitle:
+                locationTitleContent
+            case .detail(let isLiked):
+                detailContent(isLiked: isLiked)
+            case .detailWithChip(let count):
+                detailWithChipContent(count: count)
+            case .searchBar:
+                searchBarContent
+            }
+        }
+        .frame(height: 56.adjusted)
+        .background(.white)
+    }
     
     private var backButtonView: some View {
         Button(action: onBackTapped) {
@@ -72,7 +72,7 @@ struct CustomNavigationBar: View {
         }
         .padding(.horizontal, 16)
     }
-
+    
     private var primaryContent: some View {
         HStack {
             if !title.isEmpty {
@@ -82,7 +82,7 @@ struct CustomNavigationBar: View {
             Spacer()
         }
     }
-
+    
     private var searchContent: some View {
         HStack(spacing: 12) {
             if style.showsBackButton {
@@ -134,13 +134,8 @@ struct CustomNavigationBar: View {
             
             Spacer()
             
-            Text("99+")
-                .font(.system(size: 12))
-                .foregroundColor(.white)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.black)
-                .cornerRadius(12)
+            LogoChip(type: .small, count: 99)
+                .padding(.trailing, 20)
         }
     }
     
@@ -159,16 +154,8 @@ struct CustomNavigationBar: View {
         HStack {
             Spacer()
             
-            HStack(spacing: 4) {
-                Text("\(count)")
-                    .font(.system(size: 14))
-                Image(.icSpoonWhite)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Color.spoonBlack)
-            .foregroundColor(Color.white)
-            .cornerRadius(16)
+            LogoChip(type: .small, count: count)
+                .padding(.trailing, 20)
         }
     }
     
@@ -224,9 +211,61 @@ struct CustomNavigationBar: View {
         }
         .padding(.horizontal, 16)
     }
-
+    
 }
 
-#Preview {
-    SearchViewTest()
+struct CustomNavigationBar_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack(spacing: 20) {
+            CustomNavigationBar(
+                style: .primary,
+                title: "Primary 스타일",
+                onBackTapped: {}
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .searchBar,
+                searchText: .constant("검색어"),
+                onBackTapped: {}
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .locationDetail,
+                title: "위치 상세",
+                onBackTapped: {}
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .locationTitle,
+                title: "홍대입구역",
+                onBackTapped: {}
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .detail(isLiked: true),
+                title: "상세 페이지",
+                onBackTapped: {}
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .detailWithChip(count: 42),
+                onBackTapped: {}
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .searchBar,
+                searchText: .constant(""),
+                onBackTapped: {}
+            )
+            .border(.gray)
+        }
+        .padding()
+        .previewLayout(.sizeThatFits)
+    }
 }
