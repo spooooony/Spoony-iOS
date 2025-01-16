@@ -12,17 +12,19 @@ struct CustomNavigationBar: View {
     
     let style: NavigationBarStyle
     let title: String
-    let onBackTapped: () -> Void
+    let onBackTapped: (() -> Void)?
     let onSearchSubmit: (() -> Void)?
     let onLikeTapped: (() -> Void)?
+    let onLocationTapped: (() -> Void)?
     
     init(
         style: NavigationBarStyle,
         title: String = "",
         searchText: Binding<String> = .constant(""),
-        onBackTapped: @escaping () -> Void,
+        onBackTapped: (() -> Void)? = nil,
         onSearchSubmit: (() -> Void)? = nil,
-        onLikeTapped: (() -> Void)? = nil
+        onLikeTapped: (() -> Void)? = nil,
+        onLocationTapped: (() -> Void)? = nil
     ) {
         self.style = style
         self.title = title
@@ -30,6 +32,7 @@ struct CustomNavigationBar: View {
         self.onBackTapped = onBackTapped
         self.onSearchSubmit = onSearchSubmit
         self.onLikeTapped = onLikeTapped
+        self.onLocationTapped = onLocationTapped
     }
     
     var body: some View {
@@ -58,7 +61,7 @@ struct CustomNavigationBar: View {
      }
     
     private var backButtonView: some View {
-        Button(action: onBackTapped) {
+        Button(action: onBackTapped ?? { print("error") }) {
             Image(.icArrowLeftGray700)
         }
     }
@@ -117,7 +120,7 @@ struct CustomNavigationBar: View {
     
     private var locationDetailContent: some View {
         HStack {
-            Button(action: {}) {
+            Button(action: onLocationTapped ?? { print("error") }) {
                 HStack {
                     Text(title)
                         .font(.title2b)
@@ -173,7 +176,7 @@ struct CustomNavigationBar: View {
                 .font(.title2b)
                 .foregroundColor(.black)
             Spacer()
-            Button(action: onBackTapped) {
+            Button(action: onBackTapped ?? { print("error") }) {
                 Image(.icCloseGray400)
                     .foregroundColor(.gray)
             }

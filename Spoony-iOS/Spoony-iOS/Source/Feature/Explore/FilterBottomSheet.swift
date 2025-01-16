@@ -23,7 +23,7 @@ enum FilterType: CaseIterable {
 
 struct FilterBottomSheet: View {
     @Binding var isPresented: Bool
-    @State private var selectedFilter: FilterType = .latest
+    @Binding var selectedFilter: FilterType
     
     var body: some View {
         VStack(spacing: 12) {
@@ -35,6 +35,7 @@ struct FilterBottomSheet: View {
                     disabled: .constant(false)
                 ) {
                     selectedFilter = filter
+                    isPresented = false
                 }
             }
             SpoonyButton(
@@ -48,10 +49,10 @@ struct FilterBottomSheet: View {
             Spacer()
         }
         .padding(.top, 16)
-        .padding(.bottom, 22)
+        .padding(.bottom, 22.adjustedH)
     }
 }
 
 #Preview {
-    FilterBottomSheet(isPresented: .constant(true))
+    FilterBottomSheet(isPresented: .constant(true), selectedFilter: .constant(.latest))
 }
