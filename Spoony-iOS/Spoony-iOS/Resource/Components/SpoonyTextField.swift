@@ -229,7 +229,7 @@ public enum SpoonyTextFieldStyle: Equatable {
         case .normal:
             return "ic_minus_gray400"
         case .icon:
-            return "ic_delete_gray400"
+            return "ic_delete_fill_gray400"
         case .helper:
             return nil
         }
