@@ -15,7 +15,7 @@ import SwiftUI
 public struct SpoonyTextField: View {
     
     // MARK: - Properties
-    @State private var errorState: TextFieldErrorState = .noError
+    @Binding var errorState: TextFieldErrorState
     @FocusState private var isFocused
     @Binding var text: String
     
@@ -25,11 +25,13 @@ public struct SpoonyTextField: View {
     
     // MARK: - Init
     public init(
+        errorState: Binding<TextFieldErrorState>,
         text: Binding<String>,
         style: SpoonyTextFieldStyle,
         placeholder: String,
         action: (() -> Void)? = nil
     ) {
+        self._errorState = errorState
         self._text = text
         self.style = style
         self.placeholder = placeholder
@@ -139,7 +141,7 @@ extension SpoonyTextField {
         .frame(width: 335.adjusted, height: 44.adjustedH)
         .background {
             RoundedRectangle(cornerRadius: 8)
-                .stroke(borderColor, lineWidth: 1)
+                .strokeBorder(borderColor, lineWidth: 1)
         }
     }
     

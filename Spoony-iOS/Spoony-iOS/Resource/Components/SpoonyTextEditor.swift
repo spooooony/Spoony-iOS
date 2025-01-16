@@ -14,7 +14,7 @@ import SwiftUI
 public struct SpoonyTextEditor: View {
     
     // MARK: - Properties
-    @State private var errorState: TextEditorErrorState = .noError
+    @Binding var errorState: TextEditorErrorState
     @FocusState private var isFocused
     @Binding var text: String
     
@@ -23,11 +23,13 @@ public struct SpoonyTextEditor: View {
     
     // MARK: - Init
     public init(
+        errorState: Binding<TextEditorErrorState>,
         text: Binding<String>,
         style: SpoonyTextEditorStyle,
         placeholder: String
         
     ) {
+        self._errorState = errorState
         self._text = text
         self.style = style
         self.placeholder = placeholder
@@ -71,7 +73,7 @@ extension SpoonyTextEditor {
                         .foregroundStyle(text.isEmpty ? .gray500 : .clear)
                         .offset(x: 5.adjusted, y: 8.adjustedH)
                 }
-                .onChange(of: text) { oldValue, newValue in
+                .onChange(of: text) { _, newValue in
                     switch checkInputError(newValue) {
                     case .maximumInputError(let style):
                         errorState = .maximumInputError(style: style)
@@ -99,7 +101,7 @@ extension SpoonyTextEditor {
         .frame(width: 335.adjusted, height: 125.adjustedH)
         .background {
             RoundedRectangle(cornerRadius: 8)
-                .stroke(borderColor, lineWidth: 1)
+                .strokeBorder(borderColor, lineWidth: 1)
         }
     }
     
