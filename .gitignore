@@ -15,8 +15,6 @@ Pods/
 .AppleDouble
 .LSOverride
 
-# Icon must end with two \r
-Icon
 
 # Thumbnails
 ._*
@@ -145,4 +143,10 @@ iOSInjectionProject/
 /*.gcno
 **/xcshareddata/WorkspaceSettings.xcsettings
 
+# Configuration
+# 절대 경로로 시도
+/Spoony-iOS/Config/Config.xcconfig
+
+# 또는 모든 Config.xcconfig 파일을 무시하도록
+**/Config.xcconfig
 # End of https://www.toptal.com/developers/gitignore/api/macos,swift,xcode,cocoapods
