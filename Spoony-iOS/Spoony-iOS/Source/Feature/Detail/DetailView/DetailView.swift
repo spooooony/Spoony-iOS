@@ -18,41 +18,66 @@ struct DetailView: View {
     
     private var searchName = "연남"
     private var appName: String = "Spoony"
+    @State private var isMyPost: Bool = true
+    @State private var isPresented: Bool = false
+    @State private var privateMode: Bool = false
     
     // MARK: - body
     
     var body: some View {
         
-        CustomNavigationBar(style: .detailWithChip(count: 99)) {
+        CustomNavigationBar(style: .detailWithChip(count: 99), onBackTapped: {
             print("하이")
-        }
+        })
         
         ScrollView(.vertical) {
             VStack(spacing: 0) {
                 userProfileSection
-                ImageSection
-                ReviewSection
-                PlaceInfoSection
+                imageSection
+                reviewSection
+                placeInfoSection
             }
         }
+        .gesture(dragGesture)
+        .onTapGesture {
+            dismissDropDown()
+        }
+        .overlay(dropDownView, alignment: .topTrailing)
         
         bottomView
     }
 }
 
-// MARK: - SubViews
+// MARK: Gesture
+extension DetailView {
+    private var dragGesture: some Gesture {
+        DragGesture()
+            .onChanged { _ in
+                dismissDropDown()
+            }
+    }
+}
+
+// MARK: Method
+extension DetailView {
+    private func dismissDropDown() {
+        isPresented = false
+    }
+}
+
+// MARK: - Subviews
 
 extension DetailView {
     private var userProfileSection: some View {
         
-        HStack(spacing: 16.0) {
+        HStack(alignment: .center, spacing: 14.adjustedH) {
             
             Circle()
                 .fill(Color.pink)
                 .scaledToFit()
-                .frame(width: 48, height: 48)
+                .frame(width: 48.adjusted, height: 48.adjustedH)
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 4.adjustedH) {
                 Text(userName)
                     .font(.body2b)
                     .foregroundStyle(.black)
@@ -64,14 +89,19 @@ extension DetailView {
             
             Spacer()
             
-            Image(.icMenu)
+            if isMyPost {
+                Image(.icMenu)
+                    .onTapGesture {
+                        isPresented.toggle()
+                    }
+            }
             
-        }.padding(EdgeInsets(top: 11.5, leading: 20, bottom: 11.5, trailing: 20))
-            .padding(.bottom, 24.adjustedH)
+        }
+        .padding(EdgeInsets(top: 8.adjustedH, leading: 20.adjusted, bottom: 8.adjustedH, trailing: 20.adjusted))
+        .padding(.bottom, 24.adjustedH)
     }
     
-    private var ImageSection: some View {
-        
+    private var imageSection: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 16) {
                 ForEach(0..<4) { _ in
@@ -79,18 +109,16 @@ extension DetailView {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 278.adjusted)
-                    //                        .blur(radius: 12)
+                        .blur(radius: privateMode ? 12 : 0)
                         .cornerRadius(11.16)
                 }
                 .frame(height: 278.adjustedH)
             }
-            .padding(.leading, 20.adjusted)
-            .padding(.trailing, 20.adjusted)
-            .padding(.bottom, 32.adjustedH)
+            .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
         }
     }
     
-    private var ReviewSection: some View {
+    private var reviewSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Rectangle()
                 .frame(width: 61.adjusted, height: 24.adjustedH)
@@ -116,16 +144,15 @@ extension DetailView {
         .padding(.bottom, 32.adjustedH)
     }
     
-    private var PlaceInfoSection: some View {
+    private var placeInfoSection: some View {
         VStack(spacing: 0) {
             ZStack(alignment: .bottom) {
-                
-                Rectangle()
-                    .frame(height: 166.adjustedH)
-                    .cornerRadius(20)
-                    .foregroundStyle(.gray0)
-                    .overlay {
-                        menuInfo
+                menuInfo
+                    .background {
+                        Rectangle()
+                            .frame(height: .infinity)
+                            .cornerRadius(20)
+                            .foregroundStyle(.gray0)
                     }
                 Line()
                     .stroke(style: StrokeStyle(lineWidth: 1, dash: [8.adjustedH]))
@@ -134,14 +161,17 @@ extension DetailView {
                 
             }
             ZStack {
-                Rectangle()
-                    .frame(height: 134.adjustedH)
-                    .cornerRadius(20)
-                    .foregroundStyle(.gray0)
-                
                 LocationInfo
+                    .background {
+                        Rectangle()
+                            .frame(height: 134.adjustedH)
+                            .cornerRadius(20)
+                            .foregroundStyle(.gray0)
+                    }
             }
-        }.padding(.horizontal, 20.adjusted)
+        }
+        .padding(.horizontal, 20.adjusted)
+        .blur(radius: privateMode ? 8 : 0)
     }
     
     private var menuInfo: some View {
@@ -149,11 +179,9 @@ extension DetailView {
             Text("Menu")
                 .font(.body1b)
                 .foregroundStyle(.spoonBlack)
-            menuList
-            menuList
-            menuList
-        }.padding(.leading, 16.adjusted)
-        
+            menuList()
+        }
+        .padding(EdgeInsets(top: 20.adjustedH, leading: 16.adjusted, bottom: 28.adjustedH, trailing: 20.adjusted))
     }
     
     private var LocationInfo: some View {
@@ -171,58 +199,96 @@ extension DetailView {
                         .scaledToFit()
                         .frame(width: 20.adjusted, height: 20.adjustedH)
                     
-                    Text("주소")
+                    Text("서울 마포구 연희로11가길 39")
                         .font(.body2m)
                         .foregroundStyle(.spoonBlack)
                 }
             }
-            Spacer()
-        }.padding(.leading, 16.adjusted)
-    }
-    
-    private var menuList: some View {
-        HStack(spacing: 4) {
-            Image(.icSpoonGray600)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 20.adjusted, height: 20.adjustedH)
-            Text("메뉴")
-                .font(.body2m)
+            
             Spacer()
         }
+        .padding(EdgeInsets(top: 21.adjustedH, leading: 16.adjusted, bottom: 25.adjustedH, trailing: 20.adjusted))
     }
     
     private var bottomView: some View {
         HStack(spacing: 0) {
-            SpoonyButton(style: .secondary, size: .medium, title: "길찾기", disabled: .constant(false)) {
-                let url = URL(string: "nmap://search?query=\(searchName)&appname=\(appName)")!
-                let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
+            SpoonyButton(
+                style: .secondary,
+                size: privateMode ? .xlarge : .medium,
+                title: privateMode ? "떠먹기" : "길찾기",
+                isIcon: privateMode ? true : false,
+                disabled: .constant(false)
+            ) {
                 
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url)
+                if privateMode {
+                    // TODO: 모달창 기능 구현 하기
                 } else {
-                    UIApplication.shared.open(appStoreURL)
+                    let url = URL(string: "nmap://search?query=\(searchName)&appname=\(appName)")!
+                    let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
+                    
+                    if UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(url)
+                    } else {
+                        UIApplication.shared.open(appStoreURL)
+                    }
                 }
             }
             
-            Spacer()
-            
-            VStack(spacing: 4) {
-                Image(.icAddmapGray400)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 56.adjusted, height: 32.adjustedH)
+            if !privateMode {
+                Spacer()
                 
-                Text("99")
-                    .font(.caption1m)
-                    .foregroundStyle(.gray800)
+                VStack(spacing: 4) {
+                    Image(.icAddmapGray400)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 56.adjusted, height: 32.adjustedH)
+                    
+                    Text("99")
+                        .font(.caption1m)
+                        .foregroundStyle(.gray800)
+                }
             }
-        }.padding(.horizontal, 20.adjusted)
+        }
+        .padding(.horizontal, 20.adjusted)
+    }
+    
+    private var dropDownView: some View {
+        Group {
+            if isPresented {
+                DropDownMenu(
+                    items: ["신고하기"],
+                    isPresented: $isPresented
+                ) { menu in
+                    print("선택된 메뉴: \(menu)")
+                    isPresented = false
+                }
+                .frame(alignment: .topTrailing)
+                .padding(.top, 48.adjustedH)
+                .padding(.trailing, 20.adjusted)
+            }
+        }
     }
 }
 
-#Preview {
-    DetailView()
+struct menuList: View {
+    var menus: [String] = ["고등어봉초밥", "고등어봉초밥", "고등어봉초밥"]
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(0..<menus.count, id: \.self) { index in
+                HStack(spacing: 4) {
+                    Image(.icSpoonGray600)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20.adjusted, height: 20.adjustedH)
+                    Text(menus[index])
+                        .font(.body2m)
+                        .lineLimit(2)
+                    Spacer()
+                }
+            }
+        }
+    }
 }
 
 struct Line: Shape {
@@ -232,4 +298,8 @@ struct Line: Shape {
         path.addLine(to: CGPoint(x: rect.width, y: 0))
         return path
     }
+}
+
+#Preview {
+    DetailView()
 }

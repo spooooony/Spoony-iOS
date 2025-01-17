@@ -54,8 +54,6 @@ struct SpoonyTabView: View {
             }
         }
     }
-    
-    
 }
 
 extension SpoonyTabView {

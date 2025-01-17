@@ -10,12 +10,11 @@ import SwiftUI
 struct CustomNavigationBar: View {
     @Binding var searchText: String
     
-    let style: NavigationBarStyle
-    let title: String
-    let onBackTapped: (() -> Void)?
-    let onSearchSubmit: (() -> Void)?
-    let onLikeTapped: (() -> Void)?
-    let onLocationTapped: (() -> Void)?
+    private let style: NavigationBarStyle
+    private let title: String?
+    private let onBackTapped: (() -> Void)?
+    private let onSearchSubmit: (() -> Void)?
+    private let onLikeTapped: (() -> Void)?
     
     init(
         style: NavigationBarStyle,
@@ -23,8 +22,7 @@ struct CustomNavigationBar: View {
         searchText: Binding<String> = .constant(""),
         onBackTapped: (() -> Void)? = nil,
         onSearchSubmit: (() -> Void)? = nil,
-        onLikeTapped: (() -> Void)? = nil,
-        onLocationTapped: (() -> Void)? = nil
+        onLikeTapped: (() -> Void)? = nil
     ) {
         self.style = style
         self.title = title
@@ -32,7 +30,6 @@ struct CustomNavigationBar: View {
         self.onBackTapped = onBackTapped
         self.onSearchSubmit = onSearchSubmit
         self.onLikeTapped = onLikeTapped
-        self.onLocationTapped = onLocationTapped
     }
     
     var body: some View {
@@ -48,8 +45,8 @@ struct CustomNavigationBar: View {
                 locationDetail
             case .locationTitle:
                 locationTitle
-            case .detail(let isLiked):
-                detail(isLiked: isLiked)
+            case .detail:
+                detail
             case .detailWithChip(let count):
                 detailWithChip(count: count)
             case .search:
@@ -63,9 +60,10 @@ struct CustomNavigationBar: View {
     }
     
     private var backButtonView: some View {
-        Button(action: onBackTapped ?? { print("error") }) {
-            Image(.icArrowLeftGray700)
-        }
+        Image(.icArrowLeftGray700)
+            .onTapGesture {
+                onBackTapped?()
+            }
     }
     
     private var backButton: some View {
@@ -74,16 +72,6 @@ struct CustomNavigationBar: View {
             Spacer()
         }
         .padding(.horizontal, 16)
-    }
-    
-    private var primaryContent: some View {
-        HStack {
-            if !title.isEmpty {
-                Text(title)
-                    .font(.title2b)
-            }
-            Spacer()
-        }
     }
     
     private var searchContent: some View {
@@ -103,10 +91,10 @@ struct CustomNavigationBar: View {
             .frame(height: 44.adjustedH)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white)
+                    .fill(.white)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(.gray200), lineWidth: 1)
+                            .strokeBorder(.gray200)
                     )
             )
             .onTapGesture {
@@ -118,9 +106,9 @@ struct CustomNavigationBar: View {
     
     private var locationDetail: some View {
         HStack {
-            Button(action: onLocationTapped ?? { print("error") }) {
+            Button(action: {}) {
                 HStack {
-                    Text(title)
+                    Text(title ?? "홍대입구역")
                         .font(.title2sb)
                         .foregroundStyle(.spoonBlack)
                     Image(.icArrowRightGray700)
@@ -137,22 +125,25 @@ struct CustomNavigationBar: View {
     
     private var locationTitle: some View {
         HStack {
+            let title = title ?? ""
             Text(title.isEmpty ? "홍대입구역" : title)
                 .font(.title2b)
                 .foregroundStyle(.spoonBlack)
             Spacer()
-//            Button(action: onBackTapped) {
-//                Image(.icCloseGray400)
-//                    .foregroundStyle(.gray)
-//            }
+            Image(.icCloseGray400)
+                .foregroundStyle(.gray400)
+                .onTapGesture {
+                    onBackTapped?()
+                }
         }
+        
         .padding(.horizontal, 16)
     }
     
-    private func detail(isLiked: Bool) -> some View {
+    private var detail: some View { 
         HStack {
             Spacer()
-            Text(title)
+            Text(title ?? "홍대")
                 .font(.title2b)
                 .multilineTextAlignment(.center)
                 .lineLimit(1)
@@ -196,10 +187,10 @@ struct CustomNavigationBar: View {
                 }
             }
             .padding(.horizontal, 12)
-            .background(Color(.white))
+            .background(.white)
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color(.gray400), lineWidth: 1)
+                    .strokeBorder(.gray400)
             )
             .cornerRadius(10)
             .frame(height: 44.adjusted)
@@ -233,7 +224,7 @@ struct CustomNavigationBar_Previews: PreviewProvider {
             .border(.gray)
             
             CustomNavigationBar(
-                style: .detail(isLiked: true),
+                style: .detail,
                 title: "상세 페이지",
                 onBackTapped: {}
             )
