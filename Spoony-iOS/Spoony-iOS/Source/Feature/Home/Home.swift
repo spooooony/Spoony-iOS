@@ -45,47 +45,48 @@ struct Home: View {
     ]
     
     var body: some View {
-        ZStack {
-            NMapView()
-                .edgesIgnoringSafeArea(.all)
-            
-            VStack(spacing: 0) {
-                if navigationManager.mapPath.contains(.locationView) {
-                    // 위치 상세 화면일 때
-                    CustomNavigationBar(
-                        style: .locationTitle,
-                        title: "선택된 위치",
-                        searchText: $searchText,
-                        onBackTapped: {
-                            navigationManager.pop(1)
-                        }
-                    )
-                } else {
-                    // 기본 홈 화면일 때
-                    CustomNavigationBar(
-                        style: .searchContent,
-                        searchText: $searchText,
-                        onBackTapped: {
-                            navigationManager.pop(1)
-                        },
-                        tappedAction: {
-                            navigationManager.push(.searchView)
-                        }
-                    )
-                }
-                
-                Spacer()
-            }
-            
-            if isBottomSheetPresented {
-                BottomSheetListView()
-            }
-        }
-        .onAppear {
-            isBottomSheetPresented = true
-        }
-    }
-}
+           ZStack {
+               Color.white
+                   .edgesIgnoringSafeArea(.all)
+                   
+               NMapView()
+                   .edgesIgnoringSafeArea(.all)
+               
+               VStack(spacing: 0) {
+                   if navigationManager.mapPath.contains(.locationView) {
+                       CustomNavigationBar(
+                           style: .locationTitle,
+                           title: "선택된 위치",
+                           searchText: $searchText,
+                           onBackTapped: {
+                               navigationManager.pop(1)
+                           }
+                       )
+                   } else {
+                       CustomNavigationBar(
+                           style: .searchContent,
+                           searchText: $searchText,
+                           onBackTapped: {
+                               navigationManager.pop(1)
+                           },
+                           tappedAction: {
+                               navigationManager.push(.searchView)
+                           }
+                       )
+                   }
+                   
+                   Spacer()
+               }
+               
+               if isBottomSheetPresented {
+                   BottomSheetListView()
+               }
+           }
+           .navigationBarHidden(true) 
+           .onAppear {
+               isBottomSheetPresented = true
+           }
+       }}
 
 #Preview {
     Home()

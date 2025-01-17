@@ -133,8 +133,9 @@ struct CustomNavigationBar: View {
                     onBackTapped?()
                 }
         }
-        
         .padding(.horizontal, 16)
+        .background(.white)
+
     }
     
     private var detail: some View {
