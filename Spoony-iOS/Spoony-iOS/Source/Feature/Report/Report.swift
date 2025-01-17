@@ -52,19 +52,6 @@ struct Report: View {
             isDisabled = isError
         }
     }
-    
-    private func radioButton(report: ReportType, isSelected: Bool) -> some View {
-        HStack(spacing: 12) {
-            Image(isSelected ? .icRadioOnGray900 : .icRadioOffGray400)
-            
-            Text(report.rawValue)
-                .font(.body1m)
-                .foregroundStyle(.gray900)
-            
-            Spacer()
-        }
-        .frame(height: 42.adjustedH)
-    }
 }
 
 extension Report {
@@ -118,6 +105,19 @@ extension Report {
         }
         .padding(.top, 32)
         .padding(.horizontal, 20)
+    }
+    
+    private func radioButton(report: ReportType, isSelected: Bool) -> some View {
+        HStack(spacing: 12) {
+            Image(isSelected ? .icRadioOnGray900 : .icRadioOffGray400)
+            
+            Text(report.rawValue)
+                .font(.body1m)
+                .foregroundStyle(.gray900)
+            
+            Spacer()
+        }
+        .frame(height: 42.adjustedH)
     }
 }
 
