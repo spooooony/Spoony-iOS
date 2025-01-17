@@ -69,11 +69,10 @@ extension DetailView {
 
 extension DetailView {
     private var userProfileSection: some View {
-        
         HStack(alignment: .center, spacing: 14.adjustedH) {
             
-            Circle()
-                .fill(Color.pink)
+            Image(.imgMockProfile)
+                .resizable()
                 .scaledToFit()
                 .frame(width: 48.adjusted, height: 48.adjustedH)
             
@@ -105,7 +104,7 @@ extension DetailView {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 16) {
                 ForEach(0..<4) { _ in
-                    Image(.imgFood)
+                    Image(.imgMockGodeung)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 278.adjusted)
@@ -119,11 +118,13 @@ extension DetailView {
     }
     
     private var reviewSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Rectangle()
-                .frame(width: 61.adjusted, height: 24.adjustedH)
-                .cornerRadius(12)
-                .foregroundStyle(.purple400)
+        VStack(alignment: .leading, spacing: 8.adjustedH) {
+            IconChip(
+                title: "주류",
+                foodType: .bar,
+                chipType: .small,
+                color: .purple
+            )
             
             Text("인생 이자카야. 고등어 초밥 안주가 그냥 미쳤어요.".splitZeroWidthSpace())
                 .font(.title1b)
@@ -188,7 +189,7 @@ extension DetailView {
         .padding(EdgeInsets(top: 20.adjustedH, leading: 16.adjusted, bottom: 28.adjustedH, trailing: 20.adjusted))
     }
     
-    private var LocationInfo: some View {
+    private var locationInfo: some View {
         HStack {
             VStack(alignment: .leading, spacing: 12.adjustedH) {
                 Text("Location")
@@ -197,7 +198,7 @@ extension DetailView {
                 Text("상호명")
                     .font(.title2sb)
                     .foregroundStyle(.spoonBlack)
-                HStack(spacing: 4) {
+                HStack(spacing: 4.adjusted) {
                     Image(.icMapGray400)
                         .resizable()
                         .scaledToFit()
