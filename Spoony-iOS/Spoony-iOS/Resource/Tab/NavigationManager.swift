@@ -14,20 +14,23 @@ final class NavigationManager: ObservableObject {
     @Published var explorePath: [ViewType] = []
     @Published var registerPath: [ViewType] = []
     
+    @Published var popup: PopupType?
+    
     @ViewBuilder
     func build(_ view: ViewType) -> some View {
         switch view {
         case .test:
             Explore()
-            
         case .searchView:
             SearchView()
         case .locationView:
             Home()
-            
         case .detailView:
-            Home()
-            
+            DetailView()
+        case .explore:
+            Explore()
+        case .report:
+            Report()
         }
     }
     
