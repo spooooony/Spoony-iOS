@@ -13,8 +13,8 @@ struct DetailView: View {
     // MARK: - Properties
     
     private let userImage = Image(.icCafeBlue)
-    private let userName: String = "럭키 백희"
-    private let placeAdress: String = "서울시 마포구 수저"
+    private let userName: String = "이명진"
+    private let placeAdress: String = "서울시 마포구 합정동 금수저"
     
     private var searchName = "연남"
     private var appName: String = "Spoony"
@@ -38,16 +38,17 @@ struct DetailView: View {
                 placeInfoSection
             }
         }
-        .toastView(toast: $toastMessage)
-        .gesture(dragGesture)
+        .simultaneousGesture(dragGesture)
         .onTapGesture {
             dismissDropDown()
         }
-        .overlay(dropDownView, alignment: .topTrailing)
+        .overlay(alignment: .topTrailing, content: {
+            dropDownView
+        })
+        .toastView(toast: $toastMessage)
         
         bottomView
             .frame(height: 80.adjustedH)
-        
     }
 }
 
@@ -133,13 +134,13 @@ extension DetailView {
                 .font(.title1b)
                 .foregroundStyle(.black)
             
-            Text("2025년 1월 2일")
+            Text("2025년 8월 21일")
                 .font(.caption1m)
                 .foregroundStyle(.gray400)
             
             Spacer().frame(height: 16.adjustedH)
             
-            Text("이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어짐. 그리고 밤 후식 진짜 맛도리니까 밤 디저트 좋아하는 사람이면 꼭 먹어보기! ")
+            Text("이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어짐. 그리고 밤 후식 진짜 맛도리니까 밤 디저트 좋아하는 사람이면 꼭 먹어보기!")
                 .font(.body2m)
                 .foregroundStyle(.gray900)
             
@@ -245,7 +246,7 @@ extension DetailView {
             if !privateMode {
                 Spacer()
                 
-                SpoonButton(toastMessage: $toastMessage) // 바인딩 전달
+                SpoonButton(toastMessage: $toastMessage)
             }
         }
         .padding(.horizontal, 20.adjusted)
