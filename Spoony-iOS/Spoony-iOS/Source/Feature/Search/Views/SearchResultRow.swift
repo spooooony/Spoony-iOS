@@ -9,25 +9,29 @@ import SwiftUI
 
 struct SearchResultRow: View {
     let result: SearchResult
+    let onTap: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 6) {
-                Image(.icPinGray600)
-                Text(result.title)
-                    .font(.body1b)
-                    .foregroundStyle(.black)
+        Button(action: onTap) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Image(.icPinGray600)
+                        Text(result.title)
+                            .font(.body1b)
+                            .foregroundStyle(.black)
+                    }
+                    
+                    Text(result.address)
+                        .font(.body2b)
+                        .foregroundStyle(.gray600)
+                        .padding(.leading, 30)
+                }
+                Spacer()
             }
-            
-            Text(result.address)
-                .font(.body2b)
-                .foregroundStyle(.gray600)
-                .padding(.leading, 30)
         }
         .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity)
     }
-}
-
-#Preview {
-    SearchResultRow(result: SearchResult(title: "테스트 장소", address: "테스트 주소"))
 }

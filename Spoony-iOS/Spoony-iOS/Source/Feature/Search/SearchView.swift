@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SearchView: View {
+    @State var navigationManager: NavigationManager
     @State private var searchText = ""
     @State private var searchResults: [SearchResult] = []
     @State private var searchState: SearchState = .empty
@@ -22,6 +23,9 @@ struct SearchView: View {
                     searchText: $searchText,
                     onBackTapped: {
                         dismiss()
+                    },
+                    tappedAction: {
+                        handleSearch()
                     }
                 )
                 
@@ -123,14 +127,16 @@ struct SearchView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(getFilteredResults(), id: \.id) { result in
-                    SearchResultRow(result: result)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16)
-                    
-                    if result.id != getFilteredResults().last?.id {
-                        Divider()
-                            .foregroundStyle(.gray400)
-                            .padding(.horizontal, 16)
+                    VStack(spacing: 0) {
+                        SearchResultRow(result: result) {
+                            navigationManager.push(.locationView)
+                        }
+                        
+                        if result.id != getFilteredResults().last?.id {
+                            Divider()
+                                .foregroundStyle(.gray400)
+                                .padding(.horizontal, 16)
+                        }
                     }
                 }
             }
@@ -161,8 +167,4 @@ struct SearchView: View {
     private func getFilteredResults() -> [SearchResult] {
         return searchResults
     }
-}
-
-#Preview {
-    SearchView()
 }
