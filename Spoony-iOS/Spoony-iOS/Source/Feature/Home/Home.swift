@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct Home: View {
+    @EnvironmentObject var navigationManager: NavigationManager
     @State private var selectedPlace: Bool = true
     @State private var currentPage = 0
     @State private var searchText = ""
@@ -43,28 +44,28 @@ struct Home: View {
     ]
     
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack {
             NMapView()
                 .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 0) {
                 CustomNavigationBar(
-                    style: .detail,
+                    style: .searchContent,
                     searchText: $searchText,
-                    onBackTapped: {}
+                    onBackTapped: {
+                        navigationManager.pop(1)
+                    }
                 )
                 
+                Spacer()
+                
                 if selectedPlace {
-                    ZStack {
-                        VStack(spacing: 0) {
-                            Spacer()
-                            
-                            PlaceCardsContainer(places: samplePlaces, currentPage: $currentPage)
-                                .padding(.bottom, 4)
-                            
-                            PageIndicator(currentPage: currentPage, pageCount: samplePlaces.count)
-                                .padding(.bottom, 4)
-                        }
+                    VStack(spacing: 0) {
+                        PlaceCardsContainer(places: samplePlaces, currentPage: $currentPage)
+                            .padding(.bottom, 4)
+                        
+                        PageIndicator(currentPage: currentPage, pageCount: samplePlaces.count)
+                            .padding(.bottom, 4)
                     }
                 }
             }

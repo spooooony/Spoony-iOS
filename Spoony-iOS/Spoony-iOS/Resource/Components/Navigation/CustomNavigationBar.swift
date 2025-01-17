@@ -53,7 +53,7 @@ struct CustomNavigationBar: View {
             }
         }
         .frame(height: 56.adjusted)
-        .background(.white)
+        .background(.clear)
     }
     
     private var backButtonView: some View {
