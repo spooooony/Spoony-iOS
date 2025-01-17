@@ -146,29 +146,33 @@ extension DetailView {
     
     private var placeInfoSection: some View {
         VStack(spacing: 0) {
-            ZStack(alignment: .bottom) {
-                menuInfo
-                    .background {
-                        Rectangle()
-                            .frame(height: .infinity)
-                            .cornerRadius(20)
-                            .foregroundStyle(.gray0)
-                    }
-                Line()
-                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [8.adjustedH]))
-                    .foregroundStyle(.gray200)
-                    .frame(width: 266.adjusted, height: 1)
-                
-            }
-            ZStack {
-                LocationInfo
-                    .background {
-                        Rectangle()
-                            .frame(height: 134.adjustedH)
-                            .cornerRadius(20)
-                            .foregroundStyle(.gray0)
-                    }
-            }
+            menuInfo
+                .background {
+                    Rectangle()
+                        .cornerRadius(20)
+                        .foregroundStyle(.gray0)
+                        .frame(maxHeight: .infinity)
+                }
+                .overlay(alignment: .bottom) {
+                    Line()
+                        .stroke(
+                            style: StrokeStyle(
+                                lineWidth: 1.adjustedH,
+                                dash: [8.adjusted]
+                            )
+                        )
+                        .foregroundStyle(.gray200)
+                        .frame(width: 266.adjusted, height: 1.adjustedH, alignment: .bottom)
+                }
+            
+            locationInfo
+                .background {
+                    Rectangle()
+                        .frame(maxHeight: 134.adjustedH)
+                        .cornerRadius(20)
+                        .foregroundStyle(.gray0)
+                }
+            
         }
         .padding(.horizontal, 20.adjusted)
         .blur(radius: privateMode ? 8 : 0)
