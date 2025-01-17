@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct Register: View {
-    @StateObject var store: RegisterStore = RegisterStore()
-    @State var ise: Bool = true
+    @StateObject private var store: RegisterStore = RegisterStore()
+    
     var body: some View {
         VStack(spacing: 0) {
             customNavigationBar

@@ -8,10 +8,15 @@
 import SwiftUI
 
 struct InfoStepView: View {
-    @ObservedObject var store: RegisterStore
-    @State var isDropDown: Bool = false
+    @ObservedObject private var store: RegisterStore
+    @State private var isDropDown: Bool = false
     
     var action: () -> Void
+    
+    init(store: RegisterStore, action: @escaping () -> Void) {
+        self.store = store
+        self.action = action
+    }
     
     var body: some View {
         VStack(spacing: 0) {
