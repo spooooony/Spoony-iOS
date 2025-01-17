@@ -22,7 +22,7 @@ enum UploadImageErrorState {
 
 final class RegisterStore: ObservableObject {
     @Published var uploadImageErrorState: UploadImageErrorState = .initial
-    @Published var step: RegisterStep = .start
+    @Published var step: RegisterStep = .middle
     @Published var disableFirstButton: Bool = true
     @Published var disableSecondButton: Bool = true
     @Published var text: String = ""
@@ -92,7 +92,8 @@ final class RegisterStore: ObservableObject {
     
     func secondButtonInavlid() {
         let uploadImageError = uploadImageErrorState == .error
-        disableSecondButton = simpleInputError || detailInputError || uploadImageError
+        let isInitial = uploadImageErrorState == .initial
+        disableSecondButton = simpleInputError || detailInputError || uploadImageError || isInitial
     }
     
     @MainActor
@@ -101,6 +102,7 @@ final class RegisterStore: ObservableObject {
         uploadImages.remove(at: index)
         if uploadImages.isEmpty {
             uploadImageErrorState = .error
+            secondButtonInavlid()
         }
     }
     
