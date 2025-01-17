@@ -85,6 +85,7 @@ struct CustomNavigationBar: View {
                     .foregroundStyle(.gray500)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.body2m)
+
             }
             .padding(.horizontal, 12)
             .frame(height: 44.adjustedH)
