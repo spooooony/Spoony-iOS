@@ -129,7 +129,7 @@ struct SearchView: View {
                 ForEach(getFilteredResults(), id: \.id) { result in
                     VStack(spacing: 0) {
                         SearchResultRow(result: result) {
-                            navigationManager.push(.locationView)
+                            navigationManager.push(.locationView(title: result.title))
                         }
                         
                         if result.id != getFilteredResults().last?.id {
