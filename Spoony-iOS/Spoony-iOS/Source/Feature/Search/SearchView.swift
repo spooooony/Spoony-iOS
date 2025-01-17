@@ -14,7 +14,7 @@ struct SearchView: View {
     @State private var searchState: SearchState = .empty
     @State private var recentSearches = ["홍대입구역", "성수동", "망원동"]
     @Environment(\.dismiss) private var dismiss
-        
+    
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -52,6 +52,11 @@ struct SearchView: View {
             } else if searchState != .searched {
                 searchState = .typing
             }
+        }
+        .onAppear {
+            searchText = ""
+            searchState = .empty
+            searchResults.removeAll()
         }
     }
     
@@ -154,7 +159,7 @@ struct SearchView: View {
             
             if !recentSearches.contains(searchText) {
                 recentSearches.insert(searchText, at: 0)
-            if recentSearches.count > 5 {
+                if recentSearches.count > 5 {
                     recentSearches.removeLast()
                 }
             }
