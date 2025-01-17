@@ -22,14 +22,9 @@ struct Register: View {
                             hideKeyboard()
                         }
                     case .middle:
-                        VStack {
-                            HStack {
-                                Spacer()
-                                Text("2번째 화면")
-                                Spacer()
-                            }
+                        ReviewStepView(store: store) {
+                            hideKeyboard()
                         }
-                        .frame(height: 500)
                     case .end:
                         Text("끝")
                     }
