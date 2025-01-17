@@ -112,6 +112,7 @@ extension InfoStepView {
                 .font(.body1sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 12)
+
             VStack {
                 ForEach(store.recommendMenu.indices, id: \.self) { index in
                     SpoonyTextField(text: $store.recommendMenu[index], style: .normal(isIcon: store.recommendMenu.count > 1), placeholder: "메뉴 이름") {

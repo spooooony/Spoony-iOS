@@ -10,12 +10,11 @@ import SwiftUI
 struct CustomNavigationBar: View {
     @Binding var searchText: String
     
-    let style: NavigationBarStyle
-    let title: String
-    let onBackTapped: (() -> Void)?
-    let onSearchSubmit: (() -> Void)?
-    let onLikeTapped: (() -> Void)?
-    let onLocationTapped: (() -> Void)?
+    private let style: NavigationBarStyle
+    private let title: String?
+    private let onBackTapped: (() -> Void)?
+    private let onSearchSubmit: (() -> Void)?
+    private let onLikeTapped: (() -> Void)?
     
     init(
         style: NavigationBarStyle,
@@ -23,8 +22,7 @@ struct CustomNavigationBar: View {
         searchText: Binding<String> = .constant(""),
         onBackTapped: (() -> Void)? = nil,
         onSearchSubmit: (() -> Void)? = nil,
-        onLikeTapped: (() -> Void)? = nil,
-        onLocationTapped: (() -> Void)? = nil
+        onLikeTapped: (() -> Void)? = nil
     ) {
         self.style = style
         self.title = title
@@ -32,38 +30,40 @@ struct CustomNavigationBar: View {
         self.onBackTapped = onBackTapped
         self.onSearchSubmit = onSearchSubmit
         self.onLikeTapped = onLikeTapped
-        self.onLocationTapped = onLocationTapped
     }
     
     var body: some View {
-         ZStack {
-             if style.showsBackButton {
-                 backButton
-             }
-             
-             switch style {
-             case .primary:
-                 primaryContent
-             case .search:
-                 searchContent
-             case .locationDetail:
-                 locationDetailContent
-             case .locationTitle:
-                 locationTitleContent
-             case .detail(let isLiked):
-                 detailContent(isLiked: isLiked)
-             case .detailWithChip(let count):
-                 detailWithChipContent(count: count)
-             }
-         }
-         .frame(height: 56.adjusted)
-         .background(.white)
-     }
+        ZStack {
+            if style.showsBackButton {
+                backButton
+            }
+            
+            switch style {
+            case .searchContent:
+                searchContent
+            case .locationDetail:
+                locationDetail
+            case .locationTitle:
+                locationTitle
+            case .detail:
+                detail
+            case .detailWithChip(let count):
+                detailWithChip(count: count)
+            case .search:
+                searchBar
+            case .searchBar:
+                searchBar
+            }
+        }
+        .frame(height: 56.adjusted)
+        .background(.white)
+    }
     
     private var backButtonView: some View {
-        Button(action: onBackTapped ?? { print("error") }) {
-            Image(.icArrowLeftGray700)
-        }
+        Image(.icArrowLeftGray700)
+            .onTapGesture {
+                onBackTapped?()
+            }
     }
     
     private var backButton: some View {
@@ -73,18 +73,94 @@ struct CustomNavigationBar: View {
         }
         .padding(.horizontal, 16)
     }
+    
+    private var searchContent: some View {
+        HStack(spacing: 12) {
+            LogoChip(type: .small, count: 10)
+            
+            HStack(spacing: 8) {
+                Image(.icSearchGray600)
+                
+                Text("오늘은 어디서 먹어볼까요?")
+                    .foregroundStyle(.gray500)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .font(.body2m)
 
-    private var primaryContent: some View {
-        HStack {
-            if !title.isEmpty {
-                Text(title)
-                    .font(.title2b)
             }
+            .padding(.horizontal, 12)
+            .frame(height: 44.adjustedH)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .strokeBorder(.gray200)
+                    )
+            )
+            .onTapGesture {
+                onSearchSubmit?()
+            }
+        }
+        .padding(.horizontal, 16)
+    }
+    
+    private var locationDetail: some View {
+        HStack {
+            Button(action: {}) {
+                HStack {
+                    Text(title ?? "홍대입구역")
+                        .font(.title2sb)
+                        .foregroundStyle(.spoonBlack)
+                    Image(.icArrowRightGray700)
+                }
+            }
+            .padding(.leading, 16)
+            
+            Spacer()
+            
+            LogoChip(type: .small, count: 99)
+                .padding(.trailing, 20)
+        }
+    }
+    
+    private var locationTitle: some View {
+        HStack {
+            let title = title ?? ""
+            Text(title.isEmpty ? "홍대입구역" : title)
+                .font(.title2b)
+                .foregroundStyle(.spoonBlack)
+            Spacer()
+            Image(.icCloseGray400)
+                .foregroundStyle(.gray400)
+                .onTapGesture {
+                    onBackTapped?()
+                }
+        }
+        
+        .padding(.horizontal, 16)
+    }
+    
+    private var detail: some View {
+        HStack {
+            Spacer()
+            Text(title ?? "홍대")
+                .font(.title2b)
+                .multilineTextAlignment(.center)
+                .lineLimit(1)
             Spacer()
         }
     }
-
-    private var searchContent: some View {
+    
+    private func detailWithChip(count: Int) -> some View {
+        HStack {
+            Spacer()
+            
+            LogoChip(type: .small, count: count)
+                .padding(.trailing, 20)
+        }
+    }
+    
+    private var searchBar: some View {
         HStack(spacing: 12) {
             if style.showsBackButton {
                 backButtonView
@@ -96,91 +172,78 @@ struct CustomNavigationBar: View {
                 TextField("", text: $searchText)
                     .frame(height: 44.adjusted)
                     .placeholder(when: searchText.isEmpty) {
-                        Text("플레이스 홀더")
-                            .foregroundColor(Color(.gray600))
+                        Text("마포구,성수동,강남역")
+                            .foregroundStyle(.gray600)
+                    }
+                    .onSubmit {
+                        onSearchSubmit?()
                     }
                 
                 if !searchText.isEmpty {
                     Button(action: { searchText = "" }) {
                         Image(.icCloseGray400)
-                            .foregroundColor(Color(.gray600))
+                            .foregroundStyle(.gray600)
                     }
                 }
             }
             .padding(.horizontal, 12)
-            .background(Color.white)
+            .background(.white)
             .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color(.gray600), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(.gray400)
             )
+            .cornerRadius(10)
             .frame(height: 44.adjusted)
         }
         .padding(.horizontal, 16)
     }
-    
-    private var locationDetailContent: some View {
-        HStack {
-            Button(action: onLocationTapped ?? { print("error") }) {
-                HStack {
-                    Text(title)
-                        .font(.title2b)
-                        .foregroundColor(.spoonBlack)
-                    Image(.icArrowRightGray700)
-                }
-            }
-            .padding(.leading, 16)
+}
+
+struct CustomNavigationBar_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack(spacing: 20) {
+            CustomNavigationBar(
+                style: .searchContent,
+                searchText: .constant("검색어"),
+                onBackTapped: {}
+            )
+            .border(.gray)
             
-            Spacer()
+            CustomNavigationBar(
+                style: .locationDetail,
+                title: "위치 상세",
+                onBackTapped: {}
+            )
+            .border(.gray)
             
-            Text("99+")
-                .font(.system(size: 12))
-                .foregroundColor(.white)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.black)
-                .cornerRadius(12)
-        }
-    }
-    
-    private func detailContent(isLiked: Bool) -> some View {
-        HStack {
-            Spacer()
-            Text(title)
-                .font(.title2b)
-                .multilineTextAlignment(.center)
-                .lineLimit(1)
-            Spacer()
-        }
-    }
-    
-    private func detailWithChipContent(count: Int) -> some View {
-        HStack {
-            Spacer()
+            CustomNavigationBar(
+                style: .locationTitle,
+                title: "홍대입구역",
+                onBackTapped: {}
+            )
+            .border(.gray)
             
-            HStack(spacing: 4) {
-                Text("\(count)")
-                    .font(.system(size: 14))
-                Image(.icSpoonWhite)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Color.spoonBlack)
-            .foregroundColor(Color.white)
-            .cornerRadius(16)
+            CustomNavigationBar(
+                style: .detail,
+                title: "상세 페이지",
+                onBackTapped: {}
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .detailWithChip(count: 42),
+                onBackTapped: {}
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .searchBar,
+                searchText: .constant(""),
+                onBackTapped: {}
+            )
+            .border(.gray)
         }
-    }
-    
-    private var locationTitleContent: some View {
-        HStack {
-            Text(title.isEmpty ? "홍대입구역" : title)
-                .font(.title2b)
-                .foregroundColor(.black)
-            Spacer()
-            Button(action: onBackTapped ?? { print("error") }) {
-                Image(.icCloseGray400)
-                    .foregroundColor(.gray)
-            }
-        }
-        .padding(.horizontal, 16)
+        .padding()
+        .previewLayout(.sizeThatFits)
     }
 }

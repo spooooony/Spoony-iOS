@@ -14,9 +14,10 @@ import SwiftUI
 public struct SpoonyTextEditor: View {
     
     // MARK: - Properties
-    @State private var errorState: TextEditorErrorState = .noError
+    @State private var errorState: TextEditorErrorState = .initial
     @FocusState private var isFocused
     @Binding var text: String
+    @Binding var isError: Bool
     
     private let placeholder: String
     private let style: SpoonyTextEditorStyle
@@ -25,12 +26,13 @@ public struct SpoonyTextEditor: View {
     public init(
         text: Binding<String>,
         style: SpoonyTextEditorStyle,
-        placeholder: String
-        
+        placeholder: String,
+        isError: Binding<Bool>
     ) {
         self._text = text
         self.style = style
         self.placeholder = placeholder
+        self._isError = isError
     }
     
     // MARK: - Body
@@ -78,13 +80,21 @@ extension SpoonyTextEditor {
                         text = String(newValue.prefix(style.maximumInput))
                     case .minimumInputError(let style):
                         errorState = .minimumInputError(style: style)
-                    case .noError:
+                    case .noError, .initial:
                         errorState = .noError
                     }
                 }
                 .onChange(of: isFocused) { _, newValue in
                     if !newValue, errorState.isMaximumInputError {
                         errorState = .noError
+                    }
+                }
+                .onChange(of: errorState) {
+                    switch errorState {
+                    case .minimumInputError:
+                        isError = true
+                    default:
+                        isError = false
                     }
                 }
 
@@ -99,7 +109,7 @@ extension SpoonyTextEditor {
         .frame(width: 335.adjusted, height: 125.adjustedH)
         .background {
             RoundedRectangle(cornerRadius: 8)
-                .stroke(borderColor, lineWidth: 1)
+                .strokeBorder(borderColor, lineWidth: 1)
         }
     }
     
@@ -165,6 +175,7 @@ public enum TextEditorErrorState: Equatable {
     case maximumInputError(style: SpoonyTextEditorStyle)
     case minimumInputError(style: SpoonyTextEditorStyle)
     case noError
+    case initial
     
     var errorMessage: String? {
         switch self {
@@ -177,7 +188,7 @@ public enum TextEditorErrorState: Equatable {
             case .report:
                 return "내용 작성은 필수예요"
             }
-        case .noError:
+        case .noError, .initial:
             return nil
         }
     }
