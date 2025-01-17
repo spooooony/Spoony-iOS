@@ -21,6 +21,7 @@ struct DetailView: View {
     @State private var isMyPost: Bool = true
     @State private var isPresented: Bool = false
     @State private var privateMode: Bool = false
+    @State private var toastMessage: Toast? = nil
     
     // MARK: - body
     
@@ -37,6 +38,7 @@ struct DetailView: View {
                 placeInfoSection
             }
         }
+        .toastView(toast: $toastMessage)
         .gesture(dragGesture)
         .onTapGesture {
             dismissDropDown()
@@ -44,6 +46,8 @@ struct DetailView: View {
         .overlay(dropDownView, alignment: .topTrailing)
         
         bottomView
+            .frame(height: 80.adjustedH)
+        
     }
 }
 
@@ -68,11 +72,10 @@ extension DetailView {
 
 extension DetailView {
     private var userProfileSection: some View {
-        
         HStack(alignment: .center, spacing: 14.adjustedH) {
             
-            Circle()
-                .fill(Color.pink)
+            Image(.imgMockProfile)
+                .resizable()
                 .scaledToFit()
                 .frame(width: 48.adjusted, height: 48.adjustedH)
             
@@ -104,7 +107,7 @@ extension DetailView {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 16) {
                 ForEach(0..<4) { _ in
-                    Image(.imgFood)
+                    Image(.imgMockGodeung)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 278.adjusted)
@@ -118,11 +121,13 @@ extension DetailView {
     }
     
     private var reviewSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Rectangle()
-                .frame(width: 61.adjusted, height: 24.adjustedH)
-                .cornerRadius(12)
-                .foregroundStyle(.purple400)
+        VStack(alignment: .leading, spacing: 8.adjustedH) {
+            IconChip(
+                title: "주류",
+                foodType: .bar,
+                chipType: .small,
+                color: .purple
+            )
             
             Text("인생 이자카야. 고등어 초밥 안주가 그냥 미쳤어요.".splitZeroWidthSpace())
                 .font(.title1b)
@@ -145,29 +150,33 @@ extension DetailView {
     
     private var placeInfoSection: some View {
         VStack(spacing: 0) {
-            ZStack(alignment: .bottom) {
-                menuInfo
-                    .background {
-                        Rectangle()
-                            .frame(height: .infinity)
-                            .cornerRadius(20)
-                            .foregroundStyle(.gray0)
-                    }
-                Line()
-                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [8.adjustedH]))
-                    .foregroundStyle(.gray200)
-                    .frame(width: 266.adjusted, height: 1)
-                
-            }
-            ZStack {
-                LocationInfo
-                    .background {
-                        Rectangle()
-                            .frame(height: 134.adjustedH)
-                            .cornerRadius(20)
-                            .foregroundStyle(.gray0)
-                    }
-            }
+            menuInfo
+                .background {
+                    Rectangle()
+                        .cornerRadius(20)
+                        .foregroundStyle(.gray0)
+                        .frame(maxHeight: .infinity)
+                }
+                .overlay(alignment: .bottom) {
+                    Line()
+                        .stroke(
+                            style: StrokeStyle(
+                                lineWidth: 1.adjustedH,
+                                dash: [8.adjusted]
+                            )
+                        )
+                        .foregroundStyle(.gray200)
+                        .frame(width: 266.adjusted, height: 1.adjustedH, alignment: .bottom)
+                }
+            
+            locationInfo
+                .background {
+                    Rectangle()
+                        .frame(maxHeight: 134.adjustedH)
+                        .cornerRadius(20)
+                        .foregroundStyle(.gray0)
+                }
+            
         }
         .padding(.horizontal, 20.adjusted)
         .blur(radius: privateMode ? 8 : 0)
@@ -183,7 +192,7 @@ extension DetailView {
         .padding(EdgeInsets(top: 20.adjustedH, leading: 16.adjusted, bottom: 28.adjustedH, trailing: 20.adjusted))
     }
     
-    private var LocationInfo: some View {
+    private var locationInfo: some View {
         HStack {
             VStack(alignment: .leading, spacing: 12.adjustedH) {
                 Text("Location")
@@ -192,7 +201,7 @@ extension DetailView {
                 Text("상호명")
                     .font(.title2sb)
                     .foregroundStyle(.spoonBlack)
-                HStack(spacing: 4) {
+                HStack(spacing: 4.adjusted) {
                     Image(.icMapGray400)
                         .resizable()
                         .scaledToFit()
@@ -236,16 +245,7 @@ extension DetailView {
             if !privateMode {
                 Spacer()
                 
-                VStack(spacing: 4) {
-                    Image(.icAddmapGray400)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 56.adjusted, height: 32.adjustedH)
-                    
-                    Text("99")
-                        .font(.caption1m)
-                        .foregroundStyle(.gray800)
-                }
+                SpoonButton(toastMessage: $toastMessage) // 바인딩 전달
             }
         }
         .padding(.horizontal, 20.adjusted)
@@ -286,6 +286,38 @@ struct menuList: View {
                     Spacer()
                 }
             }
+        }
+    }
+}
+
+struct SpoonButton: View {
+    @Binding var toastMessage: Toast?
+    @State private var isScrap: Bool = false
+    @State private var scrapCount: Int = 100
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(isScrap ? .icAddmapMain400 : .icAddmapGray400)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32.adjusted, height: 32.adjustedH)
+                .onTapGesture {
+                    if isScrap {
+                        scrapCount -= 1
+                        toastMessage = Toast(style: .gray, message: "스크랩 취소", yOffset: 539.adjustedH)
+                    } else {
+                        scrapCount += 1
+                        toastMessage = Toast(style: .gray, message: "스크랩 성공",
+                                             yOffset: 539.adjustedH)
+                    }
+                    isScrap.toggle()
+                }
+                .padding(EdgeInsets(top: 1.5, leading: 12, bottom: 4, trailing: 12))
+            
+            Text("\(scrapCount)")
+                .font(.caption1m)
+                .foregroundStyle(isScrap ? .main400 : .gray800)
+                .padding(.bottom, 1.5)
         }
     }
 }

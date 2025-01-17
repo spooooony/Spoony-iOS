@@ -41,10 +41,11 @@ struct ToastView: View {
                 .font(.body2b)
                 .foregroundStyle(.white)
         }
-        .padding()
+        .frame(height: 40.adjustedH)
         .frame(minWidth: 0, maxWidth: width)
         .background(style.themeColor)
-        .cornerRadius(8)
+        .cornerRadius(10)
+        .padding(.horizontal, 20.adjusted)
     }
 }
 
