@@ -140,7 +140,7 @@ struct CustomNavigationBar: View {
         .padding(.horizontal, 16)
     }
     
-    private var detail: some View { 
+    private var detail: some View {
         HStack {
             Spacer()
             Text(title ?? "홍대")

@@ -18,8 +18,7 @@ struct SearchView: View {
                 searchText: $searchText,
                 onBackTapped: {
                     navigationManager.pop(1)
-                },
-                onSearchSubmit: nil
+                }
             )
         }
         .toolbar(.hidden, for: .tabBar)

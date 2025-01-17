@@ -25,11 +25,10 @@ struct DetailView: View {
     // MARK: - body
     
     var body: some View {
-        
-        CustomNavigationBar(style: .detailWithChip(count: 99), onBackTapped: {
-            print("하이")
-        })
-        
+        CustomNavigationBar(
+            style: .detailWithChip(count: 99),
+            onBackTapped: {}
+        )
         ScrollView(.vertical) {
             VStack(spacing: 0) {
                 userProfileSection
