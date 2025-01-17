@@ -52,8 +52,8 @@ struct Home: View {
                 CustomNavigationBar(
                     style: .searchContent,
                     searchText: $searchText,
-                    onBackTapped: {
-                        navigationManager.pop(1)
+                    tappedAction: {
+                        navigationManager.push(.searchView)
                     }
                 )
                 
