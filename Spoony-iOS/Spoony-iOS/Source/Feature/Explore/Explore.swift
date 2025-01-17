@@ -28,9 +28,9 @@ struct Explore: View {
     
     var body: some View {
         VStack(spacing: 0) {
-//            CustomNavigationBar(style: .locationDetail, title: navigationTitle, onLocationTapped: {
-//                isPresentedLocation = true
-//            })
+            CustomNavigationBar(style: .locationDetail, title: navigationTitle, onLocationTapped: {
+                isPresentedLocation = true
+            })
             
             categoryList
             filterButton
