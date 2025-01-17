@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		71EDD4792D38EC8700D94926 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 71EDD4782D38EC8700D94926 /* Lottie */; };
 		71F8F73F2D230EFE00B822F3 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 71F8F73E2D230EF100B822F3 /* .swiftlint.yml */; };
 		787B5B042D32D9C50017A378 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B032D32D9C50017A378 /* Kingfisher */; };
 		787B5B072D32DA0F0017A378 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B062D32DA0F0017A378 /* Moya */; };
@@ -36,7 +35,6 @@
 				787B5B072D32DA0F0017A378 /* Moya in Frameworks */,
 				787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */,
 				787B5B042D32D9C50017A378 /* Kingfisher in Frameworks */,
-				71EDD4792D38EC8700D94926 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,7 +83,6 @@
 				787B5B032D32D9C50017A378 /* Kingfisher */,
 				787B5B062D32DA0F0017A378 /* Moya */,
 				787B5B092D32DA500017A378 /* NMapsMap */,
-				71EDD4782D38EC8700D94926 /* Lottie */,
 			);
 			productName = SpoonMe;
 			productReference = 78C002082D1D9FC400DA101C /* Spoony-iOS.app */;
@@ -119,7 +116,6 @@
 				787B5B022D32D9C50017A378 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				787B5B052D32DA0F0017A378 /* XCRemoteSwiftPackageReference "Moya" */,
 				787B5B082D32DA500017A378 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */,
-				71EDD4772D38EC8700D94926 /* XCRemoteSwiftPackageReference "lottie-spm" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 78C002092D1D9FC400DA101C /* Products */;
@@ -402,14 +398,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		71EDD4772D38EC8700D94926 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/airbnb/lottie-spm";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.5.1;
-			};
-		};
 		787B5B022D32D9C50017A378 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -437,11 +425,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		71EDD4782D38EC8700D94926 /* Lottie */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 71EDD4772D38EC8700D94926 /* XCRemoteSwiftPackageReference "lottie-spm" */;
-			productName = Lottie;
-		};
 		787B5B032D32D9C50017A378 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 787B5B022D32D9C50017A378 /* XCRemoteSwiftPackageReference "Kingfisher" */;

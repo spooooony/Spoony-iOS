@@ -7,29 +7,33 @@
 
 import SwiftUI
 
+enum NavigationBarAction {
+    case search(String)      // 검색 액션
+    case location(String)    // 위치 선택 액션
+    case like               // 좋아요 액션
+    case back               // 뒤로가기 액션
+}
+
 struct CustomNavigationBar: View {
     @Binding var searchText: String
     
     private let style: NavigationBarStyle
     private let title: String?
     private let onBackTapped: (() -> Void)?
-    private let onSearchSubmit: (() -> Void)?
-    private let onLikeTapped: (() -> Void)?
+    private let tappedAction: (() -> Void)?
     
     init(
         style: NavigationBarStyle,
-        title: String = "",
+        title: String? = nil,
         searchText: Binding<String> = .constant(""),
         onBackTapped: (() -> Void)? = nil,
-        onSearchSubmit: (() -> Void)? = nil,
-        onLikeTapped: (() -> Void)? = nil
+        tappedAction: (() -> Void)? = nil
     ) {
         self.style = style
         self.title = title
         self._searchText = searchText
         self.onBackTapped = onBackTapped
-        self.onSearchSubmit = onSearchSubmit
-        self.onLikeTapped = onLikeTapped
+        self.tappedAction = tappedAction
     }
     
     var body: some View {
@@ -62,7 +66,7 @@ struct CustomNavigationBar: View {
     private var backButtonView: some View {
         Image(.icArrowLeftGray700)
             .onTapGesture {
-                onBackTapped?()
+                tappedAction?()
             }
     }
     
@@ -97,7 +101,7 @@ struct CustomNavigationBar: View {
                     )
             )
             .onTapGesture {
-                onSearchSubmit?()
+                tappedAction?()
             }
         }
         .padding(.horizontal, 16)
@@ -105,7 +109,9 @@ struct CustomNavigationBar: View {
     
     private var locationDetail: some View {
         HStack {
-            Button(action: {}) {
+            Button(action: {
+                tappedAction?()
+            }) {
                 HStack {
                     Text(title ?? "홍대입구역")
                         .font(.title2sb)
@@ -132,14 +138,13 @@ struct CustomNavigationBar: View {
             Image(.icCloseGray400)
                 .foregroundStyle(.gray400)
                 .onTapGesture {
-                    onBackTapped?()
+                    tappedAction?()
                 }
         }
-        
         .padding(.horizontal, 16)
     }
     
-    private var detail: some View { 
+    private var detail: some View {
         HStack {
             Spacer()
             Text(title ?? "홍대")
@@ -175,7 +180,7 @@ struct CustomNavigationBar: View {
                             .foregroundStyle(.gray600)
                     }
                     .onSubmit {
-                        onSearchSubmit?()
+                        tappedAction?()
                     }
                 
                 if !searchText.isEmpty {
@@ -198,47 +203,43 @@ struct CustomNavigationBar: View {
     }
 }
 
+// MARK: - Preview
 struct CustomNavigationBar_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 20) {
             CustomNavigationBar(
                 style: .searchContent,
                 searchText: .constant("검색어"),
-                onBackTapped: {}
+                tappedAction: {
+                    print("Tapped")
+                }
             )
             .border(.gray)
             
             CustomNavigationBar(
                 style: .locationDetail,
                 title: "위치 상세",
-                onBackTapped: {}
+                tappedAction: {
+                    print("Tapped")
+                }
             )
             .border(.gray)
             
             CustomNavigationBar(
                 style: .locationTitle,
                 title: "홍대입구역",
-                onBackTapped: {}
+                tappedAction: {
+                    print("Tapped")
+                }
             )
             .border(.gray)
             
             CustomNavigationBar(
                 style: .detail,
                 title: "상세 페이지",
-                onBackTapped: {}
-            )
-            .border(.gray)
-            
-            CustomNavigationBar(
-                style: .detailWithChip(count: 42),
-                onBackTapped: {}
-            )
-            .border(.gray)
-            
-            CustomNavigationBar(
-                style: .searchBar,
-                searchText: .constant(""),
-                onBackTapped: {}
+                tappedAction: {
+                    print("Tapped")
+                }
             )
             .border(.gray)
         }

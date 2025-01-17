@@ -43,39 +43,35 @@ struct Home: View {
     ]
     
     var body: some View {
-           ZStack(alignment: .top) {
-               NMapView()
-                   .edgesIgnoringSafeArea(.all)
-               
-               VStack(spacing: 0) {
-                   CustomNavigationBar(
-                    style: .detail, 
-                       searchText: $searchText,
-                       onBackTapped: {},
-                       onSearchSubmit: nil,
-                       onLikeTapped: nil
-                   )
-                   
-                   if selectedPlace {
-                       ZStack { 
-                           VStack(spacing: 0) {
-                               Spacer()
-                               
-                               PlaceCardsContainer(places: samplePlaces, currentPage: $currentPage)
-                                   .padding(.bottom, 4)
-                               
-                               PageIndicator(currentPage: currentPage, pageCount: samplePlaces.count)
-                                   .padding(.bottom, 4)
-                           }
-                       }
-                   }
-               }
-           }
-       }
-   }
-
-#Preview {
-    Home()
+        ZStack(alignment: .top) {
+            NMapView()
+                .edgesIgnoringSafeArea(.all)
+            
+            VStack(spacing: 0) {
+                CustomNavigationBar(
+                    style: .detail,
+                    searchText: $searchText,
+                    tappedAction: {
+                        print("Navigation action tapped")
+                    }
+                )
+                
+                if selectedPlace {
+                    ZStack {
+                        VStack(spacing: 0) {
+                            Spacer()
+                            
+                            PlaceCardsContainer(places: samplePlaces, currentPage: $currentPage)
+                                .padding(.bottom, 4)
+                            
+                            PageIndicator(currentPage: currentPage, pageCount: samplePlaces.count)
+                                .padding(.bottom, 4)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 #Preview {
