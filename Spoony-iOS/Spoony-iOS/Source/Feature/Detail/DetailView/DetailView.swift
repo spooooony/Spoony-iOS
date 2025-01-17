@@ -21,14 +21,14 @@ struct DetailView: View {
     @State private var isMyPost: Bool = true
     @State private var isPresented: Bool = false
     @State private var popUpIsPresented: Bool = false
-    @State private var privateMode: Bool = true
+    @State private var privateMode: Bool = false
     @State private var toastMessage: Toast? = nil
     @State private var toggleRedacted = false
     
     // MARK: - body
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             CustomNavigationBar(
                 style: .detailWithChip(count: 99),
                 onBackTapped: {}
@@ -48,6 +48,7 @@ struct DetailView: View {
             .overlay(alignment: .topTrailing, content: {
                 dropDownView
             })
+            .scrollIndicators(.hidden)
             .toastView(toast: $toastMessage)
             
             bottomView
@@ -124,7 +125,7 @@ extension DetailView {
     
     private var imageSection: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 16) {
+            HStack(spacing: 10.adjusted) {
                 ForEach(0..<4) { _ in
                     Image(.imgMockGodeung)
                         .resizable()
@@ -163,8 +164,7 @@ extension DetailView {
                 .foregroundStyle(.gray900)
             
         }
-        .padding(.horizontal, 20.adjusted)
-        .padding(.bottom, 32.adjustedH)
+        .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
     }
     
     private var placeInfoSection: some View {
@@ -234,7 +234,7 @@ extension DetailView {
             
             Spacer()
         }
-        .padding(EdgeInsets(top: 21.adjustedH, leading: 16.adjusted, bottom: 25.adjustedH, trailing: 20.adjusted))
+        .padding(EdgeInsets(top: 21.adjustedH, leading: 16.adjusted, bottom: 21.adjustedH, trailing: 16.adjusted))
     }
     
     private var bottomView: some View {
