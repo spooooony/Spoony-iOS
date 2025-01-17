@@ -13,6 +13,7 @@ struct Home: View {
     @State private var selectedPlace: Bool = true
     @State private var currentPage = 0
     @State private var searchText = ""
+    @State private var searchResults: [CardPlace] = []
     
     let samplePlaces = [
         CardPlace(
@@ -77,15 +78,27 @@ struct Home: View {
                 
                 Spacer()
             }
+            
             if isBottomSheetPresented {
-                BottomSheetListView()
+                if searchResults.isEmpty {
+                    FixedBottomSheetView()
+                } else {
+                    BottomSheetListView()
+                }
             }
         }
         .navigationBarHidden(true)
         .onAppear {
             isBottomSheetPresented = true
         }
-    }    }
+        .onChange(of: searchText) { _, newValue in
+            // 검색어에 따라 결과 필터링
+            searchResults = samplePlaces.filter { place in
+                newValue.isEmpty || place.name.localizedCaseInsensitiveContains(newValue)
+            }
+        }
+    }
+}
 
 #Preview {
     Home()
