@@ -15,9 +15,10 @@ import SwiftUI
 public struct SpoonyTextField: View {
     
     // MARK: - Properties
-    @State private var errorState: TextFieldErrorState = .noError
+    @State private var errorState: TextFieldErrorState = .initial
     @FocusState private var isFocused
     @Binding var text: String
+    @Binding var isError: Bool
     
     private let placeholder: String
     private let style: SpoonyTextFieldStyle
@@ -28,11 +29,13 @@ public struct SpoonyTextField: View {
         text: Binding<String>,
         style: SpoonyTextFieldStyle,
         placeholder: String,
+        isError: Binding<Bool>,
         action: (() -> Void)? = nil
     ) {
         self._text = text
         self.style = style
         self.placeholder = placeholder
+        self._isError = isError
         self.action = action
     }
     
@@ -89,7 +92,7 @@ extension SpoonyTextField {
                         errorState = .minimumInputError
                     case .invalidInputError:
                         text = oldValue
-                    case .noError:
+                    case .noError, .initial:
                         errorState = .noError
                     }
                 }
@@ -97,6 +100,14 @@ extension SpoonyTextField {
             .onChange(of: isFocused) { _, newValue in
                 if !newValue, errorState == .maximumInputError {
                     errorState = .noError
+                }
+            }
+            .onChange(of: errorState) { 
+                switch errorState {
+                case .noError:
+                    isError = false
+                default:
+                    isError = true
                 }
             }
             
@@ -141,7 +152,7 @@ extension SpoonyTextField {
         .frame(width: 335.adjusted, height: 44.adjustedH)
         .background {
             RoundedRectangle(cornerRadius: 8)
-                .stroke(borderColor, lineWidth: 1)
+                .strokeBorder(borderColor, lineWidth: 1)
         }
     }
     
@@ -230,7 +241,7 @@ public enum SpoonyTextFieldStyle: Equatable {
         case .normal:
             return "ic_minus_gray400"
         case .icon:
-            return "ic_delete_gray400"
+            return "ic_delete_fill_gray400"
         case .helper:
             return nil
         }
@@ -261,6 +272,7 @@ public enum TextFieldErrorState {
     case minimumInputError
     case invalidInputError
     case noError
+    case initial
     
     var errorMessage: String? {
         switch self {
@@ -268,7 +280,7 @@ public enum TextFieldErrorState {
             return "글자 수 30자 이하로 입력해 주세요"
         case .minimumInputError:
             return "한 줄 소개는 필수예요"
-        case .noError, .invalidInputError:
+        case .noError, .invalidInputError, .initial:
             return nil
         }
     }
