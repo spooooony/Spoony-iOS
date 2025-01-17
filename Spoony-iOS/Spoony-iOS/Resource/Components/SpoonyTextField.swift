@@ -56,7 +56,7 @@ extension SpoonyTextField {
     // MARK: - customTextField
     private var customTextField: some View {
         let borderColor: Color = {
-            if errorState != .noError, style == .helper {
+            if errorState != .noError, errorState != .initial, style == .helper {
                 return .error400
             } else if isFocused, style.isBorder {
                 return .main400
@@ -144,7 +144,7 @@ extension SpoonyTextField {
                 case .helper:
                     Text("\(text.count) / 30")
                         .font(.caption1m)
-                        .foregroundStyle(errorState != .noError ? .error400 : .gray500)
+                        .foregroundStyle(errorState != .noError && errorState != .initial ? .error400 : .gray500)
                 }
             }
         }
