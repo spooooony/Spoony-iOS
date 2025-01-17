@@ -24,8 +24,7 @@ struct Report: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            //TODO: 변경 예정
-            CustomNavigationBar(style: .primary, title: "신고하기")
+            CustomNavigationBar(style: .detail, title: "신고하기")
             Divider()
             
             reportTitle

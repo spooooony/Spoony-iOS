@@ -77,7 +77,12 @@ extension InfoStepView {
                 .foregroundStyle(.spoonBlack)
             
             if !store.isSelected {
-                SpoonyTextField(text: $store.text, style: .icon, placeholder: "어떤 장소를 한 입 줄까요?") {
+                SpoonyTextField(
+                    text: $store.text,
+                    style: .icon,
+                    placeholder: "어떤 장소를 한 입 줄까요?",
+                    isError: .constant(false)
+                ) {
                     store.text = ""
                 }
                 .onSubmit {
@@ -115,7 +120,12 @@ extension InfoStepView {
 
             VStack {
                 ForEach(store.recommendMenu.indices, id: \.self) { index in
-                    SpoonyTextField(text: $store.recommendMenu[index], style: .normal(isIcon: store.recommendMenu.count > 1), placeholder: "메뉴 이름") {
+                    SpoonyTextField(
+                        text: $store.recommendMenu[index],
+                        style: .normal(isIcon: store.recommendMenu.count > 1),
+                        placeholder: "메뉴 이름",
+                        isError: .constant(false)
+                    ) {
                         store.recommendMenu.remove(at: index)
                     }
                 }
