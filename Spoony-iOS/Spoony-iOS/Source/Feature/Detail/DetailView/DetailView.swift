@@ -23,6 +23,7 @@ struct DetailView: View {
     @State private var popUpIsPresented: Bool = false
     @State private var privateMode: Bool = true
     @State private var toastMessage: Toast? = nil
+    @State private var toggleRedacted = false
     
     // MARK: - body
     
@@ -51,11 +52,19 @@ struct DetailView: View {
             
             bottomView
                 .frame(height: 80.adjustedH)
-        }.popup(
+        }
+        .redacted(reason: toggleRedacted ? .placeholder : [])
+        .popup(
             popup: .useSpoon,
             isPresented: $popUpIsPresented
         ) {
-            print("떠먹기")
+            //TODO: 떠먹기 버튼 기능 구현
+            Task {
+                toggleRedacted = true
+                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000) // 3초 대기
+                toggleRedacted = false
+                privateMode = false
+            }
             
         }
     }
@@ -270,8 +279,10 @@ extension DetailView {
                     items: ["신고하기"],
                     isPresented: $isPresented
                 ) { menu in
+                    //TODO: 신고하기 액션 구현
                     print("선택된 메뉴: \(menu)")
                     isPresented = false
+                    privateMode = true
                 }
                 .frame(alignment: .topTrailing)
                 .padding(.top, 48.adjustedH)
@@ -316,10 +327,10 @@ struct SpoonButton: View {
                 .onTapGesture {
                     if isScrap {
                         scrapCount -= 1
-                        toastMessage = Toast(style: .gray, message: "스크랩 취소", yOffset: 539.adjustedH)
+                        toastMessage = Toast(style: .gray, message: "내 지도에서 삭제되었어요.", yOffset: 539.adjustedH)
                     } else {
                         scrapCount += 1
-                        toastMessage = Toast(style: .gray, message: "스크랩 성공",
+                        toastMessage = Toast(style: .gray, message: "내 지도에 추가되었어요.",
                                              yOffset: 539.adjustedH)
                     }
                     isScrap.toggle()
