@@ -30,6 +30,7 @@ struct Home: View {
                             navigationManager.currentLocation = nil
                         }
                     )
+                    .frame(height: 56.adjusted) // 명시적 높이 지정
                 } else {
                     CustomNavigationBar(
                         style: .searchContent,
@@ -38,6 +39,7 @@ struct Home: View {
                             navigationManager.push(.searchView)
                         }
                     )
+                    .frame(height: 56.adjusted) // 명시적 높이 지정
                 }
                 
                 Spacer()

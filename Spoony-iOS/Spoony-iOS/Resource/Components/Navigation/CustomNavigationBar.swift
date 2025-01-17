@@ -85,7 +85,7 @@ struct CustomNavigationBar: View {
 
             }
             .padding(.horizontal, 12)
-            .frame(height: 44.adjustedH)
+            .frame(height: 44.adjusted)
             .background(
                 RoundedRectangle(cornerRadius: 10)
                     .fill(.white)
@@ -188,7 +188,7 @@ struct CustomNavigationBar: View {
             .background(.white)
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .strokeBorder(.gray400)
+                    .strokeBorder(.gray100)
             )
             .cornerRadius(10)
             .frame(height: 44.adjusted)
