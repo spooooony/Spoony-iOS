@@ -33,6 +33,11 @@ struct InfoStepView: View {
                 store.step = .middle
             }
             .padding(.bottom, 20)
+            .padding(.top, 61)
+            .overlay(alignment: .top) {
+                ToolTipView()
+                    .padding(.top, 5)
+            }
         }
         .background(.white)
         .onTapGesture {
@@ -58,7 +63,6 @@ extension InfoStepView {
             }
         }
         .padding(.horizontal, 20.adjusted)
-        .padding(.bottom, 61)
     }
     
     private var titleView: some View {
