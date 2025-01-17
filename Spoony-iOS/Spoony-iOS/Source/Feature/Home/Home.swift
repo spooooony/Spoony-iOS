@@ -43,6 +43,7 @@ struct Home: View {
     ]
     
     var body: some View {
+<<<<<<< HEAD
         ZStack(alignment: .top) {
             NMapView()
                 .edgesIgnoringSafeArea(.all)
@@ -72,6 +73,41 @@ struct Home: View {
             }
         }
     }
+=======
+           ZStack(alignment: .top) {
+               NMapView()
+                   .edgesIgnoringSafeArea(.all)
+               
+               VStack(spacing: 0) {
+                   CustomNavigationBar(
+                       style: .search(showBackButton: false),
+                       searchText: $searchText,
+                       onBackTapped: {},
+                       onSearchSubmit: nil,
+                       onLikeTapped: nil
+                   )
+                   
+                   if selectedPlace {
+                       ZStack { 
+                           VStack(spacing: 0) {
+                               Spacer()
+                               
+                               PlaceCardsContainer(places: samplePlaces, currentPage: $currentPage)
+                                   .padding(.bottom, 4)
+                               
+                               PageIndicator(currentPage: currentPage, pageCount: samplePlaces.count)
+                                   .padding(.bottom, 4)
+                           }
+                       }
+                   }
+               }
+           }
+       }
+   }
+
+#Preview {
+    Home()
+>>>>>>> parent of ab6cbd1 (Merge pull request #69 from SOPT-all/style/#66-fixDetailNavigation)
 }
 
 #Preview {
