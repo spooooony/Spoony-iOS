@@ -333,6 +333,5 @@ struct Line: Shape {
 }
 
 #Preview {
-    //    SpoonButton()
     DetailView()
 }
