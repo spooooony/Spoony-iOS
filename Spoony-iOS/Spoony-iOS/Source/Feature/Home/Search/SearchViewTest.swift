@@ -20,7 +20,7 @@ struct SearchViewTest: View {
                     style: .searchBar,
                     searchText: $searchText,
                     onBackTapped: {},
-                    onSearchSubmit: handleSearch
+                    tappedAction: handleSearch
                 )
                 
                 switch searchState {

@@ -30,8 +30,11 @@ struct Explore: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CustomNavigationBar(style: .locationDetail, title: navigationTitle,
-                                onBackTapped: {}            )
+            CustomNavigationBar(
+                style: .locationDetail,
+                title: navigationTitle,
+                tappedAction: {
+                })
             
             categoryList
             filterButton

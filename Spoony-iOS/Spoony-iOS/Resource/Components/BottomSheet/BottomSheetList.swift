@@ -109,7 +109,7 @@ struct BottomSheetListView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         LazyVStack(spacing: 0) {
-                            ForEach(0..<20) { index in
+                            ForEach(0..<20) { _ in
                                 BottomSheetListItem(
                                     title: "상호명",
                                     subTitle: "주소",
@@ -208,12 +208,6 @@ struct BottomSheetListView: View {
     }
 }
 
-struct ScrollOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
-}
 #Preview {
     Home()
 }

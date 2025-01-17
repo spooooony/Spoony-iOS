@@ -13,23 +13,20 @@ struct CustomNavigationBar: View {
     private let style: NavigationBarStyle
     private let title: String?
     private let onBackTapped: (() -> Void)?
-    private let onSearchSubmit: (() -> Void)?
-    private let onLikeTapped: (() -> Void)?
+    private let tappedAction: (() -> Void)?
     
     init(
         style: NavigationBarStyle,
-        title: String = "",
+        title: String? = nil,
         searchText: Binding<String> = .constant(""),
         onBackTapped: (() -> Void)? = nil,
-        onSearchSubmit: (() -> Void)? = nil,
-        onLikeTapped: (() -> Void)? = nil
+        tappedAction: (() -> Void)? = nil
     ) {
         self.style = style
         self.title = title
         self._searchText = searchText
         self.onBackTapped = onBackTapped
-        self.onSearchSubmit = onSearchSubmit
-        self.onLikeTapped = onLikeTapped
+        self.tappedAction = tappedAction
     }
     
     var body: some View {
@@ -98,7 +95,7 @@ struct CustomNavigationBar: View {
                     )
             )
             .onTapGesture {
-                onSearchSubmit?()
+                tappedAction?()
             }
         }
         .padding(.horizontal, 16)
@@ -106,7 +103,7 @@ struct CustomNavigationBar: View {
     
     private var locationDetail: some View {
         HStack {
-            Button(action: {}) {
+            Button(action: { tappedAction?() }) {
                 HStack {
                     Text(title ?? "홍대입구역")
                         .font(.title2sb)
@@ -176,7 +173,7 @@ struct CustomNavigationBar: View {
                             .foregroundStyle(.gray600)
                     }
                     .onSubmit {
-                        onSearchSubmit?()
+                        tappedAction?()
                     }
                 
                 if !searchText.isEmpty {
