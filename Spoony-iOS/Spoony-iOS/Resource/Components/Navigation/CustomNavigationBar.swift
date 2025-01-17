@@ -134,8 +134,8 @@ struct CustomNavigationBar: View {
                 }
         }
         .padding(.horizontal, 16)
+        .frame(maxHeight: .infinity)
         .background(.white)
-
     }
     
     private var detail: some View {
