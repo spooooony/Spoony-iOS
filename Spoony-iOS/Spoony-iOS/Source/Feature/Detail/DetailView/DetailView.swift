@@ -20,35 +20,44 @@ struct DetailView: View {
     private var appName: String = "Spoony"
     @State private var isMyPost: Bool = true
     @State private var isPresented: Bool = false
-    @State private var privateMode: Bool = false
+    @State private var popUpIsPresented: Bool = false
+    @State private var privateMode: Bool = true
     @State private var toastMessage: Toast? = nil
     
     // MARK: - body
     
     var body: some View {
-        CustomNavigationBar(
-            style: .detailWithChip(count: 99),
-            onBackTapped: {}
-        )
-        ScrollView(.vertical) {
-            VStack(spacing: 0) {
-                userProfileSection
-                imageSection
-                reviewSection
-                placeInfoSection
+        VStack {
+            CustomNavigationBar(
+                style: .detailWithChip(count: 99),
+                onBackTapped: {}
+            )
+            ScrollView(.vertical) {
+                VStack(spacing: 0) {
+                    userProfileSection
+                    imageSection
+                    reviewSection
+                    placeInfoSection
+                }
             }
+            .simultaneousGesture(dragGesture)
+            .onTapGesture {
+                dismissDropDown()
+            }
+            .overlay(alignment: .topTrailing, content: {
+                dropDownView
+            })
+            .toastView(toast: $toastMessage)
+            
+            bottomView
+                .frame(height: 80.adjustedH)
+        }.popup(
+            popup: .useSpoon,
+            isPresented: $popUpIsPresented
+        ) {
+            print("떠먹기")
+            
         }
-        .simultaneousGesture(dragGesture)
-        .onTapGesture {
-            dismissDropDown()
-        }
-        .overlay(alignment: .topTrailing, content: {
-            dropDownView
-        })
-        .toastView(toast: $toastMessage)
-        
-        bottomView
-            .frame(height: 80.adjustedH)
     }
 }
 
@@ -231,6 +240,8 @@ extension DetailView {
                 
                 if privateMode {
                     // TODO: 모달창 기능 구현 하기
+                    popUpIsPresented
+                    = true
                 } else {
                     let url = URL(string: "nmap://search?query=\(searchName)&appname=\(appName)")!
                     let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
