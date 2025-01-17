@@ -13,6 +13,7 @@ final class NavigationManager: ObservableObject {
     @Published var mapPath: [ViewType] = []
     @Published var explorePath: [ViewType] = []
     @Published var registerPath: [ViewType] = []
+    @Published var currentLocation: String?
     
     @ViewBuilder
     func build(_ view: ViewType) -> some View {
@@ -35,6 +36,9 @@ final class NavigationManager: ObservableObject {
         switch selectedTab {
         case .map:
             mapPath.append(view)
+            if case let .locationView(title) = view {
+                currentLocation = title
+            }
         case .explore:
             explorePath.append(view)
         case .register:
@@ -46,6 +50,12 @@ final class NavigationManager: ObservableObject {
         switch selectedTab {
         case .map:
             mapPath.removeLast(depth)
+            if mapPath.isEmpty || !mapPath.contains(where: {
+                if case .locationView(_) = $0 { return true }
+                return false
+            }) {
+                currentLocation = nil
+            }
         case .explore:
             explorePath.removeLast(depth)
         case .register:

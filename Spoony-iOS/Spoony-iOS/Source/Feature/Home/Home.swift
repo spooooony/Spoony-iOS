@@ -11,34 +11,29 @@ struct Home: View {
     @EnvironmentObject var navigationManager: NavigationManager
     @State private var isBottomSheetPresented = true
     @State private var searchText = ""
-    @State private var showDefaultSheet = true
     
     var body: some View {
-        
         ZStack {
             Color.white
                 .edgesIgnoringSafeArea(.all)
-                
+            
             NMapView()
                 .edgesIgnoringSafeArea(.all)
-                
+            
             VStack(spacing: 0) {
-                if case let .locationView(title) = navigationManager.mapPath.last {
+                if let locationTitle = navigationManager.currentLocation {
                     CustomNavigationBar(
                         style: .locationTitle,
-                        title: title,
+                        title: locationTitle,
                         searchText: $searchText,
                         onBackTapped: {
-                            navigationManager.pop(1)
+                            navigationManager.currentLocation = nil
                         }
                     )
                 } else {
                     CustomNavigationBar(
                         style: .searchContent,
                         searchText: $searchText,
-                        onBackTapped: {
-                            navigationManager.pop(1)
-                        },
                         tappedAction: {
                             navigationManager.push(.searchView)
                         }
@@ -49,17 +44,10 @@ struct Home: View {
             }
             
             if isBottomSheetPresented {
-                if showDefaultSheet {
-                    FixedBottomSheetView()
+                if let _ = navigationManager.currentLocation {
+                    BottomSheetListView()
                 } else {
-                    CustomBottomSheet(
-                        style: .half,
-                        isPresented: $isBottomSheetPresented
-                    ) {
-                        Color.white
-                    }
-                    .transition(.move(edge: .bottom))
-                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isBottomSheetPresented)
+                    FixedBottomSheetView()
                 }
             }
         }
