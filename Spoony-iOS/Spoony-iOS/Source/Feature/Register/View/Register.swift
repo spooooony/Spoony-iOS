@@ -7,11 +7,9 @@
 
 import SwiftUI
 
-/// 프로그래스바 고정
-
 struct Register: View {
     @StateObject var store: RegisterStore = RegisterStore()
-    
+    @State var ise: Bool = true
     var body: some View {
         VStack(spacing: 0) {
             customNavigationBar
@@ -20,35 +18,30 @@ struct Register: View {
                 Group {
                     switch store.step {
                     case .start:
-                        InfoStepView(store: store)
+                        InfoStepView(store: store) {
+                            hideKeyboard()
+                        }
                     case .middle:
-                        Text("중간")
+                        VStack {
+                            HStack {
+                                Spacer()
+                                Text("2번째 화면")
+                                Spacer()
+                            }
+                        }
+                        .frame(height: 500)
                     case .end:
                         Text("끝")
                     }
                 }
                 .transition(.slide)
                 .animation(.easeInOut, value: store.step)
-                Button {
-                    store.step = .middle
-                } label: {
-                    Text("다음")
-                }
             }
         }
     }
 }
 
 extension Register {
-    private var progressBar: some View {
-        ProgressView(value: 1.0/3 * Double(store.step.rawValue))
-            
-            .progressViewStyle(.linear)
-            .tint(.main400)
-            .padding(.horizontal, 20)
-            .animation(.easeInOut, value: store.step)
-    }
-    
     private var customNavigationBar: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
@@ -69,6 +62,15 @@ extension Register {
             progressBar
         }
     }
+    
+    private var progressBar: some View {
+        ProgressView(value: 1.0/3 * Double(store.step.rawValue))
+            .frame(height: 4.adjustedH)
+            .progressViewStyle(.linear)
+            .tint(.main400)
+            .padding(.horizontal, 20)
+            .animation(.easeInOut, value: store.step)
+    }
 }
 
 enum RegisterStep: Int {
@@ -76,7 +78,6 @@ enum RegisterStep: Int {
     case middle = 2
     case end = 3
 }
-
 
 #Preview {
     Register()
