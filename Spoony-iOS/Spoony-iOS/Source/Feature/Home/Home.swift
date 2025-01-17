@@ -9,6 +9,7 @@ import SwiftUI
 
 struct Home: View {
     @EnvironmentObject var navigationManager: NavigationManager
+    @State private var isBottomSheetPresented = true
     @State private var selectedPlace: Bool = true
     @State private var currentPage = 0
     @State private var searchText = ""
@@ -49,26 +50,39 @@ struct Home: View {
                 .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 0) {
-                CustomNavigationBar(
-                    style: .searchContent,
-                    searchText: $searchText,
-                    tappedAction: {
-                        navigationManager.push(.searchView)
-                    }
-                )
+                if navigationManager.mapPath.contains(.locationView) {
+                    // 위치 상세 화면일 때
+                    CustomNavigationBar(
+                        style: .locationTitle,
+                        title: "선택된 위치",
+                        searchText: $searchText,
+                        onBackTapped: {
+                            navigationManager.pop(1)
+                        }
+                    )
+                } else {
+                    // 기본 홈 화면일 때
+                    CustomNavigationBar(
+                        style: .searchContent,
+                        searchText: $searchText,
+                        onBackTapped: {
+                            navigationManager.pop(1)
+                        },
+                        tappedAction: {
+                            navigationManager.push(.searchView)
+                        }
+                    )
+                }
                 
                 Spacer()
-                
-                if selectedPlace {
-                    VStack(spacing: 0) {
-                        PlaceCardsContainer(places: samplePlaces, currentPage: $currentPage)
-                            .padding(.bottom, 4)
-                        
-                        PageIndicator(currentPage: currentPage, pageCount: samplePlaces.count)
-                            .padding(.bottom, 4)
-                    }
-                }
             }
+            
+            if isBottomSheetPresented {
+                BottomSheetListView()
+            }
+        }
+        .onAppear {
+            isBottomSheetPresented = true
         }
     }
 }
