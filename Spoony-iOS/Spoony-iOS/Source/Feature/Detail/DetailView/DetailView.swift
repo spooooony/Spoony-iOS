@@ -21,6 +21,7 @@ struct DetailView: View {
     @State private var isMyPost: Bool = true
     @State private var isPresented: Bool = false
     @State private var privateMode: Bool = false
+    @State private var toastMessage: Toast? = nil
     
     // MARK: - body
     
@@ -38,6 +39,7 @@ struct DetailView: View {
                 placeInfoSection
             }
         }
+        .toastView(toast: $toastMessage)
         .gesture(dragGesture)
         .onTapGesture {
             dismissDropDown()
@@ -45,6 +47,8 @@ struct DetailView: View {
         .overlay(dropDownView, alignment: .topTrailing)
         
         bottomView
+            .frame(height: 80.adjustedH)
+        
     }
 }
 
@@ -242,16 +246,7 @@ extension DetailView {
             if !privateMode {
                 Spacer()
                 
-                VStack(spacing: 4) {
-                    Image(.icAddmapGray400)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 56.adjusted, height: 32.adjustedH)
-                    
-                    Text("99")
-                        .font(.caption1m)
-                        .foregroundStyle(.gray800)
-                }
+                SpoonButton(toastMessage: $toastMessage) // 바인딩 전달
             }
         }
         .padding(.horizontal, 20.adjusted)
@@ -296,6 +291,38 @@ struct menuList: View {
     }
 }
 
+struct SpoonButton: View {
+    @Binding var toastMessage: Toast?
+    @State private var isScrap: Bool = false
+    @State private var scrapCount: Int = 100
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(isScrap ? .icAddmapMain400 : .icAddmapGray400)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32.adjusted, height: 32.adjustedH)
+                .onTapGesture {
+                    if isScrap {
+                        scrapCount -= 1
+                        toastMessage = Toast(style: .gray, message: "스크랩 취소", yOffset: 539.adjustedH)
+                    } else {
+                        scrapCount += 1
+                        toastMessage = Toast(style: .gray, message: "스크랩 성공",
+                                             yOffset: 539.adjustedH)
+                    }
+                    isScrap.toggle()
+                }
+                .padding(EdgeInsets(top: 1.5, leading: 12, bottom: 4, trailing: 12))
+            
+            Text("\(scrapCount)")
+                .font(.caption1m)
+                .foregroundStyle(isScrap ? .main400 : .gray800)
+                .padding(.bottom, 1.5)
+        }
+    }
+}
+
 struct Line: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -306,5 +333,6 @@ struct Line: Shape {
 }
 
 #Preview {
+    //    SpoonButton()
     DetailView()
 }
