@@ -7,9 +7,11 @@
 
 import SwiftUI
 
+import Lottie
+
 struct Explore: View {
     //임시
-    private var isEmpty: Bool = false
+    private var isEmpty: Bool = true
     
     @State private var isPresentedLocation: Bool = false
     @State private var isPresentedFilter: Bool = false
@@ -111,7 +113,9 @@ extension Explore {
     
     private var emptyView: some View {
         VStack(spacing: 0) {
-            RoundedRectangle(cornerRadius: 8)
+            
+            LottieView(animation: .named("lottie_explore"))
+                .looping()
                 .frame(width: 220.adjusted, height: 220.adjustedH)
                 .padding(.top, 58)
             
