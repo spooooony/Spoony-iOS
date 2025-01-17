@@ -34,9 +34,9 @@ final class RegisterStore: ObservableObject {
         let isRecommendMenuInvalid = recommendMenu.contains { $0.isEmpty }
         
         let isSelectedCategoryInvalid = selectedCategory.isEmpty
-
+        
         let isSelectedPlaceInvalid = selectedPlace == nil
-
+        
         disableFirstButton = isRecommendMenuInvalid || isSelectedCategoryInvalid || isSelectedPlaceInvalid
     }
 }

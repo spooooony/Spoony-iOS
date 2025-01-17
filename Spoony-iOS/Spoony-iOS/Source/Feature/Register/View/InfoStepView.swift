@@ -41,7 +41,7 @@ extension InfoStepView {
     private var sectionGroup: some View {
         VStack(spacing: 0) {
             placeSection
-                
+            
             categorySection
             
             recommendSection
@@ -125,12 +125,12 @@ extension InfoStepView {
             VStack(spacing: 1) {
                 ForEach(store.searchPlaces, id: \.id) { place in
                     PlaceInfoCell(placeInfo: place, placeInfoType: .listCell)
-                    .onTapGesture {
-                        store.selectedPlace = place
-                        store.isSelected = true
-                        isDropDown = false
-                        store.text = ""
-                    }
+                        .onTapGesture {
+                            store.selectedPlace = place
+                            store.isSelected = true
+                            isDropDown = false
+                            store.text = ""
+                        }
                     Rectangle()
                         .frame(height: 1)
                         .foregroundStyle(.gray100)
@@ -154,16 +154,16 @@ extension InfoStepView {
         Button {
             store.recommendMenu.append("")
         } label: {
-                Image(.icPlusGray400)
-                    .resizable()
-                    .frame(width: 20.adjusted, height: 20.adjustedH)
-                    .frame(width: 335.adjusted, height: 44.adjustedH)
-                    .background {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(.gray0)
-                            .strokeBorder(.gray100)
-                    }
-            }
+            Image(.icPlusGray400)
+                .resizable()
+                .frame(width: 20.adjusted, height: 20.adjustedH)
+                .frame(width: 335.adjusted, height: 44.adjustedH)
+                .background {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.gray0)
+                        .strokeBorder(.gray100)
+                }
+        }
         .buttonStyle(.plain)
     }
 }
