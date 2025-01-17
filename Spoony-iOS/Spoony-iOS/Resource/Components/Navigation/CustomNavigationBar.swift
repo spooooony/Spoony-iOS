@@ -7,13 +7,6 @@
 
 import SwiftUI
 
-enum NavigationBarAction {
-    case search(String)      // 검색 액션
-    case location(String)    // 위치 선택 액션
-    case like               // 좋아요 액션
-    case back               // 뒤로가기 액션
-}
-
 struct CustomNavigationBar: View {
     @Binding var searchText: String
     
