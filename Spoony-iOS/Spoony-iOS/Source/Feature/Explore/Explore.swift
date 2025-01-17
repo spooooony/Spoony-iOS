@@ -28,9 +28,8 @@ struct Explore: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CustomNavigationBar(style: .locationDetail, title: navigationTitle, onLocationTapped: {
-                isPresentedLocation = true
-            })
+            CustomNavigationBar(style: .locationDetail, title: navigationTitle,
+                                onBackTapped: {}            )
             
             categoryList
             filterButton
@@ -49,16 +48,16 @@ struct Explore: View {
                 isPresented: $isPresentedFilter,
                 selectedFilter: $selectedFilter
             )
-                .presentationDetents([.height(264.adjustedH)])
-                .presentationCornerRadius(16)
+            .presentationDetents([.height(264.adjustedH)])
+            .presentationCornerRadius(16)
         }
         .sheet(isPresented: $isPresentedLocation) {
             LocationPickerBottomSheet(
                 isPresented: $isPresentedLocation,
                 selectedRegion: $selectedLocation
             )
-                .presentationDetents([.height(542.adjustedH)])
-                .presentationCornerRadius(16)
+            .presentationDetents([.height(542.adjustedH)])
+            .presentationCornerRadius(16)
         }
     }
 }
@@ -71,7 +70,7 @@ extension Explore {
             "로컬 수저"
         ]
         let categoryArray = additionalArray + FoodType.allCases.map { $0.title }
-            
+        
         return ScrollView(.horizontal) {
             HStack {
                 Spacer()

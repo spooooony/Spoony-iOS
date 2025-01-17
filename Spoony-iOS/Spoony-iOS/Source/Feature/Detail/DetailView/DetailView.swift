@@ -27,9 +27,7 @@ struct DetailView: View {
     var body: some View {
         CustomNavigationBar(
             style: .detailWithChip(count: 99),
-            tappedAction: {
-                print("하이")
-            }
+            onBackTapped: {}
         )
         ScrollView(.vertical) {
             VStack(spacing: 0) {
