@@ -12,8 +12,8 @@ extension View {
         self.modifier(ToastModifier(toast: toast))
     }
     
-    func popup(popup: PopupType, isPresented: Binding<Bool>, action: @escaping () -> Void) -> some View {
-        modifier(PopupModifier(popup: popup, isPresented: isPresented, confirmAction: action))
+    func popup(popup: Binding<PopupType?>) -> some View {
+        modifier(PopupModifier(popup: popup))
     }
     
     // TextField placeholder를 위한 extension
