@@ -9,13 +9,13 @@ import SwiftUI
 import NMapsMap
 
 struct NMapView: UIViewRepresentable {
-    // MARK: - Private Properties
     private let defaultLocation = NMGLatLng(lat: 37.5666102, lng: 126.9783881)
     private let defaultZoomLevel: Double = 15
     private let defaultMarker = NMFOverlayImage(name: "makerTest")
     private let selectedMarker = NMFOverlayImage(name: "makerTestPlain")
+    private let defaultMarkerSize = (width: 40.adjusted, height: 58.adjustedH)
+    private let selectedMarkerSize = (width: 30.adjusted, height: 30.adjustedH)
     
-    // MARK: - UIViewRepresentable
     func makeUIView(context: Context) -> NMFMapView {
         let mapView = configureMapView(context: context)
         setupInitialCamera(mapView)
@@ -29,7 +29,6 @@ struct NMapView: UIViewRepresentable {
     
     func updateUIView(_ uiView: NMFMapView, context: Context) {}
     
-    // MARK: - Private Methods
     private func configureMapView(context: Context) -> NMFMapView {
         let mapView = NMFMapView()
         mapView.positionMode = .direction
@@ -51,14 +50,19 @@ struct NMapView: UIViewRepresentable {
     private func createMarker(location: NMGLatLng) -> NMFMarker {
         let marker = NMFMarker()
         marker.position = location
-        marker.width = 120
-        marker.height = 120
         marker.iconImage = defaultMarker
+        marker.width = CGFloat((NMF_MARKER_SIZE_AUTO))
+        marker.height = CGFloat((NMF_MARKER_SIZE_AUTO))
         
         var isSelected = false
         marker.touchHandler = { (_) -> Bool in
             isSelected.toggle()
-            marker.iconImage = isSelected ? selectedMarker : defaultMarker
+            if isSelected {
+                marker.iconImage = selectedMarker
+
+            } else {
+                marker.iconImage = defaultMarker
+            }
             return true
         }
         return marker
