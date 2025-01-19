@@ -10,7 +10,7 @@ import SwiftUI
 struct FixedBottomSheetView: View {
     private let screenHeight = UIScreen.main.bounds.height
     private let fixedHeight: CGFloat
-    private let headerHeight: CGFloat = 20
+    private let headerHeight: CGFloat = 20.adjustedH
     @State private var isDisabled = false
     
     init() {
@@ -35,12 +35,10 @@ struct FixedBottomSheetView: View {
                         .scaledToFit()
                         .frame(width: 120.adjusted, height: 120.adjustedH)
                     
-                    Text("아직 추가된 장소가 없어요.")
-                        .font(.system(size: 16, weight: .medium))
-                    
-                    Text("다른 사람의 리스트를 따라와 보세요!")
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
+                    Text("아직 추가된 장소가 없어요.\n다른 사람의 리스트를 떠먹어 보세요!")
+                        .font(.body2m)
+                        .foregroundStyle(.gray500)
+                        .multilineTextAlignment(.center)
                     
                     SpoonyButton(
                         style: .secondary,
