@@ -9,6 +9,7 @@ import SwiftUI
 import PhotosUI
 
 struct ReviewStepView: View {
+    @EnvironmentObject private var navigationManager: NavigationManager
     @ObservedObject private var store: RegisterStore
     
     init(store: RegisterStore) {
@@ -29,7 +30,10 @@ struct ReviewStepView: View {
                 disabled: $store.disableSecondButton
             ) {
                 store.step = .end
-                // TODO: - 팝업창 띄우기
+                navigationManager.popup = .registerSuccess(action: {
+                    navigationManager.selectedTab = .explore
+                    store.reset()                    
+                })
             }
             .padding(.bottom, 20)
         }
