@@ -20,6 +20,7 @@ enum UploadImageErrorState {
 }
 
 final class RegisterStore: ObservableObject {
+    @Published var toast: Toast? = nil
     @Published var uploadImageErrorState: UploadImageErrorState = .initial
     @Published var step: RegisterStep = .start
     @Published var disableFirstButton: Bool = true
@@ -58,16 +59,11 @@ final class RegisterStore: ObservableObject {
     }
     
     @MainActor
-    @Published var pickerItem: PhotosPickerItem? {
+    @Published var pickerItems: [PhotosPickerItem] = [] {
         didSet {
+            selectableCount -= pickerItems.count
             Task {
-                do {
-                    guard let data = try await pickerItem?.loadTransferable(type: Data.self),
-                          let uiImage = UIImage(data: data) else { return }
-                    uploadImages.append(.init(image: Image(uiImage: uiImage)))
-                } catch {
-                    print("Error loading image: \(error)")
-                }
+                await loadImage()
             }
         }
     }
@@ -75,12 +71,15 @@ final class RegisterStore: ObservableObject {
     @MainActor
     @Published var uploadImages: [UploadImage] = [] {
         didSet {
-            pickerItem = nil
+            pickerItems = []
             uploadImageErrorState = .noError
             secondButtonInavlid()
         }
     }
-
+    
+    @Published var selectableCount = 5
+    @Published var plusButtonDisabled: Bool = false
+    
     func firstButtonInvalid() {
         let isRecommendMenuInvalid = recommendMenu.contains { $0.isEmpty }
         
@@ -101,6 +100,7 @@ final class RegisterStore: ObservableObject {
     func deleteImage(_ image: UploadImage) {
         guard let index = uploadImages.firstIndex(where: { $0.id == image.id }) else { return }
         uploadImages.remove(at: index)
+        selectableCount += 1
         if uploadImages.isEmpty {
             uploadImageErrorState = .error
             secondButtonInavlid()
@@ -130,7 +130,42 @@ extension RegisterStore {
         selectedCategory = []
         searchPlaces = PlaceInfo.sample()
         selectedPlace = nil
-        pickerItem = nil
+        pickerItems = []
         uploadImages = []
+    }
+    
+    private func loadImage() async {
+        for item in await pickerItems {
+            do {
+                if let data = try await item.loadTransferable(type: Data.self),
+                   let uiImage = UIImage(data: data) {
+                    let image = Image(uiImage: uiImage)
+                    await MainActor.run {
+                        self.uploadImages.append(.init(image: image))
+                    }
+                }
+            } catch {
+                print("Error loading image: \(error)")
+            }
+        }
+    }
+    
+    func plusButtonTapped() {
+        guard !plusButtonDisabled else { return }
+        
+        plusButtonDisabled = true
+
+        recommendMenu.append("")
+                
+        Task {
+            do {
+                try await Task.sleep(for: .seconds(0.5))
+                await MainActor.run {
+                    plusButtonDisabled = false
+                }
+            } catch {
+                print("error")
+            }
+        }
     }
 }
