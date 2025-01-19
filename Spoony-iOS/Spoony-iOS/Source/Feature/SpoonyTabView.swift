@@ -26,6 +26,7 @@ struct SpoonyTabView: View {
                             Home()
                                 .navigationDestination(for: ViewType.self) { view in
                                     navigationManager.build(view)
+                                        .navigationBarBackButtonHidden()
                                 }
                         }
                     case .explore:
@@ -33,6 +34,7 @@ struct SpoonyTabView: View {
                             Explore()
                                 .navigationDestination(for: ViewType.self) { view in
                                     navigationManager.build(view)
+                                        .navigationBarBackButtonHidden()
                                 }
                         }
                     case .register:
@@ -40,6 +42,7 @@ struct SpoonyTabView: View {
                             Register()
                                 .navigationDestination(for: ViewType.self) { view in
                                     navigationManager.build(view)
+                                        .navigationBarBackButtonHidden()
                                 }
                         }
                     }
