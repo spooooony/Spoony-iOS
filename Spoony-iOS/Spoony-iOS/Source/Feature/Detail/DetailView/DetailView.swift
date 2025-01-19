@@ -157,7 +157,8 @@ extension DetailView {
                 .font(.caption1m)
                 .foregroundStyle(.gray400)
             
-            Spacer().frame(height: 16.adjustedH)
+            Spacer()
+                .frame(height: 16.adjustedH)
             
             Text("이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어짐. 그리고 밤 후식 진짜 맛도리니까 밤 디저트 좋아하는 사람이면 꼭 먹어보기!")
                 .font(.body2m)
