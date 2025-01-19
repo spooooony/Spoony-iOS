@@ -8,7 +8,6 @@
 import SwiftUI
 
 final class NavigationManager: ObservableObject {
-    
     @Published var selectedTab: TabType = .map
     @Published var mapPath: [ViewType] = []
     @Published var explorePath: [ViewType] = []
@@ -22,7 +21,7 @@ final class NavigationManager: ObservableObject {
             Explore()
             
         case .searchView:
-            SearchView(navigationManager: self)
+            SearchView()
         case .locationView:
             Home()
             
@@ -36,9 +35,6 @@ final class NavigationManager: ObservableObject {
         switch selectedTab {
         case .map:
             mapPath.append(view)
-            if case let .locationView(title) = view {
-                currentLocation = title
-            }
         case .explore:
             explorePath.append(view)
         case .register:
@@ -49,13 +45,14 @@ final class NavigationManager: ObservableObject {
     func pop(_ depth: Int) {
         switch selectedTab {
         case .map:
-            mapPath.removeLast(depth)
-            if mapPath.isEmpty || !mapPath.contains(where: {
-                if case .locationView(_) = $0 { return true }
+            if mapPath.isEmpty || mapPath.contains(where: {
+                if case .locationView = $0 { return true }
                 return false
             }) {
                 currentLocation = nil
             }
+            mapPath.removeLast(depth)
+            
         case .explore:
             explorePath.removeLast(depth)
         case .register:

@@ -30,7 +30,7 @@ struct Home: View {
                             navigationManager.currentLocation = nil
                         }
                     )
-                    .frame(height: 56.adjusted) 
+                    .frame(height: 56.adjusted)
                 } else {
                     CustomNavigationBar(
                         style: .searchContent,
@@ -46,7 +46,7 @@ struct Home: View {
             }
             
             if isBottomSheetPresented {
-                if let _ = navigationManager.currentLocation {
+                if navigationManager.currentLocation != nil {
                     BottomSheetListView()
                 } else {
                     FixedBottomSheetView()

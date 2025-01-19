@@ -8,12 +8,11 @@
 import SwiftUI
 
 struct SearchView: View {
-    @State var navigationManager: NavigationManager
+    @EnvironmentObject var navigationManager: NavigationManager
     @State private var searchText = ""
     @State private var searchResults: [SearchResult] = []
     @State private var searchState: SearchState = .empty
     @State private var recentSearches = ["홍대입구역", "성수동", "망원동"]
-    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         ZStack {
@@ -22,7 +21,7 @@ struct SearchView: View {
                     style: .search(showBackButton: true),
                     searchText: $searchText,
                     onBackTapped: {
-                        dismiss()  
+                        navigationManager.pop(1)
                     },
                     tappedAction: {
                         handleSearch()
@@ -134,8 +133,8 @@ struct SearchView: View {
                 ForEach(getFilteredResults(), id: \.id) { result in
                     VStack(spacing: 0) {
                         SearchResultRow(result: result) {
-                            navigationManager.currentLocation = result.title  // locationView로 push하는 대신 currentLocation 설정
-                            dismiss()  // SearchView 닫기
+                            navigationManager.currentLocation = result.title  
+                            navigationManager.pop(1)
                         }
                         
                         if result.id != getFilteredResults().last?.id {
