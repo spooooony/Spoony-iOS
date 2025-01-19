@@ -12,6 +12,8 @@ struct DetailView: View {
     
     // MARK: - Properties
     
+    @EnvironmentObject private var navigationManager: NavigationManager
+    
     private let userImage = Image(.icCafeBlue)
     private let userName: String = "이명진"
     private let placeAdress: String = "서울시 마포구 합정동 금수저"
@@ -55,19 +57,6 @@ struct DetailView: View {
                 .frame(height: 80.adjustedH)
         }
         .redacted(reason: toggleRedacted ? .placeholder : [])
-        .popup(
-            popup: .useSpoon,
-            isPresented: $popUpIsPresented
-        ) {
-            //TODO: 떠먹기 버튼 기능 구현
-            Task {
-                toggleRedacted = true
-                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000) // 3초 대기
-                toggleRedacted = false
-                privateMode = false
-            }
-            
-        }
     }
 }
 
@@ -250,8 +239,15 @@ extension DetailView {
                 
                 if privateMode {
                     // TODO: 모달창 기능 구현 하기
-                    popUpIsPresented
-                    = true
+                    navigationManager.popup = .useSpoon(action: {
+                        //TODO: 떠먹기 버튼 기능 구현
+                        Task {
+                            toggleRedacted = true
+                            try? await Task.sleep(nanoseconds: 2 * 1_000_000_000) // 3초 대기
+                            toggleRedacted = false
+                            privateMode = false
+                        }
+                    })
                 } else {
                     let url = URL(string: "nmap://search?query=\(searchName)&appname=\(appName)")!
                     let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
