@@ -24,7 +24,7 @@ struct DetailView: View {
     @State private var isPresented: Bool = false
     @State private var popUpIsPresented: Bool = false
     @State private var privateMode: Bool = false
-    @State private var toastMessage: Toast? = nil
+    @State private var toastMessage: Toast?
     @State private var toggleRedacted = false
     
     // MARK: - body
@@ -33,7 +33,9 @@ struct DetailView: View {
         VStack(spacing: 0) {
             CustomNavigationBar(
                 style: .detailWithChip(count: 99),
-                onBackTapped: {}
+                onBackTapped: {
+                    navigationManager.pop(1)
+                }
             )
             ScrollView(.vertical) {
                 VStack(spacing: 0) {
@@ -57,6 +59,7 @@ struct DetailView: View {
                 .frame(height: 80.adjustedH)
         }
         .redacted(reason: toggleRedacted ? .placeholder : [])
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 
@@ -238,7 +241,6 @@ extension DetailView {
             ) {
                 
                 if privateMode {
-                    // TODO: 모달창 기능 구현 하기
                     navigationManager.popup = .useSpoon(action: {
                         //TODO: 떠먹기 버튼 기능 구현
                         Task {
@@ -275,11 +277,11 @@ extension DetailView {
                 DropDownMenu(
                     items: ["신고하기"],
                     isPresented: $isPresented
-                ) { menu in
-                    //TODO: 신고하기 액션 구현
-                    print("선택된 메뉴: \(menu)")
-                    isPresented = false
-                    privateMode = true
+                ) { _ in
+                    navigationManager.push(.report)
+//                    print("선택된 메뉴: \(menu)")
+//                    isPresented = false
+//                    privateMode = true
                 }
                 .frame(alignment: .topTrailing)
                 .padding(.top, 48.adjustedH)
