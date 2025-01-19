@@ -8,11 +8,11 @@
 import SwiftUI
 
 final class NavigationManager: ObservableObject {
-    
     @Published var selectedTab: TabType = .map
     @Published var mapPath: [ViewType] = []
     @Published var explorePath: [ViewType] = []
     @Published var registerPath: [ViewType] = []
+    @Published var currentLocation: String?
     
     @Published var popup: PopupType?
     
@@ -48,7 +48,14 @@ final class NavigationManager: ObservableObject {
     func pop(_ depth: Int) {
         switch selectedTab {
         case .map:
+            if mapPath.isEmpty || mapPath.contains(where: {
+                if case .locationView = $0 { return true }
+                return false
+            }) {
+                currentLocation = nil
+            }
             mapPath.removeLast(depth)
+            
         case .explore:
             explorePath.removeLast(depth)
         case .register:
