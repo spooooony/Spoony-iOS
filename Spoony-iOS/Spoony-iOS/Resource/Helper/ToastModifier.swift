@@ -11,7 +11,7 @@ import SwiftUI
 public struct Toast: Equatable {
     var style: ToastStyle
     var message: String
-    var duration: Double = 3
+    var duration: Double = 2.5
     var width: Double = .infinity
     var yOffset: CGFloat = 638
 }
