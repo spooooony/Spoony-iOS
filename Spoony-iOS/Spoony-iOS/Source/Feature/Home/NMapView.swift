@@ -70,10 +70,10 @@ struct NMapView: UIViewRepresentable {
         marker.touchHandler = { (_) -> Bool in
             isSelected.toggle()
             if isSelected {
-                marker.iconImage = defaultMarker
+                marker.iconImage = selectedMarker
                 selectedPlace = samplePlace
             } else {
-                marker.iconImage = selectedMarker
+                marker.iconImage = defaultMarker
                 selectedPlace = nil
             }
             return true
