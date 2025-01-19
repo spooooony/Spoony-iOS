@@ -19,10 +19,8 @@ struct Register: View {
                     switch store.step {
                     case .start:
                         InfoStepView(store: store)
-                    case .middle:
+                    case .middle, .end:
                         ReviewStepView(store: store)
-                    case .end:
-                        Text("끝")
                     }
                 }
                 .transition(.slide)

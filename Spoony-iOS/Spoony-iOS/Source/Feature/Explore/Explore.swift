@@ -11,8 +11,7 @@ import Lottie
 
 struct Explore: View {
     //임시
-    private var isEmpty: Bool = false
-    
+    private var isEmpty: Bool = true
     @EnvironmentObject private var navigationManager: NavigationManager
     
     @State private var isPresentedLocation: Bool = false
@@ -136,7 +135,7 @@ extension Explore {
                 title: "등록하러 가기",
                 disabled: .constant(false)
             ) {
-                
+                navigationManager.selectedTab = .register
             }
             .padding(.top, 18)
             

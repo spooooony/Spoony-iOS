@@ -9,6 +9,7 @@ import SwiftUI
 import PhotosUI
 
 struct ReviewStepView: View {
+    @EnvironmentObject private var navigationManager: NavigationManager
     @ObservedObject private var store: RegisterStore
     
     init(store: RegisterStore) {
@@ -29,7 +30,10 @@ struct ReviewStepView: View {
                 disabled: $store.disableSecondButton
             ) {
                 store.step = .end
-                // TODO: - 팝업창 띄우기
+                navigationManager.popup = .registerSuccess(action: {
+                    navigationManager.selectedTab = .explore
+                    store.reset()                    
+                })
             }
             .padding(.bottom, 20)
         }
@@ -37,6 +41,14 @@ struct ReviewStepView: View {
         .onTapGesture {
             hideKeyboard()
         }
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    if value.translation.width > 50 {
+                        store.step = .start
+                    }
+                }
+        )
     }
 }
 
@@ -105,9 +117,7 @@ extension ReviewStepView {
             
             ScrollView(.horizontal) {
                 HStack {
-                    if store.uploadImages.count < 5 {
-                        plusButton
-                    }
+                    plusButton
                     
                     ForEach(store.uploadImages) { image in
                         loadedImageView(image)
@@ -133,7 +143,11 @@ extension ReviewStepView {
     }
     
     private var plusButton: some View {
-        PhotosPicker(selection: $store.pickerItem) {
+        PhotosPicker(
+            selection: $store.pickerItems,
+            maxSelectionCount: store.selectableCount,
+            matching: .images
+        ) {
             VStack(spacing: 4) {
                 Image(.icPlusGray400)
                     .resizable()
@@ -149,6 +163,7 @@ extension ReviewStepView {
                     .strokeBorder(.gray100)
             }
         }
+        .disabled(store.uploadImages.count == 5)
     }
     
     private func loadedImageView(_ image: UploadImage) -> some View {

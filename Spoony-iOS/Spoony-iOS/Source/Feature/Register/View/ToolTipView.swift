@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct ToolTipView: View {
-    @State private var isPresented: Bool = true
-    
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
@@ -31,16 +29,6 @@ struct ToolTipView: View {
                 .scaledToFill()
                 .frame(width: 18.adjusted, height: 16.adjustedH)
                 .padding(.top, -6)
-        }
-        .opacity(isPresented ? 1 : 0)
-        .task {
-            do {
-                try await Task.sleep(for: .seconds(3))
-                isPresented = false
-            } catch {
-                
-            }
-            
         }
     }
 }

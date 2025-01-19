@@ -21,26 +21,14 @@ struct InfoStepView: View {
             
             sectionGroup
             
-            SpoonyButton(
-                style: .primary,
-                size: .xlarge,
-                title: "다음",
-                disabled: $store.disableFirstButton
-            ) {
-                store.step = .middle
-            }
-            .padding(.bottom, 20)
-            .padding(.top, 61)
-            .overlay(alignment: .top) {
-                ToolTipView()
-                    .padding(.top, 5)
-            }
+            nextButton
         }
         .background(.white)
         .onTapGesture {
             isDropDown = false
             hideKeyboard()
         }
+        .toastView(toast: $store.toast)
     }
 }
 
@@ -85,6 +73,7 @@ extension InfoStepView {
                     isError: .constant(false)
                 ) {
                     store.text = ""
+                    isDropDown = false
                 }
                 .onSubmit {
                     isDropDown = true
@@ -113,20 +102,21 @@ extension InfoStepView {
     }
     
     private var recommendSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
             Text("추천 메뉴를 알려주세요")
                 .font(.body1sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 12)
-
-            VStack {
-                ForEach(store.recommendMenu.indices, id: \.self) { index in
+            
+            VStack(spacing: 8) {
+                ForEach(Array(store.recommendMenu.enumerated()), id: \.offset) { index, _ in
                     SpoonyTextField(
                         text: $store.recommendMenu[index],
                         style: .normal(isIcon: store.recommendMenu.count > 1),
                         placeholder: "메뉴 이름",
                         isError: .constant(false)
                     ) {
+                        guard index < store.recommendMenu.count else { return }
                         store.recommendMenu.remove(at: index)
                     }
                 }
@@ -138,25 +128,23 @@ extension InfoStepView {
     }
     
     private var dropDownView: some View {
-        ScrollView {
-            VStack(spacing: 1) {
-                ForEach(store.searchPlaces, id: \.id) { place in
-                    PlaceInfoCell(placeInfo: place, placeInfoType: .listCell)
-                        .onTapGesture {
-                            store.selectedPlace = place
-                            store.isSelected = true
-                            isDropDown = false
-                            store.text = ""
-                        }
-                    Rectangle()
-                        .frame(height: 1)
-                        .foregroundStyle(.gray100)
-                }
+        VStack(spacing: 0) {
+            ForEach(store.searchPlaces, id: \.id) { place in
+                PlaceInfoCell(placeInfo: place, placeInfoType: .listCell)
+                    .onTapGesture {
+                        store.selectedPlace = place
+                        store.isSelected = true
+                        isDropDown = false
+                        store.text = ""
+                        store.toast = .init(style: .gray, message: "앗! 이미 등록한 맛집이에요", yOffset: 556.adjustedH)
+                    }
+                    .overlay(alignment: .bottom) {
+                        Rectangle()
+                            .frame(height: 1.adjusted)
+                            .foregroundStyle(.gray100)
+                    }
             }
         }
-        .lineSpacing(0)
-        .scrollIndicators(.hidden)
-        .frame(height: 189.adjustedH)
         .background(.white)
         .clipShape(
             RoundedRectangle(cornerRadius: 8)
@@ -165,11 +153,12 @@ extension InfoStepView {
             RoundedRectangle(cornerRadius: 8)
                 .strokeBorder(.gray100, lineWidth: 1)
         }
+        .shadow(color: .gray0, radius: 16, x: 0, y: 2)
     }
     
     private var plusButton: some View {
-        Button {
-            store.recommendMenu.append("")
+        return Button {
+            store.plusButtonTapped()
         } label: {
             Image(.icPlusGray400)
                 .resizable()
@@ -182,6 +171,34 @@ extension InfoStepView {
                 }
         }
         .buttonStyle(.plain)
+        .disabled(store.plusButtonDisabled)
+    }
+    
+    private var nextButton: some View {
+        SpoonyButton(
+            style: .primary,
+            size: .xlarge,
+            title: "다음",
+            disabled: $store.disableFirstButton
+        ) {
+            store.step = .middle
+        }
+        .padding(.bottom, 20)
+        .padding(.top, 61)
+        .overlay(alignment: .top) {
+            ToolTipView()
+                .padding(.top, 5)
+                .opacity(store.isToolTipPresented ? 1 : 0)
+                .task {
+                    do {
+                        try await Task.sleep(for: .seconds(3))
+                        store.isToolTipPresented = false
+                    } catch {
+                        
+                    }
+                    
+                }
+        }
     }
 }
 
