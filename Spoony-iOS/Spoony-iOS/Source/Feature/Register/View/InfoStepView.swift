@@ -21,20 +21,7 @@ struct InfoStepView: View {
             
             sectionGroup
             
-            SpoonyButton(
-                style: .primary,
-                size: .xlarge,
-                title: "다음",
-                disabled: $store.disableFirstButton
-            ) {
-                store.step = .middle
-            }
-            .padding(.bottom, 20)
-            .padding(.top, 61)
-            .overlay(alignment: .top) {
-                ToolTipView()
-                    .padding(.top, 5)
-            }
+            nextButton
         }
         .background(.white)
         .onTapGesture {
@@ -118,7 +105,7 @@ extension InfoStepView {
                 .font(.body1sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 12)
-
+            
             VStack {
                 ForEach(store.recommendMenu.indices, id: \.self) { index in
                     SpoonyTextField(
@@ -182,6 +169,33 @@ extension InfoStepView {
                 }
         }
         .buttonStyle(.plain)
+    }
+    
+    private var nextButton: some View {
+        SpoonyButton(
+            style: .primary,
+            size: .xlarge,
+            title: "다음",
+            disabled: $store.disableFirstButton
+        ) {
+            store.step = .middle
+        }
+        .padding(.bottom, 20)
+        .padding(.top, 61)
+        .overlay(alignment: .top) {
+            ToolTipView()
+                .padding(.top, 5)
+                .opacity(store.isToolTipPresented ? 1 : 0)
+                .task {
+                    do {
+                        try await Task.sleep(for: .seconds(3))
+                        store.isToolTipPresented = false
+                    } catch {
+                        
+                    }
+                    
+                }
+        }
     }
 }
 

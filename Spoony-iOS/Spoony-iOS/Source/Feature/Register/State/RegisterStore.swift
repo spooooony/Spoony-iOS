@@ -28,6 +28,7 @@ final class RegisterStore: ObservableObject {
     @Published var simpleReview: String = ""
     @Published var detailReview: String = ""
     @Published var isSelected: Bool = false
+    @Published var isToolTipPresented = true
     @Published var simpleInputError: Bool = true {
         didSet {
             secondButtonInavlid()
@@ -108,5 +109,28 @@ final class RegisterStore: ObservableObject {
     
     func isUploadImageError() -> Bool {
         return uploadImageErrorState == .error
+    }
+}
+
+extension RegisterStore {
+    @MainActor
+    func reset() {
+        uploadImageErrorState = .initial
+        step = .start
+        disableFirstButton = true
+        disableSecondButton = true
+        text = ""
+        simpleReview = ""
+        detailReview = ""
+        isSelected = false
+        simpleInputError = true
+        detailInputError = true
+        categorys = CategoryChip.sample()
+        recommendMenu = [""]
+        selectedCategory = []
+        searchPlaces = PlaceInfo.sample()
+        selectedPlace = nil
+        pickerItem = nil
+        uploadImages = []
     }
 }
