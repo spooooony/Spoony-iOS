@@ -35,6 +35,7 @@ struct Explore: View {
                 style: .locationDetail,
                 title: navigationTitle,
                 tappedAction: {
+                    isPresentedLocation = true
                 })
             
             categoryList
@@ -54,7 +55,7 @@ struct Explore: View {
                 isPresented: $isPresentedFilter,
                 selectedFilter: $selectedFilter
             )
-            .presentationDetents([.height(264.adjustedH)])
+            .presentationDetents([.height(250.adjustedH)])
             .presentationCornerRadius(16)
         }
         .sheet(isPresented: $isPresentedLocation) {
@@ -149,6 +150,9 @@ extension Explore {
                     ExploreCell(foodType: .american, count: 2, userName: "gambasgirl", location: "성북구 수저", description: "수제버거 육즙이 팡팡 ! 마포구에서 제일 맛있는 버거집", chipColor: .orange)
                         .padding(.bottom, 12)
                         .padding(.horizontal, 20)
+                        .onTapGesture {
+                            navigationManager.push(.detailView)
+                        }
                 }
             }
         }
