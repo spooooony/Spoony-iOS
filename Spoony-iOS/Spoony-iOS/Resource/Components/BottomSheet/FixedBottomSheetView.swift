@@ -23,7 +23,7 @@ struct FixedBottomSheetView: View {
                 VStack(spacing: 8) {
                     RoundedRectangle(cornerRadius: 3)
                         .fill(Color.gray.opacity(0.5))
-                        .frame(width: 36, height: 5)
+                        .frame(width: 36.adjusted, height: 5.adjustedH)
                         .padding(.top, 10)
                 }
                 .frame(height: headerHeight)
