@@ -13,41 +13,61 @@ struct DetailView: View {
     // MARK: - Properties
     
     private let userImage = Image(.icCafeBlue)
-    private let userName: String = "럭키 백희"
-    private let placeAdress: String = "서울시 마포구 수저"
+    private let userName: String = "이명진"
+    private let placeAdress: String = "서울시 마포구 합정동 금수저"
     
     private var searchName = "연남"
     private var appName: String = "Spoony"
     @State private var isMyPost: Bool = true
     @State private var isPresented: Bool = false
+    @State private var popUpIsPresented: Bool = false
     @State private var privateMode: Bool = false
     @State private var toastMessage: Toast? = nil
+    @State private var toggleRedacted = false
     
     // MARK: - body
     
     var body: some View {
-        CustomNavigationBar(
-            style: .detailWithChip(count: 99),
-            onBackTapped: {}
-        )
-        ScrollView(.vertical) {
-            VStack(spacing: 0) {
-                userProfileSection
-                imageSection
-                reviewSection
-                placeInfoSection
+        VStack(spacing: 0) {
+            CustomNavigationBar(
+                style: .detailWithChip(count: 99),
+                onBackTapped: {}
+            )
+            ScrollView(.vertical) {
+                VStack(spacing: 0) {
+                    userProfileSection
+                    imageSection
+                    reviewSection
+                    placeInfoSection
+                }
             }
+            .simultaneousGesture(dragGesture)
+            .onTapGesture {
+                dismissDropDown()
+            }
+            .overlay(alignment: .topTrailing, content: {
+                dropDownView
+            })
+            .scrollIndicators(.hidden)
+            .toastView(toast: $toastMessage)
+            
+            bottomView
+                .frame(height: 80.adjustedH)
         }
-        .toastView(toast: $toastMessage)
-        .gesture(dragGesture)
-        .onTapGesture {
-            dismissDropDown()
+        .redacted(reason: toggleRedacted ? .placeholder : [])
+        .popup(
+            popup: .useSpoon,
+            isPresented: $popUpIsPresented
+        ) {
+            //TODO: 떠먹기 버튼 기능 구현
+            Task {
+                toggleRedacted = true
+                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000) // 3초 대기
+                toggleRedacted = false
+                privateMode = false
+            }
+            
         }
-        .overlay(dropDownView, alignment: .topTrailing)
-        
-        bottomView
-            .frame(height: 80.adjustedH)
-        
     }
 }
 
@@ -105,7 +125,7 @@ extension DetailView {
     
     private var imageSection: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 16) {
+            HStack(spacing: 10.adjusted) {
                 ForEach(0..<4) { _ in
                     Image(.imgMockGodeung)
                         .resizable()
@@ -133,19 +153,19 @@ extension DetailView {
                 .font(.title1b)
                 .foregroundStyle(.black)
             
-            Text("2025년 1월 2일")
+            Text("2025년 8월 21일")
                 .font(.caption1m)
                 .foregroundStyle(.gray400)
             
-            Spacer().frame(height: 16.adjustedH)
+            Spacer()
+                .frame(height: 16.adjustedH)
             
-            Text("이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어짐. 그리고 밤 후식 진짜 맛도리니까 밤 디저트 좋아하는 사람이면 꼭 먹어보기! ")
+            Text("이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어짐. 그리고 밤 후식 진짜 맛도리니까 밤 디저트 좋아하는 사람이면 꼭 먹어보기!")
                 .font(.body2m)
                 .foregroundStyle(.gray900)
             
         }
-        .padding(.horizontal, 20.adjusted)
-        .padding(.bottom, 32.adjustedH)
+        .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
     }
     
     private var placeInfoSection: some View {
@@ -215,7 +235,7 @@ extension DetailView {
             
             Spacer()
         }
-        .padding(EdgeInsets(top: 21.adjustedH, leading: 16.adjusted, bottom: 25.adjustedH, trailing: 20.adjusted))
+        .padding(EdgeInsets(top: 21.adjustedH, leading: 16.adjusted, bottom: 21.adjustedH, trailing: 16.adjusted))
     }
     
     private var bottomView: some View {
@@ -230,6 +250,8 @@ extension DetailView {
                 
                 if privateMode {
                     // TODO: 모달창 기능 구현 하기
+                    popUpIsPresented
+                    = true
                 } else {
                     let url = URL(string: "nmap://search?query=\(searchName)&appname=\(appName)")!
                     let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
@@ -245,7 +267,7 @@ extension DetailView {
             if !privateMode {
                 Spacer()
                 
-                SpoonButton(toastMessage: $toastMessage) // 바인딩 전달
+                SpoonButton(toastMessage: $toastMessage)
             }
         }
         .padding(.horizontal, 20.adjusted)
@@ -258,8 +280,10 @@ extension DetailView {
                     items: ["신고하기"],
                     isPresented: $isPresented
                 ) { menu in
+                    //TODO: 신고하기 액션 구현
                     print("선택된 메뉴: \(menu)")
                     isPresented = false
+                    privateMode = true
                 }
                 .frame(alignment: .topTrailing)
                 .padding(.top, 48.adjustedH)
@@ -304,10 +328,10 @@ struct SpoonButton: View {
                 .onTapGesture {
                     if isScrap {
                         scrapCount -= 1
-                        toastMessage = Toast(style: .gray, message: "스크랩 취소", yOffset: 539.adjustedH)
+                        toastMessage = Toast(style: .gray, message: "내 지도에서 삭제되었어요.", yOffset: 539.adjustedH)
                     } else {
                         scrapCount += 1
-                        toastMessage = Toast(style: .gray, message: "스크랩 성공",
+                        toastMessage = Toast(style: .gray, message: "내 지도에 추가되었어요.",
                                              yOffset: 539.adjustedH)
                     }
                     isScrap.toggle()
