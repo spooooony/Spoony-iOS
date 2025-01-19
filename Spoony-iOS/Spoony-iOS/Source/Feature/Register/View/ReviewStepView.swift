@@ -11,11 +11,8 @@ import PhotosUI
 struct ReviewStepView: View {
     @ObservedObject private var store: RegisterStore
     
-    var action: () -> Void
-    
-    init(store: RegisterStore, action: @escaping () -> Void) {
+    init(store: RegisterStore) {
         self.store = store
-        self.action = action
     }
     
     var body: some View {
@@ -38,7 +35,7 @@ struct ReviewStepView: View {
         }
         .background(.white)
         .onTapGesture {
-            action()
+            hideKeyboard()
         }
     }
 }
@@ -175,7 +172,5 @@ extension ReviewStepView {
 }
 
 #Preview {
-    ReviewStepView(store: .init()) {
-        
-    }
+    ReviewStepView(store: .init()) 
 }

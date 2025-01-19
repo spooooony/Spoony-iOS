@@ -11,11 +11,8 @@ struct InfoStepView: View {
     @ObservedObject private var store: RegisterStore
     @State private var isDropDown: Bool = false
     
-    var action: () -> Void
-    
-    init(store: RegisterStore, action: @escaping () -> Void) {
+    init(store: RegisterStore) {
         self.store = store
-        self.action = action
     }
     
     var body: some View {
@@ -37,7 +34,7 @@ struct InfoStepView: View {
         .background(.white)
         .onTapGesture {
             isDropDown = false
-            action()
+            hideKeyboard()
         }
     }
 }
@@ -185,7 +182,5 @@ extension InfoStepView {
 }
 
 #Preview {
-    InfoStepView(store: .init()) {
-        
-    }
+    InfoStepView(store: .init())
 }

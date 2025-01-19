@@ -5,7 +5,6 @@
 //  Created by 최안용 on 1/16/25.
 //
 
-import Foundation
 import SwiftUI
 import PhotosUI
 
@@ -22,7 +21,7 @@ enum UploadImageErrorState {
 
 final class RegisterStore: ObservableObject {
     @Published var uploadImageErrorState: UploadImageErrorState = .initial
-    @Published var step: RegisterStep = .middle
+    @Published var step: RegisterStep = .start
     @Published var disableFirstButton: Bool = true
     @Published var disableSecondButton: Bool = true
     @Published var text: String = ""
@@ -66,6 +65,7 @@ final class RegisterStore: ObservableObject {
                           let uiImage = UIImage(data: data) else { return }
                     uploadImages.append(.init(image: Image(uiImage: uiImage)))
                 } catch {
+                    print("Error loading image: \(error)")
                 }
             }
         }
