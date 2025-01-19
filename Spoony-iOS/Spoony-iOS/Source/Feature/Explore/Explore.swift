@@ -11,7 +11,9 @@ import Lottie
 
 struct Explore: View {
     //임시
-    private var isEmpty: Bool = true
+    private var isEmpty: Bool = false
+    
+    @EnvironmentObject private var navigationManager: NavigationManager
     
     @State private var isPresentedLocation: Bool = false
     @State private var isPresentedFilter: Bool = false
@@ -34,6 +36,7 @@ struct Explore: View {
                 style: .locationDetail,
                 title: navigationTitle,
                 tappedAction: {
+                    isPresentedLocation = true
                 })
             
             categoryList
@@ -148,6 +151,9 @@ extension Explore {
                     ExploreCell(foodType: .american, count: 2, userName: "gambasgirl", location: "성북구 수저", description: "수제버거 육즙이 팡팡 ! 마포구에서 제일 맛있는 버거집", chipColor: .orange)
                         .padding(.bottom, 12)
                         .padding(.horizontal, 20)
+                        .onTapGesture {
+                            navigationManager.push(.detailView)
+                        }
                 }
             }
         }

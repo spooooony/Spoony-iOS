@@ -17,6 +17,7 @@ enum ReportType: String, CaseIterable {
 }
 
 struct Report: View {
+    @EnvironmentObject private var navigationManager: NavigationManager
     @State private var selectedReport: ReportType = .commercial
     @State private var text: String = ""
     @State private var isError: Bool = true
@@ -24,7 +25,13 @@ struct Report: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            CustomNavigationBar(style: .detail, title: "신고하기")
+            CustomNavigationBar(
+                style: .detail,
+                title: "신고하기",
+                onBackTapped: {
+                    navigationManager.pop(1)
+                }
+            )
             Divider()
             ScrollView {
                 reportTitle
@@ -36,7 +43,10 @@ struct Report: View {
                     title: "신고하기",
                     disabled: $isDisabled
                 ) {
-                    
+                    navigationManager.popup = .reportSuccess(action: {
+                        //TODO: 신고 API
+                        navigationManager.pop(2)
+                    })
                 }
                 .padding(.top, !isError ? 12 : 20)
                 .padding(.bottom, 20)
