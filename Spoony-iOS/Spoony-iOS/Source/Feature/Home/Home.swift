@@ -11,13 +11,15 @@ struct Home: View {
     @EnvironmentObject var navigationManager: NavigationManager
     @State private var isBottomSheetPresented = true
     @State private var searchText = ""
+    @State private var selectedPlace: CardPlace?
+    @State private var currentPage = 0
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             Color.white
                 .edgesIgnoringSafeArea(.all)
             
-            NMapView()
+            NMapView(selectedPlace: $selectedPlace)
                 .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 0) {
@@ -45,13 +47,22 @@ struct Home: View {
                 Spacer()
             }
             
-//            if isBottomSheetPresented {
-//                if navigationManager.currentLocation != nil {
-//                    BottomSheetListView()
-//                } else {
-//                    FixedBottomSheetView()
-//                }
-//            }
+            if let place = selectedPlace {
+                VStack(spacing: 4) {
+                    PlaceCardsContainer(places: [place], currentPage: $currentPage)
+                    if [place].count > 1 {
+                        PageIndicator(currentPage: currentPage, pageCount: 1)
+                    }
+                }
+                .padding(.bottom, 4)
+                .transition(.move(edge: .bottom))
+            } else {
+                if navigationManager.currentLocation != nil {
+                    BottomSheetListView()
+                } else {
+                    FixedBottomSheetView()
+                }
+            }
         }
         .navigationBarHidden(true)
         .onAppear {
