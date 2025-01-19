@@ -26,20 +26,22 @@ struct Report: View {
         VStack(spacing: 0) {
             CustomNavigationBar(style: .detail, title: "신고하기")
             Divider()
-            
-            reportTitle
-            reportDescription
-            
-            SpoonyButton(
-                style: .secondary,
-                size: .xlarge,
-                title: "신고하기",
-                disabled: $isDisabled
-            ) {
+            ScrollView {
+                reportTitle
+                reportDescription
                 
+                SpoonyButton(
+                    style: .secondary,
+                    size: .xlarge,
+                    title: "신고하기",
+                    disabled: $isDisabled
+                ) {
+                    
+                }
+                .padding(.top, !isError ? 12 : 20)
+                .padding(.bottom, 20)
             }
-            .padding(.top, !isError ? 12 : 20)
-            .padding(.bottom, 20)
+            .scrollIndicators(.hidden)
         }
         .frame(maxHeight: .infinity)
         .background(.white)

@@ -54,7 +54,7 @@ extension SpoonyTextEditor {
         let borderColor: Color = {
             if errorState == .noError, isFocused {
                 return .main400
-            } else if errorState == .noError {
+            } else if errorState == .noError || errorState == .initial {
                 return .gray100
             } else {
                 return .error400
@@ -100,7 +100,7 @@ extension SpoonyTextEditor {
 
             Text("\(text.count) / \(style.maximumInput)")
                 .font(.caption1m)
-                .foregroundStyle(errorState != .noError ? .error400 : .gray500)
+                .foregroundStyle(errorState != .noError && errorState != .initial ? .error400 : .gray500)
                 .padding(.trailing, 5)
                 .padding(.bottom, 7)
         }

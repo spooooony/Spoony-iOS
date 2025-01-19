@@ -18,18 +18,9 @@ struct Register: View {
                 Group {
                     switch store.step {
                     case .start:
-                        InfoStepView(store: store) {
-                            hideKeyboard()
-                        }
+                        InfoStepView(store: store)
                     case .middle:
-                        VStack {
-                            HStack {
-                                Spacer()
-                                Text("2번째 화면")
-                                Spacer()
-                            }
-                        }
-                        .frame(height: 500)
+                        ReviewStepView(store: store)
                     case .end:
                         Text("끝")
                     }
