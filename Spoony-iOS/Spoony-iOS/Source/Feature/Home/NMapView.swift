@@ -11,12 +11,13 @@ import NMapsMap
 struct NMapView: UIViewRepresentable {
     private let defaultLocation = NMGLatLng(lat: 37.5666102, lng: 126.9783881)
     private let defaultZoomLevel: Double = 15
-    private let defaultMarker = NMFOverlayImage(name: "makerTest")
-    private let selectedMarker = NMFOverlayImage(name: "makerTestPlain")
+    private let defaultMarker = NMFOverlayImage(name: "ic_unselected_marker")
+    private let selectedMarker = NMFOverlayImage(name: "ic_selected_marker")
     private let defaultMarkerSize = (width: 40.adjusted, height: 58.adjustedH)
     private let selectedMarkerSize = (width: 30.adjusted, height: 30.adjustedH)
     @Binding var selectedPlace: CardPlace?
     
+    // TODO: 네트워크 목데이터로 옮기기
     private let samplePlace = CardPlace(
             name: "스타벅스 시청점",
             visitorCount: "38",
@@ -69,10 +70,10 @@ struct NMapView: UIViewRepresentable {
         marker.touchHandler = { (_) -> Bool in
             isSelected.toggle()
             if isSelected {
-                marker.iconImage = selectedMarker
+                marker.iconImage = defaultMarker
                 selectedPlace = samplePlace
             } else {
-                marker.iconImage = defaultMarker
+                marker.iconImage = selectedMarker
                 selectedPlace = nil
             }
             return true
