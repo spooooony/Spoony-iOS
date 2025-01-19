@@ -146,6 +146,7 @@ iOSInjectionProject/
 # Configuration
 # 절대 경로로 시도
 /Spoony-iOS/Config/Config.xcconfig
+Config.swift
 
 # 또는 모든 Config.xcconfig 파일을 무시하도록
 **/Config.xcconfig
