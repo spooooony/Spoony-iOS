@@ -45,13 +45,13 @@ struct Home: View {
                 Spacer()
             }
             
-            if isBottomSheetPresented {
-                if navigationManager.currentLocation != nil {
-                    BottomSheetListView()
-                } else {
-                    FixedBottomSheetView()
-                }
-            }
+//            if isBottomSheetPresented {
+//                if navigationManager.currentLocation != nil {
+//                    BottomSheetListView()
+//                } else {
+//                    FixedBottomSheetView()
+//                }
+//            }
         }
         .navigationBarHidden(true)
         .onAppear {
