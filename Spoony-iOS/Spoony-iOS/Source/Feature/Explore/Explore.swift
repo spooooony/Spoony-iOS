@@ -56,7 +56,7 @@ struct Explore: View {
                 isPresented: $isPresentedFilter,
                 selectedFilter: $selectedFilter
             )
-            .presentationDetents([.height(264.adjustedH)])
+            .presentationDetents([.height(250.adjustedH)])
             .presentationCornerRadius(16)
         }
         .sheet(isPresented: $isPresentedLocation) {
