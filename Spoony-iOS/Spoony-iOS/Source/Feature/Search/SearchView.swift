@@ -65,22 +65,21 @@ struct SearchView: View {
         updateSearchResults()
     }
     
-    // TODO: 추후 로티로 수정
     private var emptyStateView: some View {
-        VStack {
+        VStack(spacing: 0) {
             Spacer()
+                .frame(height: 72)
+                
             VStack(spacing: 8) {
-                Rectangle()
-                    .fill(.gray200)
-                    .frame(width: 200.adjusted, height: 200.adjustedH)
+                Image(.imageEmptySearch)
                     .padding(.bottom, 12)
                 
                 Text("구체적인 장소를 검색해 보세요")
                     .font(.body2m)
                     .foregroundColor(.gray600)
             }
+            
             Spacer()
-                .frame(height: 100.adjustedH)
         }
     }
     
