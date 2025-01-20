@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PlaceCardsContainer: View {
+    @EnvironmentObject private var navigationManager: NavigationManager
     let places: [CardPlace]
     @Binding var currentPage: Int
     
@@ -25,6 +26,9 @@ struct PlaceCardsContainer: View {
                 )
                 .padding(.horizontal, 16)
                 .tag(index)
+                .onTapGesture {
+                    navigationManager.push(.detailView)
+                }
             }
         }
         .frame(height: 280.adjusted)
