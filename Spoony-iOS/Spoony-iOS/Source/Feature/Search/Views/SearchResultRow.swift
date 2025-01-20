@@ -28,9 +28,10 @@ struct SearchResultRow: View {
             }
             Spacer()
         }
+        .contentShape(Rectangle()) 
+        .onTapGesture(perform: onTap)
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity)
-        .onTapGesture(perform: onTap)
     }
 }

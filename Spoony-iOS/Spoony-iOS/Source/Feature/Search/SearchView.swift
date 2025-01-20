@@ -12,7 +12,8 @@ struct SearchView: View {
     @State private var searchText = ""
     @State private var searchResults: [SearchResult] = []
     @State private var searchState: SearchState = .empty
-    @State private var recentSearches = ["홍대입구역", "성수동", "망원동"]
+    @State private var recentSearches: [String] = UserManager.shared.recentSearches ?? []
+    private let recentSearchesKey = "RecentSearches"
     
     var body: some View {
         ZStack {
@@ -92,6 +93,7 @@ struct SearchView: View {
                 Spacer()
                 Button("전체삭제") {
                     recentSearches.removeAll()
+                    saveRecentSearches()
                     searchState = .empty
                 }
                 .font(.caption1m)
@@ -100,30 +102,32 @@ struct SearchView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             
-            VStack(alignment: .leading, spacing: 0) {
-                ForEach(recentSearches, id: \.self) { search in
-                    HStack {
-                        Text(search)
-                            .font(.body1b)
-                        Spacer()
-                        Button(action: {
-                            if let index = recentSearches.firstIndex(of: search) {
-                                recentSearches.remove(at: index)
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(recentSearches, id: \.self) { search in
+                        HStack {
+                            Text(search)
+                                .font(.body1b)
+                            Spacer()
+                            Button(action: {
+                                if let index = recentSearches.firstIndex(of: search) {
+                                    recentSearches.remove(at: index)
+                                    saveRecentSearches()
+                                }
+                            }) {
+                                Image(.icCloseGray400)
                             }
-                        }) {
-                            Image(.icCloseGray400)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        
+                        if search != recentSearches.last {
+                            Divider()
+                                .foregroundStyle(.gray400)
+                                .padding(.horizontal, 16)
                         }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    
-                    if search != recentSearches.last {
-                        Divider()
-                            .foregroundStyle(.gray400)
-                            .padding(.horizontal, 16)
-                    }
                 }
-            }
+            
         }
     }
     
@@ -133,7 +137,7 @@ struct SearchView: View {
                 ForEach(getFilteredResults(), id: \.id) { result in
                     VStack(spacing: 0) {
                         SearchResultRow(result: result) {
-                            navigationManager.currentLocation = result.title  
+                            navigationManager.currentLocation = result.title
                             navigationManager.pop(1)
                         }
                         
@@ -159,9 +163,10 @@ struct SearchView: View {
             
             if !recentSearches.contains(searchText) {
                 recentSearches.insert(searchText, at: 0)
-                if recentSearches.count > 5 {
+                if recentSearches.count > 6 {
                     recentSearches.removeLast()
                 }
+                saveRecentSearches()
             }
             
         case true:
@@ -169,7 +174,15 @@ struct SearchView: View {
         }
     }
     
+    private func saveRecentSearches() {
+        UserManager.shared.recentSearches = recentSearches
+    }
+    
     private func getFilteredResults() -> [SearchResult] {
         return searchResults
     }
+}
+
+#Preview {
+    SearchView()
 }
