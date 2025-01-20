@@ -20,17 +20,6 @@ struct FeedResponse: Codable {
     let title: String
     let categoryColorResponse: CategoryColorResponse
     let zzimCount: Int
-    
-    func toEntity() -> FeedEntity {
-        .init(
-            id: UUID(),
-            userName: self.userName,
-            userRegion: self.userRegion,
-            title: self.title,
-            categorColorResponse: self.categoryColorResponse,
-            zzimCount: self.zzimCount
-        )
-    }
 }
 
 struct CategoryColorResponse: Codable, Hashable {
@@ -54,8 +43,18 @@ struct FeedEntity: Identifiable, Hashable {
     let zzimCount: Int
 }
 
-// MARK: - SAMPLE
 extension FeedResponse {
+    func toEntity() -> FeedEntity {
+        .init(
+            id: UUID(),
+            userName: self.userName,
+            userRegion: self.userRegion,
+            title: self.title,
+            categorColorResponse: self.categoryColorResponse,
+            zzimCount: self.zzimCount
+        )
+    }
+    
     static let sample: FeedResponse = .init(
         userId: 1,
         userName: "안용아안용",
