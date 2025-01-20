@@ -67,7 +67,12 @@ extension InfoStepView {
             
             if !store.isSelected {
                 SpoonyTextField(
-                    text: $store.text,
+                    text: Binding(
+                        get: { store.text },
+                        set: { newValue in
+                            store.text = newValue
+                        }
+                    ),
                     style: .icon,
                     placeholder: "어떤 장소를 한 입 줄까요?",
                     isError: .constant(false)
