@@ -10,6 +10,8 @@ import Foundation
 final class UserManager {
     @UserDefaultWrapper<String>(key: "userId") public var userId
     
+    @UserDefaultWrapper(key: "RecentSearches") public var recentSearches: [String]?
+    
     static let shared = UserManager()
     
     private init() { }

@@ -12,10 +12,9 @@ struct SearchView: View {
     @State private var searchText = ""
     @State private var searchResults: [SearchResult] = []
     @State private var searchState: SearchState = .empty
-    @State private var recentSearches: [String] = UserDefaults.standard.stringArray(
-        forKey: "RecentSearches") ?? []
+    @State private var recentSearches: [String] = UserManager.shared.recentSearches ?? []
     private let recentSearchesKey = "RecentSearches"
-
+    
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -139,7 +138,7 @@ struct SearchView: View {
                 ForEach(getFilteredResults(), id: \.id) { result in
                     VStack(spacing: 0) {
                         SearchResultRow(result: result) {
-                            navigationManager.currentLocation = result.title  
+                            navigationManager.currentLocation = result.title
                             navigationManager.pop(1)
                         }
                         
@@ -174,8 +173,8 @@ struct SearchView: View {
     }
     
     private func saveRecentSearches() {
-            UserDefaults.standard.set(recentSearches, forKey: recentSearchesKey)
-        }
+        UserManager.shared.recentSearches = recentSearches
+    }
     
     private func getFilteredResults() -> [SearchResult] {
         return searchResults
