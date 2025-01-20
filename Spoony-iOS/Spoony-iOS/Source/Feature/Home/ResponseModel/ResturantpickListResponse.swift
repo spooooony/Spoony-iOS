@@ -18,10 +18,10 @@ struct PickListCardResponse: Codable {
     let postTitle: String
     let latitude: Double
     let longitude: Double
-    let categoryColorResponse: CategoryColorResponse
+    let categoryColorResponse: BottomSheetCategoryColorResponse
 }
 
-struct CategoryColorResponse: Codable {
+struct BottomSheetCategoryColorResponse: Codable {
     let categoryName: String
     let iconUrl: String
     let iconTextColor: String
