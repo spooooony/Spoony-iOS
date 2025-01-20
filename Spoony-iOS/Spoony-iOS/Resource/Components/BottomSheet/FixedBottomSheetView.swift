@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct FixedBottomSheetView: View {
+    @EnvironmentObject private var navigationManager: NavigationManager
     private let screenHeight = UIScreen.main.bounds.height
     private let fixedHeight: CGFloat
     private let headerHeight: CGFloat = 20.adjustedH
@@ -46,7 +47,7 @@ struct FixedBottomSheetView: View {
                         title: "떠먹으러 가기",
                         disabled: $isDisabled
                     ) {
-
+                        navigationManager.push(.detailView)
                     }
                     .padding(.top, 8)
                 }
