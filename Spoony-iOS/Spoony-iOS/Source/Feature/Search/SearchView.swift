@@ -102,7 +102,6 @@ struct SearchView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             
-            ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(recentSearches, id: \.self) { search in
                         HStack {
@@ -128,7 +127,7 @@ struct SearchView: View {
                         }
                     }
                 }
-            }
+            
         }
     }
     
@@ -164,6 +163,9 @@ struct SearchView: View {
             
             if !recentSearches.contains(searchText) {
                 recentSearches.insert(searchText, at: 0)
+                if recentSearches.count > 6 {
+                    recentSearches.removeLast()
+                }
                 saveRecentSearches()
             }
             
@@ -179,4 +181,8 @@ struct SearchView: View {
     private func getFilteredResults() -> [SearchResult] {
         return searchResults
     }
+}
+
+#Preview {
+    SearchView()
 }
