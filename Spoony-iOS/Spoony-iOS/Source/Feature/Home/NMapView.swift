@@ -10,7 +10,7 @@ import NMapsMap
 
 struct NMapView: UIViewRepresentable {
     private let defaultLocation = NMGLatLng(lat: 37.5666102, lng: 126.9783881)
-    private let defaultZoomLevel: Double = 15
+    private let defaultZoomLevel: Double = 11.5
     private let defaultMarker = NMFOverlayImage(name: "ic_unselected_marker")
     private let selectedMarker = NMFOverlayImage(name: "ic_selected_marker")
     private let defaultMarkerSize = (width: 40.adjusted, height: 58.adjustedH)
