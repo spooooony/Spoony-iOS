@@ -136,15 +136,7 @@ extension Explore {
         ScrollView {
             VStack(spacing: 0) {
                 ForEach(store.exploreList) { list in
-                    //TODO: food type, chip color 바꿔야~
-                    ExploreCell(
-                        foodType: .american,
-                        count: list.zzimCount,
-                        userName: list.userName,
-                        location: list.userRegion,
-                        description: list.title,
-                        chipColor: .blue
-                    )
+                    ExploreCell(feed: list)
                         .padding(.bottom, 12)
                         .padding(.horizontal, 20)
                         .onTapGesture {
