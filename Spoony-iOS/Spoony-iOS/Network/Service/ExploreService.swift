@@ -39,10 +39,10 @@ final class DefaultExploreService: ExploreProtocol {
                 switch result {
                 case .success(let response):
                     do {
-                        guard let result = try response.map(BaseResponse<FeedListResponse>.self).data
-                        else { return }
+                        let responseDto = try response.map(BaseResponse<FeedListResponse>.self)
+                        guard let data = responseDto.data else { return }
                         
-                        continuation.resume(returning: result)
+                        continuation.resume(returning: data)
                     } catch {
                         continuation.resume(throwing: error)
                     }

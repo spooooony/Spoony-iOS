@@ -49,6 +49,6 @@ final class ExploreStore: ObservableObject {
             sort: selectedFilter
         )
         .feedResponseList
-        .map { $0.translate() }
+        .map { $0.toEntity() }
     }
 }

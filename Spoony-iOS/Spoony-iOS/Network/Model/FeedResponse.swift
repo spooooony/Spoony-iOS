@@ -21,7 +21,7 @@ struct FeedResponse: Codable {
     let categoryColorResponse: CategoryColorResponse
     let zzimCount: Int
     
-    func translate() -> FeedEntity {
+    func toEntity() -> FeedEntity {
         .init(
             id: UUID(),
             userName: self.userName,
