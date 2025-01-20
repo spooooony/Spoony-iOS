@@ -39,15 +39,11 @@ final class DefaultExploreService: ExploreProtocol {
                 switch result {
                 case .success(let response):
                     do {
-                        print("do!!")
                         guard let result = try response.map(BaseResponse<FeedListResponse>.self).data
-                        else {
-                            print("guard 걸림")
-                            return }
+                        else { return }
                         
                         continuation.resume(returning: result)
                     } catch {
-                        print("왜 여기서 error?")
                         continuation.resume(throwing: error)
                     }
                 case .failure(let error):

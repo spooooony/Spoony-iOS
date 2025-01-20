@@ -18,7 +18,7 @@ struct FeedResponse: Codable {
     let userRegion: String
     let postId: Int
     let title: String
-    let categorColorResponseDTO: CategoryColorResponse
+    let categoryColorResponse: CategoryColorResponse
     let zzimCount: Int
     
     func translate() -> FeedEntity {
@@ -27,7 +27,7 @@ struct FeedResponse: Codable {
             userName: self.userName,
             userRegion: self.userRegion,
             title: self.title,
-            categorColorResponseDTO: self.categorColorResponseDTO,
+            categorColorResponse: self.categoryColorResponse,
             zzimCount: self.zzimCount
         )
     }
@@ -50,7 +50,7 @@ struct FeedEntity: Identifiable, Hashable {
     let userName: String
     let userRegion: String
     let title: String
-    let categorColorResponseDTO: CategoryColorResponse
+    let categorColorResponse: CategoryColorResponse
     let zzimCount: Int
 }
 
@@ -63,7 +63,7 @@ extension FeedResponse {
         userRegion: "서울시 성북구",
         postId: 1,
         title: "테스트 title",
-        categorColorResponseDTO: .init(
+        categoryColorResponse: .init(
             categoryName: "로컬 수저",
             iconUrl: "url",
             iconTextColor: "hexa code",
