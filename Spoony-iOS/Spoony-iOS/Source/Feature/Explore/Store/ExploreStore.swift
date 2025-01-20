@@ -13,18 +13,34 @@ final class ExploreStore: ObservableObject {
     
     @Published private(set) var exploreList: [FeedEntity] = []
     @Published private(set) var selectedLocation: SeoulType?
-    @Published /*private(set)*/ var selectedFilter: FilterType = .latest
+    @Published private(set) var selectedFilter: FilterType = .latest
     //TODO: 위치 정보 받으면 고치기
     @Published private(set) var navigationTitle: String = "서울특별시 마포구"
+    
+    init() {
+        Task {
+            try await fetchFeedList()
+        }
+    }
     
     func changeLocation(location: SeoulType) {
         selectedLocation = location
         navigationTitle = "서울특별시 \(location.rawValue)"
+        Task {
+            try await fetchFeedList()
+        }
+    }
+    
+    func changeFilter(filter: FilterType) {
+        selectedFilter = filter
+        Task {
+            try await fetchFeedList()
+        }
     }
     
     // MARK: - Network
     @MainActor
-    func fetchFeedList() async throws {
+    private func fetchFeedList() async throws {
         //TODO: userId Config에서 받아서 바꾸기
         exploreList = try await network.getUserFeed(
             userId: 1,

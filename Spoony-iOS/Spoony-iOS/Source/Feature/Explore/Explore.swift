@@ -17,7 +17,6 @@ struct Explore: View {
     @State private var isPresentedFilter: Bool = false
     
     @State private var selectedCategory: String = "전체"
-//    @State private var selectedFilter: FilterType = .latest
 
     var body: some View {
         VStack(spacing: 0) {
@@ -43,7 +42,7 @@ struct Explore: View {
         .sheet(isPresented: $isPresentedFilter) {
             FilterBottomSheet(
                 isPresented: $isPresentedFilter,
-                selectedFilter: $store.selectedFilter
+                store: store
             )
             .presentationDetents([.height(250.adjustedH)])
             .presentationCornerRadius(16)
@@ -55,11 +54,6 @@ struct Explore: View {
             )
             .presentationDetents([.height(542.adjustedH)])
             .presentationCornerRadius(16)
-        }
-        .onAppear {
-            Task {
-                try await store.fetchFeedList()
-            }
         }
     }
 }
