@@ -10,50 +10,40 @@ import SwiftUI
 import Lottie
 
 struct Explore: View {
-    //임시
-    private var isEmpty: Bool = true
     @EnvironmentObject private var navigationManager: NavigationManager
+    @StateObject private var store = ExploreStore()
     
     @State private var isPresentedLocation: Bool = false
     @State private var isPresentedFilter: Bool = false
     
-    @State private var selectedLocation: SeoulType?
     @State private var selectedCategory: String = "전체"
-    @State private var selectedFilter: FilterType = .latest
-    
-    private var navigationTitle: String {
-        if let selectedLocation {
-            return "서울특별시 \(selectedLocation.rawValue)"
-        } else {
-            return "서울특별시 마포구"
-        }
-    }
-    
+//    @State private var selectedFilter: FilterType = .latest
+
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
                 style: .locationDetail,
-                title: navigationTitle,
+                title: store.navigationTitle,
                 tappedAction: {
                     isPresentedLocation = true
                 })
             
             categoryList
-            filterButton
-                .onTapGesture {
-                    isPresentedFilter = true
-                }
-            
-            if isEmpty {
+        
+            if store.exploreList.isEmpty {
                 emptyView
             } else {
+                filterButton
+                    .onTapGesture {
+                        isPresentedFilter = true
+                    }
                 listView
             }
         }
         .sheet(isPresented: $isPresentedFilter) {
             FilterBottomSheet(
                 isPresented: $isPresentedFilter,
-                selectedFilter: $selectedFilter
+                selectedFilter: $store.selectedFilter
             )
             .presentationDetents([.height(250.adjustedH)])
             .presentationCornerRadius(16)
@@ -61,10 +51,15 @@ struct Explore: View {
         .sheet(isPresented: $isPresentedLocation) {
             LocationPickerBottomSheet(
                 isPresented: $isPresentedLocation,
-                selectedRegion: $selectedLocation
+                store: store
             )
             .presentationDetents([.height(542.adjustedH)])
             .presentationCornerRadius(16)
+        }
+        .onAppear {
+            Task {
+                try await store.fetchFeedList()
+            }
         }
     }
 }
@@ -103,7 +98,7 @@ extension Explore {
     private var filterButton: some View {
         HStack(spacing: 2) {
             Spacer()
-            Text(selectedFilter.title)
+            Text(store.selectedFilter.title)
                 .font(.caption1m)
                 .foregroundStyle(.gray700)
             Image(.icFilterGray700)
@@ -146,8 +141,16 @@ extension Explore {
     private var listView: some View {
         ScrollView {
             VStack(spacing: 0) {
-                ForEach(1..<7) { _ in
-                    ExploreCell(foodType: .american, count: 2, userName: "gambasgirl", location: "성북구 수저", description: "수제버거 육즙이 팡팡 ! 마포구에서 제일 맛있는 버거집", chipColor: .orange)
+                ForEach(store.exploreList) { list in
+                    //TODO: food type, chip color 바꿔야~
+                    ExploreCell(
+                        foodType: .american,
+                        count: list.zzimCount,
+                        userName: list.userName,
+                        location: list.userRegion,
+                        description: list.title,
+                        chipColor: .blue
+                    )
                         .padding(.bottom, 12)
                         .padding(.horizontal, 20)
                         .onTapGesture {
