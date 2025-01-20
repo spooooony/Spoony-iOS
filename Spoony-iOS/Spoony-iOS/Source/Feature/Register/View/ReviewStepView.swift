@@ -9,7 +9,6 @@ import SwiftUI
 import PhotosUI
 
 struct ReviewStepView: View {
-    @EnvironmentObject private var navigationManager: NavigationManager
     @ObservedObject private var store: RegisterStore
     
     init(store: RegisterStore) {
@@ -27,13 +26,15 @@ struct ReviewStepView: View {
                 style: .primary,
                 size: .xlarge,
                 title: "다음",
-                disabled: $store.disableSecondButton
+                disabled: Binding(
+                    get: {
+                        store.state.isDisableMiddleButton
+                    }, set: { newValue in
+                        store.dispatch(.updateButtonState(newValue, .middle))
+                    }
+                )
             ) {
-                store.step = .end
-                navigationManager.popup = .registerSuccess(action: {
-                    navigationManager.selectedTab = .explore
-                    store.reset()                    
-                })
+                store.dispatch(.didTapNextButton(.middle))                
             }
             .padding(.bottom, 20)
         }
@@ -41,14 +42,13 @@ struct ReviewStepView: View {
         .onTapGesture {
             hideKeyboard()
         }
-        .gesture(
-            DragGesture()
-                .onChanged { value in
-                    if value.translation.width > 50 {
-                        store.step = .start
-                    }
+        .gesture(DragGesture(minimumDistance: 30, coordinateSpace: .local)
+            .onChanged { value in
+                if value.translation.width > 150 {
+                    store.dispatch(.movePreviousView)
                 }
-        )
+            }
+)
     }
 }
 
@@ -69,10 +69,22 @@ extension ReviewStepView {
                 .foregroundStyle(.spoonBlack)
             
             SpoonyTextField(
-                text: $store.simpleReview,
+                text: Binding(
+                    get: {
+                        store.state.simpleText
+                    }, set: { newValue in
+                        store.dispatch(.updateText(newValue, .simple))
+                    }
+                ),
                 style: .helper,
                 placeholder: "장소명 언급은 피해주세요. 우리만의 비밀!",
-                isError: $store.simpleInputError
+                isError: Binding(
+                    get: {
+                        store.state.isSimpleTextError
+                    }, set: { newValue in
+                        store.dispatch(.updateTextError(newValue, .simple))
+                    }
+                )
             )
         }
         .padding(.horizontal, 20)
@@ -98,10 +110,22 @@ extension ReviewStepView {
             }
             
             SpoonyTextEditor(
-                text: $store.detailReview,
+                text: Binding(
+                    get: {
+                        store.state.detailText
+                    }, set: { newValue in
+                        store.dispatch(.updateText(newValue, .detail))
+                    }
+                ),
                 style: .review,
                 placeholder: "장소명 언급은 피해주세요. 우리만의 비밀!",
-                isError: $store.detailInputError
+                isError: Binding(
+                    get: {
+                        store.state.isDetailTextError
+                    }, set: { newValue in
+                        store.dispatch(.updateTextError(newValue, .detail))
+                    }
+                )
             )
         }
         .padding(.horizontal, 20)
@@ -119,15 +143,16 @@ extension ReviewStepView {
                 HStack {
                     plusButton
                     
-                    ForEach(store.uploadImages) { image in
+                    ForEach(store.state.uploadImages) { image in
                         loadedImageView(image)
                     }
                 }
                 .padding(.horizontal, 20)
             }
             .scrollIndicators(.hidden)
+            .gesture(DragGesture().onChanged { _ in })
             
-            if store.isUploadImageError() {
+            if store.state.uploadImageErrorState == .error {
                 HStack(spacing: 6) {
                     Image(.icErrorRed)
                         .resizable()
@@ -144,15 +169,22 @@ extension ReviewStepView {
     
     private var plusButton: some View {
         PhotosPicker(
-            selection: $store.pickerItems,
-            maxSelectionCount: store.selectableCount,
+            selection: Binding(
+                get: {
+                    store.state.pickerItems
+                }, set: { newValue in
+                    store.dispatch(.updatePickerItems(newValue))
+                    hideKeyboard()
+                }
+            ),
+            maxSelectionCount: store.state.selectableCount,
             matching: .images
         ) {
             VStack(spacing: 4) {
                 Image(.icPlusGray400)
                     .resizable()
                     .frame(width: 16.adjusted, height: 16.adjustedH)
-                Text("\(store.uploadImages.count)/5")
+                Text("\(store.state.uploadImages.count)/5")
                     .font(.caption1m)
                     .foregroundStyle(.gray400)
             }
@@ -163,7 +195,7 @@ extension ReviewStepView {
                     .strokeBorder(.gray100)
             }
         }
-        .disabled(store.uploadImages.count == 5)
+        .disabled(store.state.uploadImages.count == 5)
     }
     
     private func loadedImageView(_ image: UploadImage) -> some View {
@@ -174,7 +206,7 @@ extension ReviewStepView {
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(alignment: .topTrailing) {
                 Button {
-                    store.deleteImage(image)
+                    store.dispatch(.deleteImage(image))
                 } label: {
                     Image(.icDeleteFillGray400)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -187,5 +219,5 @@ extension ReviewStepView {
 }
 
 #Preview {
-    ReviewStepView(store: .init()) 
+    ReviewStepView(store: .init(navigationManager: .init()))
 }
