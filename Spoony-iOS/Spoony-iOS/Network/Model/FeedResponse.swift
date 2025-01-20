@@ -7,11 +7,16 @@
 
 import Foundation
 
+struct FeedListResponse: Codable {
+    let feedResponseList: [FeedResponse]
+}
+
 struct FeedResponse: Codable {
     let userId: Int
     let userName: String
     let createdAt: String
     let userRegion: String
+    let postId: Int
     let title: String
     let categorColorResponseDTO: CategoryColorResponse
     let zzimCount: Int
@@ -40,6 +45,7 @@ struct FeedEntity: Identifiable, Hashable {
     static func == (lhs: FeedEntity, rhs: FeedEntity) -> Bool {
         lhs.id == rhs.id
     }
+    
     let id: UUID
     let userName: String
     let userRegion: String
@@ -55,6 +61,7 @@ extension FeedResponse {
         userName: "안용아안용",
         createdAt: "2025-01-19T22:58:53.622066",
         userRegion: "서울시 성북구",
+        postId: 1,
         title: "테스트 title",
         categorColorResponseDTO: .init(
             categoryName: "로컬 수저",

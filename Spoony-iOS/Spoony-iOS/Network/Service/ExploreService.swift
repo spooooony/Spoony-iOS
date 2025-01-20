@@ -10,17 +10,28 @@ import Foundation
 import Moya
 
 protocol ExploreProtocol {
-    func getUserFeed(userId: Int, location: String, sort: FilterType) async throws -> [FeedResponse]
+    func getUserFeed(
+        userId: Int,
+        categoryId: Int,
+        location: String,
+        sort: FilterType
+    ) async throws -> FeedListResponse
 }
 
 final class DefaultExploreService: ExploreProtocol {
     let provider = Providers.explorProvider
     
-    func getUserFeed(userId: Int, location: String, sort: FilterType) async throws -> [FeedResponse] {
+    func getUserFeed(
+        userId: Int,
+        categoryId: Int,
+        location: String,
+        sort: FilterType
+    ) async throws -> FeedListResponse {
         return try await withCheckedThrowingContinuation { continuation in
             provider.request(
                 .getUserFeeds(
                     userId: userId,
+                    categoryId: categoryId,
                     location: location,
                     sort: sort
                 )
@@ -28,12 +39,15 @@ final class DefaultExploreService: ExploreProtocol {
                 switch result {
                 case .success(let response):
                     do {
-                        guard let data = try JSONDecoder()
-                            .decode(BaseResponse<[FeedResponse]>.self, from: response.data)
-                            .data else { return }
+                        print("do!!")
+                        guard let result = try response.map(BaseResponse<FeedListResponse>.self).data
+                        else {
+                            print("guard 걸림")
+                            return }
                         
-                        continuation.resume(returning: data)
+                        continuation.resume(returning: result)
                     } catch {
+                        print("왜 여기서 error?")
                         continuation.resume(throwing: error)
                     }
                 case .failure(let error):
@@ -46,7 +60,16 @@ final class DefaultExploreService: ExploreProtocol {
 }
 
 final class MockExploreService: ExploreProtocol {
-    func getUserFeed(userId: Int, location: String, sort: FilterType) async throws -> [FeedResponse] {
-        return [FeedResponse.sample, FeedResponse.sample, FeedResponse.sample]
+    func getUserFeed(
+        userId: Int,
+        categoryId: Int,
+        location: String,
+        sort: FilterType
+    ) async throws -> FeedListResponse {
+        return .init(feedResponseList: [
+            FeedResponse.sample,
+            FeedResponse.sample,
+            FeedResponse.sample
+        ])
     }
 }

@@ -8,8 +8,8 @@
 import SwiftUI
 
 final class ExploreStore: ObservableObject {
-//    private let network: ExploreProtocol = DefatulExploreService()
-    private let network: ExploreProtocol = MockExploreService()
+    private let network: ExploreProtocol = DefaultExploreService()
+//    private let network: ExploreProtocol = MockExploreService()
     
     @Published private(set) var exploreList: [FeedEntity] = []
     @Published private(set) var selectedLocation: SeoulType?
@@ -41,12 +41,14 @@ final class ExploreStore: ObservableObject {
     // MARK: - Network
     @MainActor
     private func fetchFeedList() async throws {
-        //TODO: userId Config에서 받아서 바꾸기
+        //TODO: userId Config에서 받아서 바꾸기, category id 받아서 바꾸기
         exploreList = try await network.getUserFeed(
             userId: 1,
+            categoryId: 1,
             location: selectedLocation?.rawValue ?? "",
             sort: selectedFilter
         )
+        .feedResponseList
         .map { $0.translate() }
     }
 }
