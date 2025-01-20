@@ -49,9 +49,10 @@ enum SeoulType: String, CaseIterable {
 
 struct LocationPickerBottomSheet: View {
     @Binding var isPresented: Bool
-    @Binding var selectedRegion: SeoulType?
     @State private var isDisabled: Bool = true
-    @State private var tempRegion: SeoulType?
+    @State private var tempRegion: SeoulType = .mapo
+    
+    @ObservedObject var store: ExploreStore
     
     var body: some View {
         VStack {
@@ -94,7 +95,7 @@ struct LocationPickerBottomSheet: View {
                             Text(type.rawValue)
                                 .font(.body2m)
                                 .foregroundStyle(
-                                    tempRegion?.rawValue != type.rawValue ? .gray400 : .spoonBlack
+                                    tempRegion.rawValue != type.rawValue ? .gray400 : .spoonBlack
                                 )
                                 .frame(width: 240.adjusted, height: 44.adjustedH)
                                 .background(
@@ -118,21 +119,17 @@ struct LocationPickerBottomSheet: View {
                 title: "선택하기",
                 disabled: $isDisabled
             ) {
-                selectedRegion = tempRegion
+                store.changeLocation(location: tempRegion)
                 isPresented = false
             }
             .padding(.top, 12)
             .padding(.bottom, 22)
         }
         .onAppear {
-            if let selectedRegion {
-                tempRegion = selectedRegion
+            if let location = store.selectedLocation {
+                tempRegion = location
                 isDisabled = false
             }
         }
     }
-}
-
-#Preview {
-    LocationPickerBottomSheet(isPresented: .constant(true), selectedRegion: .constant(.mapo))
 }

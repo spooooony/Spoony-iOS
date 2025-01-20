@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum FilterType: CaseIterable {
+enum FilterType: String, CaseIterable {
     case latest
     case popularity
     
@@ -23,18 +23,19 @@ enum FilterType: CaseIterable {
 
 struct FilterBottomSheet: View {
     @Binding var isPresented: Bool
-    @Binding var selectedFilter: FilterType
+    
+    @ObservedObject var store: ExploreStore
     
     var body: some View {
         VStack(spacing: 12) {
             ForEach(FilterType.allCases, id: \.self) { filter in
                 SpoonyButton(
-                    style: selectedFilter == filter ? .activate : .deactivate,
+                    style: store.selectedFilter == filter ? .activate : .deactivate,
                     size: .xlarge,
                     title: filter.title,
                     disabled: .constant(false)
                 ) {
-                    selectedFilter = filter
+                    store.changeFilter(filter: filter)
                     isPresented = false
                 }
             }
@@ -51,8 +52,4 @@ struct FilterBottomSheet: View {
         .padding(.top, 16)
         .padding(.bottom, 22.adjustedH)
     }
-}
-
-#Preview {
-    FilterBottomSheet(isPresented: .constant(true), selectedFilter: .constant(.latest))
 }

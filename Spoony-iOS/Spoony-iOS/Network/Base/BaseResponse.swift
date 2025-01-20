@@ -8,7 +8,7 @@
 import Foundation
 
 struct BaseResponse<T: Codable>: Codable {
-    let success: Int
+    let success: Bool
     let error: T?
     let data: T?
 }
@@ -16,4 +16,3 @@ struct BaseResponse<T: Codable>: Codable {
 /// data가 없는 API 통신에서 사용할 BlankData 구조체
 struct BlankData: Codable {
 }
-

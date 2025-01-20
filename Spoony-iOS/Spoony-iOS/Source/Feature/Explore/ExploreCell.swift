@@ -8,21 +8,20 @@
 import SwiftUI
 
 struct ExploreCell: View {
-    let foodType: FoodType
-    let count: Int
-    let userName: String
-    let location: String
-    let description: String
-    let chipColor: ChipColorType
+    private let feed: FeedEntity
+    
+    init(feed: FeedEntity) {
+        self.feed = feed
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 9) {
             HStack(spacing: 0) {
                 IconChip(
-                    title: foodType.title,
-                    foodType: foodType,
+                    title: feed.categorColorResponse.categoryName,
+                    foodType: .american,
                     chipType: .small,
-                    color: chipColor
+                    color: .black
                 )
                 
                 Spacer()
@@ -32,21 +31,21 @@ struct ExploreCell: View {
                     .scaledToFit()
                     .frame(width: 16.adjusted, height: 16.adjustedH)
                     .padding(.trailing, 4)
-                Text("\(count)")
+                Text("\(feed.zzimCount)")
                     .font(.caption2b)
                     .foregroundStyle(.gray500)
             }
             
             HStack(alignment: .bottom, spacing: 4) {
-                Text(userName)
+                Text(feed.userName)
                     .font(.body2b)
                     .padding(.leading, 5)
-                Text(location)
+                Text("\(feed.userRegion) 수저")
                     .font(.caption2m)
                     .foregroundStyle(.gray500)
             }
             
-            Text(description)
+            Text(feed.title)
                 .font(.caption1m)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(8)
@@ -57,15 +56,4 @@ struct ExploreCell: View {
         .padding(.bottom, 18)
         .background(.gray0, in: RoundedRectangle(cornerRadius: 8))
     }
-}
-
-#Preview {
-    ExploreCell(
-        foodType: .american,
-        count: 10,
-        userName: "gambasgirl",
-        location: "성북구 수저",
-        description: "수제버거 육즙이 팡팡 ! 마포구에서 제일 맛있는 버거집",
-        chipColor: .orange
-    )
 }
