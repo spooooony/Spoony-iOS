@@ -134,13 +134,13 @@ final class MockExploreService: ExploreProtocol {
                     categoryName: "카페",
                     iconUrlNotSelected: "",
                     iconUrlSelected: ""
-                ),.init(
+                ),
+                .init(
                     categoryId: 8,
                     categoryName: "주류",
                     iconUrlNotSelected: "",
                     iconUrlSelected: ""
-                ),
-                
+                )
             ]
         )
     }

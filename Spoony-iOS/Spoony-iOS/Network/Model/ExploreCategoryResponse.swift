@@ -1,5 +1,5 @@
 //
-//  SearchCategoryResponse.swift
+//  ExploreCategoryResponse.swift
 //  Spoony-iOS
 //
 //  Created by 최주리 on 1/21/25.
@@ -8,10 +8,10 @@
 import Foundation
 
 struct SearchCategoryListResponse: Codable {
-    let categoryMonoList: [SearchCategoryResponse]
+    let categoryMonoList: [ExploreCategoryResponse]
 }
 
-struct SearchCategoryResponse: Codable {
+struct ExploreCategoryResponse: Codable {
     let categoryId: Int
     let categoryName: String
     let iconUrlNotSelected: String
@@ -25,7 +25,7 @@ struct CategoryEntity: Identifiable, Equatable {
     let notSelectedUrl: String
 }
 
-extension SearchCategoryResponse {
+extension ExploreCategoryResponse {
     func toEntity() -> CategoryEntity {
         .init(
             id: self.categoryId,
