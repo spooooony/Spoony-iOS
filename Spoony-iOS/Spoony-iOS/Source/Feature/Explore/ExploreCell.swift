@@ -17,6 +17,7 @@ struct ExploreCell: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 9) {
             HStack(spacing: 0) {
+                //TODO: 아이콘 이미지 받으면 바꾸기~ 
                 IconChip(
                     title: feed.categorColorResponse.categoryName,
                     foodType: .american,

@@ -8,7 +8,7 @@
 import SwiftUI
 
 final class ExploreStore: ObservableObject {
-    private let network: ExploreProtocol = DefaultExploreService()
+        private let network: ExploreProtocol = DefaultExploreService()
 //    private let network: ExploreProtocol = MockExploreService()
     
     @Published private(set) var exploreList: [FeedEntity] = []
@@ -17,23 +17,38 @@ final class ExploreStore: ObservableObject {
     //TODO: 위치 정보 받으면 고치기
     @Published private(set) var navigationTitle: String = "서울특별시 마포구"
     
-    init() {
-        Task {
-            try await fetchFeedList()
-        }
-    }
+    @Published private(set) var categoryList: [CategoryEntity] = []
+    @Published private(set) var selectedCategory: CategoryEntity?
     
     func changeLocation(location: SeoulType) {
         selectedLocation = location
         navigationTitle = "서울특별시 \(location.rawValue)"
+        getFeedList()
+    }
+    
+    func changeFilter(filter: FilterType) {
+        selectedFilter = filter
+        getFeedList()
+    }
+    
+    func changeCategory(category: CategoryEntity) {
+        selectedCategory = category
+        getFeedList()
+    }
+    
+    private func getFeedList() {
         Task {
             try await fetchFeedList()
         }
     }
     
-    func changeFilter(filter: FilterType) {
-        selectedFilter = filter
+    func getCategoryList() {
         Task {
+            //TODO: 아이콘 이미지 받으면 바꾸기~ 
+            try await fetchCategoryList()
+            await MainActor.run {
+                selectedCategory = categoryList.first
+            }
             try await fetchFeedList()
         }
     }
@@ -41,14 +56,21 @@ final class ExploreStore: ObservableObject {
     // MARK: - Network
     @MainActor
     private func fetchFeedList() async throws {
-        //TODO: userId Config에서 받아서 바꾸기, category id 받아서 바꾸기
+        guard let selectedCategory else { return }
         exploreList = try await network.getUserFeed(
-            userId: 1,
-            categoryId: 1,
+            userId: Config.userId,
+            categoryId: selectedCategory.id,
             location: selectedLocation?.rawValue ?? "",
             sort: selectedFilter
         )
         .feedResponseList
         .map { $0.toEntity() }
+    }
+    
+    @MainActor
+    private func fetchCategoryList() async throws {
+        categoryList = try await network.getCateogyList()
+            .categoryMonoList
+            .map { $0.toEntity() }
     }
 }

@@ -16,8 +16,6 @@ struct Explore: View {
     @State private var isPresentedLocation: Bool = false
     @State private var isPresentedFilter: Bool = false
     
-    @State private var selectedCategory: String = "전체"
-
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
@@ -55,31 +53,27 @@ struct Explore: View {
             .presentationDetents([.height(542.adjustedH)])
             .presentationCornerRadius(16)
         }
+        .task {
+            store.getCategoryList()
+        }
     }
 }
 
 extension Explore {
     private var categoryList: some View {
-        
-        let additionalArray: [String] = [
-            "전체",
-            "로컬 수저"
-        ]
-        let categoryArray = additionalArray + FoodType.allCases.map { $0.title }
-        
-        return ScrollView(.horizontal) {
+        ScrollView(.horizontal) {
             HStack {
                 Spacer()
                     .frame(width: 20.adjusted)
-                ForEach(categoryArray, id: \.self) { item in
+                ForEach(store.categoryList) { item in
                     IconChip(
-                        title: item,
-                        foodType: FoodType(title: item),
+                        title: item.name,
+                        foodType: FoodType(title: item.name),
                         chipType: .large,
-                        color: selectedCategory == item ? .black : .gray600
+                        color: store.selectedCategory == item ? .black : .gray600
                     )
                     .onTapGesture {
-                        selectedCategory = item
+                        store.changeCategory(category: item)
                     }
                 }
                 Spacer()
