@@ -10,8 +10,8 @@ import Moya
 
 enum DetailTargetType {
     case getDetailReview(userId: Int, postId: Int)
-    case scoopReview
-    case scrapReview
+    case scoopReview(userId: Int, postId: Int)
+    case scrapReview(userId: Int, postId: Int)
     case unScrapReview(userId: Int, postId: Int)
 }
 
@@ -53,9 +53,14 @@ extension DetailTargetType: TargetType {
         switch self {
         case .getDetailReview:
             return .requestPlain
-        case .scoopReview,
-                .scrapReview:
-            return .requestPlain
+        case .scoopReview(let userId, let postId), .scrapReview(let userId, let postId):
+            return .requestParameters(
+                parameters: [
+                    "postId": postId,
+                    "userId": userId
+                ],
+                encoding: JSONEncoding.default
+            )
         case .unScrapReview:
             return .requestPlain
         }
