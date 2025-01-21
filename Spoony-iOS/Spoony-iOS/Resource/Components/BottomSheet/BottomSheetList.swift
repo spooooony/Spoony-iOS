@@ -8,37 +8,55 @@
 import SwiftUI
 
 struct BottomSheetListItem: View {
-    let title: String
-    let subTitle: String
-    let cellTitle: String
-    let hasChip: Bool
+    let pickCard: PickListCardResponse
     
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(title)
-                        .font(.system(size: 16, weight: .medium))
+                HStack(spacing: 8) {
+                    Text(pickCard.placeName)
+                        .font(.body1b)
                         .lineLimit(1)
-                    if hasChip {
-                        Text("chip")
-                            .font(.system(size: 12))
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(.red.opacity(0.1))
-                            .foregroundColor(.red)
-                            .cornerRadius(12)
+                        .truncationMode(.tail)
+                    
+                    // 카테고리 칩
+                    HStack(spacing: 4) {
+                        // 카테고리 아이콘
+                        AsyncImage(url: URL(string: pickCard.categoryColorResponse.iconUrl)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 16, height: 16)
+                            default:
+                                Color.clear
+                                    .frame(width: 16, height: 16)
+                            }
+                        }
+                        
+                        Text(pickCard.categoryColorResponse.categoryName)
+                            .font(.caption1m)
+                            .lineLimit(1)
                     }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color(hex: pickCard.categoryColorResponse.iconBackgroundColor))
+                    .foregroundColor(Color(hex: pickCard.categoryColorResponse.iconTextColor))
+                    .cornerRadius(12)
                 }
                 
-                Text(subTitle)
+                Text(pickCard.placeAddress)
                     .font(.caption1m)
                     .foregroundColor(.gray)
                     .lineLimit(1)
+                    .truncationMode(.tail)
                 
-                Text(cellTitle)
-                    .font(.body1b)
+                Text(pickCard.postTitle)
+                    .font(.caption1m)
                     .foregroundColor(.gray)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 8)
                     .padding(.horizontal, 12)
@@ -49,18 +67,37 @@ struct BottomSheetListItem: View {
             }
             .layoutPriority(1)
             
-            //Todo: 실제 이미지로 교체
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.gray.opacity(0.1))
-                .frame(width: 98.adjusted, height: 98.adjusted)
-                .layoutPriority(0)
+            // 이미지
+            AsyncImage(url: URL(string: pickCard.photoUrl)) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                case .failure(_):
+                    defaultPlaceholder
+                case .empty:
+                    defaultPlaceholder
+                @unknown default:
+                    defaultPlaceholder
+                }
+            }
+            .frame(width: 98.adjusted, height: 98.adjusted)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .layoutPriority(0)
         }
         .padding(.horizontal, 16)
         .frame(height: 120.adjusted)
     }
+    
+    private var defaultPlaceholder: some View {
+        RoundedRectangle(cornerRadius: 8)
+            .fill(Color.gray.opacity(0.1))
+    }
 }
 
 struct BottomSheetListView: View {
+    @ObservedObject var viewModel: HomeViewModel
     @State private var currentStyle: BottomSheetStyle = .minimal
     @State private var offset: CGFloat = 0
     @GestureState private var isDragging: Bool = false
@@ -102,29 +139,24 @@ struct BottomSheetListView: View {
                         .font(.system(size: 18, weight: .semibold))
                         .padding(.bottom, 8)
                 }
-                .frame(height: 60)
+                .frame(height: 60.adjustedH)
                 .background(.white)
                 
                 // 컨텐츠 영역
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         LazyVStack(spacing: 0) {
-                            ForEach(0..<20) { _ in
-                                BottomSheetListItem(
-                                    title: "상호명",
-                                    subTitle: "주소",
-                                    cellTitle: "제목 셀",
-                                    hasChip: true
-                                )
-                                .background(Color.white)
-                                .onTapGesture {
-                                    if currentStyle == .half {
-                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                            currentStyle = .full
-                                            isScrollEnabled = true
+                            ForEach(viewModel.pickList, id: \.placeId) { pickCard in
+                                BottomSheetListItem(pickCard: pickCard)
+                                    .background(Color.white)
+                                    .onTapGesture {
+                                        if currentStyle == .half {
+                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                currentStyle = .full
+                                                isScrollEnabled = true
+                                            }
                                         }
                                     }
-                                }
                                 Divider()
                             }
                         }
@@ -210,4 +242,5 @@ struct BottomSheetListView: View {
 
 #Preview {
     Home()
+        .environmentObject(NavigationManager())
 }

@@ -8,37 +8,51 @@
 import Foundation
 import Moya
 
-protocol RestaurantServiceType {
-//    func fetchPickList(userId: Int) async throws -> ResturantpickListResponse
-    func fetchSpoonCount(userId: Int) async throws -> Int
-
+protocol HomeServiceType {
+    func fetchPickList(userId: Int) async throws -> ResturantpickListResponse
 }
 
-final class RestaurantService: RestaurantServiceType {
+final class DefaultHomeService: HomeServiceType {
+    func fetchPickList(userId: Int) async throws -> ResturantpickListResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            Providers.homeProvider.request(.getMapList(userId: userId)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<ResturantpickListResponse>.self)
+                        guard let data = responseDto.data else {
+                            throw NSError(domain: "HomeService", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data available"])
+                        }
+                        continuation.resume(returning: data)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+}
+
+//final class MockHomeService: HomeServiceType {
 //    func fetchPickList(userId: Int) async throws -> ResturantpickListResponse {
-//        return try await withCheckedThrowingContinuation { continuation in
-//            Providers.homeProvider.request(.getMapList(userId: userId)) { result in
-//                switch result {
-//                case let .success(response):
-//                    do {
-//                        let baseResponse = try response.map(BaseResponse<ResturantpickListResponse>.self)
-//                        if baseResponse.success == 1, let data = baseResponse.data {
-//                            continuation.resume(returning: data)
-//                        } else {
-//                            continuation.resume(throwing: NSError(
-//                                domain: "RestaurantService",
-//                                code: -1,
-//                                userInfo: [NSLocalizedDescriptionKey: "Failed to fetch pick list"]
-//                            ))
-//                        }
-//                    } catch {
-//                        continuation.resume(throwing: error)
-//                    }
-//                case let .failure(error):
-//                    continuation.resume(throwing: error)
-//                }
-//            }
-//        }
+//        return ResturantpickListResponse(zzimCardResponses: [
+//            .init(
+//                placeId: 7,
+//                placeName: "스타벅스 강남R점",
+//                placeAddress: "서울특별시 강남구 역삼동 825",
+//                postTitle: "스타벅스 강남R점 후기",
+//                latitude: 37.497711,
+//                longitude: 127.028439,
+//                categoryColorResponse: .init(
+//                    categoryName: "카페",
+//                    iconUrl: "url_color_8",
+//                    iconTextColor: "url_text_8",
+//                    iconBackgroundColor: "background_color_8"
+//                )
+//            )
+//        ])
 //    }
     
     func fetchSpoonCount(userId: Int) async throws -> Int {
