@@ -9,7 +9,6 @@ import SwiftUI
 
 struct InfoStepView: View {
     @ObservedObject private var store: RegisterStore
-    @State private var isDropDown: Bool = false
     
     init(store: RegisterStore) {
         self.store = store
@@ -25,10 +24,14 @@ struct InfoStepView: View {
         }
         .background(.white)
         .onTapGesture {
-            isDropDown = false
+            store.dispatch(.didTapBackground(.start))
             hideKeyboard()
         }
-        .toastView(toast: $store.toast)
+        .toastView(toast: Binding(get: {
+            store.state.toast
+        }, set: { newValue in
+            store.dispatch(.updateToast(newValue))
+        }))
     }
 }
 
@@ -42,7 +45,7 @@ extension InfoStepView {
             recommendSection
         }
         .overlay(alignment: .top) {
-            if isDropDown {
+            if store.state.isDropDownPresented {
                 dropDownView
                     .padding(.top, 81)
             }
@@ -65,24 +68,27 @@ extension InfoStepView {
                 .font(.body1sb)
                 .foregroundStyle(.spoonBlack)
             
-            if !store.isSelected {
+            if store.state.selectedPlace == nil {
                 SpoonyTextField(
-                    text: $store.text,
+                    text: Binding(
+                        get: { store.state.placeText },
+                        set: { newValue in
+                            store.dispatch(.updateText(newValue, .place))
+                        }
+                    ),
                     style: .icon,
                     placeholder: "어떤 장소를 한 입 줄까요?",
                     isError: .constant(false)
                 ) {
-                    store.text = ""
-                    isDropDown = false
+                    store.dispatch(.didTapButtonIcon(.place))
                 }
                 .onSubmit {
-                    isDropDown = true
+                    store.dispatch(.didTapkeyboardEnter)
                 }
             } else {
-                if let place = store.selectedPlace {
+                if let place = store.state.selectedPlace {
                     PlaceInfoCell(placeInfo: place, placeInfoType: .selectedCell) {
-                        store.selectedPlace = nil
-                        store.isSelected = false
+                        store.dispatch(.didTapPlaceInfoCellIcon)
                     }
                 }
             }
@@ -96,7 +102,14 @@ extension InfoStepView {
                 .font(.body1sb)
                 .foregroundStyle(.spoonBlack)
             
-            ChipsContainerView(selectedItem: $store.selectedCategory, items: store.categorys)
+            ChipsContainerView(
+                selectedItem: Binding(get: {
+                    store.state.selectedCategory
+                }, set: { newValue in
+                    store.dispatch(.updateSelectedCategoryChip(newValue))
+                }),
+                items: store.state.categorys
+            )
         }
         .padding(.bottom, 40)
     }
@@ -109,18 +122,21 @@ extension InfoStepView {
                 .padding(.bottom, 12)
             
             VStack(spacing: 8) {
-                ForEach(Array(store.recommendMenu.enumerated()), id: \.offset) { index, _ in
+                ForEach(store.state.recommendTexts, id: \.id) { text in
                     SpoonyTextField(
-                        text: $store.recommendMenu[index],
-                        style: .normal(isIcon: store.recommendMenu.count > 1),
+                        text: Binding(get: {
+                            text.text
+                        }, set: { newValue in
+                            store.dispatch(.updateTextList(newValue, text.id))
+                        }),
+                        style: .normal(isIcon: store.state.recommendTexts.count > 1),
                         placeholder: "메뉴 이름",
                         isError: .constant(false)
                     ) {
-                        guard index < store.recommendMenu.count else { return }
-                        store.recommendMenu.remove(at: index)
+                        store.dispatch(.deleteTextList(text))
                     }
                 }
-                if store.recommendMenu.count < 3 {
+                if store.state.recommendTexts.count < 3 {
                     plusButton
                 }
             }
@@ -129,14 +145,10 @@ extension InfoStepView {
     
     private var dropDownView: some View {
         VStack(spacing: 0) {
-            ForEach(store.searchPlaces, id: \.id) { place in
+            ForEach(store.state.searchedPlaces, id: \.id) { place in
                 PlaceInfoCell(placeInfo: place, placeInfoType: .listCell)
                     .onTapGesture {
-                        store.selectedPlace = place
-                        store.isSelected = true
-                        isDropDown = false
-                        store.text = ""
-                        store.toast = .init(style: .gray, message: "앗! 이미 등록한 맛집이에요", yOffset: 556.adjustedH)
+                        store.dispatch(.didTapPlaceInfoCell(place))
                     }
                     .overlay(alignment: .bottom) {
                         Rectangle()
@@ -158,7 +170,7 @@ extension InfoStepView {
     
     private var plusButton: some View {
         return Button {
-            store.plusButtonTapped()
+            store.dispatch(.didTapRecommendPlusButton)
         } label: {
             Image(.icPlusGray400)
                 .resizable()
@@ -171,7 +183,7 @@ extension InfoStepView {
                 }
         }
         .buttonStyle(.plain)
-        .disabled(store.plusButtonDisabled)
+        .disabled(store.state.isDisablePlusButton)
     }
     
     private var nextButton: some View {
@@ -179,20 +191,26 @@ extension InfoStepView {
             style: .primary,
             size: .xlarge,
             title: "다음",
-            disabled: $store.disableFirstButton
+            disabled: Binding(
+                get: {
+                    store.state.isDisableStartButton
+                }, set: { newValue in
+                    store.dispatch(.updateButtonState(newValue, .start))
+                }
+            )
         ) {
-            store.step = .middle
+            store.dispatch(.didTapNextButton(.start))
         }
         .padding(.bottom, 20)
         .padding(.top, 61)
         .overlay(alignment: .top) {
             ToolTipView()
                 .padding(.top, 5)
-                .opacity(store.isToolTipPresented ? 1 : 0)
+                .opacity(store.state.isToolTipPresented ? 1 : 0)
                 .task {
                     do {
                         try await Task.sleep(for: .seconds(3))
-                        store.isToolTipPresented = false
+                        store.dispatch(.updateToolTipState)
                     } catch {
                         
                     }
@@ -203,5 +221,5 @@ extension InfoStepView {
 }
 
 #Preview {
-    InfoStepView(store: .init())
+    InfoStepView(store: .init(navigationManager: .init()))
 }

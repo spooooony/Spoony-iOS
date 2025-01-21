@@ -9,7 +9,7 @@ import Foundation
 import Moya
 
 enum DetailTargetType {
-    case getDetailReview(postId: Int)
+    case getDetailReview(userId: Int, postId: Int)
     case scoopReview
     case scrapReview
     case unScrapReview(userId: Int, postId: Int)
@@ -26,8 +26,8 @@ extension DetailTargetType: TargetType {
     
     var path: String {
         switch self {
-        case .getDetailReview(let postId):
-            return "/post/\(postId)"
+        case .getDetailReview(let userId, let postId):
+            return "/post/\(userId)/\(postId)"
         case .scoopReview:
             return "/post/scoop"
         case .scrapReview:
