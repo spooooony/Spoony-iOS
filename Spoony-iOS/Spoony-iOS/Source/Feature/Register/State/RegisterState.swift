@@ -18,7 +18,7 @@ struct RegisterState {
     
     var toast: Toast?
     // 나중에 api 연결
-    var categorys: [CategoryChip] = CategoryChip.sample()
+    var categorys: [CategoryChip] = []
     var selectedCategory: [CategoryChip] = []
     
     var isDropDownPresented: Bool = false
@@ -35,7 +35,7 @@ struct RegisterState {
     
     var selectedPlace: PlaceInfo?
     // 나중에 api 연결
-    var searchedPlaces: [PlaceInfo] = PlaceInfo.sample()
+    var searchedPlaces: [PlaceInfo] = []
     var pickerItems: [PhotosPickerItem] = []
     var uploadImages: [UploadImage] = []
     
