@@ -16,6 +16,8 @@ protocol ExploreProtocol {
         location: String,
         sort: FilterType
     ) async throws -> FeedListResponse
+    
+    func getCateogyList() async throws -> SearchCategoryListResponse
 }
 
 final class DefaultExploreService: ExploreProtocol {
@@ -53,6 +55,25 @@ final class DefaultExploreService: ExploreProtocol {
         }
     }
     
+    func getCateogyList() async throws -> SearchCategoryListResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.request(.getCategories) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<SearchCategoryListResponse>.self)
+                        guard let data = responseDto.data else { return }
+                        
+                        continuation.resume(returning: data)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
 }
 
 final class MockExploreService: ExploreProtocol {
@@ -67,5 +88,60 @@ final class MockExploreService: ExploreProtocol {
             FeedResponse.sample,
             FeedResponse.sample
         ])
+    }
+    
+    func getCateogyList() async throws -> SearchCategoryListResponse {
+        return .init(
+            categoryMonoList: [
+                .init(
+                    categoryId: 1,
+                    categoryName: "로컬 수저",
+                    iconUrlNotSelected: "",
+                    iconUrlSelected: ""
+                ),
+                .init(
+                    categoryId: 2,
+                    categoryName: "한식",
+                    iconUrlNotSelected: "",
+                    iconUrlSelected: ""
+                ),
+                .init(
+                    categoryId: 3,
+                    categoryName: "일식",
+                    iconUrlNotSelected: "",
+                    iconUrlSelected: ""
+                ),
+                .init(
+                    categoryId: 4,
+                    categoryName: "중식",
+                    iconUrlNotSelected: "",
+                    iconUrlSelected: ""
+                ),
+                .init(
+                    categoryId: 5,
+                    categoryName: "양식",
+                    iconUrlNotSelected: "",
+                    iconUrlSelected: ""
+                ),
+                .init(
+                    categoryId: 6,
+                    categoryName: "퓨전/세계요리",
+                    iconUrlNotSelected: "",
+                    iconUrlSelected: ""
+                ),
+                .init(
+                    categoryId: 7,
+                    categoryName: "카페",
+                    iconUrlNotSelected: "",
+                    iconUrlSelected: ""
+                ),.init(
+                    categoryId: 8,
+                    categoryName: "주류",
+                    iconUrlNotSelected: "",
+                    iconUrlSelected: ""
+                ),
+                
+            ]
+        )
     }
 }
