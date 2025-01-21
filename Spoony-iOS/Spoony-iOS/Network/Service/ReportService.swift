@@ -28,7 +28,7 @@ final class DefaultReportService: ReportProtocol {
         let request = ReportRequest(
             postId: postId,
             userId: Config.userId,
-            reportType: report.rawValue,
+            reportType: report.key,
             reportDetail: description
         )
         

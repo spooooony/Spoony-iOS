@@ -8,27 +8,44 @@
 import SwiftUI
 
 enum ReportType: String, CaseIterable, Encodable {
-    case ADVERTISEMENT
-    case PERSONAL_INFO
-    case INSULT
-    case DUPLICATE
-    case ILLEGAL_INFO
-    case OTHER
+    case advertisement
+    case personalInfo
+    case insult
+    case duplicate
+    case illegalInfo
+    case other
     
     var title: String {
         switch self {
-        case .ADVERTISEMENT:
+        case .advertisement:
             "영리 목적/ 홍보성 후기"
-        case .INSULT:
+        case .insult:
             "욕설/인신공격"
-        case .ILLEGAL_INFO:
+        case .illegalInfo:
             "불법정보"
-        case .PERSONAL_INFO:
+        case .personalInfo:
             "개인정보노출"
-        case .DUPLICATE:
+        case .duplicate:
             "도배"
-        case .OTHER:
+        case .other:
             "기타"
+        }
+    }
+    
+    var key: String {
+        switch self {
+        case .advertisement:
+            "ADVERTISEMENT"
+        case .personalInfo:
+            "PERSONAL_INFO"
+        case .insult:
+            "INSULT"
+        case .duplicate:
+            "DUPLICATE"
+        case .illegalInfo:
+            "ILLEGAL_INFO"
+        case .other:
+            "OTHER"
         }
     }
 }

@@ -10,7 +10,7 @@ import Foundation
 final class ReportStore: ObservableObject {
     private let network: ReportProtocol = DefaultReportService()
     
-    @Published private(set) var selectedReport: ReportType = .ADVERTISEMENT
+    @Published private(set) var selectedReport: ReportType = .advertisement
     
     func changeReportType(report: ReportType) {
         selectedReport = report
