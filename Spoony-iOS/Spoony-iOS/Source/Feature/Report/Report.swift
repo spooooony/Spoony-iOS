@@ -7,19 +7,55 @@
 
 import SwiftUI
 
-enum ReportType: String, CaseIterable {
-    case commercial = "영리 목적/ 홍보성 후기"
-    case abusiveLanguage = "욕설/인신공격"
-    case illegalInformation = "불법정보"
-    case personalInformationExposure = "개인정보노출"
-    case spam = "도배"
-    case others = "기타"
+enum ReportType: String, CaseIterable, Encodable {
+    case advertisement
+    case insult
+    case illegalInfo
+    case personalInfo
+    case duplicate
+    case other
+    
+    var title: String {
+        switch self {
+        case .advertisement:
+            "영리 목적/ 홍보성 후기"
+        case .insult:
+            "욕설/인신공격"
+        case .illegalInfo:
+            "불법정보"
+        case .personalInfo:
+            "개인정보노출"
+        case .duplicate:
+            "도배"
+        case .other:
+            "기타"
+        }
+    }
+    
+    var key: String {
+        switch self {
+        case .advertisement:
+            "ADVERTISEMENT"
+        case .personalInfo:
+            "PERSONAL_INFO"
+        case .insult:
+            "INSULT"
+        case .duplicate:
+            "DUPLICATE"
+        case .illegalInfo:
+            "ILLEGAL_INFO"
+        case .other:
+            "OTHER"
+        }
+    }
 }
 
 struct Report: View {
     @EnvironmentObject private var navigationManager: NavigationManager
-    @State private var selectedReport: ReportType = .commercial
+    @StateObject private var store: ReportStore = ReportStore()
+    
     @State private var text: String = ""
+    
     @State private var isError: Bool = true
     @State private var isDisabled: Bool = true
     
@@ -43,10 +79,12 @@ struct Report: View {
                     title: "신고하기",
                     disabled: $isDisabled
                 ) {
-                    navigationManager.popup = .reportSuccess(action: {
-                        //TODO: 신고 API
-                        navigationManager.pop(2)
-                    })
+                    Task {
+                        try await store.postReport(postId: 1, description: text)
+                        navigationManager.popup = .reportSuccess(action: {
+                            navigationManager.pop(2)
+                        })
+                    }
                 }
                 .padding(.top, !isError ? 12 : 20)
                 .padding(.bottom, 20)
@@ -59,7 +97,6 @@ struct Report: View {
             hideKeyboard()
         }
         .onChange(of: isError) {
-            print("error: \(isError)")
             isDisabled = isError
         }
     }
@@ -76,10 +113,10 @@ extension Report {
             ForEach(ReportType.allCases, id: \.self) { report in
                 radioButton(
                     report: report,
-                    isSelected: selectedReport == report
+                    isSelected: store.selectedReport == report
                 )
                 .onTapGesture {
-                    selectedReport = report
+                    store.changeReportType(report: report)
                     hideKeyboard()
                 }
             }
@@ -122,7 +159,7 @@ extension Report {
         HStack(spacing: 12) {
             Image(isSelected ? .icRadioOnGray900 : .icRadioOffGray400)
             
-            Text(report.rawValue)
+            Text(report.title)
                 .font(.body1m)
                 .foregroundStyle(.gray900)
             
