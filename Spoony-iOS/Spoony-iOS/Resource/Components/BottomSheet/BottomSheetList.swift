@@ -53,9 +53,9 @@ struct BottomSheetListItem: View {
                     .truncationMode(.tail)
                 
                 Text(pickCard.postTitle)
-                    .font(.body1b)
+                    .font(.caption1m)
                     .foregroundColor(.gray)
-                    .lineLimit(2)
+                    .lineLimit(1)
                     .truncationMode(.tail)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 8)

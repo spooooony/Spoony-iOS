@@ -21,7 +21,7 @@ struct Home: View {
                 .edgesIgnoringSafeArea(.all)
             
             NMapView(viewModel: viewModel, selectedPlace: $selectedPlace)
-                            .edgesIgnoringSafeArea(.all)
+                .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 0) {
                 if let locationTitle = navigationManager.currentLocation {
@@ -49,32 +49,32 @@ struct Home: View {
             }
             
             if selectedPlace != nil {
-                            // 핀이 선택된 경우 -> PlaceCardsContainer 표시
-                            VStack(spacing: 4) {
-                                PlaceCardsContainer(places: [selectedPlace!], currentPage: $currentPage)
-                                if [selectedPlace!].count > 1 {
-                                    PageIndicator(currentPage: currentPage, pageCount: 1)
-                                }
-                            }
-                            .padding(.bottom, 4)
-                            .transition(.move(edge: .bottom))
-                        } else if navigationManager.currentLocation != nil {
-                            BottomSheetListView(viewModel: viewModel)
-                        } else {
-                            if !viewModel.pickList.isEmpty {
-                                BottomSheetListView(viewModel: viewModel)
-                            } else {
-                                FixedBottomSheetView()
-                            }
-                        }
-                    }
-                    .navigationBarHidden(true)
-                    .onAppear {
-                        isBottomSheetPresented = true
-                        viewModel.fetchPickList()
+                // 핀이 선택된 경우 -> PlaceCardsContainer 표시
+                VStack(spacing: 4) {
+                    PlaceCardsContainer(places: [selectedPlace!], currentPage: $currentPage)
+                    if [selectedPlace!].count > 1 {
+                        PageIndicator(currentPage: currentPage, pageCount: 1)
                     }
                 }
+                .padding(.bottom, 4)
+                .transition(.move(edge: .bottom))
+            } else if navigationManager.currentLocation != nil {
+                BottomSheetListView(viewModel: viewModel)
+            } else {
+                if !viewModel.pickList.isEmpty {
+                    BottomSheetListView(viewModel: viewModel)
+                } else {
+                    FixedBottomSheetView()
+                }
             }
+        }
+        .navigationBarHidden(true)
+        .onAppear {
+            isBottomSheetPresented = true
+            viewModel.fetchPickList()
+        }
+    }
+}
 #Preview {
     Home()
         .environmentObject(NavigationManager())
