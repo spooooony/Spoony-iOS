@@ -69,7 +69,7 @@ struct Home: View {
             }
         }
         .navigationBarHidden(true)
-        .onAppear {
+        .task {
             isBottomSheetPresented = true
             Task {
                 do {
