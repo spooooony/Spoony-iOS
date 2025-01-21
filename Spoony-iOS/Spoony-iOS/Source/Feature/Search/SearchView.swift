@@ -14,8 +14,8 @@ struct SearchView: View {
     @State private var searchState: SearchState = .empty
     @State private var recentSearches: [String] = UserManager.shared.recentSearches ?? []
     private let recentSearchesKey = "RecentSearches"
-    private let locationService: SearchServiceType = SearchService()
-
+    private let searchService = SearchService()
+    
     
     var body: some View {
         ZStack {
@@ -72,7 +72,7 @@ struct SearchView: View {
         VStack(spacing: 0) {
             Spacer()
                 .frame(height: 72)
-                
+            
             VStack(spacing: 8) {
                 Image(.imageEmptySearch)
                     .padding(.bottom, 12)
@@ -103,31 +103,31 @@ struct SearchView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             
-                VStack(alignment: .leading, spacing: 0) {
-                    ForEach(recentSearches, id: \.self) { search in
-                        HStack {
-                            Text(search)
-                                .font(.body1b)
-                            Spacer()
-                            Button(action: {
-                                if let index = recentSearches.firstIndex(of: search) {
-                                    recentSearches.remove(at: index)
-                                    saveRecentSearches()
-                                }
-                            }) {
-                                Image(.icCloseGray400)
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(recentSearches, id: \.self) { search in
+                    HStack {
+                        Text(search)
+                            .font(.body1b)
+                        Spacer()
+                        Button(action: {
+                            if let index = recentSearches.firstIndex(of: search) {
+                                recentSearches.remove(at: index)
+                                saveRecentSearches()
                             }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        
-                        if search != recentSearches.last {
-                            Divider()
-                                .foregroundStyle(.gray400)
-                                .padding(.horizontal, 16)
+                        }) {
+                            Image(.icCloseGray400)
                         }
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    
+                    if search != recentSearches.last {
+                        Divider()
+                            .foregroundStyle(.gray400)
+                            .padding(.horizontal, 16)
+                    }
                 }
+            }
             
         }
     }
@@ -154,24 +154,44 @@ struct SearchView: View {
     }
     
     private func updateSearchResults() {
-        switch searchText.isEmpty {
-        case false:
-            searchResults = [
-                SearchResult(title: "\(searchText)", address: "\(searchText)"),
-                SearchResult(title: "\(searchText)", address: "\(searchText)"),
-                SearchResult(title: "\(searchText)", address: "\(searchText)")
-            ]
-            
-            if !recentSearches.contains(searchText) {
-                recentSearches.insert(searchText, at: 0)
-                if recentSearches.count > 6 {
-                    recentSearches.removeLast()
-                }
-                saveRecentSearches()
-            }
-            
-        case true:
+        guard !searchText.isEmpty else {
             searchResults.removeAll()
+            return
+        }
+        
+        Task {
+            do {
+                let response = try await searchService.searchLocation(query: searchText)
+                let results = response.locationResponseList.map { location in
+                    SearchResult(
+                        title: location.locationName,
+                        address: location.locationAddress ?? ""
+                    )
+                }
+                
+                await MainActor.run {
+                    searchResults = results
+                    
+                    if !recentSearches.contains(searchText) {
+                        recentSearches.insert(searchText, at: 0)
+                        if recentSearches.count > 6 {
+                            recentSearches.removeLast()
+                        }
+                        saveRecentSearches()
+                    }
+                }
+            } catch let error as SearchError {
+                print("Search error: \(error.errorDescription)")
+                await MainActor.run {
+                    searchResults.removeAll()
+                    // TODO: 엠티뷰 추가
+                }
+            } catch {
+                print("Unexpected error: \(error)")
+                await MainActor.run {
+                    searchResults.removeAll()
+                }
+            }
         }
     }
     
