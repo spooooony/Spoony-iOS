@@ -10,7 +10,7 @@ import Moya
 
 enum RegisterTargetType {
     case searchPlace(query: String)
-    case validatePlace
+    case validatePlace(request: ValidatePlaceRequest)
     case registerPost
     case getRegisterCategories
 }
@@ -53,10 +53,12 @@ extension RegisterTargetType: TargetType {
                 parameters: ["query": query],
                 encoding: URLEncoding.queryString
             )
-        case .validatePlace,
-                .registerPost,
-                .getRegisterCategories:
+        case .getRegisterCategories:
             return .requestPlain
+        case .validatePlace(let request):
+            return .requestJSONEncodable(request)
+        case .registerPost:
+            return .uploadMultipart([])
         }
     }
     
