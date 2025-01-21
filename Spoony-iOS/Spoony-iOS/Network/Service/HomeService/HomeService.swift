@@ -10,6 +10,8 @@ import Moya
 
 protocol RestaurantServiceType {
 //    func fetchPickList(userId: Int) async throws -> ResturantpickListResponse
+    func fetchSpoonCount(userId: Int) async throws -> Int
+
 }
 
 final class RestaurantService: RestaurantServiceType {
