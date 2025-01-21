@@ -16,6 +16,7 @@ struct PickListCardResponse: Codable {
     let placeName: String
     let placeAddress: String
     let postTitle: String
+    let photoUrl: String
     let latitude: Double
     let longitude: Double
     let categoryColorResponse: BottomSheetCategoryColorResponse
