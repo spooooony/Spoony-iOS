@@ -15,8 +15,11 @@ struct Home: View {
     @State private var selectedPlace: CardPlace?
     @State private var currentPage = 0
     @State private var spoonCount: Int = 0
-    private let restaurantService: RestaurantServiceType = RestaurantService()
+    private let restaurantService: HomeServiceType
     
+    init(restaurantService: HomeServiceType = DefaultHomeService()) {
+        self.restaurantService = restaurantService
+    }
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -81,10 +84,7 @@ struct Home: View {
                 } catch {
                     print("Failed to fetch spoon count:", error)
                 }
-            }        }
+            }
+        }
     }
-}
-#Preview {
-    Home()
-        .environmentObject(NavigationManager())
 }

@@ -239,8 +239,3 @@ struct BottomSheetListView: View {
         }
     }
 }
-
-#Preview {
-    Home()
-        .environmentObject(NavigationManager())
-}

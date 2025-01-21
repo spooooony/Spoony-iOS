@@ -91,8 +91,3 @@ struct CustomBottomSheet<Content: View>: View {
         .ignoresSafeArea()
     }
 }
-
-#Preview {
-    Home()
-        .environmentObject(NavigationManager())
-}
