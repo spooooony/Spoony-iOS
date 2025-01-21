@@ -32,6 +32,9 @@ struct InfoStepView: View {
         }, set: { newValue in
             store.dispatch(.updateToast(newValue))
         }))
+        .task {
+            store.dispatch(.getCategories)
+        }
     }
 }
 
@@ -98,18 +101,25 @@ extension InfoStepView {
     
     private var categorySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("카테고리를 골라주세요")
-                .font(.body1sb)
-                .foregroundStyle(.spoonBlack)
-            
-            ChipsContainerView(
-                selectedItem: Binding(get: {
-                    store.state.selectedCategory
-                }, set: { newValue in
-                    store.dispatch(.updateSelectedCategoryChip(newValue))
-                }),
-                items: store.state.categorys
-            )
+            HStack {
+                Text("카테고리를 골라주세요")
+                    .font(.body1sb)
+                    .foregroundStyle(.spoonBlack)
+                Spacer()
+            }
+            if store.state.categorys.isEmpty {
+                CategoryChipsView(category: CategoryChip.placeholder)
+                    .redacted(reason: .placeholder)
+            } else {
+                ChipsContainerView(
+                    selectedItem: Binding(get: {
+                        store.state.selectedCategory
+                    }, set: { newValue in                        
+                        store.dispatch(.updateSelectedCategoryChip(newValue))
+                    }),
+                    items: store.state.categorys
+                )
+            }
         }
         .padding(.bottom, 40)
     }
