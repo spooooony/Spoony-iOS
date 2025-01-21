@@ -14,17 +14,20 @@ struct CustomNavigationBar: View {
     private let title: String?
     private let onBackTapped: (() -> Void)?
     private let tappedAction: (() -> Void)?
+    private var spoonCount: Int = 0
     
     init(
         style: NavigationBarStyle,
         title: String? = nil,
         searchText: Binding<String> = .constant(""),
+        spoonCount: Int = 0,
         onBackTapped: (() -> Void)? = nil,
         tappedAction: (() -> Void)? = nil
     ) {
         self.style = style
         self.title = title
         self._searchText = searchText
+        self.spoonCount = spoonCount
         self.onBackTapped = onBackTapped
         self.tappedAction = tappedAction
     }
@@ -73,7 +76,7 @@ struct CustomNavigationBar: View {
     
     private var searchContent: some View {
         HStack(spacing: 12) {
-            LogoChip(type: .small, count: 10)
+            LogoChip(type: .small, count: spoonCount)
             
             HStack(spacing: 8) {
                 Image(.icSearchGray600)
@@ -115,7 +118,7 @@ struct CustomNavigationBar: View {
             
             Spacer()
             
-            LogoChip(type: .small, count: 99)
+            LogoChip(type: .small, count: spoonCount)
                 .padding(.trailing, 20)
         }
     }
@@ -153,7 +156,7 @@ struct CustomNavigationBar: View {
         HStack {
             Spacer()
             
-            LogoChip(type: .small, count: count)
+            LogoChip(type: .small, count: spoonCount)
                 .padding(.trailing, 20)
         }
     }

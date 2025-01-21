@@ -39,11 +39,13 @@ struct SpoonyTabView: View {
                         }
                     case .register:
                         NavigationStack(path: $navigationManager.registerPath) {
-                            Register()
-                                .navigationDestination(for: ViewType.self) { view in
-                                    navigationManager.build(view)
-                                        .navigationBarBackButtonHidden()
-                                }
+                            Register(
+                                store: .init(navigationManager: navigationManager)
+                            )
+                            .navigationDestination(for: ViewType.self) { view in
+                                navigationManager.build(view)
+                                    .navigationBarBackButtonHidden()
+                            }
                         }
                     }
                 }

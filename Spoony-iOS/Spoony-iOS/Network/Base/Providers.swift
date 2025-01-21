@@ -7,6 +7,8 @@
 
 import Moya
 
+import Foundation
+
 struct Providers {
     static let homeProvider = MoyaProvider<HomeTargetType>.init(withAuth: false)
     static let explorProvider = MoyaProvider<ExploreTargetType>.init(withAuth: false)
@@ -20,12 +22,11 @@ extension MoyaProvider {
             // TODO: - Interceptor, Logger 구현
             self.init(
                 session: Session(),
-                plugins: [NetworkLoggerPlugin()]
+                plugins: [SpoonyLoggingPlugin()]
             )
         } else {
-            
             // TODO: - Interceptor, Logger 구현
-            self.init(plugins: [NetworkLoggerPlugin()])
+            self.init(plugins: [SpoonyLoggingPlugin()])
         }
     }
 }
