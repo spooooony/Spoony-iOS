@@ -22,10 +22,10 @@ struct ReviewDetailModel: Codable {
     let zzinCount: Int
     let isZzim: Bool
     let isScoop: Bool
-    let categoryColorResponse: CategoryColorResponse
+    let categoryColorResponse: DetailCategoryColorResponse
 }
 
-struct CategoryColorResponse: Codable {
+struct DetailCategoryColorResponse: Codable {
     let categoryName: String
     let colorIconUrl: String
     let iconBackgroundColor: String
