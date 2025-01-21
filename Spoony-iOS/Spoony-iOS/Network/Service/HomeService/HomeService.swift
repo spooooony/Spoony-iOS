@@ -28,17 +28,13 @@ final class RestaurantService: RestaurantServiceType {
                         if baseResponse.success, let data = baseResponse.data {
                             continuation.resume(returning: data.spoonAmount)
                         } else {
-                            continuation.resume(throwing: NSError(
-                                domain: "RestaurantService",
-                                code: -1,
-                                userInfo: [NSLocalizedDescriptionKey: "Failed to fetch spoon count"]
-                            ))
+                            continuation.resume(throwing: APIError.responseError)
                         }
                     } catch {
-                        continuation.resume(throwing: error)
+                        continuation.resume(throwing: APIError.decodingError)
                     }
-                case let .failure(error):
-                    continuation.resume(throwing: error)
+                case .failure:
+                    continuation.resume(throwing: APIError.invalidResponse)
                 }
             }
         }
