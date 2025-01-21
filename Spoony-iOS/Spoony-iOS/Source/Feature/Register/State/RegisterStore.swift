@@ -38,6 +38,7 @@ struct TextList {
 final class RegisterStore: ObservableObject {
     @Published private(set) var state: RegisterState = RegisterState()
     
+    private let network: RegisterServiceType = RegisterService()
     private let navigationManager: NavigationManager
     
     init(navigationManager: NavigationManager) {        
@@ -87,12 +88,7 @@ final class RegisterStore: ObservableObject {
             state.selectedCategory = chips
             firstButtonInvalid()
         case .didTapPlaceInfoCell(let place):
-            state.selectedPlace = place
-            firstButtonInvalid()
-            state.isDropDownPresented = false
-            state.placeText = ""
-            // TODO: 중복 확인 로직
-            state.toast = .init(style: .gray, message: "앗! 이미 등록한 맛집이에요", yOffset: 556.adjustedH)
+            checkDuplicatePlace(place)
         case .didTapPlaceInfoCellIcon:
             state.selectedPlace = nil
             firstButtonInvalid()
@@ -112,7 +108,7 @@ final class RegisterStore: ObservableObject {
                 })
             }
         case .didTapkeyboardEnter:
-            state.isDropDownPresented = true
+            searchPlace()
         case .updateToolTipState:
             state.isToolTipPresented = false
         case .didTapBackground(let type):
@@ -150,6 +146,8 @@ final class RegisterStore: ObservableObject {
                     secondButtonInavlid()
                 }
             }
+        case .getCategories:
+            fetchCategories()
         }
     }
 }
@@ -210,5 +208,61 @@ extension RegisterStore {
         let uploadImageError = state.uploadImageErrorState == .error
         let isInitial = state.uploadImageErrorState == .initial
         state.isDisableMiddleButton = state.isSimpleTextError || state.isDetailTextError || uploadImageError || isInitial
+    }
+    
+    private func fetchCategories() {
+        Task {
+            do {
+                let ctegorys = try await network.getRegisterCategories().toModel()
+                
+                await MainActor.run {
+                    state.categorys = ctegorys
+                }
+            } catch {
+                print("error")
+            }
+        }
+    }
+    
+    private func searchPlace() {
+        Task {
+            do {
+                let places = try await network.searchPlace(query: state.placeText).toModel()
+                
+                await MainActor.run {
+                    state.searchedPlaces = places
+                    if places.isEmpty {
+                        state.toast = .init(style: .gray, message: "검색 결과가 없어요", yOffset: 558.adjustedH)
+                    } else {
+                        state.isDropDownPresented = true
+                    }
+                }
+            }
+        }
+    }
+    
+    private func checkDuplicatePlace(_ place: PlaceInfo) {        
+        let request = ValidatePlaceRequest(
+            userId: 1,
+            latitude: place.latitude,
+            longitude: place.longitude
+        )
+        
+        Task {
+            do {
+                let isDuplicate = try await network.validatePlace(request: request).duplicate
+                
+                await MainActor.run {
+                    if isDuplicate {
+                        state.toast = .init(style: .gray, message: "앗! 이미 등록한 맛집이에요", yOffset: 558.adjustedH)
+                    } else {
+                        state.selectedPlace = place
+                        firstButtonInvalid()
+                    }
+                    state.isDropDownPresented = false
+                    state.placeText = ""
+                }
+            }
+        }
     }
 }

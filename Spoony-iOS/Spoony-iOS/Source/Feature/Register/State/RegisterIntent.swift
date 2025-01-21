@@ -27,4 +27,5 @@ enum RegisterIntent {
     case updateTextError(Bool, RegisterInputText)
     case updatePickerItems([PhotosPickerItem])
     case deleteImage(UploadImage)
+    case getCategories
 }

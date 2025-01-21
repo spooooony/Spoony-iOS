@@ -30,11 +30,11 @@ struct PlaceInfoCell: View {
                     .frame(width: 20.adjusted, height: 20.adjustedH)
                     .padding(.trailing, placeInfoType.leadingIconSpacing)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(placeInfo.nameTitle)
+                    Text(placeInfo.placeName)
                         .font(.body2b)
                         .foregroundStyle(.spoonBlack)
                     
-                    Text(placeInfo.loaction)
+                    Text(placeInfo.placeRoadAddress)
                         .font(.caption1m)
                         .foregroundStyle(.gray500)
                 }
@@ -61,13 +61,4 @@ struct PlaceInfoCell: View {
                 .strokeBorder(placeInfoType.isIcon ? .gray100 : .clear)
         }
     }
-}
-
-#Preview {
-    PlaceInfoCell(
-        placeInfo: .init(
-            nameTitle: "신룽푸마라탕 신라점",
-            loaction: "서울 중구 신당동 416"
-        ), placeInfoType: .selectedCell
-    )
 }
