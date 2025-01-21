@@ -20,13 +20,8 @@ struct Home: View {
             Color.white
                 .edgesIgnoringSafeArea(.all)
             
-            if navigationManager.currentLocation != nil {
-                // TODO: 포커싱 API 연결
-                
-                        } else {
-                            NMapView(viewModel: viewModel, selectedPlace: $selectedPlace)
-                                .edgesIgnoringSafeArea(.all)
-                        }
+            NMapView(viewModel: viewModel, selectedPlace: $selectedPlace)
+                            .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 0) {
                 if let locationTitle = navigationManager.currentLocation {
