@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct Register: View {
-    @StateObject private var store: RegisterStore = RegisterStore()
+    @StateObject var store: RegisterStore
     
     var body: some View {
         VStack(spacing: 0) {
@@ -16,7 +16,7 @@ struct Register: View {
             
             ScrollView {
                 Group {
-                    switch store.step {
+                    switch store.state.registerStep {
                     case .start:
                         InfoStepView(store: store)
                     case .middle, .end:
@@ -24,7 +24,7 @@ struct Register: View {
                     }
                 }
                 .transition(.slide)
-                .animation(.easeInOut, value: store.step)
+                .animation(.easeInOut, value: store.state.registerStep)
             }
         }
     }
@@ -34,9 +34,9 @@ extension Register {
     private var customNavigationBar: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                if store.step != .start {
+                if store.state.registerStep != .start {
                     Button {
-                        store.step = .start
+                        store.dispatch(.movePreviousView)
                     } label: {
                         Image(.icArrowLeftGray700)
                             .resizable()
@@ -53,12 +53,12 @@ extension Register {
     }
     
     private var progressBar: some View {
-        ProgressView(value: 1.0/3 * Double(store.step.rawValue))
+        ProgressView(value: 1.0/3 * Double(store.state.registerStep.rawValue))
             .frame(height: 4.adjustedH)
             .progressViewStyle(.linear)
             .tint(.main400)
             .padding(.horizontal, 20)
-            .animation(.easeInOut, value: store.step)
+            .animation(.easeInOut, value: store.state.registerStep)
     }
 }
 
@@ -69,5 +69,5 @@ enum RegisterStep: Int {
 }
 
 #Preview {
-    Register()
+    Register(store: .init(navigationManager: .init()))
 }

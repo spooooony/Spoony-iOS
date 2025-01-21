@@ -19,153 +19,196 @@ enum UploadImageErrorState {
     case error
 }
 
+enum RegisterInputText {
+    case place
+    case simple
+    case detail
+}
+
+enum RegisterCurrentViewType {
+    case start
+    case middle
+}
+
+struct TextList {
+    let id = UUID()
+    var text = ""
+}
+
 final class RegisterStore: ObservableObject {
-    @Published var toast: Toast? = nil
-    @Published var uploadImageErrorState: UploadImageErrorState = .initial
-    @Published var step: RegisterStep = .start
-    @Published var disableFirstButton: Bool = true
-    @Published var disableSecondButton: Bool = true
-    @Published var text: String = ""
-    @Published var simpleReview: String = ""
-    @Published var detailReview: String = ""
-    @Published var isSelected: Bool = false
-    @Published var isToolTipPresented = true
-    @Published var simpleInputError: Bool = true {
-        didSet {
-            secondButtonInavlid()
-        }
-    }
-    @Published var detailInputError: Bool = true {
-        didSet {
-            secondButtonInavlid()
-        }
-    }
-    @Published var categorys: [CategoryChip] = CategoryChip.sample()
-    @Published var recommendMenu: [String] = [""] {
-        didSet {
-            firstButtonInvalid()
-        }
-    }
-    @Published var selectedCategory: [CategoryChip] = [] {
-        didSet {
-            firstButtonInvalid()
-        }
-    }
-    @Published var searchPlaces: [PlaceInfo] = PlaceInfo.sample()
-    @Published var selectedPlace: PlaceInfo? {
-        didSet {
-            firstButtonInvalid()
-        }
+    @Published private(set) var state: RegisterState = RegisterState()
+    
+    private let navigationManager: NavigationManager
+    
+    init(navigationManager: NavigationManager) {        
+        self.navigationManager = navigationManager
     }
     
-    @MainActor
-    @Published var pickerItems: [PhotosPickerItem] = [] {
-        didSet {
-            selectableCount -= pickerItems.count
+    func dispatch(_ intent: RegisterIntent) {
+        switch intent {
+        case .updateText(let newText, let type):
+            switch type {
+            case .place:
+                state.placeText = newText
+            case .simple:
+                state.simpleText = newText
+            case .detail:
+                state.detailText = newText
+            }
+        case .updateTextList(let newText, let id):
+            if let index = state.recommendTexts.firstIndex(where: { $0.id == id }) {
+                state.recommendTexts[index].text = newText
+                firstButtonInvalid()
+            }
+        case .didTapButtonIcon(let type):
+            switch type {
+            case .place:
+                state.placeText = ""
+                state.isDropDownPresented = false
+            case .simple, .detail:
+                break
+            }
+            firstButtonInvalid()
+        case .deleteTextList(let text):
+            if let index = state.recommendTexts.firstIndex(where: { $0.id == text.id }) {
+                state.recommendTexts.remove(at: index)
+                firstButtonInvalid()
+            }
+        case .updateButtonState(let newValue, let type):
+            switch type {
+            case .start:
+                state.isDisableStartButton = newValue
+                firstButtonInvalid()
+            case .middle:
+                state.isDisableMiddleButton = newValue
+                secondButtonInavlid()
+            }
+        case .updateSelectedCategoryChip(let chips):
+            state.selectedCategory = chips
+            firstButtonInvalid()
+        case .didTapPlaceInfoCell(let place):
+            state.selectedPlace = place
+            firstButtonInvalid()
+            state.isDropDownPresented = false
+            state.placeText = ""
+            // TODO: 중복 확인 로직
+            state.toast = .init(style: .gray, message: "앗! 이미 등록한 맛집이에요", yOffset: 556.adjustedH)
+        case .didTapPlaceInfoCellIcon:
+            state.selectedPlace = nil
+            firstButtonInvalid()
+        case .didTapRecommendPlusButton:
+            plusButtonTapped()
+            firstButtonInvalid()
+        case .didTapNextButton(let type):
+            switch type {
+            case .start:
+                state.registerStep = .middle
+            case .middle:
+                state.registerStep = .end
+                navigationManager.popup = .registerSuccess(action: {
+                    self.navigationManager.selectedTab = .explore
+                    self.state = .init()
+                    self.state.isToolTipPresented = false
+                })
+            }
+        case .didTapkeyboardEnter:
+            state.isDropDownPresented = true
+        case .updateToolTipState:
+            state.isToolTipPresented = false
+        case .didTapBackground(let type):
+            switch type {
+            case .start:
+                state.isDropDownPresented = false
+            case .middle:
+                break
+            }
+        case .movePreviousView:
+            state.registerStep = .start
+        case .updateToast(let toast):
+            state.toast = toast
+        case .updateTextError(let newValue, let type):
+            switch type {
+            case .simple:
+                state.isSimpleTextError = newValue
+            case .detail:
+                state.isDetailTextError = newValue
+            default: break
+            }
+            secondButtonInavlid()
+        case .updatePickerItems(let items):
+            state.pickerItems = items
             Task {
                 await loadImage()
+                
+            }
+        case .deleteImage(let image):
+            if let index = state.uploadImages.firstIndex(where: { $0.id == image.id }) {
+                state.uploadImages.remove(at: index)
+                state.selectableCount += 1                
+                if state.uploadImages.isEmpty {
+                    state.uploadImageErrorState = .error
+                    secondButtonInavlid()
+                }
             }
         }
-    }
-    
-    @MainActor
-    @Published var uploadImages: [UploadImage] = [] {
-        didSet {
-            pickerItems = []
-            uploadImageErrorState = .noError
-            secondButtonInavlid()
-        }
-    }
-    
-    @Published var selectableCount = 5
-    @Published var plusButtonDisabled: Bool = false
-    
-    func firstButtonInvalid() {
-        let isRecommendMenuInvalid = recommendMenu.contains { $0.isEmpty }
-        
-        let isSelectedCategoryInvalid = selectedCategory.isEmpty
-        
-        let isSelectedPlaceInvalid = selectedPlace == nil
-        
-        disableFirstButton = isRecommendMenuInvalid || isSelectedCategoryInvalid || isSelectedPlaceInvalid
-    }
-    
-    func secondButtonInavlid() {
-        let uploadImageError = uploadImageErrorState == .error
-        let isInitial = uploadImageErrorState == .initial
-        disableSecondButton = simpleInputError || detailInputError || uploadImageError || isInitial
-    }
-    
-    @MainActor
-    func deleteImage(_ image: UploadImage) {
-        guard let index = uploadImages.firstIndex(where: { $0.id == image.id }) else { return }
-        uploadImages.remove(at: index)
-        selectableCount += 1
-        if uploadImages.isEmpty {
-            uploadImageErrorState = .error
-            secondButtonInavlid()
-        }
-    }
-    
-    func isUploadImageError() -> Bool {
-        return uploadImageErrorState == .error
     }
 }
 
 extension RegisterStore {
-    @MainActor
-    func reset() {
-        uploadImageErrorState = .initial
-        step = .start
-        disableFirstButton = true
-        disableSecondButton = true
-        text = ""
-        simpleReview = ""
-        detailReview = ""
-        isSelected = false
-        simpleInputError = true
-        detailInputError = true
-        categorys = CategoryChip.sample()
-        recommendMenu = [""]
-        selectedCategory = []
-        searchPlaces = PlaceInfo.sample()
-        selectedPlace = nil
-        pickerItems = []
-        uploadImages = []
-    }
-    
     private func loadImage() async {
-        for item in await pickerItems {
+        for item in state.pickerItems {
             do {
                 if let data = try await item.loadTransferable(type: Data.self),
                    let uiImage = UIImage(data: data) {
                     let image = Image(uiImage: uiImage)
                     await MainActor.run {
-                        self.uploadImages.append(.init(image: image))
+                        state.uploadImages.append(.init(image: image))
                     }
                 }
             } catch {
                 print("Error loading image: \(error)")
             }
         }
+        await MainActor.run {
+            state.selectableCount -= state.pickerItems.count
+            state.pickerItems = []
+            state.uploadImageErrorState = .noError
+            secondButtonInavlid()
+        }
     }
     
-    func plusButtonTapped() {
-        guard !plusButtonDisabled else { return }
+    private func plusButtonTapped() {
+        guard !state.isDisablePlusButton else { return }
         
-        plusButtonDisabled = true
+        state.isDisablePlusButton = true
 
-        recommendMenu.append("")
+        state.recommendTexts.append(.init())
                 
         Task {
             do {
                 try await Task.sleep(for: .seconds(0.5))
                 await MainActor.run {
-                    plusButtonDisabled = false
+                    state.isDisablePlusButton = false
                 }
             } catch {
                 print("error")
             }
         }
+    }
+    
+    private func firstButtonInvalid() {
+        let isRecommendMenuInvalid = state.recommendTexts.contains { $0.text.isEmpty }
+        
+        let isSelectedCategoryInvalid = state.selectedCategory.isEmpty
+        
+        let isSelectedPlaceInvalid = state.selectedPlace == nil
+        
+        state.isDisableStartButton = isRecommendMenuInvalid || isSelectedCategoryInvalid || isSelectedPlaceInvalid
+    }
+    
+    private func secondButtonInavlid() {
+        let uploadImageError = state.uploadImageErrorState == .error
+        let isInitial = state.uploadImageErrorState == .initial
+        state.isDisableMiddleButton = state.isSimpleTextError || state.isDetailTextError || uploadImageError || isInitial
     }
 }
