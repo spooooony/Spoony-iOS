@@ -14,7 +14,7 @@ struct SearchView: View {
     @State private var searchState: SearchState = .empty
     @State private var recentSearches: [String] = UserManager.shared.recentSearches ?? []
     private let recentSearchesKey = "RecentSearches"
-    private let locationService: LocationServiceType = LocationService()
+    private let locationService: SearchServiceType = SearchService()
 
     
     var body: some View {
