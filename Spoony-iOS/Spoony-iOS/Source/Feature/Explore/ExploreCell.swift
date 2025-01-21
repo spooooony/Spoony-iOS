@@ -33,21 +33,21 @@ struct ExploreCell: View {
                     .frame(width: 16.adjusted, height: 16.adjustedH)
                     .padding(.trailing, 4)
                 Text("\(feed.zzimCount)")
-                    .font(.caption2b)
+                    .customFont(.caption2b)
                     .foregroundStyle(.gray500)
             }
             
             HStack(alignment: .bottom, spacing: 4) {
                 Text(feed.userName)
-                    .font(.body2b)
+                    .customFont(.body2b)
                     .padding(.leading, 5)
                 Text("\(feed.userRegion) 수저")
-                    .font(.caption2m)
+                    .customFont(.caption2m)
                     .foregroundStyle(.gray500)
             }
             
             Text(feed.title)
-                .font(.caption1m)
+                .customFont(.caption1m)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(8)
                 .background(.white, in: RoundedRectangle(cornerRadius: 8))

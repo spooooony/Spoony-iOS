@@ -67,7 +67,7 @@ public struct SpoonyButton: View {
                     }
                 }
                 Text(title)
-                    .font(size.font)
+                    .customFont(size.font)
                     .foregroundStyle(style.foregroundColor)
             }
             .frame(width: size.width, height: size.height)

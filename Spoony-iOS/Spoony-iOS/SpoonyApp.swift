@@ -13,9 +13,7 @@ struct SpoonyApp: App {
     
     var body: some Scene {
         WindowGroup {
-            SpoonyTabView()
-                .environmentObject(navigationManager)
-                .popup(popup: $navigationManager.popup)
+            DetailView()
         }
     }
 }

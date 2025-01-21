@@ -19,7 +19,7 @@ struct LogoChip: View {
     var body: some View {
         HStack(spacing: type == .large ? 6 : 5) {
             Text("\(count)")
-                .font(type == .large ? .body1sb : .body2sb)
+                .customFont(type == .large ? .body1sb : .body2sb)
                 .foregroundStyle(.white)
             Image(type == .large ? .imageSpoonLarge : .imageSpoonSmall)
                 .resizable()

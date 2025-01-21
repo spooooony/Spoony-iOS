@@ -36,7 +36,7 @@ struct CategoryChipsView: View {
             .frame(width: 16.adjusted, height: 16.adjustedH)
             
             Text(category.title)
-                .font(.body2sb)
+                .customFont(.body2sb)
                 .foregroundStyle(isSelected ? .white : .gray600)
         }
         .padding(.horizontal, 14)

@@ -66,10 +66,10 @@ extension SpoonyTextEditor {
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
                 .focused($isFocused)
-                .font(.body2m)                
+                .customFont(.body2m)
                 .overlay(alignment: .topLeading) {
                     Text("\(placeholder)")
-                        .font(.body2m)
+                        .customFont(.body2m)
                         .foregroundStyle(text.isEmpty ? .gray500 : .clear)
                         .offset(x: 5.adjusted, y: 8.adjustedH)
                 }
@@ -99,7 +99,7 @@ extension SpoonyTextEditor {
                 }
 
             Text("\(text.count) / \(style.maximumInput)")
-                .font(.caption1m)
+                .customFont(.caption1m)
                 .foregroundStyle(errorState != .noError && errorState != .initial ? .error400 : .gray500)
                 .padding(.trailing, 5)
                 .padding(.bottom, 7)
@@ -121,7 +121,7 @@ extension SpoonyTextEditor {
                 .frame(width: 16.adjusted, height: 16.adjusted)
             
             Text("\(message)")
-                .font(.caption1m)
+                .customFont(.caption1m)
                 .foregroundStyle(.error400)
         }
     }

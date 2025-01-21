@@ -15,7 +15,7 @@ struct BottomSheetListItem: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
                     Text(pickCard.placeName)
-                        .font(.body1b)
+                        .customFont(.body1b)
                         .lineLimit(1)
                         .truncationMode(.tail)
                     
@@ -36,7 +36,7 @@ struct BottomSheetListItem: View {
                         }
                         
                         Text(pickCard.categoryColorResponse.categoryName)
-                            .font(.caption1m)
+                            .customFont(.caption1m)
                             .lineLimit(1)
                     }
                     .padding(.horizontal, 8)
@@ -47,13 +47,13 @@ struct BottomSheetListItem: View {
                 }
                 
                 Text(pickCard.placeAddress)
-                    .font(.caption1m)
+                    .customFont(.caption1m)
                     .foregroundColor(.gray)
                     .lineLimit(1)
                     .truncationMode(.tail)
                 
                 Text(pickCard.postTitle)
-                    .font(.caption1m)
+                    .customFont(.caption1m)
                     .foregroundColor(.gray)
                     .lineLimit(1)
                     .truncationMode(.tail)
@@ -74,7 +74,7 @@ struct BottomSheetListItem: View {
                     image
                         .resizable()
                         .scaledToFill()
-                case .failure(_):
+                case .failure:
                     defaultPlaceholder
                 case .empty:
                     defaultPlaceholder
@@ -136,7 +136,7 @@ struct BottomSheetListView: View {
                         .padding(.top, 10)
                     
                     Text("타이틀")
-                        .font(.system(size: 18, weight: .semibold))
+                        .customFont(.body2b)
                         .padding(.bottom, 8)
                 }
                 .frame(height: 60.adjustedH)
@@ -238,9 +238,4 @@ struct BottomSheetListView: View {
             }
         }
     }
-}
-
-#Preview {
-    Home()
-        .environmentObject(NavigationManager())
 }

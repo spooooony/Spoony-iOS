@@ -59,7 +59,7 @@ struct LocationPickerBottomSheet: View {
             HStack(spacing: 114.adjusted) {
                 Spacer()
                 Text("지역 선택")
-                    .font(.body1b)
+                    .customFont(.body1b)
                 Image(.icCloseGray400)
                     .onTapGesture {
                         isPresented = false
@@ -73,7 +73,7 @@ struct LocationPickerBottomSheet: View {
                 VStack(spacing: 0) {
                     ForEach(RegionType.allCases, id: \.self) { region in
                         Text(region.rawValue)
-                            .font(.body2m)
+                            .customFont(.body2m)
                             .foregroundStyle(
                                 region.rawValue == "서울" ? .spoonBlack : .gray400
                             )
@@ -93,7 +93,7 @@ struct LocationPickerBottomSheet: View {
                         ForEach(SeoulType.allCases, id: \.self) { type in
                             
                             Text(type.rawValue)
-                                .font(.body2m)
+                                .customFont(.body2m)
                                 .foregroundStyle(
                                     tempRegion.rawValue != type.rawValue ? .gray400 : .spoonBlack
                                 )

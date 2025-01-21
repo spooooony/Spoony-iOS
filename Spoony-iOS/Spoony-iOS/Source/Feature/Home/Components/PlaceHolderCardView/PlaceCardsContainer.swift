@@ -35,7 +35,3 @@ struct PlaceCardsContainer: View {
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
     }
 }
-
-#Preview {
- Home()
-}

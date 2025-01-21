@@ -55,7 +55,7 @@ struct ReviewStepView: View {
 extension ReviewStepView {
     private var titleView: some View {
         Text("거의 다 왔어요!")
-            .font(.title2b)
+            .customFont(.title2b)
             .foregroundStyle(.spoonBlack)
             .padding(.vertical, 32)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -65,7 +65,7 @@ extension ReviewStepView {
     private var simpleReviewSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("당신의 맛집을 한 줄로 표현해 주세요")
-                .font(.body1sb)
+                .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
             
             SpoonyTextField(
@@ -95,7 +95,7 @@ extension ReviewStepView {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
                 Text("자세한 후기를 적어주세요")
-                    .font(.body1sb)
+                    .customFont(.body1sb)
                     .foregroundStyle(.spoonBlack)
                 
                 HStack(spacing: 4) {
@@ -104,7 +104,7 @@ extension ReviewStepView {
                         .frame(width: 6.adjusted, height: 6.adjustedH)
                     
                     Text("50자 이상")
-                        .font(.caption1m)
+                        .customFont(.caption1m)
                         .foregroundStyle(.main400)
                 }
             }
@@ -135,7 +135,7 @@ extension ReviewStepView {
     private var pictureUploadSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("음식 사진을 올려주세요")
-                .font(.body1sb)
+                .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.horizontal, 20)
             
@@ -158,7 +158,7 @@ extension ReviewStepView {
                         .resizable()
                         .frame(width: 16.adjusted, height: 16.adjustedH)
                     Text("사진 업로드는 필수예요")
-                        .font(.caption1m)
+                        .customFont(.caption1m)
                         .foregroundStyle(.error400)
                 }
                 .padding(.horizontal, 20)
@@ -185,7 +185,7 @@ extension ReviewStepView {
                     .resizable()
                     .frame(width: 16.adjusted, height: 16.adjustedH)
                 Text("\(store.state.uploadImages.count)/5")
-                    .font(.caption1m)
+                    .customFont(.caption1m)
                     .foregroundStyle(.gray400)
             }
             .frame(width: 80.adjusted, height: 80.adjustedH)

@@ -87,7 +87,7 @@ extension Explore {
         HStack(spacing: 2) {
             Spacer()
             Text(store.selectedFilter.title)
-                .font(.caption1m)
+                .customFont(.caption1m)
                 .foregroundStyle(.gray700)
             Image(.icFilterGray700)
                 .resizable()
@@ -108,7 +108,7 @@ extension Explore {
             
             Text("아직 발견된 장소가 없어요.\n나만의 리스트를 공유해 볼까요?")
                 .multilineTextAlignment(.center)
-                .font(.body2m)
+                .customFont(.body2m)
                 .foregroundStyle(.gray500)
                 .padding(.top, 30)
             

@@ -74,13 +74,13 @@ extension SpoonyTextField {
             
             TextField(text: $text) {
                 Text(placeholder)
-                    .font(.body2m)
+                    .customFont(.body2m)
                     .foregroundStyle(.gray500)
             }
             .autocapitalization(.none) 
             .autocorrectionDisabled()
             .focused($isFocused)
-            .font(.body2m)
+            .customFont(.body2m)
             .foregroundStyle(.gray900)
             .onChange(of: text) { oldValue, newValue in
                 if style != .icon {
@@ -143,7 +143,7 @@ extension SpoonyTextField {
                     }
                 case .helper:
                     Text("\(text.count) / 30")
-                        .font(.caption1m)
+                        .customFont(.caption1m)
                         .foregroundStyle(errorState != .noError && errorState != .initial ? .error400 : .gray500)
                 }
             }
@@ -164,7 +164,7 @@ extension SpoonyTextField {
                 .frame(width: 16.adjusted, height: 16.adjustedH)
             
             Text("\(message)")
-                .font(.caption1m)
+                .customFont(.caption1m)
                 .foregroundStyle(.error400)
         }
         .padding(.top, 8)

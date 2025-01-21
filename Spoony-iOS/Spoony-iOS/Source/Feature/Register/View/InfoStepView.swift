@@ -58,7 +58,7 @@ extension InfoStepView {
     
     private var titleView: some View {
         Text("나의 찐맛집을 등록해볼까요?")
-            .font(.title2b)
+            .customFont(.title2b)
             .foregroundStyle(.spoonBlack)
             .padding(.vertical, 32)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -68,7 +68,7 @@ extension InfoStepView {
     private var placeSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("장소명을 알려주세요")
-                .font(.body1sb)
+                .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
             
             if store.state.selectedPlace == nil {
@@ -103,7 +103,7 @@ extension InfoStepView {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("카테고리를 골라주세요")
-                    .font(.body1sb)
+                    .customFont(.body1sb)
                     .foregroundStyle(.spoonBlack)
                 Spacer()
             }
@@ -127,7 +127,7 @@ extension InfoStepView {
     private var recommendSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("추천 메뉴를 알려주세요")
-                .font(.body1sb)
+                .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 12)
             
