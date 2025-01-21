@@ -134,22 +134,52 @@ struct SearchView: View {
     
     private var searchResultListView: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                ForEach(getFilteredResults(), id: \.id) { result in
-                    VStack(spacing: 0) {
-                        SearchResultRow(result: result) {
-                            navigationManager.currentLocation = result.title
-                            navigationManager.pop(1)
-                        }
-                        
-                        if result.id != getFilteredResults().last?.id {
-                            Divider()
-                                .foregroundStyle(.gray400)
-                                .padding(.horizontal, 16)
+            if searchResults.isEmpty {
+                searchResultEmptyView
+            } else {
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(getFilteredResults(), id: \.id) { result in
+                        VStack(spacing: 0) {
+                            SearchResultRow(result: result) {
+                                navigationManager.currentLocation = result.title
+                                navigationManager.pop(1)
+                            }
+                            
+                            if result.id != getFilteredResults().last?.id {
+                                Divider()
+                                    .foregroundStyle(.gray400)
+                                    .padding(.horizontal, 16)
+                            }
                         }
                     }
                 }
             }
+        }
+    }
+    
+    private var searchResultEmptyView: some View {
+        VStack(spacing: 0) {
+            Spacer()
+                .frame(height: 72.adjusted)
+            
+            VStack(spacing: 8) {
+                Image(.imageEmptySearchResult)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .padding(.horizontal, 20)
+                    .frame(width: 220.adjusted, height: 100.adjustedH)
+                
+                Text("검색 결과가 없습니다")
+                    .font(.body2sb)
+                    .foregroundColor(.spoonBlack)
+                    .padding(.top, 24)
+                
+                Text("정확한 지면(구/동),\n지하철역을 입력해보세요 ")
+                    .font(.body2m)
+                    .foregroundColor(.gray500)
+                    .multilineTextAlignment(.center)
+            }
+            Spacer()
         }
     }
     
@@ -184,7 +214,6 @@ struct SearchView: View {
                 print("Search error: \(error.errorDescription)")
                 await MainActor.run {
                     searchResults.removeAll()
-                    // TODO: 엠티뷰 추가
                 }
             } catch {
                 print("Unexpected error: \(error)")
