@@ -7,19 +7,38 @@
 
 import SwiftUI
 
-enum ReportType: String, CaseIterable {
-    case commercial = "영리 목적/ 홍보성 후기"
-    case abusiveLanguage = "욕설/인신공격"
-    case illegalInformation = "불법정보"
-    case personalInformationExposure = "개인정보노출"
-    case spam = "도배"
-    case others = "기타"
+enum ReportType: String, CaseIterable, Encodable {
+    case ADVERTISEMENT
+    case PERSONAL_INFO
+    case INSULT
+    case DUPLICATE
+    case ILLEGAL_INFO
+    case OTHER
+    
+    var title: String {
+        switch self {
+        case .ADVERTISEMENT:
+            "영리 목적/ 홍보성 후기"
+        case .INSULT:
+            "욕설/인신공격"
+        case .ILLEGAL_INFO:
+            "불법정보"
+        case .PERSONAL_INFO:
+            "개인정보노출"
+        case .DUPLICATE:
+            "도배"
+        case .OTHER:
+            "기타"
+        }
+    }
 }
 
 struct Report: View {
     @EnvironmentObject private var navigationManager: NavigationManager
-    @State private var selectedReport: ReportType = .commercial
+    @StateObject private var store: ReportStore = ReportStore()
+    
     @State private var text: String = ""
+    
     @State private var isError: Bool = true
     @State private var isDisabled: Bool = true
     
@@ -43,10 +62,12 @@ struct Report: View {
                     title: "신고하기",
                     disabled: $isDisabled
                 ) {
-                    navigationManager.popup = .reportSuccess(action: {
-                        //TODO: 신고 API
-                        navigationManager.pop(2)
-                    })
+                    Task {
+                        try await store.postReport(postId: 1, description: text)
+                        navigationManager.popup = .reportSuccess(action: {
+                            navigationManager.pop(2)
+                        })
+                    }
                 }
                 .padding(.top, !isError ? 12 : 20)
                 .padding(.bottom, 20)
@@ -59,7 +80,6 @@ struct Report: View {
             hideKeyboard()
         }
         .onChange(of: isError) {
-            print("error: \(isError)")
             isDisabled = isError
         }
     }
@@ -76,10 +96,10 @@ extension Report {
             ForEach(ReportType.allCases, id: \.self) { report in
                 radioButton(
                     report: report,
-                    isSelected: selectedReport == report
+                    isSelected: store.selectedReport == report
                 )
                 .onTapGesture {
-                    selectedReport = report
+                    store.changeReportType(report: report)
                     hideKeyboard()
                 }
             }
@@ -122,7 +142,7 @@ extension Report {
         HStack(spacing: 12) {
             Image(isSelected ? .icRadioOnGray900 : .icRadioOffGray400)
             
-            Text(report.rawValue)
+            Text(report.title)
                 .font(.body1m)
                 .foregroundStyle(.gray900)
             

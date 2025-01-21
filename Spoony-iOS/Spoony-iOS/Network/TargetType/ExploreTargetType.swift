@@ -9,8 +9,13 @@ import Foundation
 import Moya
 
 enum ExploreTargetType {
-    case getUserFeeds(userId: Int, categoryId: Int, location: String, sort: FilterType)
-    case reportPost(postId: Int, userId: Int, reportType: ReportType, reportDetail: String)
+    case getUserFeeds(
+        userId: Int,
+        categoryId: Int,
+        location: String,
+        sort: FilterType
+    )
+    case reportPost(report: ReportRequest)
     case getCategories
 }
 
@@ -54,8 +59,8 @@ extension ExploreTargetType: TargetType {
             return .requestParameters(parameters: params, encoding: URLEncoding.default)
         case .getCategories:
             return .requestPlain
-        case .reportPost:
-            return .requestPlain
+        case .reportPost(let report):
+            return .requestCustomJSONEncodable(report, encoder: JSONEncoder())
         }
     }
     
