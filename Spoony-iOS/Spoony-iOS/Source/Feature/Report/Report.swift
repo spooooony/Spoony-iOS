@@ -9,10 +9,10 @@ import SwiftUI
 
 enum ReportType: String, CaseIterable, Encodable {
     case advertisement
-    case personalInfo
     case insult
-    case duplicate
     case illegalInfo
+    case personalInfo
+    case duplicate
     case other
     
     var title: String {
