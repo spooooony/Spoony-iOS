@@ -49,7 +49,7 @@ struct Home: View {
             }
             
             if selectedPlace != nil {
-                // 핀이 선택된 경우 -> PlaceCardsContainer 표시
+                //TODO: 핀이 선택된 경우 -> PlaceCardsContainer 네비게이션 추가
                 VStack(spacing: 4) {
                     PlaceCardsContainer(places: [selectedPlace!], currentPage: $currentPage)
                     if [selectedPlace!].count > 1 {
