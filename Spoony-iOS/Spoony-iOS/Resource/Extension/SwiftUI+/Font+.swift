@@ -9,55 +9,55 @@ import SwiftUI
 
 public extension Font {
     static var title1b: Font {
-        return font(.pretendardBold, ofSize: 20)
+        return font(.pretendardBold, ofSize: 20.adjusted)
     }
     
     static var title2b: Font {
-        return font(.pretendardBold, ofSize: 18)
+        return font(.pretendardBold, ofSize: 18.adjusted)
     }
     
     static var title2sb: Font {
-        return font(.pretendardSemiBold, ofSize: 18)
+        return font(.pretendardSemiBold, ofSize: 18.adjusted)
     }
     
     static var body1b: Font {
-        return font(.pretendardBold, ofSize: 16)
+        return font(.pretendardBold, ofSize: 16.adjusted)
     }
     
     static var body1sb: Font {
-        return font(.pretendardSemiBold, ofSize: 16)
+        return font(.pretendardSemiBold, ofSize: 16.adjusted)
     }
     
     static var body1m: Font {
-        return font(.pretendardMedium, ofSize: 16)
+        return font(.pretendardMedium, ofSize: 16.adjusted)
     }
     
     static var body2b: Font {
-        return font(.pretendardBold, ofSize: 14)
+        return font(.pretendardBold, ofSize: 14.adjusted)
     }
     
     static var body2sb: Font {
-        return font(.pretendardSemiBold, ofSize: 14)
+        return font(.pretendardSemiBold, ofSize: 14.adjusted)
     }
     
     static var body2m: Font {
-        return font(.pretendardMedium, ofSize: 14)
+        return font(.pretendardMedium, ofSize: 14.adjusted)
     }
     
     static var caption1b: Font {
-        return font(.pretendardBold, ofSize: 12)
+        return font(.pretendardBold, ofSize: 12.adjusted)
     }
     
     static var caption1m: Font {
-        return font(.pretendardMedium, ofSize: 12)
+        return font(.pretendardMedium, ofSize: 12.adjusted)
     }
     
     static var caption2b: Font {
-        return font(.pretendardBold, ofSize: 10)
+        return font(.pretendardBold, ofSize: 10.adjusted)
     }
     
     static var caption2m: Font {
-        return font(.pretendardMedium, ofSize: 10)
+        return font(.pretendardMedium, ofSize: 10.adjusted)
     }
 }
 
