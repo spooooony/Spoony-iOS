@@ -19,7 +19,7 @@ struct ReviewDetailModel: Codable {
     let placeAddress: String
     let latitude: Double
     let longitude: Double
-    let zzinCount: Int
+    let zzimCount: Int
     let isZzim: Bool
     let isScoop: Bool
     let categoryColorResponse: DetailCategoryColorResponse
@@ -50,7 +50,7 @@ extension ReviewDetailModel {
             placeAddress: "서울 강남구",
             latitude: 37.497946,
             longitude: 127.027632,
-            zzinCount: 12,
+            zzimCount: 12,
             isZzim: false,
             isScoop: false,
             categoryColorResponse: DetailCategoryColorResponse(

@@ -40,7 +40,7 @@ struct DetailView: View {
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
-                style: .detailWithChip(count: detailModel.zzinCount),
+                style: .detailWithChip(count: detailModel.zzimCount),
                 onBackTapped: {
                     navigationManager.pop(1)
                 }
