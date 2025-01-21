@@ -14,6 +14,8 @@ struct SearchView: View {
     @State private var searchState: SearchState = .empty
     @State private var recentSearches: [String] = UserManager.shared.recentSearches ?? []
     private let recentSearchesKey = "RecentSearches"
+    private let searchService = SearchService()
+    
     
     var body: some View {
         ZStack {
@@ -70,7 +72,7 @@ struct SearchView: View {
         VStack(spacing: 0) {
             Spacer()
                 .frame(height: 72)
-                
+            
             VStack(spacing: 8) {
                 Image(.imageEmptySearch)
                     .padding(.bottom, 12)
@@ -101,49 +103,53 @@ struct SearchView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             
-                VStack(alignment: .leading, spacing: 0) {
-                    ForEach(recentSearches, id: \.self) { search in
-                        HStack {
-                            Text(search)
-                                .font(.body1b)
-                            Spacer()
-                            Button(action: {
-                                if let index = recentSearches.firstIndex(of: search) {
-                                    recentSearches.remove(at: index)
-                                    saveRecentSearches()
-                                }
-                            }) {
-                                Image(.icCloseGray400)
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(recentSearches, id: \.self) { search in
+                    HStack {
+                        Text(search)
+                            .font(.body1b)
+                        Spacer()
+                        Button(action: {
+                            if let index = recentSearches.firstIndex(of: search) {
+                                recentSearches.remove(at: index)
+                                saveRecentSearches()
                             }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        
-                        if search != recentSearches.last {
-                            Divider()
-                                .foregroundStyle(.gray400)
-                                .padding(.horizontal, 16)
+                        }) {
+                            Image(.icCloseGray400)
                         }
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    
+                    if search != recentSearches.last {
+                        Divider()
+                            .foregroundStyle(.gray400)
+                            .padding(.horizontal, 16)
+                    }
                 }
+            }
             
         }
     }
     
     private var searchResultListView: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                ForEach(getFilteredResults(), id: \.id) { result in
-                    VStack(spacing: 0) {
-                        SearchResultRow(result: result) {
-                            navigationManager.currentLocation = result.title
-                            navigationManager.pop(1)
-                        }
-                        
-                        if result.id != getFilteredResults().last?.id {
-                            Divider()
-                                .foregroundStyle(.gray400)
-                                .padding(.horizontal, 16)
+            if searchResults.isEmpty {
+                searchResultEmptyView
+            } else {
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(getFilteredResults(), id: \.id) { result in
+                        VStack(spacing: 0) {
+                            SearchResultRow(result: result) {
+                                navigationManager.currentLocation = result.title
+                                navigationManager.pop(1)
+                            }
+                            
+                            if result.id != getFilteredResults().last?.id {
+                                Divider()
+                                    .foregroundStyle(.gray400)
+                                    .padding(.horizontal, 16)
+                            }
                         }
                     }
                 }
@@ -151,25 +157,70 @@ struct SearchView: View {
         }
     }
     
-    private func updateSearchResults() {
-        switch searchText.isEmpty {
-        case false:
-            searchResults = [
-                SearchResult(title: "\(searchText)", address: "\(searchText)"),
-                SearchResult(title: "\(searchText)", address: "\(searchText)"),
-                SearchResult(title: "\(searchText)", address: "\(searchText)")
-            ]
+    private var searchResultEmptyView: some View {
+        VStack(spacing: 0) {
+            Spacer()
+                .frame(height: 72.adjusted)
             
-            if !recentSearches.contains(searchText) {
-                recentSearches.insert(searchText, at: 0)
-                if recentSearches.count > 6 {
-                    recentSearches.removeLast()
-                }
-                saveRecentSearches()
+            VStack(spacing: 8) {
+                Image(.imageEmptySearchResult)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .padding(.horizontal, 20)
+                    .frame(width: 220.adjusted, height: 100.adjustedH)
+                
+                Text("검색 결과가 없습니다")
+                    .font(.body2sb)
+                    .foregroundColor(.spoonBlack)
+                    .padding(.top, 24)
+                
+                Text("정확한 지면(구/동),\n지하철역을 입력해보세요 ")
+                    .font(.body2m)
+                    .foregroundColor(.gray500)
+                    .multilineTextAlignment(.center)
             }
-            
-        case true:
+            Spacer()
+        }
+    }
+    
+    private func updateSearchResults() {
+        guard !searchText.isEmpty else {
             searchResults.removeAll()
+            return
+        }
+        
+        Task {
+            do {
+                let response = try await searchService.searchLocation(query: searchText)
+                let results = response.locationResponseList.map { location in
+                    SearchResult(
+                        title: location.locationName,
+                        address: location.locationAddress ?? ""
+                    )
+                }
+                
+                await MainActor.run {
+                    searchResults = results
+                    
+                    if !recentSearches.contains(searchText) {
+                        recentSearches.insert(searchText, at: 0)
+                        if recentSearches.count > 6 {
+                            recentSearches.removeLast()
+                        }
+                        saveRecentSearches()
+                    }
+                }
+            } catch let error as SearchError {
+                print("Search error: \(error.errorDescription)")
+                await MainActor.run {
+                    searchResults.removeAll()
+                }
+            } catch {
+                print("Unexpected error: \(error)")
+                await MainActor.run {
+                    searchResults.removeAll()
+                }
+            }
         }
     }
     
