@@ -55,7 +55,7 @@ struct PopupView: View {
             
             Text(description)
                 .multilineTextAlignment(.center)
-                .font(.body1b)
+                .customFont(.body1b)
                 .padding(.bottom, descriptionYOffset)
             
             HStack(spacing: 12) {

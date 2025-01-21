@@ -38,7 +38,7 @@ struct FixedBottomSheetView: View {
                         .padding(.leading, 10)
                     
                     Text("아직 추가된 장소가 없어요.\n다른 사람의 리스트를 떠먹어 보세요!")
-                        .font(.body2m)
+                        .customFont(.body2m)
                         .foregroundStyle(.gray500)
                         .multilineTextAlignment(.center)
                     

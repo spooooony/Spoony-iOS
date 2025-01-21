@@ -55,7 +55,7 @@ struct CustomBottomSheet<Content: View>: View {
                             .padding(.top, 10)
                         
                         Text("타이틀")
-                            .font(.body2b)
+                            .customFont(.body2b)
                             .padding(.bottom, 8)
                     }
                     .frame(height: headerHeight)

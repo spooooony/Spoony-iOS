@@ -31,11 +31,11 @@ struct PlaceInfoCell: View {
                     .padding(.trailing, placeInfoType.leadingIconSpacing)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(placeInfo.placeName)
-                        .font(.body2b)
+                        .customFont(.body2b)
                         .foregroundStyle(.spoonBlack)
                     
                     Text(placeInfo.placeRoadAddress)
-                        .font(.caption1m)
+                        .customFont(.caption1m)
                         .foregroundStyle(.gray500)
                 }
                 

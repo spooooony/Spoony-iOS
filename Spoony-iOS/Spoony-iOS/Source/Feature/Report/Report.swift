@@ -106,7 +106,7 @@ extension Report {
     private var reportTitle: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("후기를 신고하는 이유가 무엇인가요?")
-                .font(.body1sb)
+                .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 12)
             
@@ -128,7 +128,7 @@ extension Report {
     private var reportDescription: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("자세한 내용을 적어주세요")
-                .font(.body1sb)
+                .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 12.adjustedH)
             
@@ -143,7 +143,7 @@ extension Report {
                 Image(.icErrorGray300)
                 
                 Text("스푸니는 철저한 광고 제한 정책과 모니터링을 실시하고 있어요. 부적절한 후기 작성자를 발견하면, '수저 뺏기'로 그들의 수저를 빼앗아 주세요!")
-                    .font(.caption1m)
+                    .customFont(.caption1m)
                     .foregroundStyle(.gray400)
             }
             .padding(10)
@@ -160,7 +160,7 @@ extension Report {
             Image(isSelected ? .icRadioOnGray900 : .icRadioOffGray400)
             
             Text(report.title)
-                .font(.body1m)
+                .customFont(.body1m)
                 .foregroundStyle(.gray900)
             
             Spacer()

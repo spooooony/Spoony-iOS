@@ -111,11 +111,11 @@ extension DetailView {
             
             VStack(alignment: .leading, spacing: 4.adjustedH) {
                 Text(userName)
-                    .font(.body2b)
+                    .customFont(.body2b)
                     .foregroundStyle(.black)
                 
                 Text(placeAdress)
-                    .font(.caption1b)
+                    .customFont(.caption1b)
                     .foregroundStyle(.gray400)
             }
             
@@ -160,11 +160,11 @@ extension DetailView {
             )
             
             Text("인생 이자카야. 고등어 초밥 안주가 그냥 미쳤어요.".splitZeroWidthSpace())
-                .font(.title1b)
+                .customFont(.title1b)
                 .foregroundStyle(.black)
             
             Text("2025년 8월 21일")
-                .font(.caption1m)
+                .customFont(.caption1m)
                 .foregroundStyle(.gray400)
             
             Spacer()
@@ -215,7 +215,7 @@ extension DetailView {
     private var menuInfo: some View {
         VStack(alignment: .leading, spacing: 12.adjustedH) {
             Text("Menu")
-                .font(.body1b)
+                .customFont(.body1b)
                 .foregroundStyle(.spoonBlack)
             menuList()
         }
@@ -226,10 +226,10 @@ extension DetailView {
         HStack {
             VStack(alignment: .leading, spacing: 12.adjustedH) {
                 Text("Location")
-                    .font(.body1b)
+                    .customFont(.body1b)
                     .foregroundStyle(.spoonBlack)
                 Text("상호명")
-                    .font(.title2sb)
+                    .customFont(.title2sb)
                     .foregroundStyle(.spoonBlack)
                 HStack(spacing: 4.adjusted) {
                     Image(.icMapGray400)
@@ -238,7 +238,7 @@ extension DetailView {
                         .frame(width: 20.adjusted, height: 20.adjustedH)
                     
                     Text("서울 마포구 연희로11가길 39")
-                        .font(.body2m)
+                        .customFont(.body2m)
                         .foregroundStyle(.spoonBlack)
                 }
             }
@@ -324,7 +324,7 @@ struct menuList: View {
                         .scaledToFit()
                         .frame(width: 20.adjusted, height: 20.adjustedH)
                     Text(menus[index])
-                        .font(.body2m)
+                        .customFont(.body2m)
                         .lineLimit(2)
                     Spacer()
                 }
@@ -362,7 +362,7 @@ struct SpoonButton: View {
                 .padding(EdgeInsets(top: 1.5, leading: 12, bottom: 4, trailing: 12))
             
             Text("\(scrapCount)")
-                .font(.caption1m)
+                .customFont(.caption1m)
                 .foregroundStyle(isScrap ? .main400 : .gray800)
                 .padding(.bottom, 1.5)
         }

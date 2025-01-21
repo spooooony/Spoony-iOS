@@ -38,7 +38,7 @@ struct ToastView: View {
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             Text(message)
-                .font(.body2b)
+                .customFont(.body2b)
                 .foregroundStyle(.white)
         }
         .frame(height: 40.adjustedH)

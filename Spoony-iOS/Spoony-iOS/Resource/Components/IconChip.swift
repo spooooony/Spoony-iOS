@@ -117,7 +117,7 @@ struct IconChip: View {
                 .resizable()
                 .frame(width: 16.adjusted, height: 16.adjustedH)
             Text(title)
-                .font(chipType == .large ? .body2sb : .caption1m)
+                .customFont(chipType == .large ? .body2sb : .caption1m)
                 .foregroundStyle(color.textColor)
         }
         .padding(.vertical, chipType == .large ? 6 : 4)

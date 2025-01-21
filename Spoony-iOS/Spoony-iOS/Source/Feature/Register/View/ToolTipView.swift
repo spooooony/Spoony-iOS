@@ -17,7 +17,7 @@ struct ToolTipView: View {
                     .frame(width: 20.adjusted, height: 20.adjusted)
                 
                 Text("장소를 등록하면 수저를 획득할 수 있어요")
-                    .font(.body2b)
+                    .customFont(.body2b)
                     .foregroundStyle(.white)
             }
             .padding(.horizontal, 16)

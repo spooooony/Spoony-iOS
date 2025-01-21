@@ -17,12 +17,12 @@ struct SearchResultRow: View {
                 HStack(spacing: 6) {
                     Image(.icPinGray600)
                     Text(result.title)
-                        .font(.body1b)
+                        .customFont(.body1b)
                         .foregroundStyle(.black)
                 }
                 
                 Text(result.address)
-                    .font(.body2b)
+                    .customFont(.body2b)
                     .foregroundStyle(.gray600)
                     .padding(.leading, 30)
             }

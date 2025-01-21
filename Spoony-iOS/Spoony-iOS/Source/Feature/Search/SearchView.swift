@@ -78,7 +78,7 @@ struct SearchView: View {
                     .padding(.bottom, 12)
                 
                 Text("구체적인 장소를 검색해 보세요")
-                    .font(.body2m)
+                    .customFont(.body2m)
                     .foregroundColor(.gray600)
             }
             
@@ -90,14 +90,14 @@ struct SearchView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("최근 검색")
-                    .font(.body2b)
+                    .customFont(.body2b)
                 Spacer()
                 Button("전체삭제") {
                     recentSearches.removeAll()
                     saveRecentSearches()
                     searchState = .empty
                 }
-                .font(.caption1m)
+                .customFont(.caption1m)
                 .foregroundColor(.gray600)
             }
             .padding(.horizontal, 16)
@@ -107,7 +107,7 @@ struct SearchView: View {
                 ForEach(recentSearches, id: \.self) { search in
                     HStack {
                         Text(search)
-                            .font(.body1b)
+                            .customFont(.body1b)
                         Spacer()
                         Button(action: {
                             if let index = recentSearches.firstIndex(of: search) {
@@ -170,12 +170,12 @@ struct SearchView: View {
                     .frame(width: 220.adjusted, height: 100.adjustedH)
                 
                 Text("검색 결과가 없습니다")
-                    .font(.body2sb)
+                    .customFont(.body2sb)
                     .foregroundColor(.spoonBlack)
                     .padding(.top, 24)
                 
                 Text("정확한 지면(구/동),\n지하철역을 입력해보세요 ")
-                    .font(.body2m)
+                    .customFont(.body2m)
                     .foregroundColor(.gray500)
                     .multilineTextAlignment(.center)
             }

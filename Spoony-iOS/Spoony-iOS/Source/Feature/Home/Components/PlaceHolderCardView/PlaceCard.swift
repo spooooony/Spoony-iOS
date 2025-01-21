@@ -24,14 +24,14 @@ struct PlaceCard: View {
                 HStack(spacing: 6) {
                     
                     Text(placeName)
-                        .font(.body1b)
+                        .customFont(.body1b)
                     
                     // TODO: 칩으로 대체
                     HStack(spacing: 4) {
                         Image(systemName: "mug.fill")
-                            .font(.system(size: 12))
+                            
                         Text("카페")
-                            .font(.system(size: 14.5))
+                            .customFont(.system(size: 14.5))
                     }
                     .foregroundColor(.pink400)
                     .padding(.horizontal, 12)
@@ -43,7 +43,7 @@ struct PlaceCard: View {
                     HStack(spacing: 4) {
                         Image(.icAddmapGray400)
                         Text(visitorCount)
-                            .font(.caption2b)
+                            .customFont(.caption2b)
                     }
                 }
             }
@@ -52,14 +52,14 @@ struct PlaceCard: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text(title)
-                        .font(.body2b)
+                        .customFont(.body2b)
                     Text(subTitle)
-                        .font(.caption1m)
+                        .customFont(.caption1m)
                         .foregroundColor(.gray600)
                     
                 }
                 Text(description)
-                    .font(.caption1m)
+                    .customFont(.caption1m)
                     .foregroundColor(.spoonBlack)
             }
             .padding(15)
