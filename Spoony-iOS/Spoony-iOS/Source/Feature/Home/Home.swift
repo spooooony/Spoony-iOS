@@ -13,6 +13,9 @@ struct Home: View {
     @State private var searchText = ""
     @State private var selectedPlace: CardPlace?
     @State private var currentPage = 0
+    @State private var spoonCount: Int = 0
+    private let restaurantService: RestaurantServiceType = RestaurantService()
+    
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -37,6 +40,7 @@ struct Home: View {
                     CustomNavigationBar(
                         style: .searchContent,
                         searchText: $searchText,
+                        spoonCount: spoonCount,
                         tappedAction: {
                             navigationManager.push(.searchView)
                         }
@@ -67,7 +71,13 @@ struct Home: View {
         .navigationBarHidden(true)
         .onAppear {
             isBottomSheetPresented = true
-        }
+            Task {
+                do {
+                    spoonCount = try await restaurantService.fetchSpoonCount(userId: 1)
+                } catch {
+                    print("Failed to fetch spoon count:", error)
+                }
+            }        }
     }
 }
 
