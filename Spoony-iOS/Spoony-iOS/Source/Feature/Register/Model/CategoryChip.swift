@@ -8,38 +8,33 @@
 import SwiftUI
 
 struct CategoryChip: Equatable {
-    let image: Image
-    let selectedImage: Image
+    let image: String
+    let selectedImage: String
     let title: String
-    let priority: Int
+    let id: Int
     
     init(
-        image: Image,
-        selectedImage: Image,
+        image: String,
+        selectedImage: String,
         title: String,
-        priority: Int = 0
+        id: Int
     ) {
         self.image = image
         self.selectedImage = selectedImage
         self.title = title
-        self.priority = priority
+        self.id = id
     }
     
     static func == (lhs: CategoryChip, rhs: CategoryChip) -> Bool {
-        lhs.title == rhs.title
+        lhs.id == rhs.id
     }
 }
 
 extension CategoryChip {
-    static func sample() -> [CategoryChip] {
-        [
-            .init(image: Image(.icChineseGray600), selectedImage: Image(.icChineseWhite), title: "한식"),
-            .init(image: Image(.icChineseGray600), selectedImage: Image(.icChineseWhite), title: "일식", priority: 1),
-            .init(image: Image(.icChineseGray600), selectedImage: Image(.icChineseWhite), title: "중식", priority: 2),
-            .init(image: Image(.icChineseGray600), selectedImage: Image(.icChineseWhite), title: "양식", priority: 3),
-            .init(image: Image(.icChineseGray600), selectedImage: Image(.icChineseWhite), title: "퓨전/세계요리", priority: 4),
-            .init(image: Image(.icChineseGray600), selectedImage: Image(.icChineseWhite), title: "카페", priority: 5),
-            .init(image: Image(.icChineseGray600), selectedImage: Image(.icChineseWhite), title: "주류", priority: 6)
-        ]
-    }
+    static let placeholder: CategoryChip = .init(
+        image: "",
+        selectedImage: "",
+        title: "",
+        id: 0
+    )
 }
