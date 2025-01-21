@@ -8,6 +8,12 @@
 import SwiftUI
 import NMapsMap
 
+enum SNError: Error {
+    case networkFail
+    case decodeError
+    case etc
+}
+
 struct DetailView: View {
     
     // MARK: - Properties
@@ -18,8 +24,8 @@ struct DetailView: View {
     private let userName: String = "이명진"
     private let placeAdress: String = "서울시 마포구 합정동 금수저"
     
-    private var searchName = "연남"
-    private var appName: String = "Spoony"
+    @State private var searchName = "연남"
+    @State private var appName: String = "Spoony"
     @State private var isMyPost: Bool = true
     @State private var isPresented: Bool = false
     @State private var popUpIsPresented: Bool = false
@@ -27,12 +33,14 @@ struct DetailView: View {
     @State private var toastMessage: Toast?
     @State private var toggleRedacted = false
     
+    @State private var detailModel: ReviewDetailModel = .sample()
+    
     // MARK: - body
     
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
-                style: .detailWithChip(count: 99),
+                style: .detailWithChip(count: detailModel.zzinCount),
                 onBackTapped: {
                     navigationManager.pop(1)
                 }
@@ -54,6 +62,16 @@ struct DetailView: View {
             })
             .scrollIndicators(.hidden)
             .toastView(toast: $toastMessage)
+            .onAppear {
+                DetailService().getReviewDetail(userId: 1, post: 1) { result in
+                    switch result {
+                    case .success(let data):
+                        detailModel = data
+                    case .failure(let error):
+                        print(error)
+                    }
+                }
+            }
             
             bottomView
                 .frame(height: 80.adjustedH)
@@ -241,6 +259,9 @@ extension DetailView {
             ) {
                 
                 if privateMode {
+                
+                    DetailService().scoopReview(userId: 1, post: 1)
+                    
                     navigationManager.popup = .useSpoon(action: {
                         //TODO: 떠먹기 버튼 기능 구현
                         Task {
@@ -279,9 +300,9 @@ extension DetailView {
                     isPresented: $isPresented
                 ) { _ in
                     navigationManager.push(.report)
-//                    print("선택된 메뉴: \(menu)")
-//                    isPresented = false
-//                    privateMode = true
+                    //                    print("선택된 메뉴: \(menu)")
+                    //                    isPresented = false
+                    //                    privateMode = true
                 }
                 .frame(alignment: .topTrailing)
                 .padding(.top, 48.adjustedH)
@@ -325,12 +346,16 @@ struct SpoonButton: View {
                 .frame(width: 32.adjusted, height: 32.adjustedH)
                 .onTapGesture {
                     if isScrap {
+                        DetailService().unScrapReview(userId: 1, post: 1)
                         scrapCount -= 1
                         toastMessage = Toast(style: .gray, message: "내 지도에서 삭제되었어요.", yOffset: 539.adjustedH)
                     } else {
+                        
+                        DetailService().scrapReview(userId: 1, post: 1)
                         scrapCount += 1
                         toastMessage = Toast(style: .gray, message: "내 지도에 추가되었어요.",
                                              yOffset: 539.adjustedH)
+                        
                     }
                     isScrap.toggle()
                 }
@@ -350,6 +375,83 @@ struct Line: Shape {
         path.move(to: CGPoint(x: 0, y: 0))
         path.addLine(to: CGPoint(x: rect.width, y: 0))
         return path
+    }
+}
+
+// MARK: - Network
+// TODO: - Service 분리
+public struct DetailService {
+    
+    let detailProvider = Providers.detailProvider
+    
+    func getReviewDetail(userId: Int, post: Int, completion: @escaping (Result<ReviewDetailModel, SNError>) -> Void) {
+        detailProvider.request(.getDetailReview(userId: 1, postId: 1)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let responseDto = try response.map(BaseResponse<ReviewDetailModel>.self)
+                    
+                    if let data = responseDto.data {
+                        completion(.success(data))
+                    } else {
+                        completion(.failure(.decodeError))
+                    }
+                    
+                } catch {
+                    print("decode map to error")
+                }
+            case .failure(let error):
+                print("통신 실패: \(error)")
+            }
+        }
+    }
+    
+    func scrapReview(userId: Int, post: Int) {
+        detailProvider.request(.scrapReview(userId: 1, postId: 1)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let _ = try response.map(BaseResponse<BlankData>.self)
+                    
+                } catch {
+                    print("decode map to error")
+                }
+            case .failure(let error):
+                print("통신 실패: \(error)")
+            }
+        }
+    }
+    
+    func unScrapReview(userId: Int, post: Int) {
+        detailProvider.request(.unScrapReview(userId: 1, postId: 1)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let _ = try response.map(BaseResponse<BlankData>.self)
+                    
+                } catch {
+                    print("decode map to error")
+                }
+            case .failure(let error):
+                print("통신 실패: \(error)")
+            }
+        }
+    }
+    
+    func scoopReview(userId: Int, post: Int) {
+        detailProvider.request(.scoopReview(userId: 1, postId: 1)) { result in
+            switch result {
+            case .success(let response):
+                do {
+                    let _ = try response.map(BaseResponse<BlankData>.self)
+                    
+                } catch {
+                    print("decode map to error")
+                }
+            case .failure(let error):
+                print("통신 실패: \(error)")
+            }
+        }
     }
 }
 
