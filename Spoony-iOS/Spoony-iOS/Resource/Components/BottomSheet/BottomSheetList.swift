@@ -13,28 +13,50 @@ struct BottomSheetListItem: View {
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                HStack {
+                HStack(spacing: 8) {
                     Text(pickCard.placeName)
                         .font(.body1b)
                         .lineLimit(1)
+                        .truncationMode(.tail)
                     
-                    Text(pickCard.categoryColorResponse.categoryName)
-                        .font(.caption1m)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color(hex: pickCard.categoryColorResponse.iconBackgroundColor))
-                        .foregroundColor(Color(hex: pickCard.categoryColorResponse.iconTextColor))
-                        .cornerRadius(12)
+                    // 카테고리 칩
+                    HStack(spacing: 4) {
+                        // 카테고리 아이콘
+                        AsyncImage(url: URL(string: pickCard.categoryColorResponse.iconUrl)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 16, height: 16)
+                            default:
+                                Color.clear
+                                    .frame(width: 16, height: 16)
+                            }
+                        }
+                        
+                        Text(pickCard.categoryColorResponse.categoryName)
+                            .font(.caption1m)
+                            .lineLimit(1)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color(hex: pickCard.categoryColorResponse.iconBackgroundColor))
+                    .foregroundColor(Color(hex: pickCard.categoryColorResponse.iconTextColor))
+                    .cornerRadius(12)
                 }
                 
                 Text(pickCard.placeAddress)
                     .font(.caption1m)
                     .foregroundColor(.gray)
                     .lineLimit(1)
+                    .truncationMode(.tail)
                 
                 Text(pickCard.postTitle)
                     .font(.body1b)
                     .foregroundColor(.gray)
+                    .lineLimit(2)
+                    .truncationMode(.tail)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 8)
                     .padding(.horizontal, 12)
@@ -45,7 +67,7 @@ struct BottomSheetListItem: View {
             }
             .layoutPriority(1)
             
-            // 실제 이미지 URL 사용
+            // 이미지
             AsyncImage(url: URL(string: pickCard.photoUrl)) { phase in
                 switch phase {
                 case .success(let image):
@@ -53,14 +75,11 @@ struct BottomSheetListItem: View {
                         .resizable()
                         .scaledToFill()
                 case .failure(_):
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.gray.opacity(0.1))
+                    defaultPlaceholder
                 case .empty:
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.gray.opacity(0.1))
+                    defaultPlaceholder
                 @unknown default:
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.gray.opacity(0.1))
+                    defaultPlaceholder
                 }
             }
             .frame(width: 98.adjusted, height: 98.adjusted)
@@ -69,6 +88,11 @@ struct BottomSheetListItem: View {
         }
         .padding(.horizontal, 16)
         .frame(height: 120.adjusted)
+    }
+    
+    private var defaultPlaceholder: some View {
+        RoundedRectangle(cornerRadius: 8)
+            .fill(Color.gray.opacity(0.1))
     }
 }
 
@@ -218,4 +242,5 @@ struct BottomSheetListView: View {
 
 #Preview {
     Home()
+        .environmentObject(NavigationManager())
 }

@@ -48,26 +48,23 @@ struct Home: View {
                 Spacer()
             }
             
-            if let place = selectedPlace {
+            if selectedPlace != nil {
+                            // 핀이 선택된 경우 -> PlaceCardsContainer 표시
                             VStack(spacing: 4) {
-                                PlaceCardsContainer(places: [place], currentPage: $currentPage)
-                                if [place].count > 1 {
+                                PlaceCardsContainer(places: [selectedPlace!], currentPage: $currentPage)
+                                if [selectedPlace!].count > 1 {
                                     PageIndicator(currentPage: currentPage, pageCount: 1)
                                 }
                             }
                             .padding(.bottom, 4)
                             .transition(.move(edge: .bottom))
+                        } else if navigationManager.currentLocation != nil {
+                            BottomSheetListView(viewModel: viewModel)
                         } else {
-                            if navigationManager.currentLocation != nil {
-                                // 위치가 선택된 경우 -> BottomSheetListView 표시
+                            if !viewModel.pickList.isEmpty {
                                 BottomSheetListView(viewModel: viewModel)
                             } else {
-                                // 위치가 선택되지 않은 경우 -> 일반 지도 화면
-                                if !viewModel.pickList.isEmpty {
-                                    BottomSheetListView(viewModel: viewModel)
-                                } else {
-                                    FixedBottomSheetView()
-                                }
+                                FixedBottomSheetView()
                             }
                         }
                     }
@@ -78,7 +75,6 @@ struct Home: View {
                     }
                 }
             }
-
 #Preview {
     Home()
         .environmentObject(NavigationManager())

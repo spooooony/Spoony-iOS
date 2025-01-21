@@ -60,8 +60,6 @@ struct CustomBottomSheet<Content: View>: View {
                     }
                     .frame(height: headerHeight)
                     .background(Color.white)
-                    
-                    // 스크롤 가능한 컨텐츠 표기용
                     content
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color.white)
@@ -96,4 +94,5 @@ struct CustomBottomSheet<Content: View>: View {
 
 #Preview {
     Home()
+        .environmentObject(NavigationManager())
 }
