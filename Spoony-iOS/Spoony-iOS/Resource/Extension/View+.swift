@@ -37,4 +37,8 @@ extension View {
     func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
+    
+    func customFont(_ font: Font) -> some View {
+        self.modifier(CustomFontModifier(font: font))
+    }
 }
