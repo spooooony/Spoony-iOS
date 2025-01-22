@@ -48,7 +48,6 @@ final class ExploreStore: ObservableObject {
     
     func getCategoryList() {
         Task {
-            //TODO: 아이콘 이미지 받으면 바꾸기~ 
             try await fetchCategoryList()
             await MainActor.run {
                 selectedCategory = categoryList.first

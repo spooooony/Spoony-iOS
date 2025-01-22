@@ -96,10 +96,10 @@ extension Explore {
     private var emptyView: some View {
         VStack(spacing: 0) {
             
-            LottieView(animation: .named("lottie_explore"))
+            LottieView(animation: .named("lottie_empty_explore"))
                 .looping()
                 .frame(width: 220.adjusted, height: 220.adjustedH)
-                .padding(.top, 58)
+                .padding(.top, 98)
             
             Text("아직 발견된 장소가 없어요.\n나만의 리스트를 공유해 볼까요?")
                 .multilineTextAlignment(.center)

@@ -20,7 +20,7 @@ enum ReportType: String, CaseIterable, Encodable {
         case .advertisement:
             "영리 목적/ 홍보성 후기"
         case .insult:
-            "욕설/인신공격"
+            "욕설/ 인신공격"
         case .illegalInfo:
             "불법정보"
         case .personalInfo:
