@@ -36,6 +36,10 @@ final class ExploreStore: ObservableObject {
         getFeedList()
     }
     
+    func isSelectedCategory(category: CategoryEntity) -> Bool {
+        return category == selectedCategory
+    }
+    
     private func getFeedList() {
         Task {
             try await fetchFeedList()

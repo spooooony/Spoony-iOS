@@ -66,12 +66,7 @@ extension Explore {
                 Spacer()
                     .frame(width: 20.adjusted)
                 ForEach(store.categoryList) { item in
-                    IconChip(
-                        title: item.name,
-                        foodType: FoodType(title: item.name),
-                        chipType: .large,
-                        color: store.selectedCategory == item ? .black : .gray600
-                    )
+                    ExploreCategoryChip(category: item, selected: store.isSelectedCategory(category: item))
                     .onTapGesture {
                         store.changeCategory(category: item)
                     }
