@@ -165,9 +165,9 @@ extension PopupView {
     
     private var buttonStyle: SpoonyButtonStyle {
         switch popup {
-        case .useSpoon:
+        case .useSpoon, .registerSuccess:
                 .primary
-        case .reportSuccess, .registerSuccess, .none:
+        case .reportSuccess, .none:
                 .secondary
         }
     }
