@@ -44,10 +44,9 @@ final class HomeViewModel: ObservableObject {
             isLoading = false
         }
     }
-    
     func clearFocusedPlaces() {
-        focusedPlaces = []
-    }
+            focusedPlaces = []
+        }
 }
 
 extension FocusPlaceResponse {

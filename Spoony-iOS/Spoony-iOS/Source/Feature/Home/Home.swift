@@ -28,12 +28,12 @@ struct Home: View {
             
             NMapView(viewModel: viewModel, selectedPlace: $selectedPlace)
                 .edgesIgnoringSafeArea(.all)
-                .onChange(of: viewModel.focusedPlaces) { newPlaces in
+                .onChange(of: viewModel.focusedPlaces) { _, newPlaces in
                     if !newPlaces.isEmpty {
                         selectedPlace = newPlaces[0]
                     }
                 }
-                .onChange(of: selectedPlace) { newPlace in
+                .onChange(of: selectedPlace) { _, newPlace in
                     if newPlace == nil {
                         viewModel.clearFocusedPlaces()
                     }
@@ -97,7 +97,6 @@ struct Home: View {
         }
     }
 }
-
 
 #Preview {
     Home().environmentObject(NavigationManager())
