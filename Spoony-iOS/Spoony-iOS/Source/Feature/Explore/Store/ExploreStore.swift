@@ -72,6 +72,6 @@ final class ExploreStore: ObservableObject {
     
     @MainActor
     private func fetchCategoryList() async throws {
-        categoryList = try await network.getCateogyList().toModel()
+        categoryList = try await network.getCategoryList().toModel()
     }
 }
