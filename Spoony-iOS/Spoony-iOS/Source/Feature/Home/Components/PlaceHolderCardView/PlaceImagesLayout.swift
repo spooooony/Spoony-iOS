@@ -17,7 +17,7 @@ struct PlaceImagesLayout: View {
                 imageView(
                     urlString: images[0],
                     width: nil,
-                    height: 132.adjusted,
+                    height: 108.adjusted,
                     corners: [.topLeft, .topRight]
                 )
             case 2:
@@ -25,7 +25,7 @@ struct PlaceImagesLayout: View {
                     imageView(
                         urlString: images[index],
                         width: nil,
-                        height: 132.adjusted,
+                        height: 108.adjusted,
                         corners: index == 0 ? [.topLeft] : [.topRight]
                     )
                     .frame(maxWidth: .infinity)
@@ -44,7 +44,7 @@ struct PlaceImagesLayout: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(height: images.count == 3 ? 108.adjusted : 132.adjusted)
+        .frame(height: 108.adjusted)
         .background(
             RoundedRectangle(cornerRadius: 10)
                 .fill(Color.white)

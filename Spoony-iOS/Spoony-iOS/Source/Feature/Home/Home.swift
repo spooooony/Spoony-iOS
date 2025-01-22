@@ -56,19 +56,11 @@ struct Home: View {
             
             Group {
                 if !viewModel.focusedPlaces.isEmpty {
-                    VStack(spacing: 4) {
-                        PlaceCard(
-                            places: viewModel.focusedPlaces,
-                            currentPage: $currentPage
-                        )
-                        if viewModel.focusedPlaces.count > 1 {
-                            PageIndicator(
-                                currentPage: currentPage,
-                                pageCount: viewModel.focusedPlaces.count
-                            )
-                        }
-                    }
-                    .padding(.bottom, 34)
+                    PlaceCard(
+                        places: viewModel.focusedPlaces,
+                        currentPage: $currentPage
+                    )
+                    .padding(.bottom, 12)
                     .transition(.move(edge: .bottom))
                 } else {
                     if navigationManager.currentLocation != nil {
