@@ -59,7 +59,7 @@ final class DefaultHomeService: HomeServiceType {
             }
         }
     }
-    
+
     func fetchFocusedPlace(userId: Int, placeId: Int) async throws -> MapFocusResponse {
             return try await withCheckedThrowingContinuation { continuation in
                 provider.request(.getMapFocus(userId: userId, placeId: placeId)) { result in

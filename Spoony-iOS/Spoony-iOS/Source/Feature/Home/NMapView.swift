@@ -8,9 +8,6 @@
 import SwiftUI
 import NMapsMap
 
-import SwiftUI
-import NMapsMap
-
 struct NMapView: UIViewRepresentable {
     private let defaultZoomLevel: Double = 11.5
     private let defaultMarker = NMFOverlayImage(name: "ic_unselected_marker")
@@ -60,31 +57,32 @@ struct NMapView: UIViewRepresentable {
     }
     
     private func createMarker(for pickCard: PickListCardResponse) -> NMFMarker {
-        let marker = NMFMarker()
-        marker.position = NMGLatLng(lat: pickCard.latitude, lng: pickCard.longitude)
-        marker.iconImage = defaultMarker
-        marker.width = CGFloat((NMF_MARKER_SIZE_AUTO))
-        marker.height = CGFloat((NMF_MARKER_SIZE_AUTO))
-        
-        var isSelected = false
+            let marker = NMFMarker()
+            marker.position = NMGLatLng(lat: pickCard.latitude, lng: pickCard.longitude)
+            marker.iconImage = defaultMarker
+            marker.width = CGFloat((NMF_MARKER_SIZE_AUTO))
+            marker.height = CGFloat((NMF_MARKER_SIZE_AUTO))
+            
+            var isSelected = false
         marker.touchHandler = { (_) -> Bool in
             isSelected.toggle()
             if isSelected {
                 marker.iconImage = selectedMarker
                 marker.width = selectedMarkerSize.width
                 marker.height = selectedMarkerSize.height
-                viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
+                viewModel.fetchFocusedPlace(placeId: pickCard.placeId) // API 호출
             } else {
                 marker.iconImage = defaultMarker
                 marker.width = defaultMarkerSize.width
                 marker.height = defaultMarkerSize.height
-                selectedPlace = nil
+                viewModel.focusedPlaces = []
             }
             return true
         }
-        
-        return marker
-    }
+            
+            return marker
+        }
+
 }
 
 final class Coordinator: NSObject, NMFMapViewTouchDelegate {

@@ -16,4 +16,6 @@ struct CardPlace: Identifiable {
     let title: String
     let subTitle: String
     let description: String
+    let categoryColor: String
+    let categoryTextColor: String
 }

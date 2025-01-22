@@ -51,13 +51,12 @@ struct Home: View {
                     )
                     .frame(height: 56.adjusted)
                 }
-                
                 Spacer()
             }
             
             if !viewModel.focusedPlaces.isEmpty {
                 VStack(spacing: 4) {
-                    PlaceCardsContainer(
+                    PlaceCard(
                         places: viewModel.focusedPlaces,
                         currentPage: $currentPage
                     )
@@ -68,7 +67,7 @@ struct Home: View {
                         )
                     }
                 }
-                .padding(.bottom, 4)
+                .padding(.bottom, 34)
                 .transition(.move(edge: .bottom))
             } else if navigationManager.currentLocation != nil {
                 BottomSheetListView(viewModel: viewModel)
@@ -93,4 +92,8 @@ struct Home: View {
             viewModel.fetchPickList()
         }
     }
+}
+
+#Preview {
+    Home().environmentObject(NavigationManager())
 }

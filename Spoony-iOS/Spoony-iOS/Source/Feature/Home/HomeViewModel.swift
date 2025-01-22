@@ -11,8 +11,8 @@ import Foundation
 final class HomeViewModel: ObservableObject {
     private let service: HomeServiceType
     @Published private(set) var pickList: [PickListCardResponse] = []
-    @Published private(set) var focusedPlaces: [CardPlace] = []
     @Published var isLoading = false
+    @Published var focusedPlaces: [CardPlace] = []
     @Published var error: Error?
     
     init(service: HomeServiceType = DefaultHomeService()) {
@@ -44,4 +44,5 @@ final class HomeViewModel: ObservableObject {
             isLoading = false
         }
     }
+    
 }

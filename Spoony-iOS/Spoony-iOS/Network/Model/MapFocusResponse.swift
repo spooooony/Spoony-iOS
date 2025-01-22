@@ -8,10 +8,10 @@
 import Foundation
 
 struct MapFocusResponse: Codable {
-    let zzimFocusResponseList: [MapFocusItem]
+    let zzimFocusResponseList: [FocusPlaceResponse]
 }
 
-struct MapFocusItem: Codable {
+struct FocusPlaceResponse: Codable {
     let placeId: Int
     let placeName: String
     let categoryColorResponse: MapFocusCategoryColorResponse
@@ -24,22 +24,25 @@ struct MapFocusItem: Codable {
 }
 
 struct MapFocusCategoryColorResponse: Codable {
+    let categoryId: Int
     let categoryName: String
     let iconUrl: String
     let iconTextColor: String
     let iconBackgroundColor: String
 }
 
-extension MapFocusItem {
+extension FocusPlaceResponse {
     func toCardPlace() -> CardPlace {
         return CardPlace(
             name: placeName,
-            visitorCount: "\(zzimCount)",
+            visitorCount: "\(zzimCount)명",
             address: authorRegionName,
             images: photoUrlList,
             title: postTitle,
-            subTitle: categoryColorResponse.categoryName,
-            description: "by \(authorName)"
+            subTitle: postTitle,
+            description: categoryColorResponse.categoryName,
+            categoryColor: categoryColorResponse.iconBackgroundColor,
+            categoryTextColor: categoryColorResponse.iconTextColor
         )
     }
 }

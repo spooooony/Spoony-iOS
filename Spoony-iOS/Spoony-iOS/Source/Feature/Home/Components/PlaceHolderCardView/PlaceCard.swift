@@ -8,68 +8,75 @@
 import SwiftUI
 
 struct PlaceCard: View {
-    let placeName: String
-    let visitorCount: String
-    let address: String
-    let images: [String]
-    let title: String
-    let subTitle: String
-    let description: String
+    let places: [CardPlace]
+    @Binding var currentPage: Int
     
     var body: some View {
-        VStack(spacing: 0) {
-            PlaceImagesLayout(images: images)
-            
-            VStack(alignment: .leading) {
-                HStack(spacing: 6) {
-                    
-                    Text(placeName)
-                        .customFont(.body1b)
-                    
-                    // TODO: 칩으로 대체
-                    HStack(spacing: 4) {
-                        Image(systemName: "mug.fill")
-                            
-                        Text("카페")
-                            .customFont(.system(size: 14.5))
+        TabView(selection: $currentPage) {
+            ForEach(places.indices, id: \.self) { index in
+                VStack(spacing: 0) {
+                    VStack(spacing: 0) {
+                        PlaceImagesLayout(images: places[index].images)
+                        
+                        VStack(alignment: .leading) {
+                            HStack(spacing: 6) {
+                                Text(places[index].name)
+                                    .customFont(.body1b)
+                                    .lineLimit(1)
+                                
+                                HStack(spacing: 4) {
+                                    Image(systemName: "mug.fill")
+                                    Text(places[index].description)
+                                        .customFont(.system(size: 14.5))
+                                }
+                                .foregroundColor(Color(hex: places[index].categoryTextColor))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 4)
+                                .background(Color(hex: places[index].categoryColor).opacity(0.1))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                
+                                Spacer()
+                                
+                                HStack(spacing: 4) {
+                                    Image(.icAddmapGray400)
+                                    Text(places[index].visitorCount)
+                                        .customFont(.caption2b)
+                                }
+                            }
+                        }
+                        .padding(15)
                     }
-                    .foregroundColor(.pink400)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 4)
-                    .background(Color.pink400.opacity(0.1))
-                    .cornerRadius(16)
+                    .background(Color.white)
                     
-                    Spacer()
-                    HStack(spacing: 4) {
-                        Image(.icAddmapGray400)
-                        Text(visitorCount)
-                            .customFont(.caption2b)
+                    // 하단 정보 부분
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Text(places[index].title)
+                                .customFont(.body2b)
+                                .lineLimit(1)
+                            Text(places[index].address)
+                                .customFont(.caption1m)
+                                .foregroundColor(.gray600)
+                        }
+                        Text(places[index].subTitle)
+                            .customFont(.caption1m)
+                            .foregroundColor(.spoonBlack)
                     }
+                    .padding(15)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.gray0)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(.horizontal, 15)
+                    .padding(.bottom, 15)
                 }
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .tag(index)
             }
-            .padding(15)
-            
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text(title)
-                        .customFont(.body2b)
-                    Text(subTitle)
-                        .customFont(.caption1m)
-                        .foregroundColor(.gray600)
-                    
-                }
-                Text(description)
-                    .customFont(.caption1m)
-                    .foregroundColor(.spoonBlack)
-            }
-            .padding(15)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.gray0)
-            .cornerRadius(10)
-            .padding(.horizontal, 15)
-            .padding(.bottom, 15)
         }
-        .background(Color.white)
-        .cornerRadius(16)
+        .padding(.horizontal, 26) 
+        .frame(height: 280.adjusted)
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .background(Color.clear)
     }
 }
