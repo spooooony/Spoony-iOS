@@ -30,19 +30,3 @@ struct MapFocusCategoryColorResponse: Codable {
     let iconTextColor: String
     let iconBackgroundColor: String
 }
-
-extension FocusPlaceResponse {
-    func toCardPlace() -> CardPlace {
-        return CardPlace(
-            name: placeName,
-            visitorCount: "\(zzimCount)명",
-            address: authorRegionName,
-            images: photoUrlList,
-            title: postTitle,
-            subTitle: postTitle,
-            description: categoryColorResponse.categoryName,
-            categoryColor: categoryColorResponse.iconBackgroundColor,
-            categoryTextColor: categoryColorResponse.iconTextColor
-        )
-    }
-}

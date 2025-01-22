@@ -54,10 +54,8 @@ struct Home: View {
                 Spacer()
             }
             
-            // 바텀 영역 뷰 로직
             Group {
                 if !viewModel.focusedPlaces.isEmpty {
-                    // 지도 핀이 선택되었을 때 PlaceCard 표시
                     VStack(spacing: 4) {
                         PlaceCard(
                             places: viewModel.focusedPlaces,
@@ -73,7 +71,6 @@ struct Home: View {
                     .padding(.bottom, 34)
                     .transition(.move(edge: .bottom))
                 } else {
-                    // 지도 핀이 선택되지 않았을 때의 바텀시트 로직
                     if navigationManager.currentLocation != nil {
                         BottomSheetListView(viewModel: viewModel)
                     } else if !viewModel.pickList.isEmpty {
