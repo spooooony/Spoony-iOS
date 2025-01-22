@@ -17,13 +17,7 @@ struct ExploreCell: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 9) {
             HStack(spacing: 0) {
-                //TODO: 아이콘 이미지 받으면 바꾸기~ 
-                IconChip(
-                    title: feed.categorColorResponse.categoryName,
-                    foodType: .american,
-                    chipType: .small,
-                    color: .black
-                )
+                IconChip(chip: feed.categorColorResponse.toEntity())
                 
                 Spacer()
                 
@@ -40,11 +34,11 @@ struct ExploreCell: View {
             HStack(alignment: .bottom, spacing: 4) {
                 Text(feed.userName)
                     .customFont(.body2b)
-                    .padding(.leading, 5)
                 Text("\(feed.userRegion) 수저")
                     .customFont(.caption2m)
                     .foregroundStyle(.gray500)
             }
+            .padding(.leading, 5)
             
             Text(feed.title)
                 .customFont(.caption1m)

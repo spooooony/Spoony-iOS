@@ -17,7 +17,7 @@ protocol ExploreProtocol {
         sort: FilterType
     ) async throws -> FeedListResponse
     
-    func getCateogyList() async throws -> SearchCategoryListResponse
+    func getCategoryList() async throws -> SearchCategoryListResponse
 }
 
 final class DefaultExploreService: ExploreProtocol {
@@ -55,7 +55,7 @@ final class DefaultExploreService: ExploreProtocol {
         }
     }
     
-    func getCateogyList() async throws -> SearchCategoryListResponse {
+    func getCategoryList() async throws -> SearchCategoryListResponse {
         return try await withCheckedThrowingContinuation { continuation in
             provider.request(.getCategories) { result in
                 switch result {
@@ -90,7 +90,7 @@ final class MockExploreService: ExploreProtocol {
         ])
     }
     
-    func getCateogyList() async throws -> SearchCategoryListResponse {
+    func getCategoryList() async throws -> SearchCategoryListResponse {
         return .init(
             categoryMonoList: [
                 .init(

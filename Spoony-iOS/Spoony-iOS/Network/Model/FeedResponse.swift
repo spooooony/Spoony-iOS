@@ -29,20 +29,6 @@ struct CategoryColorResponse: Codable, Hashable {
     let iconBackgroundColor: String
 }
 
-struct FeedEntity: Identifiable, Hashable {
-    
-    static func == (lhs: FeedEntity, rhs: FeedEntity) -> Bool {
-        lhs.id == rhs.id
-    }
-    
-    let id: UUID
-    let userName: String
-    let userRegion: String
-    let title: String
-    let categorColorResponse: CategoryColorResponse
-    let zzimCount: Int
-}
-
 extension FeedResponse {
     func toEntity() -> FeedEntity {
         .init(
@@ -70,4 +56,15 @@ extension FeedResponse {
         ),
         zzimCount: 1
     )
+}
+
+extension CategoryColorResponse {
+    func toEntity() -> ChipColorEntity {
+        .init(
+            name: self.categoryName,
+            iconUrl: self.iconUrl,
+            textColor: self.iconTextColor,
+            backgroundColor: self.iconBackgroundColor
+        )
+    }
 }
