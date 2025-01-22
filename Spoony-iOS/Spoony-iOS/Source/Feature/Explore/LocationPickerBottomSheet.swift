@@ -55,19 +55,23 @@ struct LocationPickerBottomSheet: View {
     @ObservedObject var store: ExploreStore
     
     var body: some View {
-        VStack {
-            HStack(spacing: 114.adjusted) {
-                Spacer()
+        VStack(spacing: 0) {
+            ZStack {
                 Text("지역 선택")
                     .customFont(.body1b)
-                Image(.icCloseGray400)
-                    .onTapGesture {
-                        isPresented = false
-                    }
+                
+                HStack {
+                    Spacer()
+                    
+                    Image(.icCloseGray400)
+                        .onTapGesture {
+                            isPresented = false
+                        }
+                }
+                .padding(.trailing, 20)
             }
-            .padding(.trailing, 20)
-            .padding(.top, 16)
-            .padding(.bottom, 12)
+            .frame(height: 32.adjustedH)
+            .padding(.vertical, 12)
             
             HStack(alignment: .top, spacing: 0) {
                 VStack(spacing: 0) {

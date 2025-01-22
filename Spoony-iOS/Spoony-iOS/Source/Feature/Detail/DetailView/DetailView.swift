@@ -152,12 +152,12 @@ extension DetailView {
     
     private var reviewSection: some View {
         VStack(alignment: .leading, spacing: 8.adjustedH) {
-            IconChip(
-                title: "주류",
-                foodType: .bar,
-                chipType: .small,
-                color: .purple
-            )
+//            IconChip(
+//                title: "주류",
+//                foodType: .bar,
+//                chipType: .small,
+//                color: .purple
+//            )
             
             Text("인생 이자카야. 고등어 초밥 안주가 그냥 미쳤어요.".splitZeroWidthSpace())
                 .customFont(.title1b)

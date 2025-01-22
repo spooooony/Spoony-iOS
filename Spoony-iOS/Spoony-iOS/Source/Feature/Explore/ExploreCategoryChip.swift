@@ -6,10 +6,15 @@
 //
 
 import SwiftUI
-
+//TODO: CategoryChipsView와 같이 쓸 수 있게 컴포넌트화 하기
 struct ExploreCategoryChip: View {
-    let category: CategoryEntity
-    let selected: Bool
+    private let category: CategoryEntity
+    private let selected: Bool
+    
+    init(category: CategoryEntity, selected: Bool) {
+        self.category = category
+        self.selected = selected
+    }
     
     var body: some View {
         HStack(spacing: 4) {
@@ -57,5 +62,13 @@ struct ExploreCategoryChip: View {
 }
 
 #Preview {
-    ExploreCategoryChip(category: .init(id: 1, name: "전체", selectedUrl: "", notSelectedUrl: ""), selected: true)
+    ExploreCategoryChip(
+        category: .init(
+            id: 1,
+            name: "전체",
+            selectedUrl: "",
+            notSelectedUrl: ""
+        ),
+        selected: true
+    )
 }
