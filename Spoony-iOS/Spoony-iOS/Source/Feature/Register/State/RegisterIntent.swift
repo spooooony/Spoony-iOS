@@ -28,4 +28,5 @@ enum RegisterIntent {
     case updatePickerItems([PhotosPickerItem])
     case deleteImage(UploadImage)
     case getCategories
+    case didTapPhoto([PhotosPickerItem])
 }
