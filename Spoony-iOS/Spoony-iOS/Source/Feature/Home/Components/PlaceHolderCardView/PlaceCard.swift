@@ -12,30 +12,31 @@ struct PlaceCard: View {
     @Binding var currentPage: Int
     
     var body: some View {
-        VStack(spacing: 0) {
-            TabView(selection: $currentPage) {
-                ForEach(places.indices, id: \.self) { index in
-                    PlaceCardItem(place: places[index])
-                        .tag(index)
+            VStack(spacing: 0) {
+                TabView(selection: $currentPage) {
+                    ForEach(places.indices, id: \.self) { index in
+                        PlaceCardItem(place: places[index])
+                            .tag(index)
+                            .padding(.horizontal, 26)
+                    }
                 }
-            }
-            .padding(.horizontal, 26)
-            .frame(height: 264.adjusted)
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .background(.clear)
-            
-            ZStack {
-                if places.count > 1 {
-                    PageIndicator(
-                        currentPage: currentPage,
-                        pageCount: places.count
-                    )
-                    .padding(.vertical, 4.adjustedH)
+                .frame(maxWidth: .infinity)
+                .frame(height: 264.adjusted)
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .background(.clear)
+                
+                ZStack {
+                    if places.count > 1 {
+                        PageIndicator(
+                            currentPage: currentPage,
+                            pageCount: places.count
+                        )
+                        .padding(.vertical, 4)
+                    }
                 }
+                .frame(height: 8) 
             }
-            .frame(height: 8.adjustedH)
         }
-    }
 }
 
 private struct PlaceCardItem: View {
