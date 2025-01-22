@@ -11,6 +11,7 @@ import Foundation
 final class HomeViewModel: ObservableObject {
     private let service: HomeServiceType
     @Published private(set) var pickList: [PickListCardResponse] = []
+    @Published private(set) var focusedPlaces: [CardPlace] = []
     @Published var isLoading = false
     @Published var error: Error?
     
@@ -24,6 +25,19 @@ final class HomeViewModel: ObservableObject {
             do {
                 let response = try await service.fetchPickList(userId: 1)
                 self.pickList = response.zzimCardResponses
+            } catch {
+                self.error = error
+            }
+            isLoading = false
+        }
+    }
+    
+    func fetchFocusedPlace(placeId: Int) {
+        Task {
+            isLoading = true
+            do {
+                let response = try await service.fetchFocusedPlace(userId: 1, placeId: placeId)
+                self.focusedPlaces = response.zzimFocusResponseList.map { $0.toCardPlace() }
             } catch {
                 self.error = error
             }

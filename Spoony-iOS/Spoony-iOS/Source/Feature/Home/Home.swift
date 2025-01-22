@@ -55,12 +55,17 @@ struct Home: View {
                 Spacer()
             }
             
-            if selectedPlace != nil {
-                //TODO: 핀이 선택된 경우 -> PlaceCardsContainer 네비게이션 추가
+            if !viewModel.focusedPlaces.isEmpty {
                 VStack(spacing: 4) {
-                    PlaceCardsContainer(places: [selectedPlace!], currentPage: $currentPage)
-                    if [selectedPlace!].count > 1 {
-                        PageIndicator(currentPage: currentPage, pageCount: 1)
+                    PlaceCardsContainer(
+                        places: viewModel.focusedPlaces,
+                        currentPage: $currentPage
+                    )
+                    if viewModel.focusedPlaces.count > 1 {
+                        PageIndicator(
+                            currentPage: currentPage,
+                            pageCount: viewModel.focusedPlaces.count
+                        )
                     }
                 }
                 .padding(.bottom, 4)
@@ -85,6 +90,7 @@ struct Home: View {
                     print("Failed to fetch spoon count:", error)
                 }
             }
+            viewModel.fetchPickList()
         }
     }
 }

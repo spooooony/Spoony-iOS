@@ -14,18 +14,45 @@ struct PlaceImagesLayout: View {
         HStack(spacing: 1) {
             switch images.count {
             case 1:
-                Image(images[0])
-                    .resizable()
-                    .scaledToFill()
+                if let url = URL(string: images[0]) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure(_):
+                            Image(systemName: "photo")
+                                .foregroundColor(.gray)
+                        case .empty:
+                            ProgressView()
+                        @unknown default:
+                            EmptyView()
+                        }
+                    }
                     .frame(maxWidth: .infinity)
                     .frame(height: 132.adjusted)
                     .clipShape(RoundedCorner(radius: 12, corners: [.topLeft, .topRight]))
+                }
                 
             case 2:
                 ForEach(0..<2, id: \.self) { index in
-                    Image(images[index])
-                        .resizable()
-                        .scaledToFill()
+                    if let url = URL(string: images[index]) {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            case .failure(_):
+                                Image(systemName: "photo")
+                                    .foregroundColor(.gray)
+                            case .empty:
+                                ProgressView()
+                            @unknown default:
+                                EmptyView()
+                            }
+                        }
                         .frame(maxWidth: .infinity)
                         .frame(height: 132.adjusted)
                         .clipShape(
@@ -34,13 +61,27 @@ struct PlaceImagesLayout: View {
                                 corners: index == 0 ? [.topLeft] : [.topRight]
                             )
                         )
+                    }
                 }
                 
             case 3:
                 ForEach(0..<3, id: \.self) { index in
-                    Image(images[index])
-                        .resizable()
-                        .scaledToFill()
+                    if let url = URL(string: images[index]) {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            case .failure(_):
+                                Image(systemName: "photo")
+                                    .foregroundColor(.gray)
+                            case .empty:
+                                ProgressView()
+                            @unknown default:
+                                EmptyView()
+                            }
+                        }
                         .frame(maxWidth: .infinity)
                         .frame(height: 132.adjusted)
                         .clipShape(
@@ -49,6 +90,7 @@ struct PlaceImagesLayout: View {
                                 corners: index == 0 ? [.topLeft] : (index == 2 ? [.topRight] : [])
                             )
                         )
+                    }
                 }
                 
             default:
