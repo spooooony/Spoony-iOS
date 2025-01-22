@@ -15,7 +15,6 @@ struct ExploreCategoryResponse: Codable {
     let categoryId: Int
     let categoryName: String
     let iconUrlNotSelected: String
-    let iconUrlSelected: String
 }
 
 struct CategoryEntity: Identifiable, Equatable {
