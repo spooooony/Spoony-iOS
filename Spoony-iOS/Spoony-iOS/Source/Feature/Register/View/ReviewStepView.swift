@@ -174,7 +174,6 @@ extension ReviewStepView {
                     store.state.pickerItems
                 }, set: { newValue in
                     store.dispatch(.updatePickerItems(newValue))
-                    hideKeyboard()
                 }
             ),
             maxSelectionCount: store.state.selectableCount,
@@ -195,6 +194,14 @@ extension ReviewStepView {
                     .strokeBorder(.gray100)
             }
         }
+        .onChange(of: store.state.pickerItems, { _, newValue in
+            store.dispatch(.didTapPhoto(newValue))
+        })
+        .simultaneousGesture(
+            TapGesture().onEnded {
+                hideKeyboard()
+            }
+        )
         .disabled(store.state.uploadImages.count == 5)
     }
     
