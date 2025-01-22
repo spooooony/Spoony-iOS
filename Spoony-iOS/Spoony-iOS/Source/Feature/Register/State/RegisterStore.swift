@@ -11,6 +11,7 @@ import PhotosUI
 struct UploadImage: Identifiable {
     let id = UUID()
     let image: Image
+    let imageData: Data
 }
 
 enum UploadImageErrorState {
@@ -41,7 +42,7 @@ final class RegisterStore: ObservableObject {
     private let network: RegisterServiceType = RegisterService()
     private let navigationManager: NavigationManager
     
-    init(navigationManager: NavigationManager) {        
+    init(navigationManager: NavigationManager) {
         self.navigationManager = navigationManager
     }
     
@@ -100,12 +101,7 @@ final class RegisterStore: ObservableObject {
             case .start:
                 state.registerStep = .middle
             case .middle:
-                state.registerStep = .end
-                navigationManager.popup = .registerSuccess(action: {
-                    self.navigationManager.selectedTab = .explore
-                    self.state = .init()
-                    self.state.isToolTipPresented = false
-                })
+                postReview()
             }
         case .didTapkeyboardEnter:
             searchPlace()
@@ -140,7 +136,7 @@ final class RegisterStore: ObservableObject {
         case .deleteImage(let image):
             if let index = state.uploadImages.firstIndex(where: { $0.id == image.id }) {
                 state.uploadImages.remove(at: index)
-                state.selectableCount += 1                
+                state.selectableCount += 1
                 if state.uploadImages.isEmpty {
                     state.uploadImageErrorState = .error
                     secondButtonInavlid()
@@ -157,10 +153,12 @@ extension RegisterStore {
         for item in state.pickerItems {
             do {
                 if let data = try await item.loadTransferable(type: Data.self),
-                   let uiImage = UIImage(data: data) {
-                    let image = Image(uiImage: uiImage)
+                   let jpegData = UIImage(data: data)?.jpegData(compressionQuality: 0.1),
+                   let image = UIImage(data: jpegData) {
+                    let image = Image(uiImage: image)
+                    
                     await MainActor.run {
-                        state.uploadImages.append(.init(image: image))
+                        state.uploadImages.append(.init(image: image, imageData: jpegData))
                     }
                 }
             } catch {
@@ -179,9 +177,9 @@ extension RegisterStore {
         guard !state.isDisablePlusButton else { return }
         
         state.isDisablePlusButton = true
-
+        
         state.recommendTexts.append(.init())
-                
+        
         Task {
             do {
                 try await Task.sleep(for: .seconds(0.5))
@@ -232,7 +230,11 @@ extension RegisterStore {
                 await MainActor.run {
                     state.searchedPlaces = places
                     if places.isEmpty {
-                        state.toast = .init(style: .gray, message: "검색 결과가 없어요", yOffset: 558.adjustedH)
+                        state.toast = .init(
+                            style: .gray,
+                            message: "검색 결과가 없어요",
+                            yOffset: 558.adjustedH
+                        )
                     } else {
                         state.isDropDownPresented = true
                     }
@@ -241,7 +243,7 @@ extension RegisterStore {
         }
     }
     
-    private func checkDuplicatePlace(_ place: PlaceInfo) {        
+    private func checkDuplicatePlace(_ place: PlaceInfo) {
         let request = ValidatePlaceRequest(
             userId: 1,
             latitude: place.latitude,
@@ -254,7 +256,11 @@ extension RegisterStore {
                 
                 await MainActor.run {
                     if isDuplicate {
-                        state.toast = .init(style: .gray, message: "앗! 이미 등록한 맛집이에요", yOffset: 558.adjustedH)
+                        state.toast = .init(
+                            style: .gray,
+                            message: "앗! 이미 등록한 맛집이에요",
+                            yOffset: 558.adjustedH
+                        )
                     } else {
                         state.selectedPlace = place
                         firstButtonInvalid()
@@ -262,6 +268,48 @@ extension RegisterStore {
                     state.isDropDownPresented = false
                     state.placeText = ""
                 }
+            }
+        }
+    }
+    
+    private func postReview() {
+        guard let selectedPlace = state.selectedPlace,
+              let selectedCategory = state.selectedCategory.first else { return }
+        let request = RegisterPostRequest(
+            userId: 1,
+            title: state.simpleText,
+            description: state.detailText,
+            placeName: selectedPlace.placeName,
+            placeAddress: selectedPlace.placeAddress,
+            placeRoadAddress: selectedPlace.placeRoadAddress,
+            latitude: selectedPlace.latitude,
+            longitude: selectedPlace.longitude,
+            categoryId: selectedCategory.id,
+            menuList: state.recommendTexts.map { $0.text }
+        )
+        
+        Task {
+            do {
+                let success = try await network.registerPost(
+                    request: request,
+                    imagesData: state.uploadImages.map {
+                        $0.imageData
+                    })
+                await MainActor.run {
+                    if success {
+                        state.registerStep = .end
+                        navigationManager.popup = .registerSuccess(action: {
+                            self.navigationManager.selectedTab = .explore
+                            self.state = .init()
+                            self.state.isToolTipPresented = false
+                        })
+                    } else {
+                        print("Error")
+                    }
+                }
+                
+            } catch {
+                
             }
         }
     }
