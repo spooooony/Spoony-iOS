@@ -43,6 +43,13 @@ struct FeedEntity: Identifiable, Hashable {
     let zzimCount: Int
 }
 
+struct ChipColorEntity {
+    let name: String
+    let iconUrl: String
+    let textColor: String
+    let backgroundColor: String
+}
+
 extension FeedResponse {
     func toEntity() -> FeedEntity {
         .init(
@@ -70,4 +77,15 @@ extension FeedResponse {
         ),
         zzimCount: 1
     )
+}
+
+extension CategoryColorResponse {
+    func toEntity() -> ChipColorEntity {
+        .init(
+            name: self.categoryName,
+            iconUrl: self.iconUrl,
+            textColor: self.iconTextColor,
+            backgroundColor: self.iconBackgroundColor
+        )
+    }
 }

@@ -17,8 +17,8 @@ final class ExploreStore: ObservableObject {
     //TODO: 위치 정보 받으면 고치기
     @Published private(set) var navigationTitle: String = "서울특별시 마포구"
     
-    @Published private(set) var categoryList: [CategoryEntity] = []
-    @Published private(set) var selectedCategory: CategoryEntity?
+    @Published private(set) var categoryList: [CategoryChip] = []
+    @Published private(set) var selectedCategory: CategoryChip?
     
     func changeLocation(location: SeoulType) {
         selectedLocation = location
@@ -31,12 +31,12 @@ final class ExploreStore: ObservableObject {
         getFeedList()
     }
     
-    func changeCategory(category: CategoryEntity) {
+    func changeCategory(category: CategoryChip) {
         selectedCategory = category
         getFeedList()
     }
     
-    func isSelectedCategory(category: CategoryEntity) -> Bool {
+    func isSelectedCategory(category: CategoryChip) -> Bool {
         return category == selectedCategory
     }
     
@@ -72,8 +72,6 @@ final class ExploreStore: ObservableObject {
     
     @MainActor
     private func fetchCategoryList() async throws {
-        categoryList = try await network.getCateogyList()
-            .categoryMonoList
-            .map { $0.toEntity() }
+        categoryList = try await network.getCateogyList().toModel()
     }
 }

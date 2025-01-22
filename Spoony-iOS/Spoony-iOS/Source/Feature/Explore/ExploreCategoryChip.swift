@@ -8,17 +8,17 @@
 import SwiftUI
 //TODO: CategoryChipsView와 같이 쓸 수 있게 컴포넌트화 하기
 struct ExploreCategoryChip: View {
-    private let category: CategoryEntity
+    private let category: CategoryChip
     private let selected: Bool
     
-    init(category: CategoryEntity, selected: Bool) {
+    init(category: CategoryChip, selected: Bool) {
         self.category = category
         self.selected = selected
     }
     
     var body: some View {
         HStack(spacing: 4) {
-            if let url = URL(string: selected ? category.selectedUrl : category.notSelectedUrl) {
+            if let url = URL(string: selected ? category.selectedImage : category.image) {
                 AsyncImage(url: url) { image in
                     image
                         .resizable()
@@ -32,7 +32,7 @@ struct ExploreCategoryChip: View {
                 Color.clear
                     .frame(width: 16.adjusted, height: 16.adjusted)
             }
-            Text(category.name)
+            Text(category.title)
                 .customFont(.body2sb)
                 .foregroundStyle(selected ? .white : .gray600)
         }
@@ -64,10 +64,10 @@ struct ExploreCategoryChip: View {
 #Preview {
     ExploreCategoryChip(
         category: .init(
-            id: 1,
-            name: "전체",
-            selectedUrl: "",
-            notSelectedUrl: ""
+            image: "",
+            selectedImage: "",
+            title: "전체",
+            id: 1
         ),
         selected: true
     )

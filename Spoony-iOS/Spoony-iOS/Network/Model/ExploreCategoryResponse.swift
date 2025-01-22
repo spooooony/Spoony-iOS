@@ -8,29 +8,18 @@
 import Foundation
 
 struct SearchCategoryListResponse: Codable {
-    let categoryMonoList: [ExploreCategoryResponse]
+    let categoryMonoList: [CategoryResponse]
 }
 
-struct ExploreCategoryResponse: Codable {
-    let categoryId: Int
-    let categoryName: String
-    let iconUrlNotSelected: String
-}
-
-struct CategoryEntity: Identifiable, Equatable {
-    let id: Int
-    let name: String
-    let selectedUrl: String
-    let notSelectedUrl: String
-}
-
-extension ExploreCategoryResponse {
-    func toEntity() -> CategoryEntity {
-        .init(
-            id: self.categoryId,
-            name: self.categoryName,
-            selectedUrl: self.iconUrlSelected,
-            notSelectedUrl: self.iconUrlNotSelected
-        )
+extension SearchCategoryListResponse {
+    func toModel() async throws -> [CategoryChip] {
+        categoryMonoList.map { category in
+                .init(
+                    image: category.iconUrlNotSelected,
+                    selectedImage: category.iconUrlSelected,
+                    title: category.categoryName,
+                    id: category.categoryId
+                )
+        }
     }
 }
