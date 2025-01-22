@@ -20,7 +20,7 @@ enum BottomSheetStyle {
         case .full:
             return screenHeight * 0.876
         case .half:
-            return screenHeight * 0.5
+            return (120.adjusted * 3) + 60.adjustedH + 20
         case .minimal:
             return screenHeight * 0.25
         }

@@ -58,9 +58,14 @@ struct BottomSheetListItem: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 12)
                     .padding(.horizontal, 12)
                     .background(.white)
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color(.gray0), lineWidth: 1)
+                    )
                     .shadow(
                         color: Color(.gray0),
                         radius: 16,
@@ -144,7 +149,6 @@ struct BottomSheetListView: View {
                 .frame(height: 60.adjustedH)
                 .background(.white)
                 
-                // 컨텐츠 영역
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         LazyVStack(spacing: 0) {
