@@ -50,7 +50,7 @@ enum SeoulType: String, CaseIterable {
 struct LocationPickerBottomSheet: View {
     @Binding var isPresented: Bool
     @State private var isDisabled: Bool = true
-    @State private var tempRegion: SeoulType = .mapo
+    @State private var selectedRegion: SeoulType = .mapo
     
     @ObservedObject var store: ExploreStore
     
@@ -99,7 +99,7 @@ struct LocationPickerBottomSheet: View {
                             Text(type.rawValue)
                                 .customFont(.body2m)
                                 .foregroundStyle(
-                                    tempRegion.rawValue != type.rawValue ? .gray400 : .spoonBlack
+                                    selectedRegion.rawValue != type.rawValue ? .gray400 : .spoonBlack
                                 )
                                 .frame(width: 240.adjusted, height: 44.adjustedH)
                                 .background(
@@ -107,7 +107,7 @@ struct LocationPickerBottomSheet: View {
                                         .stroke(Color.gray0, lineWidth: 1)
                                 )
                                 .onTapGesture {
-                                    tempRegion = type
+                                    selectedRegion = type
                                     isDisabled = false
                                 }
                         }
@@ -123,17 +123,11 @@ struct LocationPickerBottomSheet: View {
                 title: "선택하기",
                 disabled: $isDisabled
             ) {
-                store.changeLocation(location: tempRegion)
+                store.changeLocation(location: selectedRegion)
                 isPresented = false
             }
             .padding(.top, 12)
             .padding(.bottom, 22)
-        }
-        .onAppear {
-            if let location = store.selectedLocation {
-                tempRegion = location
-                isDisabled = false
-            }
         }
     }
 }
