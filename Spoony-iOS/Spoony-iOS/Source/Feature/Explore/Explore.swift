@@ -16,11 +16,14 @@ struct Explore: View {
     @State private var isPresentedLocation: Bool = false
     @State private var isPresentedFilter: Bool = false
     
+    @State private var spoonCount: Int = 0
+    
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
                 style: .locationDetail,
                 title: store.navigationTitle,
+                spoonCount: spoonCount,
                 tappedAction: {
                     isPresentedLocation = true
                 })
@@ -55,6 +58,14 @@ struct Explore: View {
         }
         .task {
             store.getCategoryList()
+            //TODO: 추후 수정 예정
+            Task {
+                do {
+                    spoonCount = try await DefaultHomeService().fetchSpoonCount(userId: Config.userId)
+                } catch {
+                    print("Failed to fetch spoon count:", error)
+                }
+            }
         }
     }
 }
