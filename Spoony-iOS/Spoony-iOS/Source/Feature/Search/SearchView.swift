@@ -106,13 +106,13 @@ struct SearchView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-        
-            
+
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(recentSearches, id: \.self) { search in
                     HStack {
                         Text(search)
                             .customFont(.body1b)
+                            .foregroundColor(.gray700)
                         Spacer()
                         Button(action: {
                             if let index = recentSearches.firstIndex(of: search) {
@@ -123,8 +123,8 @@ struct SearchView: View {
                             Image(.icCloseGray400)
                         }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                    .padding(.horizontal, 16.adjusted)
+                    .padding(.vertical, 14.5.adjustedH)
                     
                     if search != recentSearches.last {
                         Divider()
