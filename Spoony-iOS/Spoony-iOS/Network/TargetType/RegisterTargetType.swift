@@ -11,7 +11,7 @@ import Moya
 enum RegisterTargetType {
     case searchPlace(query: String)
     case validatePlace(request: ValidatePlaceRequest)
-    case registerPost
+    case registerPost(request: RegisterPostRequest, imagesDate: [Data])
     case getRegisterCategories
 }
 
@@ -46,7 +46,7 @@ extension RegisterTargetType: TargetType {
         }
     }
     
-    var task: Moya.Task { // TODO: 멀티파트 통신 해야합니다!!
+    var task: Moya.Task {
         switch self {
         case .searchPlace(let query):
             return .requestParameters(
@@ -57,12 +57,54 @@ extension RegisterTargetType: TargetType {
             return .requestPlain
         case .validatePlace(let request):
             return .requestJSONEncodable(request)
-        case .registerPost:
-            return .uploadMultipart([])
+        case let .registerPost(request, imagesData):
+            guard let multipartData = createMultipartData(from: request, images: imagesData) else {
+                fatalError("Multipart data could not be created")
+            }
+            
+            return .uploadMultipart(multipartData)
         }
     }
     
     var headers: [String: String]? {
-        return Config.defaultHeader
+        switch self {
+        case .searchPlace, .getRegisterCategories, .validatePlace:
+            return Config.defaultHeader
+        case .registerPost:
+            return ["Content-Type": "multipart/form-data"]
+        }
+    }
+}
+
+extension RegisterTargetType {
+    private func createMultipartData(from request: RegisterPostRequest, images: [Data]) -> [MultipartFormData]? {
+        var formData: [MultipartFormData] = []
+        
+        guard let jsonObject = try? JSONEncoder().encode(request),
+              let jsonDict = try? JSONSerialization.jsonObject(with: jsonObject),
+              let jsonData = try? JSONSerialization.data(withJSONObject: jsonDict, options: []) else {
+            print("Failed to serialize RegisterPostRequest to JSON string")
+            return nil
+        }
+        
+        formData.append(MultipartFormData(
+            provider: .data(jsonData),
+            name: "data",
+            mimeType: "application/json"
+        ))
+        
+        for (index, imageData) in images.enumerated() {
+            let fileName = "image\(index + 1).jpeg"
+            let mimeType = "image/jpeg"
+            
+            formData.append(MultipartFormData(
+                provider: .data(imageData),
+                name: "photos",
+                fileName: fileName,
+                mimeType: mimeType
+            ))
+        }
+        
+        return formData
     }
 }
