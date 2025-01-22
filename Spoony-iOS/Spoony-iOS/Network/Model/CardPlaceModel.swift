@@ -7,8 +7,9 @@
 
 import Foundation
 
-struct CardPlace: Identifiable {
+struct CardPlace: Identifiable, Equatable {
     let id = UUID()
+    let placeId: Int
     let name: String
     let visitorCount: String
     let address: String
@@ -19,4 +20,8 @@ struct CardPlace: Identifiable {
     let categoryColor: String
     let categoryTextColor: String
     let categoryIcon: String
+    
+    static func == (lhs: CardPlace, rhs: CardPlace) -> Bool {
+        return lhs.placeId == rhs.placeId
+    }
 }

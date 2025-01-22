@@ -28,6 +28,16 @@ struct Home: View {
             
             NMapView(viewModel: viewModel, selectedPlace: $selectedPlace)
                 .edgesIgnoringSafeArea(.all)
+                .onChange(of: viewModel.focusedPlaces) { newPlaces in
+                    if !newPlaces.isEmpty {
+                        selectedPlace = newPlaces[0]
+                    }
+                }
+                .onChange(of: selectedPlace) { newPlace in
+                    if newPlace == nil {
+                        viewModel.clearFocusedPlaces()
+                    }
+                }
             
             VStack(spacing: 0) {
                 if let locationTitle = navigationManager.currentLocation {
@@ -72,7 +82,7 @@ struct Home: View {
                     }
                 }
             }
-        }
+        } // ZStack 닫기
         .navigationBarHidden(true)
         .task {
             isBottomSheetPresented = true
@@ -87,6 +97,7 @@ struct Home: View {
         }
     }
 }
+
 
 #Preview {
     Home().environmentObject(NavigationManager())

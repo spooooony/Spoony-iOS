@@ -45,11 +45,15 @@ final class HomeViewModel: ObservableObject {
         }
     }
     
+    func clearFocusedPlaces() {
+        focusedPlaces = []
+    }
 }
 
 extension FocusPlaceResponse {
     func toCardPlace() -> CardPlace {
         return CardPlace(
+            placeId: placeId,
             name: placeName,
             visitorCount: "\(zzimCount)",
             address: authorRegionName,
