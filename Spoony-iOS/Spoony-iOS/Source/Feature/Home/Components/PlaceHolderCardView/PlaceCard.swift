@@ -122,8 +122,12 @@ private struct VisitorCountLabel: View {
     var body: some View {
         HStack(spacing: 4) {
             Image(.icAddmapGray400)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 16.adjusted, height: 16.adjustedH)
             Text(count)
                 .customFont(.caption2b)
+                .foregroundStyle(.gray500)
         }
     }
 }
