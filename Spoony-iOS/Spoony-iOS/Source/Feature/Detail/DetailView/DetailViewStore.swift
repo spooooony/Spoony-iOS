@@ -12,13 +12,18 @@ final class DetailViewStore: ObservableObject {
     @Published private(set) var state: DetailState = DetailState()
     
     private let service = DetailService()
-    
+    private var userSpoonCount: Int = 0
     // MARK: - Reducer
     
     func send(intent: DetailIntent) {
         switch intent {
         case .getInitialValue(let userId, let postId):
-            fetchInitialData(userId: userId, postId: postId)
+            Task {
+                let data = try await DefaultHomeService().fetchSpoonCount(userId: Config.userId)
+                self.userSpoonCount = data
+                
+                await fetchInitialData(userId: Config.userId, postId: postId)
+            }
         case .scrapButtonDidTap(let isScrap):
             handleScrapButton(isScrap: isScrap)
         case .scoopButtonDidTap:
@@ -35,19 +40,16 @@ final class DetailViewStore: ObservableObject {
     // MARK: - Methods
     
     // 초기 데이터 로드
-    private func fetchInitialData(userId: Int, postId: Int) {
+    @MainActor
+    private func fetchInitialData(userId: Int, postId: Int) async {
         state.isLoading = true
-        service.getReviewDetail(userId: userId, postId: postId) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.state.isLoading = false
-                switch result {
-                case .success(let data):
-                    self?.updateState(with: data)
-                case .failure:
-                    self?.state.toast = Toast(style: .gray, message: "데이터를 불러오는데 실패했습니다.", yOffset: 539.adjustedH)
-                }
-            }
+        do {
+            let data = try await service.getReviewDetail(userId: userId, postId: postId)
+            updateState(with: data)
+        } catch {
+            state.toast = Toast(style: .gray, message: "데이터를 불러오는데 실패했습니다.", yOffset: 539.adjustedH)
         }
+        state.isLoading = false
     }
     
     // State 업데이트
@@ -70,7 +72,8 @@ final class DetailViewStore: ObservableObject {
             categoryName: data.categoryColorResponse.categoryName,
             iconUrl: data.categoryColorResponse.iconUrl,
             categoryColorResponse: data.categoryColorResponse,
-            isMine: data.isMine
+            isMine: data.isMine,
+            spoonCount: self.userSpoonCount
         )
     }
     
@@ -100,7 +103,7 @@ final class DetailViewStore: ObservableObject {
     // 떠먹기 버튼 처리
     @MainActor
     private func handleScoopButton() async throws {
- 
+        
         do {
             let data = try await service.scoopReview(userId: Config.userId, postId: state.postId)
             

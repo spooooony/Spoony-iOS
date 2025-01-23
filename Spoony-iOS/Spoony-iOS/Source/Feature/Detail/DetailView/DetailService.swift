@@ -9,24 +9,25 @@ public class DetailService {
     
     let detailProvider = Providers.detailProvider
     
-    func getReviewDetail(userId: Int, postId: Int, completion: @escaping (Result<ReviewDetailModel, SNError>) -> Void) {
-        detailProvider.request(.getDetailReview(userId: 1, postId: postId)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let responseDto = try response.map(BaseResponse<ReviewDetailModel>.self)
-                    
-                    if let data = responseDto.data {
-                        completion(.success(data))
-                    } else {
-                        completion(.failure(.decodeError))
+    func getReviewDetail(userId: Int, postId: Int) async throws -> ReviewDetailModel {
+        return try await withCheckedThrowingContinuation { continuation in
+            detailProvider.request(.getDetailReview(userId: userId, postId: postId)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<ReviewDetailModel>.self)
+                        if let data = responseDto.data {
+                            return continuation.resume(returning: data)
+                        } else {
+                            continuation.resume(throwing: SNError.decodeError)
+                        }
+                    } catch {
+                        continuation.resume(throwing: SNError.etc)
                     }
+                case .failure(let error):
+                    continuation.resume(throwing: SNError.networkFail)
                     
-                } catch {
-                    print("decode map to error")
                 }
-            case .failure(let error):
-                print("통신 실패: \(error)")
             }
         }
     }
