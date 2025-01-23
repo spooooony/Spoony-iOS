@@ -11,9 +11,12 @@ import Moya
 protocol HomeServiceType {
     func fetchPickList(userId: Int) async throws -> ResturantpickListResponse
     func fetchSpoonCount(userId: Int) async throws -> Int
+    func fetchFocusedPlace(userId: Int, placeId: Int) async throws -> MapFocusResponse
 }
 
 final class DefaultHomeService: HomeServiceType {
+    private let provider = Providers.homeProvider
+
     func fetchPickList(userId: Int) async throws -> ResturantpickListResponse {
         return try await withCheckedThrowingContinuation { continuation in
             Providers.homeProvider.request(.getMapList(userId: userId)) { result in
@@ -56,24 +59,28 @@ final class DefaultHomeService: HomeServiceType {
             }
         }
     }
-}
 
-//final class MockHomeService: HomeServiceType {
-//    func fetchPickList(userId: Int) async throws -> ResturantpickListResponse {
-//        return ResturantpickListResponse(zzimCardResponses: [
-//            .init(
-//                placeId: 7,
-//                placeName: "스타벅스 강남R점",
-//                placeAddress: "서울특별시 강남구 역삼동 825",
-//                postTitle: "스타벅스 강남R점 후기",
-//                latitude: 37.497711,
-//                longitude: 127.028439,
-//                categoryColorResponse: .init(
-//                    categoryName: "카페",
-//                    iconUrl: "url_color_8",
-//                    iconTextColor: "url_text_8",
-//                    iconBackgroundColor: "background_color_8"
-//                )
-//            )
-//        ])
-//    }
+    func fetchFocusedPlace(userId: Int, placeId: Int) async throws -> MapFocusResponse {
+            return try await withCheckedThrowingContinuation { continuation in
+                provider.request(.getMapFocus(userId: userId, placeId: placeId)) { result in
+                    switch result {
+                    case let .success(response):
+                        do {
+                            let baseResponse = try response.map(BaseResponse<MapFocusResponse>.self)
+                            if baseResponse.success, let data = baseResponse.data {
+                                continuation.resume(returning: data)
+                            } else if let error = baseResponse.error {
+                                continuation.resume(throwing: SearchError.serverError(message: "\(error)"))
+                            } else {
+                                continuation.resume(throwing: SearchError.unknownError)
+                            }
+                        } catch {
+                            continuation.resume(throwing: SearchError.decodingError)
+                        }
+                    case .failure:
+                        continuation.resume(throwing: SearchError.networkError)
+                    }
+                }
+            }
+        }
+}

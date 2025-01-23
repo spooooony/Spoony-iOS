@@ -14,46 +14,67 @@ struct PlaceImagesLayout: View {
         HStack(spacing: 1) {
             switch images.count {
             case 1:
-                Image(images[0])
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 132.adjusted)
-                    .clipShape(RoundedCorner(radius: 12, corners: [.topLeft, .topRight]))
-                
+                imageView(
+                    urlString: images[0],
+                    width: nil,
+                    height: 108.adjusted,
+                    corners: [.topLeft, .topRight]
+                )
             case 2:
                 ForEach(0..<2, id: \.self) { index in
-                    Image(images[index])
-                        .resizable()
-                        .scaledToFill()
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 132.adjusted)
-                        .clipShape(
-                            RoundedCorner(
-                                radius: 12,
-                                corners: index == 0 ? [.topLeft] : [.topRight]
-                            )
-                        )
+                    imageView(
+                        urlString: images[index],
+                        width: nil,
+                        height: 108.adjusted,
+                        corners: index == 0 ? [.topLeft] : [.topRight]
+                    )
+                    .frame(maxWidth: .infinity)
                 }
-                
             case 3:
                 ForEach(0..<3, id: \.self) { index in
-                    Image(images[index])
-                        .resizable()
-                        .scaledToFill()
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 132.adjusted)
-                        .clipShape(
-                            RoundedCorner(
-                                radius: 12,
-                                corners: index == 0 ? [.topLeft] : (index == 2 ? [.topRight] : [])
-                            )
-                        )
+                    imageView(
+                        urlString: images[index],
+                        width: 108.adjusted,
+                        height: 108.adjusted,
+                        corners: index == 0 ? [.topLeft] : (index == 2 ? [.topRight] : [])
+                    )
                 }
-                
             default:
                 EmptyView()
             }
         }
+        .frame(maxWidth: .infinity)
+        .frame(height: 108.adjusted)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white)
+                .mask(
+                    RoundedCorner(radius: 10, corners: [.topLeft, .topRight])
+                )
+        )
+    }
+    
+    private func imageView(urlString: String, width: CGFloat?, height: CGFloat, corners: UIRectCorner) -> some View {
+        AsyncImage(url: URL(string: urlString)) { phase in
+            switch phase {
+            case .empty:
+                ProgressView()
+            case .success(let image):
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            case .failure:
+                Color.gray
+             
+            default:
+                Color.gray
+            }
+        }
+        .frame(width: width, height: height)
+        .frame(maxWidth: width == nil ? .infinity : nil)
+        .clipped()
+        .mask(
+            RoundedCorner(radius: 10, corners: corners)
+        )
     }
 }
