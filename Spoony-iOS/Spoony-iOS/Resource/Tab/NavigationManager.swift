@@ -19,16 +19,12 @@ final class NavigationManager: ObservableObject {
     @ViewBuilder
     func build(_ view: ViewType) -> some View {
         switch view {
-        case .test:
-            Explore()
         case .searchView:
             SearchView()
         case .locationView:
             Home()
         case .detailView:
             DetailView()
-        case .explore:
-            Explore()
         case .report:
             Report()
         }
