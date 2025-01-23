@@ -72,6 +72,9 @@ struct NMapView: UIViewRepresentable {
         mapView.positionMode = .direction
         mapView.zoomLevel = defaultZoomLevel
         mapView.touchDelegate = context.coordinator
+        mapView.logoAlign = .rightTop
+        mapView.logoInteractionEnabled = true  
+        mapView.logoMargin = UIEdgeInsets(top: 60, left: 0, bottom: 0, right: 12)
         return mapView
     }
     
