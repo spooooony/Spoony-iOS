@@ -44,6 +44,13 @@ private struct PlaceCardItem: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            Image(.imagecontainerViewTriangle)
+                           .resizable()
+                           .frame(width: 16.adjusted, height: 14.adjustedH)
+                          // .offset(y: 1.adjustedH)
+                           .zIndex(1)
+                           .background(Color.clear)
+                           
             VStack(spacing: 0) {
                 PlaceImagesLayout(images: place.images)
                 
@@ -60,7 +67,7 @@ private struct PlaceCardItem: View {
                 .padding(.horizontal, 15)
                 .padding(.bottom, 15)
         }
-        .background(Color.white)
+        .background(Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
