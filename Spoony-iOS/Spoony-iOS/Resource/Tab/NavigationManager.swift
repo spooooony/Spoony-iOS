@@ -25,8 +25,8 @@ final class NavigationManager: ObservableObject {
             SearchView()
         case .locationView:
             Home()
-        case .detailView:
-            DetailView()
+        case .detailView(let postId):
+            DetailView(postId: postId)
         case .explore:
             Explore()
         case .report:

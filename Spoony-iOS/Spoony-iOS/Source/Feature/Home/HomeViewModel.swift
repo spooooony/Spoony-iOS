@@ -24,7 +24,7 @@ final class HomeViewModel: ObservableObject {
         Task {
             isLoading = true
             do {
-                let response = try await service.fetchPickList(userId: 1)
+                let response = try await service.fetchPickList(userId: Config.userId)
                 self.pickList = response.zzimCardResponses
             } catch {
                 self.error = error
@@ -41,7 +41,7 @@ final class HomeViewModel: ObservableObject {
                         selectedLocation = (selectedPlace.latitude, selectedPlace.longitude)
                     }
                     
-                    let response = try await service.fetchFocusedPlace(userId: 1, placeId: placeId)
+                    let response = try await service.fetchFocusedPlace(userId: Config.userId, placeId: placeId)
                     self.focusedPlaces = response.zzimFocusResponseList.map { $0.toCardPlace() }
                 } catch {
                     self.error = error

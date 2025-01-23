@@ -29,7 +29,7 @@ struct DetailState {
     var iconUrl: String = ""
     var iconTextColor: String = ""
     var iconBackgroundColor: String = ""
-    var categoryColorResponse: DetailCategoryColorResponse = .init(categoryName: "", iconUrl: "", iconTextColor: "", iconBackgroundColor: "")
+    var categoryColorResponse: DetailCategoryColorResponse = .init(categoryName: "", iconUrl: "", iconTextColor: "", iconBackgroundColor: "", categoryId: 0)
     var isMine: Bool = true
     
     // 추가 상태

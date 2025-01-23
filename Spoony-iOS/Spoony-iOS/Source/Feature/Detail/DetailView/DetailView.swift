@@ -18,12 +18,14 @@ struct DetailView: View {
     // MARK: - Properties
     
     @EnvironmentObject private var navigationManager: NavigationManager
-    @ObservedObject private var store: DetailViewStore
-    @Binding private var postId: Int
     
-    init(store: DetailViewStore = DetailViewStore(), postId: Binding<Int> = .constant(1)) {
-        self.store = store
-        self._postId = postId
+    // ObservableObject 쓰면 안돼! 초기화가 되버림.
+    // StateObeject 는 초기화가 안됌 상태가 유지가 됌
+    @StateObject private var store: DetailViewStore = DetailViewStore()
+    let postId: Int
+    
+    init( postId: Int) {
+        self.postId = postId
     }
     
     private let userImage = Image(.icCafeBlue)
@@ -64,8 +66,8 @@ struct DetailView: View {
                     intent: .getInitialValue(userId: 30, postId: postId)
                 )
             }
-            .onChange(of: store.state.toast) { _, oldValue in
-                toastMessage = oldValue
+            .onChange(of: store.state.toast) { _, newValue in
+                toastMessage = newValue
             }
             
             bottomView
@@ -168,6 +170,7 @@ extension DetailView {
             
         }
         .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var placeInfoSection: some View {
@@ -201,7 +204,7 @@ extension DetailView {
             
         }
         .padding(.horizontal, 20.adjusted)
-        .blur(radius: !store.state.isScoop ? 8 : 0)
+        .blur(radius: store.state.isScoop ? 0 : 8)
     }
     
     private var menuInfo: some View {
@@ -250,21 +253,23 @@ extension DetailView {
                 isIcon: store.state.isScoop ? false : true,
                 disabled: .constant(false)
             ) {
+                print("⭐️")
                 
                 if store.state.isScoop {
                     store.send(intent: .pathInfoInNaverMaps)
                 } else {
                     navigationManager.popup = .useSpoon(action: {
                         store.send(intent: .scoopButtonDidTap)
-                        
                     })
                 }
+                
+                print("⭐️")
             }
             
             if store.state.isScoop {
                 Spacer()
                 
-                SpoonButton(store: store)
+                ScrapButton(store: store)
             }
         }
         .padding(.horizontal, 20.adjusted)
@@ -308,7 +313,7 @@ struct menuList: View {
     }
 }
 
-struct SpoonButton: View {
+struct ScrapButton: View {
     
     @ObservedObject private var store: DetailViewStore
     
@@ -344,6 +349,6 @@ struct Line: Shape {
     }
 }
 
-#Preview {
-    DetailView(store: DetailViewStore(), postId: .constant(1))
-}
+//#Preview {
+//    DetailView(store: DetailViewStore(), postId: 12)
+//}

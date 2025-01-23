@@ -33,6 +33,7 @@ extension FeedResponse {
     func toEntity() -> FeedEntity {
         .init(
             id: UUID(),
+            postId: self.postId,
             userName: self.userName,
             userRegion: self.userRegion,
             title: self.title,
@@ -42,7 +43,7 @@ extension FeedResponse {
     }
     
     static let sample: FeedResponse = .init(
-        userId: 1,
+        userId: Config.userId,
         userName: "안용아안용",
         createdAt: "2025-01-19T22:58:53.622066",
         userRegion: "서울시 성북구",

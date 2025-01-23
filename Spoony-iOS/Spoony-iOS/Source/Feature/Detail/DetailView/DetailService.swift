@@ -5,7 +5,7 @@
 //  Created by 이명진 on 1/23/25.
 //
 
-public struct DetailService {
+public class DetailService {
     
     let detailProvider = Providers.detailProvider
     
@@ -63,18 +63,21 @@ public struct DetailService {
         }
     }
     
-    func scoopReview(userId: Int, postId: Int) {
-        detailProvider.request(.scoopReview(userId: 1, postId: postId)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    _ = try response.map(BaseResponse<BlankData>.self)
-                    
-                } catch {
-                    print("decode map to error")
+    func scoopReview(userId: Int, postId: Int) async throws -> Bool {
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            detailProvider.request(.scoopReview(userId: Config.userId, postId: postId)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        _ = try response.map(BaseResponse<BlankData>.self)
+                        return continuation.resume(returning: true)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
                 }
-            case .failure(let error):
-                print("통신 실패: \(error)")
             }
         }
     }

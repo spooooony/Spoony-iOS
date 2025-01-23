@@ -14,6 +14,7 @@ struct FeedEntity: Identifiable, Hashable {
     }
     
     let id: UUID
+    let postId: Int
     let userName: String
     let userRegion: String
     let title: String

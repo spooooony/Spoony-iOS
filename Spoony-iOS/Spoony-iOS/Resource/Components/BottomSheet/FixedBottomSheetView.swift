@@ -46,7 +46,7 @@ struct FixedBottomSheetView: View {
                         title: "떠먹으러 가기",
                         disabled: $isDisabled
                     ) {
-                        navigationManager.push(.detailView)
+                        navigationManager.push(.detailView(postId: 1))
                     }
                     .padding(.top, 8)
                 }
