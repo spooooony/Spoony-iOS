@@ -9,6 +9,7 @@ import SwiftUI
 
 struct InfoStepView: View {
     @ObservedObject private var store: RegisterStore
+    @FocusState private var isPlaceTextFieldFocused: Bool
     
     init(store: RegisterStore) {
         self.store = store
@@ -86,6 +87,7 @@ extension InfoStepView {
                 ) {
                     store.dispatch(.didTapButtonIcon(.place))
                 }
+                .focused($isPlaceTextFieldFocused)
                 .onSubmit {
                     store.dispatch(.didTapkeyboardEnter)
                 }
@@ -225,7 +227,9 @@ extension InfoStepView {
                 ) { notification in
                     if let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
                         withAnimation(.smooth) {
-                            store.dispatch(.updateKeyboardHeight(frame.height))
+                            if !isPlaceTextFieldFocused {
+                                store.dispatch(.updateKeyboardHeight(frame.height))
+                            }
                         }
                     }
                 }
