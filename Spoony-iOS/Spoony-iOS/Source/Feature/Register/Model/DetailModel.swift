@@ -36,7 +36,7 @@ struct DetailCategoryColorResponse: Codable {
     let iconUrl: String
     let iconTextColor: String
     let iconBackgroundColor: String
-    let categoryId: Int // 추가된 필드
+    let categoryId: Int
 }
 
 // MARK: - Entity
