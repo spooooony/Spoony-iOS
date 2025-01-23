@@ -19,13 +19,13 @@ struct NMapView: UIViewRepresentable {
     let onMoveCamera: ((Double, Double) -> Void)?
         
     init(viewModel: HomeViewModel,
-             selectedPlace: Binding<CardPlace?>,
-             onMoveCamera: ((Double, Double) -> Void)? = nil) {
-            self.viewModel = viewModel
-            self._selectedPlace = selectedPlace
-            self.onMoveCamera = onMoveCamera
-            self.mapView = NMFMapView()
-        }
+         selectedPlace: Binding<CardPlace?>,
+         onMoveCamera: ((Double, Double) -> Void)? = nil) {
+        self.viewModel = viewModel
+        self._selectedPlace = selectedPlace
+        self.onMoveCamera = onMoveCamera
+        self.mapView = NMFMapView()
+    }
     
     func makeUIView(context: Context) -> NMFMapView {
         let mapView = configureMapView(context: context)
@@ -45,6 +45,11 @@ struct NMapView: UIViewRepresentable {
             
             if let selected = selectedPlace, selected.placeId == pickCard.placeId {
                 marker.iconImage = selectedMarker
+                // 선택된 마커의 경우 캡션 표시
+                configureSelectedMarkerCaption(marker, with: pickCard.placeName)
+            } else {
+                // 선택되지 않은 마커의 경우 캡션 숨김
+                marker.captionText = ""
             }
             
             marker.mapView = mapView
@@ -70,13 +75,27 @@ struct NMapView: UIViewRepresentable {
         }
     }
     
-    
     private func configureMapView(context: Context) -> NMFMapView {
         let mapView = NMFMapView()
         mapView.positionMode = .direction
         mapView.zoomLevel = defaultZoomLevel
         mapView.touchDelegate = context.coordinator
         return mapView
+    }
+    
+    private func configureSelectedMarkerCaption(_ marker: NMFMarker, with placeName: String) {
+        // 캡션 텍스트 설정
+        marker.captionText = placeName
+        
+        // 캡션 스타일 설정
+        marker.captionColor = .black
+        marker.captionTextSize = 14
+        marker.captionMinZoom = 0
+        marker.captionMaxZoom = 20
+        
+        // 캡션 위치 및 여백 설정
+        marker.captionOffset = -16
+        marker.captionAligns = [NMFAlignType.bottom]
     }
     
     private func createMarker(for pickCard: PickListCardResponse) -> NMFMarker {
@@ -93,10 +112,12 @@ struct NMapView: UIViewRepresentable {
             
             if !currentlySelected {
                 marker.iconImage = selectedMarker
+                configureSelectedMarkerCaption(marker, with: pickCard.placeName)
                 viewModel?.fetchFocusedPlace(placeId: pickCard.placeId)
             } else {
                 selectedPlace = nil
                 marker.iconImage = defaultMarker
+                marker.captionText = "" // 캡션 제거
             }
             
             return true
@@ -104,6 +125,7 @@ struct NMapView: UIViewRepresentable {
         
         if let selected = selectedPlace, selected.placeId == pickCard.placeId {
             marker.iconImage = selectedMarker
+            configureSelectedMarkerCaption(marker, with: pickCard.placeName)
         }
         
         return marker
@@ -122,12 +144,16 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate {
         selectedPlace = nil
         return true
     }
-        func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng) -> Bool {
-            if selectedPlace != nil {
-                selectedPlace = nil
-                markers.forEach { $0.iconImage = NMFOverlayImage(name: "ic_unselected_marker") }
-                return true
+    
+    func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng) -> Bool {
+        if selectedPlace != nil {
+            selectedPlace = nil
+            markers.forEach { marker in
+                marker.iconImage = NMFOverlayImage(name: "ic_unselected_marker")
+                marker.captionText = "" // 캡션 제거
             }
-            return false
+            return true
         }
+        return false
+    }
 }
