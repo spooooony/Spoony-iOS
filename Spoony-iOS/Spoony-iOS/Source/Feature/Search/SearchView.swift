@@ -53,9 +53,10 @@ struct SearchView: View {
         }
         .navigationBarHidden(true)
         .onChange(of: searchText) { newValue, _ in
-            if newValue.isEmpty {
+            let normalizedText = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            if normalizedText.isEmpty {
                 searchState = recentSearches.isEmpty ? .empty : .empty
-            } else if newValue.count == 1 {
+            } else if normalizedText.count == 1 {
                 searchState = .empty
             } else {
                 searchState = .typing
@@ -76,8 +77,13 @@ struct SearchView: View {
     
     private func handleSearch() {
         guard !searchText.isEmpty else { return }
+        
+        let normalizedSearchText = searchText.components(separatedBy: .whitespaces)
+            .filter { !$0.isEmpty }
+            .joined(separator: "")
+        
         searchState = .searched
-        updateSearchResults()
+        updateSearchResults(with: normalizedSearchText)
     }
     
     private func clearSearch() {
@@ -211,15 +217,15 @@ struct SearchView: View {
         }
     }
     
-    private func updateSearchResults() {
-        guard !searchText.isEmpty else {
+    private func updateSearchResults(with query: String) {
+        guard !query.isEmpty else {
             searchResults.removeAll()
             return
         }
         
         Task {
             do {
-                let response = try await searchService.searchLocation(query: searchText)
+                let response = try await searchService.searchLocation(query: query)
                 let results = response.locationResponseList.map { location in
                     SearchResult(
                         title: location.locationName,
@@ -230,8 +236,8 @@ struct SearchView: View {
                 await MainActor.run {
                     searchResults = results
                     
-                    if !recentSearches.contains(searchText) {
-                        recentSearches.insert(searchText, at: 0)
+                    if !recentSearches.contains(query) {
+                        recentSearches.insert(query, at: 0)
                         if recentSearches.count > 6 {
                             recentSearches.removeLast()
                         }
