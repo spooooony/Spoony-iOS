@@ -80,11 +80,7 @@ struct NMapView: UIViewRepresentable {
         marker.captionColor = .black
         marker.captionTextSize = 14
         
-        if isSelected {
-            marker.captionMinZoom = 0
-        } else {
-            marker.captionMinZoom = 10
-        }
+marker.captionMinZoom = isSelected ? 0 : 10
         marker.captionMaxZoom = 20
         
         marker.anchor = CGPoint(x: 0.5, y: 1.0)
