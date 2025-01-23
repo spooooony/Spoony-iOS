@@ -18,7 +18,7 @@ enum ReportType: String, CaseIterable, Encodable {
     var title: String {
         switch self {
         case .advertisement:
-            "영리 목적/ 홍보성 후기"
+            "영리 목적/홍보성 후기"
         case .insult:
             "욕설/인신공격"
         case .illegalInfo:

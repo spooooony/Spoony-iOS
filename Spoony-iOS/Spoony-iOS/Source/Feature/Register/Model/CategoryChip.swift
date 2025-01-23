@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CategoryChip: Equatable {
+struct CategoryChip: Equatable, Identifiable {
     let image: String
     let selectedImage: String
     let title: String

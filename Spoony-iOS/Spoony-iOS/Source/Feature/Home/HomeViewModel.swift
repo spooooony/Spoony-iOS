@@ -12,6 +12,7 @@ final class HomeViewModel: ObservableObject {
     private let service: HomeServiceType
     @Published private(set) var pickList: [PickListCardResponse] = []
     @Published var isLoading = false
+    @Published var focusedPlaces: [CardPlace] = []
     @Published var error: Error?
     
     init(service: HomeServiceType = DefaultHomeService()) {
@@ -29,5 +30,39 @@ final class HomeViewModel: ObservableObject {
             }
             isLoading = false
         }
+    }
+    
+    func fetchFocusedPlace(placeId: Int) {
+        Task {
+            isLoading = true
+            do {
+                let response = try await service.fetchFocusedPlace(userId: 1, placeId: placeId)
+                self.focusedPlaces = response.zzimFocusResponseList.map { $0.toCardPlace() }
+            } catch {
+                self.error = error
+            }
+            isLoading = false
+        }
+    }
+    func clearFocusedPlaces() {
+            focusedPlaces = []
+        }
+}
+
+extension FocusPlaceResponse {
+    func toCardPlace() -> CardPlace {
+        return CardPlace(
+            placeId: placeId,
+            name: placeName,
+            visitorCount: "\(zzimCount)",
+            address: authorRegionName,
+            images: photoUrlList,
+            title: postTitle,
+            subTitle: authorName,
+            description: categoryColorResponse.categoryName,
+            categoryColor: categoryColorResponse.iconBackgroundColor,
+            categoryTextColor: categoryColorResponse.iconTextColor,
+            categoryIcon: categoryColorResponse.iconUrl
+        )
     }
 }

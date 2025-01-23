@@ -12,41 +12,43 @@ struct NMapView: UIViewRepresentable {
     private let defaultZoomLevel: Double = 11.5
     private let defaultMarker = NMFOverlayImage(name: "ic_unselected_marker")
     private let selectedMarker = NMFOverlayImage(name: "ic_selected_marker")
-    private let defaultMarkerSize = (width: 40.adjusted, height: 58.adjustedH)
-    private let selectedMarkerSize = (width: 30.adjusted, height: 30.adjustedH)
     @ObservedObject var viewModel: HomeViewModel
     @Binding var selectedPlace: CardPlace?
     
     func makeUIView(context: Context) -> NMFMapView {
-            let mapView = configureMapView(context: context)
-            return mapView
-        }
+        let mapView = configureMapView(context: context)
+        return mapView
+    }
     
     func makeCoordinator() -> Coordinator {
         Coordinator(selectedPlace: $selectedPlace)
     }
     
     func updateUIView(_ mapView: NMFMapView, context: Context) {
-            // 기존 마커들 제거
-            context.coordinator.markers.forEach { $0.mapView = nil }
-            context.coordinator.markers.removeAll()
+        context.coordinator.markers.forEach { $0.mapView = nil }
+        context.coordinator.markers.removeAll()
+        
+        let newMarkers = viewModel.pickList.map { pickCard in
+            let marker = createMarker(for: pickCard)
             
-            // 새로운 마커들 추가
-            for pickCard in viewModel.pickList {
-                let marker = createMarker(for: pickCard)
-                marker.mapView = mapView
-                context.coordinator.markers.append(marker)
+            if let selected = selectedPlace, selected.placeId == pickCard.placeId {
+                marker.iconImage = selectedMarker
             }
             
-            // 모든 마커가 보이도록 카메라 이동
-            if !viewModel.pickList.isEmpty {
-                let bounds = NMGLatLngBounds(latLngs: viewModel.pickList.map {
-                    NMGLatLng(lat: $0.latitude, lng: $0.longitude)
-                })
-                let cameraUpdate = NMFCameraUpdate(fit: bounds, padding: 50)
-                mapView.moveCamera(cameraUpdate)
-            }
+            marker.mapView = mapView
+            return marker
         }
+        
+        context.coordinator.markers = newMarkers
+
+        if !viewModel.pickList.isEmpty {
+            let bounds = NMGLatLngBounds(latLngs: viewModel.pickList.map {
+                NMGLatLng(lat: $0.latitude, lng: $0.longitude)
+            })
+            let cameraUpdate = NMFCameraUpdate(fit: bounds, padding: 50)
+            mapView.moveCamera(cameraUpdate)
+        }
+    }
     
     private func configureMapView(context: Context) -> NMFMapView {
         let mapView = NMFMapView()
@@ -55,42 +57,37 @@ struct NMapView: UIViewRepresentable {
         mapView.touchDelegate = context.coordinator
         return mapView
     }
-
+    
     private func createMarker(for pickCard: PickListCardResponse) -> NMFMarker {
-            let marker = NMFMarker()
-            marker.position = NMGLatLng(lat: pickCard.latitude, lng: pickCard.longitude)
-            marker.iconImage = defaultMarker
-            marker.width = CGFloat((NMF_MARKER_SIZE_AUTO))
-            marker.height = CGFloat((NMF_MARKER_SIZE_AUTO))
+        let marker = NMFMarker()
+        marker.position = NMGLatLng(lat: pickCard.latitude, lng: pickCard.longitude)
+        marker.iconImage = defaultMarker
+        marker.width = CGFloat(NMF_MARKER_SIZE_AUTO)
+        marker.height = CGFloat(NMF_MARKER_SIZE_AUTO)
+        
+        marker.touchHandler = { [weak viewModel, weak marker] (_) -> Bool in
+            guard let marker = marker else { return false }
             
-            var isSelected = false
-            marker.touchHandler = { (_) -> Bool in
-                isSelected.toggle()
-                if isSelected {
-                    marker.iconImage = selectedMarker
-                    marker.width = selectedMarkerSize.width
-                    marker.height = selectedMarkerSize.height
-                    selectedPlace = CardPlace(
-                        name: pickCard.placeName,
-                        visitorCount: "0",
-                        address: pickCard.placeAddress,
-                        images: [pickCard.categoryColorResponse.iconUrl],
-                        title: pickCard.postTitle,
-                        subTitle: pickCard.categoryColorResponse.categoryName,
-                        description: ""
-                    )
-                } else {
-                    marker.iconImage = defaultMarker
-                    marker.width = defaultMarkerSize.width
-                    marker.height = defaultMarkerSize.height
-                    selectedPlace = nil
-                }
-                return true
+            let currentlySelected = (marker.iconImage == selectedMarker)
+            
+            if !currentlySelected {
+                marker.iconImage = selectedMarker
+                viewModel?.fetchFocusedPlace(placeId: pickCard.placeId)
+            } else {
+                selectedPlace = nil
+                marker.iconImage = defaultMarker
             }
             
-            return marker
+            return true
         }
+        
+        if let selected = selectedPlace, selected.placeId == pickCard.placeId {
+            marker.iconImage = selectedMarker
+        }
+        
+        return marker
     }
+}
 
 final class Coordinator: NSObject, NMFMapViewTouchDelegate {
     @Binding var selectedPlace: CardPlace?

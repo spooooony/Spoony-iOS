@@ -50,24 +50,28 @@ enum SeoulType: String, CaseIterable {
 struct LocationPickerBottomSheet: View {
     @Binding var isPresented: Bool
     @State private var isDisabled: Bool = true
-    @State private var tempRegion: SeoulType = .mapo
+    @State private var selectedRegion: SeoulType = .mapo
     
     @ObservedObject var store: ExploreStore
     
     var body: some View {
-        VStack {
-            HStack(spacing: 114.adjusted) {
-                Spacer()
+        VStack(spacing: 0) {
+            ZStack {
                 Text("지역 선택")
                     .customFont(.body1b)
-                Image(.icCloseGray400)
-                    .onTapGesture {
-                        isPresented = false
-                    }
+                
+                HStack {
+                    Spacer()
+                    
+                    Image(.icCloseGray400)
+                        .onTapGesture {
+                            isPresented = false
+                        }
+                }
+                .padding(.trailing, 20)
             }
-            .padding(.trailing, 20)
-            .padding(.top, 16)
-            .padding(.bottom, 12)
+            .frame(height: 32.adjustedH)
+            .padding(.vertical, 12)
             
             HStack(alignment: .top, spacing: 0) {
                 VStack(spacing: 0) {
@@ -95,7 +99,7 @@ struct LocationPickerBottomSheet: View {
                             Text(type.rawValue)
                                 .customFont(.body2m)
                                 .foregroundStyle(
-                                    tempRegion.rawValue != type.rawValue ? .gray400 : .spoonBlack
+                                    selectedRegion.rawValue != type.rawValue ? .gray400 : .spoonBlack
                                 )
                                 .frame(width: 240.adjusted, height: 44.adjustedH)
                                 .background(
@@ -103,7 +107,7 @@ struct LocationPickerBottomSheet: View {
                                         .stroke(Color.gray0, lineWidth: 1)
                                 )
                                 .onTapGesture {
-                                    tempRegion = type
+                                    selectedRegion = type
                                     isDisabled = false
                                 }
                         }
@@ -119,17 +123,11 @@ struct LocationPickerBottomSheet: View {
                 title: "선택하기",
                 disabled: $isDisabled
             ) {
-                store.changeLocation(location: tempRegion)
+                store.changeLocation(location: selectedRegion)
                 isPresented = false
             }
             .padding(.top, 12)
             .padding(.bottom, 22)
-        }
-        .onAppear {
-            if let location = store.selectedLocation {
-                tempRegion = location
-                isDisabled = false
-            }
         }
     }
 }

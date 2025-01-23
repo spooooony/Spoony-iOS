@@ -16,11 +16,14 @@ struct Explore: View {
     @State private var isPresentedLocation: Bool = false
     @State private var isPresentedFilter: Bool = false
     
+    @State private var spoonCount: Int = 0
+    
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
                 style: .locationDetail,
                 title: store.navigationTitle,
+                spoonCount: spoonCount,
                 tappedAction: {
                     isPresentedLocation = true
                 })
@@ -55,6 +58,14 @@ struct Explore: View {
         }
         .task {
             store.getCategoryList()
+            //TODO: 추후 수정 예정
+            Task {
+                do {
+                    spoonCount = try await DefaultHomeService().fetchSpoonCount(userId: Config.userId)
+                } catch {
+                    print("Failed to fetch spoon count:", error)
+                }
+            }
         }
     }
 }
@@ -66,12 +77,7 @@ extension Explore {
                 Spacer()
                     .frame(width: 20.adjusted)
                 ForEach(store.categoryList) { item in
-                    IconChip(
-                        title: item.name,
-                        foodType: FoodType(title: item.name),
-                        chipType: .large,
-                        color: store.selectedCategory == item ? .black : .gray600
-                    )
+                    ExploreCategoryChip(category: item, selected: store.isSelectedCategory(category: item))
                     .onTapGesture {
                         store.changeCategory(category: item)
                     }
@@ -101,10 +107,10 @@ extension Explore {
     private var emptyView: some View {
         VStack(spacing: 0) {
             
-            LottieView(animation: .named("lottie_explore"))
+            LottieView(animation: .named("lottie_empty_explore"))
                 .looping()
                 .frame(width: 220.adjusted, height: 220.adjustedH)
-                .padding(.top, 58)
+                .padding(.top, 98)
             
             Text("아직 발견된 장소가 없어요.\n나만의 리스트를 공유해 볼까요?")
                 .multilineTextAlignment(.center)

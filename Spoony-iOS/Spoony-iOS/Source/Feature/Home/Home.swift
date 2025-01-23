@@ -28,6 +28,16 @@ struct Home: View {
             
             NMapView(viewModel: viewModel, selectedPlace: $selectedPlace)
                 .edgesIgnoringSafeArea(.all)
+                .onChange(of: viewModel.focusedPlaces) { _, newPlaces in
+                    if !newPlaces.isEmpty {
+                        selectedPlace = newPlaces[0]
+                    }
+                }
+                .onChange(of: selectedPlace) { _, newPlace in
+                    if newPlace == nil {
+                        viewModel.clearFocusedPlaces()
+                    }
+                }
             
             VStack(spacing: 0) {
                 if let locationTitle = navigationManager.currentLocation {
@@ -51,30 +61,28 @@ struct Home: View {
                     )
                     .frame(height: 56.adjusted)
                 }
-                
                 Spacer()
             }
             
-            if selectedPlace != nil {
-                //TODO: 핀이 선택된 경우 -> PlaceCardsContainer 네비게이션 추가
-                VStack(spacing: 4) {
-                    PlaceCardsContainer(places: [selectedPlace!], currentPage: $currentPage)
-                    if [selectedPlace!].count > 1 {
-                        PageIndicator(currentPage: currentPage, pageCount: 1)
+            Group {
+                if !viewModel.focusedPlaces.isEmpty {
+                    PlaceCard(
+                        places: viewModel.focusedPlaces,
+                        currentPage: $currentPage
+                    )
+                    .padding(.bottom, 12)
+                    .transition(.move(edge: .bottom))
+                } else {
+                    if navigationManager.currentLocation != nil {
+                        BottomSheetListView(viewModel: viewModel)
+                    } else if !viewModel.pickList.isEmpty {
+                        BottomSheetListView(viewModel: viewModel)
+                    } else {
+                        FixedBottomSheetView()
                     }
                 }
-                .padding(.bottom, 4)
-                .transition(.move(edge: .bottom))
-            } else if navigationManager.currentLocation != nil {
-                BottomSheetListView(viewModel: viewModel)
-            } else {
-                if !viewModel.pickList.isEmpty {
-                    BottomSheetListView(viewModel: viewModel)
-                } else {
-                    FixedBottomSheetView()
-                }
             }
-        }
+        } // ZStack 닫기
         .navigationBarHidden(true)
         .task {
             isBottomSheetPresented = true
@@ -86,6 +94,11 @@ struct Home: View {
                 }
                 viewModel.fetchPickList()
             }
+            viewModel.fetchPickList()
         }
     }
+}
+
+#Preview {
+    Home().environmentObject(NavigationManager())
 }
