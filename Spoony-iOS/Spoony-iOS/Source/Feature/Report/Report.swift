@@ -79,6 +79,7 @@ struct Report: View {
                     title: "신고하기",
                     disabled: $isDisabled
                 ) {
+                    hideKeyboard()
                     Task {
                         try await store.postReport(postId: 1, description: text)
                         navigationManager.popup = .reportSuccess(action: {
@@ -142,7 +143,7 @@ extension Report {
             HStack(alignment: .top, spacing: 10) {
                 Image(.icErrorGray300)
                 
-                Text("스푸니는 철저한 광고 제한 정책과 모니터링을 실시하고 있어요. 부적절한 후기 작성자를 발견하면, '수저 뺏기'로 그들의 수저를 빼앗아 주세요!")
+                Text("스푸니는 철저한 광고 제한 정책과 모니터링을 실시하고 있어요. 부적절한 후기 작성자를 발견하면, 바로 신고해주세요!")
                     .customFont(.caption1m)
                     .foregroundStyle(.gray400)
             }
