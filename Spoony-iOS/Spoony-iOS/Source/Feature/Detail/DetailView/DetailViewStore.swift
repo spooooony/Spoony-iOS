@@ -31,7 +31,7 @@ final class DetailViewStore: ObservableObject {
     // 초기 데이터 로드
     private func fetchInitialData(userId: Int, postId: Int) {
         state.isLoading = true
-        service.getReviewDetail(userId: userId, post: postId) { [weak self] result in
+        service.getReviewDetail(userId: userId, postId: postId) { [weak self] result in
             DispatchQueue.main.async {
                 self?.state.isLoading = false
                 switch result {
@@ -51,7 +51,7 @@ final class DetailViewStore: ObservableObject {
             userId: data.userId,
             photoUrlList: data.photoUrlList,
             title: data.title,
-            date: String(data.date.prefix(10)), // 날짜 앞부분만 사용
+            date: String(data.date.prefix(10)),
             menuList: data.menuList,
             description: data.description,
             placeName: data.placeName,
@@ -63,41 +63,51 @@ final class DetailViewStore: ObservableObject {
             isScoop: data.isScoop,
             categoryName: data.categoryColorResponse.categoryName,
             iconUrl: data.categoryColorResponse.iconUrl,
-            iconTextColor: data.categoryColorResponse.iconTextColor,
-            iconBackgroundColor: data.categoryColorResponse.iconBackgroundColor
+            categoryColorResponse: data.categoryColorResponse,
+            isMine: data.isMine
         )
     }
     
-    // 스크랩 버튼 처리
-    private func handleScrapButton(isScrap: Bool) {
-        if isScrap {
-            service.unScrapReview(userId: state.userId, post: state.postId)
-            state.zzimCount -= 1
-            state.isZzim = false
-            state.toast = Toast(style: .gray, message: "내 지도에서 삭제되었어요.", yOffset: 539.adjustedH)
-        } else {
-            service.scrapReview(userId: state.userId, post: state.postId)
-            state.zzimCount += 1
-            state.isZzim = true
-            state.toast = Toast(style: .gray, message: "내 지도에 추가되었어요.",
-                                yOffset: 539.adjustedH)
+        // 스크랩 버튼 처리
+        private func handleScrapButton(isScrap: Bool) {
+            if isScrap {
+                service.unScrapReview(userId: state.userId, postId: state.postId)
+                state.zzimCount -= 1
+                state.isZzim = false
+                state.toast = Toast(
+                    style: .gray,
+                    message: "내 지도에서 삭제되었어요.",
+                    yOffset: 539.adjustedH
+                )
+            } else {
+                service.scrapReview(userId: state.userId, postId: state.postId)
+                state.zzimCount += 1
+                state.isZzim = true
+                state.toast = Toast(
+                    style: .gray,
+                    message: "내 지도에 추가되었어요.",
+                    yOffset: 539.adjustedH
+                )
+            }
         }
-    }
-    
+        
     // 스쿱 버튼 처리
     private func handleScoopButton() {
-        service.scoopReview(userId: state.userId, post: state.postId)
-        state.isScoop = true
+        service.scoopReview(userId: state.userId, postId: state.postId)
+//        state.isScoop = true
+        
+        self.fetchInitialData(userId: state.userId, postId: state.postId)
     }
     
-    // 추가 버튼 처리
+    // 드롭 다운 버튼 처리
     private func handleAddButton() {
-        print("추가 버튼 동작")
+        
     }
     
     // 네이버 지도 열기
     private func openNaverMaps() {
-        guard let url = URL(string: "nmap://search?query=\(state.placeName)&appname=spoony") else { return }
+        let appName: String = "Spoony"
+        guard let url = URL(string: "nmap://place?lat=\(state.latitude)&lng=\(state.longitude)&name=\(state.placeName)&appname=\(appName)") else { return }
         let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
         
         if UIApplication.shared.canOpenURL(url) {
