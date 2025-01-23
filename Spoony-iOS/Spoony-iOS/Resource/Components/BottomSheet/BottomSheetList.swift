@@ -72,7 +72,6 @@ struct BottomSheetListItem: View {
                         x: 0,
                         y: 2
                     )
-                    .layoutPriority(1)
             }
             // 이미지
             AsyncImage(url: URL(string: pickCard.photoUrl)) { phase in
