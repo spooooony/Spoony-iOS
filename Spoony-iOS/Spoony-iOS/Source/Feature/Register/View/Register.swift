@@ -26,6 +26,18 @@ struct Register: View {
                 .transition(.slide)
                 .animation(.easeInOut, value: store.state.registerStep)
             }
+            .scrollIndicators(.hidden)
+            .simultaneousGesture(
+                DragGesture()
+                    .onChanged { _ in
+                        UIApplication.shared.sendAction(
+                            #selector(UIResponder.resignFirstResponder),
+                            to: nil,
+                            from: nil,
+                            for: nil
+                        )
+                    }
+            )
         }
     }
 }
