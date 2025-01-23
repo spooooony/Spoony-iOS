@@ -89,7 +89,7 @@ struct Home: View {
             isBottomSheetPresented = true
             Task {
                 do {
-                    spoonCount = try await restaurantService.fetchSpoonCount(userId: 1)
+                    spoonCount = try await restaurantService.fetchSpoonCount(userId: Config.userId)
                 } catch {
                     print("Failed to fetch spoon count:", error)
                 }

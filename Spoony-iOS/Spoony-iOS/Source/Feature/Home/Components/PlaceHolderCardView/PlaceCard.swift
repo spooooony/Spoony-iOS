@@ -8,35 +8,40 @@
 import SwiftUI
 
 struct PlaceCard: View {
+    @EnvironmentObject var navigationManager: NavigationManager
     let places: [CardPlace]
     @Binding var currentPage: Int
     
     var body: some View {
-            VStack(spacing: 0) {
-                TabView(selection: $currentPage) {
-                    ForEach(places.indices, id: \.self) { index in
-                        PlaceCardItem(place: places[index])
-                            .tag(index)
-                            .padding(.horizontal, 26)
-                    }
+        VStack(spacing: 0) {
+            TabView(selection: $currentPage) {
+                ForEach(self.places.indices, id: \.self) { index in
+                    PlaceCardItem(place: places[index])
+                        .tag(index)
+                        .padding(.horizontal, 26)
+                        .onTapGesture {
+                            let postId = places[index].placeId
+                            navigationManager.push(.detailView(postId: postId))
+                        }
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 264.adjusted)
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .background(.clear)
-                
-                ZStack {
-                    if places.count > 1 {
-                        PageIndicator(
-                            currentPage: currentPage,
-                            pageCount: places.count
-                        )
-                        .padding(.vertical, 4)
-                    }
-                }
-                .frame(height: 8) 
             }
+            .frame(maxWidth: .infinity)
+            .frame(height: 264.adjusted)
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .background(.clear)
+            
+            ZStack {
+                if places.count > 1 {
+                    PageIndicator(
+                        currentPage: currentPage,
+                        pageCount: places.count
+                    )
+                    .padding(.vertical, 4)
+                }
+            }
+            .frame(height: 8)
         }
+    }
 }
 
 private struct PlaceCardItem: View {
@@ -67,7 +72,7 @@ private struct PlaceCardItem: View {
             .background(Color.white)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
-        .background(Color.clear) 
+        .background(Color.clear)
     }
 }
 

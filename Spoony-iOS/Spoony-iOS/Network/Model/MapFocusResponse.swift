@@ -35,6 +35,7 @@ extension FocusPlaceResponse {
     func toCardPlace() -> CardPlace {
         return CardPlace(
             placeId: placeId,
+            postId: postId,
             name: placeName,
             visitorCount: "\(zzimCount)",
             address: authorRegionName,
