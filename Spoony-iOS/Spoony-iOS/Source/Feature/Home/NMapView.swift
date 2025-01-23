@@ -12,6 +12,9 @@ struct NMapView: UIViewRepresentable {
     private let defaultZoomLevel: Double = 11.5
     private let defaultMarker = NMFOverlayImage(name: "ic_unselected_marker")
     private let selectedMarker = NMFOverlayImage(name: "ic_selected_marker")
+    private let defaultLatitude: Double = 37.5666103
+    private let defaultLongitude: Double = 126.9783882
+    private let locationManager = CLLocationManager()
     @ObservedObject var viewModel: HomeViewModel
     @Binding var selectedPlace: CardPlace?
     
@@ -21,6 +24,7 @@ struct NMapView: UIViewRepresentable {
     init(viewModel: HomeViewModel,
          selectedPlace: Binding<CardPlace?>,
          onMoveCamera: ((Double, Double) -> Void)? = nil) {
+        locationManager.requestWhenInUseAuthorization()
         self.viewModel = viewModel
         self._selectedPlace = selectedPlace
         self.onMoveCamera = onMoveCamera
@@ -29,8 +33,31 @@ struct NMapView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> NMFMapView {
         let mapView = configureMapView(context: context)
+        checkLocationPermission(mapView)
         return mapView
     }
+    
+    private func checkLocationPermission(_ mapView: NMFMapView) {
+        switch locationManager.authorizationStatus {
+        case .authorizedWhenInUse, .authorizedAlways:
+            if let location = locationManager.location {
+                moveCamera(mapView, to: NMGLatLng(lat: location.coordinate.latitude,
+                                                lng: location.coordinate.longitude))
+            }
+        case .denied, .restricted:
+            moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+            moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
+            default:
+            moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
+        }
+    }
+        
+        private func moveCamera(_ mapView: NMFMapView, to coord: NMGLatLng) {
+            let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
+            mapView.moveCamera(cameraUpdate)
+        }
     
     func makeCoordinator() -> Coordinator {
         Coordinator(selectedPlace: $selectedPlace, defaultMarkerImage: defaultMarker)
@@ -73,7 +100,7 @@ struct NMapView: UIViewRepresentable {
         mapView.zoomLevel = defaultZoomLevel
         mapView.touchDelegate = context.coordinator
         mapView.logoAlign = .rightTop
-        mapView.logoInteractionEnabled = true  
+        mapView.logoInteractionEnabled = true
         mapView.logoMargin = UIEdgeInsets(top: 60, left: 0, bottom: 0, right: 12)
         return mapView
     }
