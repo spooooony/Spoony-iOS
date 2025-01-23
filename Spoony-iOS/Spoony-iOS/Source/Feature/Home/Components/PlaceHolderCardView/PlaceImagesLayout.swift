@@ -65,7 +65,8 @@ struct PlaceImagesLayout: View {
                     .aspectRatio(contentMode: .fill)
             case .failure:
                 Color.gray
-            @unknown default:
+             
+            default:
                 Color.gray
             }
         }
