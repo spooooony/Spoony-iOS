@@ -22,14 +22,16 @@ struct DetailState {
     var longitude: Double = 0.0
     var zzimCount: Int = 0
     var isZzim: Bool = false
-    var isScoop: Bool = false
+    var isScoop: Bool = true
     var categoryName: String = ""
     var iconUrl: String = ""
     var iconTextColor: String = ""
     var iconBackgroundColor: String = ""
+    var categoryColorResponse: DetailCategoryColorResponse = .init(categoryName: "", iconUrl: "", iconTextColor: "", iconBackgroundColor: "")
+    var isMine: Bool = true
     
     // 추가 상태
     var isLoading: Bool = false
-    var errorMessage: String? = nil
+    var errorMessage: String?
     var toast: Toast?
 }
