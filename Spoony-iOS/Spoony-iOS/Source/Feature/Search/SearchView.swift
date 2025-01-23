@@ -16,7 +16,6 @@ struct SearchView: View {
     private let recentSearchesKey = "RecentSearches"
     private let searchService = SearchService()
     
-    
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -79,7 +78,7 @@ struct SearchView: View {
                 
                 Text("구체적인 장소를 검색해 보세요")
                     .customFont(.body2m)
-                    .foregroundColor(.gray600)
+                    .foregroundStyle(.gray500)
             }
             
             Spacer()
@@ -91,6 +90,7 @@ struct SearchView: View {
             HStack {
                 Text("최근 검색")
                     .customFont(.body2b)
+                
                 Spacer()
                 Button("전체삭제") {
                     recentSearches.removeAll()
@@ -98,16 +98,21 @@ struct SearchView: View {
                     searchState = .empty
                 }
                 .customFont(.caption1m)
-                .foregroundColor(.gray600)
+                .foregroundStyle(.gray500)
+                .frame(width: 57.adjusted, height: 24.adjustedH)
+                .contentShape(Rectangle())
+                .padding(.horizontal, 2)
+                .padding(.vertical, 8)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            
+
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(recentSearches, id: \.self) { search in
                     HStack {
                         Text(search)
                             .customFont(.body1b)
+                            .foregroundColor(.gray700)
                         Spacer()
                         Button(action: {
                             if let index = recentSearches.firstIndex(of: search) {
@@ -118,8 +123,8 @@ struct SearchView: View {
                             Image(.icCloseGray400)
                         }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                    .padding(.horizontal, 16.adjusted)
+                    .padding(.vertical, 14.5.adjustedH)
                     
                     if search != recentSearches.last {
                         Divider()

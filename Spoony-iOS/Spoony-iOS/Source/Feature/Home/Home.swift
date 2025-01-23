@@ -92,6 +92,7 @@ struct Home: View {
                 } catch {
                     print("Failed to fetch spoon count:", error)
                 }
+                viewModel.fetchPickList()
             }
             viewModel.fetchPickList()
         }
