@@ -166,6 +166,7 @@ struct BottomSheetListView: View {
                                                 isScrollEnabled = true
                                             }
                                         }
+                                        viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
                                     }
                             }
                         }
