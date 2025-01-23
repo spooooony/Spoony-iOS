@@ -31,6 +31,7 @@ struct DetailState {
     var iconBackgroundColor: String = ""
     var categoryColorResponse: DetailCategoryColorResponse = .init(categoryName: "", iconUrl: "", iconTextColor: "", iconBackgroundColor: "", categoryId: 0)
     var isMine: Bool = true
+    var spoonCount: Int = 0
     
     // 추가 상태
     var isLoading: Bool = false

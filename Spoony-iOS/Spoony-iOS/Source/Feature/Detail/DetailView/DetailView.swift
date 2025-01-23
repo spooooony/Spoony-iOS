@@ -29,7 +29,7 @@ struct DetailView: View {
     }
     
     private let userImage = Image(.icCafeBlue)
-
+    
     @State private var isPresented: Bool = false
     @State private var popUpIsPresented: Bool = false
     @State private var toastMessage: Toast?
@@ -39,7 +39,8 @@ struct DetailView: View {
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
-                style: .detailWithChip(count: store.state.zzimCount),
+                style: .detailWithChip,
+                spoonCount: store.state.spoonCount,
                 onBackTapped: {
                     navigationManager.pop(1)
                 }
@@ -100,9 +101,10 @@ extension DetailView {
     private var userProfileSection: some View {
         HStack(alignment: .center, spacing: 14.adjustedH) {
             
-            Image(.imgMockProfile)
+            Image(.imageThingjin)
                 .resizable()
                 .scaledToFit()
+                .clipShape(Circle())
                 .frame(width: 48.adjusted, height: 48.adjustedH)
             
             VStack(alignment: .leading, spacing: 4.adjustedH) {
@@ -110,7 +112,7 @@ extension DetailView {
                     .customFont(.body2b)
                     .foregroundStyle(.black)
                 
-                Text(store.state.placeAddress)
+                Text("서울시 성동구 수저")
                     .customFont(.caption1m)
                     .foregroundStyle(.gray400)
             }
@@ -136,10 +138,11 @@ extension DetailView {
             HStack(spacing: 10.adjusted) {
                 ForEach(imageList.indices, id: \.self) { index in
                     RemoteImageView(urlString: imageList[index])
-                        .cornerRadius(11.16)
+                        .scaledToFill()
                         .frame(width: 278.adjusted)
                         .frame(height: 278.adjustedH)
                         .blur(radius: store.state.isScoop ? 0 : 12)
+                        .cornerRadius(11.16)
                 }
             }
             .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
@@ -349,6 +352,6 @@ struct Line: Shape {
     }
 }
 
-//#Preview {
-//    DetailView(store: DetailViewStore(), postId: 12)
-//}
+#Preview {
+    DetailView(postId: 20)
+}
