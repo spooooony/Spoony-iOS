@@ -8,5 +8,9 @@
 import Foundation
 
 enum DetailIntent {
-    
+    case getInitialValue(userId: Int, postId: Int)
+    case scoopButtonDidTap
+    case scrapButtonDidTap(isScrap: Bool)
+    case addButtonDidTap
+    case pathInfoInNaverMaps
 }
