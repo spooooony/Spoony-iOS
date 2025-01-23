@@ -13,6 +13,8 @@ final class DetailViewStore: ObservableObject {
     
     private let service = DetailService()
     
+    // MARK: - Reducer
+    
     func send(intent: DetailIntent) {
         switch intent {
         case .getInitialValue(let userId, let postId):
@@ -27,6 +29,9 @@ final class DetailViewStore: ObservableObject {
             openNaverMaps()
         }
     }
+    
+    
+    // MARK: - Methods
     
     // 초기 데이터 로드
     private func fetchInitialData(userId: Int, postId: Int) {
@@ -68,33 +73,33 @@ final class DetailViewStore: ObservableObject {
         )
     }
     
-        // 스크랩 버튼 처리
-        private func handleScrapButton(isScrap: Bool) {
-            if isScrap {
-                service.unScrapReview(userId: state.userId, postId: state.postId)
-                state.zzimCount -= 1
-                state.isZzim = false
-                state.toast = Toast(
-                    style: .gray,
-                    message: "내 지도에서 삭제되었어요.",
-                    yOffset: 539.adjustedH
-                )
-            } else {
-                service.scrapReview(userId: state.userId, postId: state.postId)
-                state.zzimCount += 1
-                state.isZzim = true
-                state.toast = Toast(
-                    style: .gray,
-                    message: "내 지도에 추가되었어요.",
-                    yOffset: 539.adjustedH
-                )
-            }
+    // 스크랩 버튼 처리
+    private func handleScrapButton(isScrap: Bool) {
+        if isScrap {
+            service.unScrapReview(userId: state.userId, postId: state.postId)
+            state.zzimCount -= 1
+            state.isZzim = false
+            state.toast = Toast(
+                style: .gray,
+                message: "내 지도에서 삭제되었어요.",
+                yOffset: 539.adjustedH
+            )
+        } else {
+            service.scrapReview(userId: state.userId, postId: state.postId)
+            state.zzimCount += 1
+            state.isZzim = true
+            state.toast = Toast(
+                style: .gray,
+                message: "내 지도에 추가되었어요.",
+                yOffset: 539.adjustedH
+            )
         }
-        
+    }
+    
     // 떠먹기 버튼 처리
     private func handleScoopButton() {
         service.scoopReview(userId: state.userId, postId: state.postId)
-//        state.isScoop = true
+        //        state.isScoop = true
         
         self.fetchInitialData(userId: state.userId, postId: state.postId)
     }

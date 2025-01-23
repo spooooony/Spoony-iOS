@@ -7,6 +7,8 @@
 
 import Foundation
 
+// MARK: - State
+
 struct DetailState {
     var postId: Int = 0
     var userId: Int = 0

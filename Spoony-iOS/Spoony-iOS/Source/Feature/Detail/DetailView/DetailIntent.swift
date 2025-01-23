@@ -7,6 +7,8 @@
 
 import Foundation
 
+// MARK: - Intent
+
 enum DetailIntent {
     case getInitialValue(userId: Int, postId: Int)
     case scoopButtonDidTap

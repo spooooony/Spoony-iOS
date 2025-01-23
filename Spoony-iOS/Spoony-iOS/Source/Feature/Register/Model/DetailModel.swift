@@ -7,6 +7,9 @@
 
 import Foundation
 
+
+// MARK: - ReviewDetailModel
+
 struct ReviewDetailModel: Codable {
     let postId: Int
     let userId: Int
@@ -26,12 +29,17 @@ struct ReviewDetailModel: Codable {
     let isMine: Bool
 }
 
+// MARK: - DetailCategoryColorResponse
+
 struct DetailCategoryColorResponse: Codable {
     let categoryName: String
     let iconUrl: String
     let iconTextColor: String
     let iconBackgroundColor: String
 }
+
+
+// MARK: - Entity
 
 extension DetailCategoryColorResponse {
     func toEntity() -> ChipColorEntity {
