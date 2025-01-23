@@ -13,6 +13,7 @@ struct SearchView: View {
     @State private var searchResults: [SearchResult] = []
     @State private var searchState: SearchState = .empty
     @State private var recentSearches: [String] = UserManager.shared.recentSearches ?? []
+    @FocusState private var isSearchFocused: Bool
     private let recentSearchesKey = "RecentSearches"
     private let searchService = SearchService()
     
@@ -28,7 +29,7 @@ struct SearchView: View {
                     tappedAction: {
                         handleSearch()
                     }
-                )
+                ).focused($isSearchFocused)
                 
                 switch searchState {
                 case .empty:
@@ -58,6 +59,7 @@ struct SearchView: View {
             searchText = ""
             searchState = .empty
             searchResults.removeAll()
+            isSearchFocused = true
         }
     }
     
