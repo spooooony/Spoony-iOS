@@ -18,7 +18,7 @@ struct Explore: View {
             Spacer()
             CustomNavigationBar(
                 style: .locationDetail,
-                title: store.state.navigationTitle,
+                title: "서울특별시 \(store.state.selectedLocation.rawValue)",
                 spoonCount: store.state.spoonCount,
                 tappedAction: {
                     store.dispatch(.navigationLocationTapped)

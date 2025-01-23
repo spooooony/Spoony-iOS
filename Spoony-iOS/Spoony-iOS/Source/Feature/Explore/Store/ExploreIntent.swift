@@ -16,7 +16,6 @@ enum ExploreIntent {
     case selectLocationTapped
     case closeLocationTapped
     case isPresentedLocationChanged(Bool)
-    case isSelectLocationDisabledChanged(Bool)
     
     // Filter Bottom Sheet
     case filterButtontapped

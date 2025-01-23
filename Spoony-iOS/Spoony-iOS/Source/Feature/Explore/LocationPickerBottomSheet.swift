@@ -117,9 +117,8 @@ struct LocationPickerBottomSheet: View {
                 size: .xlarge,
                 title: "선택하기",
                 disabled: Binding(get: {
-                    store.state.isSelectLocationButtonDisabled
-                }, set: { newValue in
-                    store.dispatch(.isSelectLocationDisabledChanged(newValue))
+                    return store.state.tempLocation == nil
+                }, set: { _ in
                 })
             ) {
                 store.dispatch(.selectLocationTapped)

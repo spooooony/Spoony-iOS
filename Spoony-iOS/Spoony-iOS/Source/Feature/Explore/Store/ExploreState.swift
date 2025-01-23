@@ -17,13 +17,9 @@ struct ExploreState {
     
     var selectedFilter: FilterType = .latest
     
-    var navigationTitle: String = ""
-    
     var categoryList: [CategoryChip] = []
     var selectedCategory: CategoryChip?
     
     var isPresentedLocation: Bool = false
     var isPresentedFilter: Bool = false
-    
-    var isSelectLocationButtonDisabled: Bool = true
 }

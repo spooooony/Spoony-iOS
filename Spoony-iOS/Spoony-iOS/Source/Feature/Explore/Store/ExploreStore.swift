@@ -28,7 +28,6 @@ final class ExploreStore: ObservableObject {
             state.isPresentedLocation = true
         case .locationTapped(let location):
             state.tempLocation = location
-            state.isSelectLocationButtonDisabled = false
         case .selectLocationTapped:
             changeLocation()
         case .closeLocationTapped:
@@ -48,8 +47,6 @@ final class ExploreStore: ObservableObject {
             state.isPresentedLocation = newValue
         case .isPresentedFilterChanged(let newValue):
             state.isPresentedFilter = newValue
-        case .isSelectLocationDisabledChanged(let newValue):
-            state.isSelectLocationButtonDisabled = newValue
         }
     }
 }
@@ -60,11 +57,10 @@ extension ExploreStore {
         guard let location = state.tempLocation else { return }
         
         state.selectedLocation = location
-        state.navigationTitle = "서울특별시 \(location.rawValue)"
         getFeedList()
         state.tempLocation = nil
         state.isPresentedLocation = false
-        state.isSelectLocationButtonDisabled = true
+//        state.isSelectLocationButtonDisabled = true
     }
     
     private func changeFilter(filter: FilterType) {
@@ -95,7 +91,6 @@ extension ExploreStore {
             try await fetchCategoryList()
             await MainActor.run {
                 state.selectedCategory = state.categoryList.first
-                state.navigationTitle = "서울특별시 \(state.selectedLocation.rawValue)"
             }
             try await fetchFeedList()
         }
