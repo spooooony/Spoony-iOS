@@ -14,7 +14,6 @@ enum BottomSheetStyle {
     
     var height: CGFloat {
         let screenHeight = UIScreen.main.bounds.height
-       // let bottomSafeArea = UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0
         
         switch self {
         case .full:
