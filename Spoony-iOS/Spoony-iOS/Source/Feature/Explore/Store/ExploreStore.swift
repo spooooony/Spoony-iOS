@@ -104,9 +104,11 @@ extension ExploreStore {
     // MARK: - Network
     @MainActor
     private func fetchFeedList() async throws {
+        guard let category = state.selectedCategory else { return }
+        
         state.exploreList = try await network.getUserFeed(
             userId: Config.userId,
-            categoryId: state.selectedCategory?.id ?? 1,
+            categoryId: category.id,
             location: state.selectedLocation.rawValue,
             sort: state.selectedFilter
         )
