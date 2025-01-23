@@ -30,12 +30,7 @@ struct Register: View {
             .simultaneousGesture(
                 DragGesture()
                     .onChanged { _ in
-                        UIApplication.shared.sendAction(
-                            #selector(UIResponder.resignFirstResponder),
-                            to: nil,
-                            from: nil,
-                            for: nil
-                        )
+                        hideKeyboard()
                     }
             )
         }
@@ -78,8 +73,4 @@ enum RegisterStep: Int {
     case start = 1
     case middle = 2
     case end = 3
-}
-
-#Preview {
-    Register(store: .init(navigationManager: .init()))
 }
