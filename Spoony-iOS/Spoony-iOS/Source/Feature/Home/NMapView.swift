@@ -62,7 +62,7 @@ struct NMapView: UIViewRepresentable {
             let coord = NMGLatLng(lat: location.latitude, lng: location.longitude)
             let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
             cameraUpdate.animation = .easeIn
-            cameraUpdate.animationDuration = 0.5
+            cameraUpdate.animationDuration = 0.2
             mapView.moveCamera(cameraUpdate)
         }
     }
