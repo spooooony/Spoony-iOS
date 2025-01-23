@@ -122,4 +122,12 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate {
         selectedPlace = nil
         return true
     }
+        func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng) -> Bool {
+            if selectedPlace != nil {
+                selectedPlace = nil
+                markers.forEach { $0.iconImage = NMFOverlayImage(name: "ic_unselected_marker") }
+                return true
+            }
+            return false
+        }
 }
