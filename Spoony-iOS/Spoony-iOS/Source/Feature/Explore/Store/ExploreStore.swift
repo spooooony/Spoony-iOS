@@ -10,34 +10,72 @@ import SwiftUI
 final class ExploreStore: ObservableObject {
         private let network: ExploreProtocol = DefaultExploreService()
 //    private let network: ExploreProtocol = MockExploreService()
+    //TODO: navigation MVI 리팩토링은 나중에 할거다..
+//    let navigationManager: NavigationManager
     
-    @Published private(set) var exploreList: [FeedEntity] = []
-    @Published private(set) var selectedLocation: SeoulType?
-    @Published private(set) var selectedFilter: FilterType = .latest
-    //TODO: 위치 정보 받으면 고치기
-    @Published private(set) var navigationTitle: String = "서울특별시 마포구"
+    @Published private(set) var state: ExploreState = ExploreState()
     
-    @Published private(set) var categoryList: [CategoryChip] = []
-    @Published private(set) var selectedCategory: CategoryChip?
+//    init(navigationManager: NavigationManager) {
+//        self.navigationManager = navigationManager
+//    }
     
-    func changeLocation(location: SeoulType) {
-        selectedLocation = location
-        navigationTitle = "서울특별시 \(location.rawValue)"
+    func dispatch(_ intent: ExploreIntent) {
+        switch intent {
+        case .onAppear:
+            getSpoonCount()
+            getCategoryList()
+        case .navigationLocationTapped:
+            state.isPresentedLocation = true
+        case .locationTapped(let location):
+            state.tempLocation = location
+            state.isSelectLocationButtonDisabled = false
+        case .selectLocationTapped:
+            changeLocation()
+        case .closeLocationTapped:
+            state.isPresentedLocation = false
+        case .filterButtontapped:
+            state.isPresentedFilter = true
+        case .filterTapped(let filter):
+            changeFilter(filter: filter)
+        case .closeFilterTapped:
+            state.isPresentedFilter = false
+        case .categoryTapped(let category):
+            changeCategory(category: category)
+        case .cellTapped(let feed): break
+            //추후 feed 정보 detialview에 전달
+//            navigationManager.push(.detailView)
+        case .isPresentedLocationChanged(let newValue):
+            state.isPresentedLocation = newValue
+        case .isPresentedFilterChanged(let newValue):
+            state.isPresentedFilter = newValue
+        case .isSelectLocationDisabledChanged(let newValue):
+            state.isSelectLocationButtonDisabled = newValue
+        }
+    }
+}
+
+extension ExploreStore {
+    
+    private func changeLocation() {
+        guard let location = state.tempLocation else { return }
+        
+        state.selectedLocation = location
+        state.navigationTitle = "서울특별시 \(location.rawValue)"
         getFeedList()
+        state.tempLocation = nil
+        state.isPresentedLocation = false
+        state.isSelectLocationButtonDisabled = true
     }
     
-    func changeFilter(filter: FilterType) {
-        selectedFilter = filter
+    private func changeFilter(filter: FilterType) {
+        state.selectedFilter = filter
         getFeedList()
+        state.isPresentedFilter = false
     }
     
-    func changeCategory(category: CategoryChip) {
-        selectedCategory = category
+    private func changeCategory(category: CategoryChip) {
+        state.selectedCategory = category
         getFeedList()
-    }
-    
-    func isSelectedCategory(category: CategoryChip) -> Bool {
-        return category == selectedCategory
     }
     
     private func getFeedList() {
@@ -45,12 +83,19 @@ final class ExploreStore: ObservableObject {
             try await fetchFeedList()
         }
     }
+
+    private func getSpoonCount() {
+        Task {
+            try await fetchSpoonCount()
+        }
+    }
     
-    func getCategoryList() {
+    private func getCategoryList() {
         Task {
             try await fetchCategoryList()
             await MainActor.run {
-                selectedCategory = categoryList.first
+                state.selectedCategory = state.categoryList.first
+                state.navigationTitle = "서울특별시 \(state.selectedLocation.rawValue)"
             }
             try await fetchFeedList()
         }
@@ -59,19 +104,29 @@ final class ExploreStore: ObservableObject {
     // MARK: - Network
     @MainActor
     private func fetchFeedList() async throws {
-        guard let selectedCategory else { return }
-        exploreList = try await network.getUserFeed(
+        state.exploreList = try await network.getUserFeed(
             userId: Config.userId,
-            categoryId: selectedCategory.id,
-            location: selectedLocation?.rawValue ?? "",
-            sort: selectedFilter
+            categoryId: state.selectedCategory?.id ?? 1,
+            location: state.selectedLocation.rawValue,
+            sort: state.selectedFilter
         )
-        .feedResponseList
-        .map { $0.toEntity() }
+        .toEntity()
     }
     
     @MainActor
     private func fetchCategoryList() async throws {
-        categoryList = try await network.getCategoryList().toModel()
+        state.categoryList = try await network.getCategoryList().toModel()
+    }
+    
+    @MainActor
+    private func fetchSpoonCount() async throws {
+        //TODO: 추후 수정 예정
+        Task {
+            do {
+                state.spoonCount = try await DefaultHomeService().fetchSpoonCount(userId: Config.userId)
+            } catch {
+                print("Failed to fetch spoon count:", error)
+            }
+        }
     }
 }
