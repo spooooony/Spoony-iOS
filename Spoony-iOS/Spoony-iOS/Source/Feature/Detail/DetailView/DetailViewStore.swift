@@ -22,14 +22,15 @@ final class DetailViewStore: ObservableObject {
         case .scrapButtonDidTap(let isScrap):
             handleScrapButton(isScrap: isScrap)
         case .scoopButtonDidTap:
-            handleScoopButton()
+            Task {
+                try await handleScoopButton()
+            }
         case .addButtonDidTap:
             handleAddButton()
         case .pathInfoInNaverMaps:
             openNaverMaps()
         }
     }
-    
     
     // MARK: - Methods
     
@@ -97,11 +98,19 @@ final class DetailViewStore: ObservableObject {
     }
     
     // 떠먹기 버튼 처리
-    private func handleScoopButton() {
-        service.scoopReview(userId: state.userId, postId: state.postId)
-        //        state.isScoop = true
-        
-        self.fetchInitialData(userId: state.userId, postId: state.postId)
+    @MainActor
+    private func handleScoopButton() async throws {
+ 
+        do {
+            let data = try await service.scoopReview(userId: Config.userId, postId: state.postId)
+            
+            if data {
+                state.isScoop.toggle()
+            }
+            
+        } catch {
+            print(error.localizedDescription)
+        }
     }
     
     // 드롭 다운 버튼 처리
