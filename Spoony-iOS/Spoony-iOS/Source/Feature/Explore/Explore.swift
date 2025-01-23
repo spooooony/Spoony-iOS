@@ -140,7 +140,7 @@ extension Explore {
                         .padding(.bottom, 12)
                         .padding(.horizontal, 20)
                         .onTapGesture {
-                            navigationManager.push(.detailView(postId: 1))
+                            navigationManager.push(.detailView(postId: list.postId))
                         }
                 }
             }
