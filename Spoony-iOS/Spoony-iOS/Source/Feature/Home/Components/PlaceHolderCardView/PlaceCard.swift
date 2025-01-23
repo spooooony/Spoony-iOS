@@ -94,7 +94,7 @@ private struct CategoryLabel: View {
                 image
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 16, height: 16)
+                    .frame(width: 16.adjusted, height: 16.adjustedH)
             } placeholder: {
                 Rectangle().redacted(reason: .placeholder)
             }
