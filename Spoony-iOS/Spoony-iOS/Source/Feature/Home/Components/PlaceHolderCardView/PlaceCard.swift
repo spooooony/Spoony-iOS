@@ -20,7 +20,7 @@ struct PlaceCard: View {
                         .tag(index)
                         .padding(.horizontal, 26)
                         .onTapGesture {
-                            let postId = places[index].placeId
+                            let postId = places[index].postId
                             navigationManager.push(.detailView(postId: postId))
                         }
                 }
