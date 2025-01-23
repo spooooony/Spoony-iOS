@@ -54,11 +54,6 @@ struct Report: View {
     @EnvironmentObject private var navigationManager: NavigationManager
     @StateObject private var store: ReportStore = ReportStore()
     
-    @State private var text: String = ""
-    
-    @State private var isError: Bool = true
-    @State private var isDisabled: Bool = true
-    
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
@@ -77,16 +72,18 @@ struct Report: View {
                     style: .secondary,
                     size: .xlarge,
                     title: "신고하기",
-                    disabled: $isDisabled
+                    disabled: Binding(get: {
+                        store.state.isDisabled
+                    }, set: { newValue in
+                        store.dispatch(.isDisabledChanged(newValue))
+                    })
                 ) {
-                    Task {
-                        try await store.postReport(postId: 1, description: text)
-                        navigationManager.popup = .reportSuccess(action: {
-                            navigationManager.pop(2)
-                        })
-                    }
+                    store.dispatch(.reportPostButtonTapped(1))
+                    navigationManager.popup = .reportSuccess(action: {
+                        navigationManager.pop(2)
+                    })
                 }
-                .padding(.top, !isError ? 12 : 20)
+                .padding(.top, !store.state.isError ? 12 : 20)
                 .padding(.bottom, 20)
             }
             .scrollIndicators(.hidden)
@@ -95,9 +92,6 @@ struct Report: View {
         .background(.white)
         .onTapGesture {
             hideKeyboard()
-        }
-        .onChange(of: isError) {
-            isDisabled = isError
         }
     }
 }
@@ -113,10 +107,11 @@ extension Report {
             ForEach(ReportType.allCases, id: \.self) { report in
                 radioButton(
                     report: report,
-                    isSelected: store.selectedReport == report
+                    isSelected: store.state.selectedReport == report
                 )
                 .onTapGesture {
-                    store.changeReportType(report: report)
+                    store.dispatch(.reportReasonButtonTapped(report))
+                    // 이것도 intent로 바꿀 방법 생각해보기
                     hideKeyboard()
                 }
             }
@@ -133,10 +128,18 @@ extension Report {
                 .padding(.bottom, 12.adjustedH)
             
             SpoonyTextEditor(
-                text: $text,
+                text: Binding(get: {
+                    store.state.description
+                }, set: { newValue in
+                    store.dispatch(.descriptionChanged(newValue))
+                }),
                 style: .report,
                 placeholder: "내용을 자세히 적어주시면 신고에 도움이 돼요",
-                isError: $isError
+                isError: Binding(get: {
+                    store.state.isError
+                }, set: { newValue in
+                    store.dispatch(.isErrorChanged(newValue))
+                })
             )
             
             HStack(alignment: .top, spacing: 10) {
