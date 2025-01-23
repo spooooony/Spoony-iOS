@@ -48,21 +48,3 @@ final class HomeViewModel: ObservableObject {
             focusedPlaces = []
         }
 }
-
-extension FocusPlaceResponse {
-    func toCardPlace() -> CardPlace {
-        return CardPlace(
-            placeId: placeId,
-            name: placeName,
-            visitorCount: "\(zzimCount)",
-            address: authorRegionName,
-            images: photoUrlList,
-            title: authorName,
-            subTitle:postTitle,
-            description: categoryColorResponse.categoryName,
-            categoryColor: categoryColorResponse.iconBackgroundColor,
-            categoryTextColor: categoryColorResponse.iconTextColor,
-            categoryIcon: categoryColorResponse.iconUrl
-        )
-    }
-}
