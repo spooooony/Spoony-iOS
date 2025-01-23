@@ -19,8 +19,6 @@ final class NavigationManager: ObservableObject {
     @ViewBuilder
     func build(_ view: ViewType) -> some View {
         switch view {
-        case .test:
-            Explore()
         case .searchView:
             SearchView()
         case .locationView:

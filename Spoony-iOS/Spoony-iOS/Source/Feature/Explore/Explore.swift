@@ -11,61 +11,51 @@ import Lottie
 
 struct Explore: View {
     @EnvironmentObject private var navigationManager: NavigationManager
-    @StateObject private var store = ExploreStore()
-    
-    @State private var isPresentedLocation: Bool = false
-    @State private var isPresentedFilter: Bool = false
-    
-    @State private var spoonCount: Int = 0
+    @StateObject private var store: ExploreStore = ExploreStore()
     
     var body: some View {
         VStack(spacing: 0) {
+            Spacer()
             CustomNavigationBar(
                 style: .locationDetail,
-                title: store.navigationTitle,
-                spoonCount: spoonCount,
+                title: "서울특별시 \(store.state.selectedLocation.rawValue)",
+                spoonCount: store.state.spoonCount,
                 tappedAction: {
-                    isPresentedLocation = true
+                    store.dispatch(.navigationLocationTapped)
                 })
             
             categoryList
         
-            if store.exploreList.isEmpty {
+            if store.state.exploreList.isEmpty {
                 emptyView
             } else {
                 filterButton
                     .onTapGesture {
-                        isPresentedFilter = true
+                        store.dispatch(.filterButtontapped)
                     }
                 listView
             }
         }
-        .sheet(isPresented: $isPresentedFilter) {
-            FilterBottomSheet(
-                isPresented: $isPresentedFilter,
-                store: store
-            )
+        .sheet(isPresented: Binding(get: {
+            store.state.isPresentedFilter
+        }, set: { newValue in
+            store.dispatch(.isPresentedFilterChanged(newValue))
+        })) {
+            FilterBottomSheet(store: store)
             .presentationDetents([.height(250.adjustedH)])
             .presentationCornerRadius(16)
         }
-        .sheet(isPresented: $isPresentedLocation) {
-            LocationPickerBottomSheet(
-                isPresented: $isPresentedLocation,
-                store: store
-            )
+        .sheet(isPresented: Binding(get: {
+            store.state.isPresentedLocation
+        }, set: { newValue in
+            store.dispatch(.isPresentedLocationChanged(newValue))
+        })) {
+            LocationPickerBottomSheet(store: store)
             .presentationDetents([.height(542.adjustedH)])
             .presentationCornerRadius(16)
         }
         .task {
-            store.getCategoryList()
-            //TODO: 추후 수정 예정
-            Task {
-                do {
-                    spoonCount = try await DefaultHomeService().fetchSpoonCount(userId: Config.userId)
-                } catch {
-                    print("Failed to fetch spoon count:", error)
-                }
-            }
+            store.dispatch(.onAppear)
         }
     }
 }
@@ -76,10 +66,10 @@ extension Explore {
             HStack {
                 Spacer()
                     .frame(width: 20.adjusted)
-                ForEach(store.categoryList) { item in
-                    ExploreCategoryChip(category: item, selected: store.isSelectedCategory(category: item))
+                ForEach(store.state.categoryList) { item in
+                    ExploreCategoryChip(category: item, selected: item == store.state.selectedCategory)
                     .onTapGesture {
-                        store.changeCategory(category: item)
+                        store.dispatch(.categoryTapped(item))
                     }
                 }
                 Spacer()
@@ -92,7 +82,7 @@ extension Explore {
     private var filterButton: some View {
         HStack(spacing: 2) {
             Spacer()
-            Text(store.selectedFilter.title)
+            Text(store.state.selectedFilter.title)
                 .customFont(.caption1m)
                 .foregroundStyle(.gray700)
             Image(.icFilterGray700)
@@ -135,7 +125,7 @@ extension Explore {
     private var listView: some View {
         ScrollView {
             VStack(spacing: 0) {
-                ForEach(store.exploreList) { list in
+                ForEach(store.state.exploreList) { list in
                     ExploreCell(feed: list)
                         .padding(.bottom, 12)
                         .padding(.horizontal, 20)
@@ -148,8 +138,4 @@ extension Explore {
         .scrollIndicators(.hidden)
         .padding(.top, 16)
     }
-}
-
-#Preview {
-    Explore()
 }

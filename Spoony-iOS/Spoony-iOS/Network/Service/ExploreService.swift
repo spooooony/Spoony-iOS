@@ -84,9 +84,7 @@ final class MockExploreService: ExploreProtocol {
         sort: FilterType
     ) async throws -> FeedListResponse {
         return .init(feedResponseList: [
-            FeedResponse.sample,
-            FeedResponse.sample,
-            FeedResponse.sample
+            
         ])
     }
     
