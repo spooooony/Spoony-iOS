@@ -15,6 +15,18 @@ struct NMapView: UIViewRepresentable {
     @ObservedObject var viewModel: HomeViewModel
     @Binding var selectedPlace: CardPlace?
     
+    private var mapView: NMFMapView
+    let onMoveCamera: ((Double, Double) -> Void)?
+        
+    init(viewModel: HomeViewModel,
+             selectedPlace: Binding<CardPlace?>,
+             onMoveCamera: ((Double, Double) -> Void)? = nil) {
+            self.viewModel = viewModel
+            self._selectedPlace = selectedPlace
+            self.onMoveCamera = onMoveCamera
+            self.mapView = NMFMapView()
+        }
+    
     func makeUIView(context: Context) -> NMFMapView {
         let mapView = configureMapView(context: context)
         return mapView
@@ -48,7 +60,16 @@ struct NMapView: UIViewRepresentable {
             let cameraUpdate = NMFCameraUpdate(fit: bounds, padding: 50)
             mapView.moveCamera(cameraUpdate)
         }
+        
+        if let location = viewModel.selectedLocation {
+            let coord = NMGLatLng(lat: location.latitude, lng: location.longitude)
+            let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
+            cameraUpdate.animation = .easeIn
+            cameraUpdate.animationDuration = 0.5
+            mapView.moveCamera(cameraUpdate)
+        }
     }
+    
     
     private func configureMapView(context: Context) -> NMFMapView {
         let mapView = NMFMapView()
