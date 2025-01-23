@@ -13,6 +13,7 @@ final class HomeViewModel: ObservableObject {
     @Published private(set) var pickList: [PickListCardResponse] = []
     @Published var isLoading = false
     @Published var focusedPlaces: [CardPlace] = []
+    @Published var selectedLocation: (latitude: Double, longitude: Double)?
     @Published var error: Error?
     
     init(service: HomeServiceType = DefaultHomeService()) {
@@ -33,36 +34,24 @@ final class HomeViewModel: ObservableObject {
     }
     
     func fetchFocusedPlace(placeId: Int) {
-        Task {
-            isLoading = true
-            do {
-                let response = try await service.fetchFocusedPlace(userId: 1, placeId: placeId)
-                self.focusedPlaces = response.zzimFocusResponseList.map { $0.toCardPlace() }
-            } catch {
-                self.error = error
+            Task {
+                isLoading = true
+                do {
+                    if let selectedPlace = pickList.first(where: { $0.placeId == placeId }) {
+                        selectedLocation = (selectedPlace.latitude, selectedPlace.longitude)
+                    }
+                    
+                    let response = try await service.fetchFocusedPlace(userId: 1, placeId: placeId)
+                    self.focusedPlaces = response.zzimFocusResponseList.map { $0.toCardPlace() }
+                } catch {
+                    self.error = error
+                }
+                isLoading = false
             }
-            isLoading = false
         }
-    }
+    
     func clearFocusedPlaces() {
             focusedPlaces = []
+            selectedLocation = nil
         }
-}
-
-extension FocusPlaceResponse {
-    func toCardPlace() -> CardPlace {
-        return CardPlace(
-            placeId: placeId,
-            name: placeName,
-            visitorCount: "\(zzimCount)",
-            address: authorRegionName,
-            images: photoUrlList,
-            title: postTitle,
-            subTitle: authorName,
-            description: categoryColorResponse.categoryName,
-            categoryColor: categoryColorResponse.iconBackgroundColor,
-            categoryTextColor: categoryColorResponse.iconTextColor,
-            categoryIcon: categoryColorResponse.iconUrl
-        )
-    }
 }

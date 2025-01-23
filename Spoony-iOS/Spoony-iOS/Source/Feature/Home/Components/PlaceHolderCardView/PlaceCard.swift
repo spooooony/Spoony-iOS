@@ -44,24 +44,30 @@ private struct PlaceCardItem: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            Image(.imagecontainerViewTriangle)
+                .resizable()
+                .frame(width: 16.adjusted, height: 14.adjustedH)
+                .zIndex(1)
+                .background(Color.clear)
+            
             VStack(spacing: 0) {
                 PlaceImagesLayout(images: place.images)
                 
                 PlaceHeaderSection(place: place)
                     .padding(15)
+                
+                PlaceInfoSection(place: place)
+                    .padding(15)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.gray0)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(.horizontal, 15)
+                    .padding(.bottom, 15)
             }
-            .background(.white)
-            
-            PlaceInfoSection(place: place)
-                .padding(15)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.gray0)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .padding(.horizontal, 15)
-                .padding(.bottom, 15)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .background(Color.clear) 
     }
 }
 
@@ -116,8 +122,12 @@ private struct VisitorCountLabel: View {
     var body: some View {
         HStack(spacing: 4) {
             Image(.icAddmapGray400)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 16.adjusted, height: 16.adjustedH)
             Text(count)
                 .customFont(.caption2b)
+                .foregroundStyle(.gray500)
         }
     }
 }

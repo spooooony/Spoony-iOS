@@ -141,9 +141,14 @@ struct BottomSheetListView: View {
                         .frame(width: 24.adjusted, height: 2.adjustedH)
                         .padding(.top, 10)
                     
-                    Text("타이틀")
-                        .customFont(.body2b)
-                        .padding(.bottom, 8)
+                    HStack(spacing: 4) {
+                        Text("양수정님의 찐맛집")
+                            .customFont(.body2b)
+                        Text("\(viewModel.pickList.count)")
+                            .customFont(.body2b)
+                            .foregroundColor(.gray500)
+                    }
+                    .padding(.bottom, 8)
                 }
                 .frame(height: 60.adjustedH)
                 .background(.white)
@@ -161,6 +166,7 @@ struct BottomSheetListView: View {
                                                 isScrollEnabled = true
                                             }
                                         }
+                                        viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
                                     }
                             }
                         }

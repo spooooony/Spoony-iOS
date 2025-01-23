@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct Home: View {
     @EnvironmentObject var navigationManager: NavigationManager
     @StateObject private var viewModel = HomeViewModel(service: DefaultHomeService())
