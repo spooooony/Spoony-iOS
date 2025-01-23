@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "defaultImage.svg",
       "idiom" : "universal",
       "scale" : "1x"
     },

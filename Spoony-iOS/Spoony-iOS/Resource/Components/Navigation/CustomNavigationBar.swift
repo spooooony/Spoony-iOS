@@ -107,7 +107,7 @@ struct CustomNavigationBar: View {
     private var locationDetail: some View {
         HStack {
             Button(action: { tappedAction?() }) {
-                HStack {
+                HStack(spacing: 4) {
                     Text(title ?? "홍대입구역")
                         .customFont(.title2sb)
                         .foregroundStyle(.spoonBlack)

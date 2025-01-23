@@ -175,7 +175,7 @@ extension SpoonyTextField {
 extension SpoonyTextField {
     private func checkInputError(_ input: String) -> TextFieldErrorState {
         let trimmedText = text.replacingOccurrences(of: " ", with: "")
-        let regex = "^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣\\x20\\p{P}]*$"
+        let regex = "^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣\\x20\\p{P}\\$\\^\\+=₩|~<>¥£]*$"
         let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
         
         if !predicate.evaluate(with: input) {

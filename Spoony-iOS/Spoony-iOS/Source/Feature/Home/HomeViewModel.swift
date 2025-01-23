@@ -12,6 +12,8 @@ final class HomeViewModel: ObservableObject {
     private let service: HomeServiceType
     @Published private(set) var pickList: [PickListCardResponse] = []
     @Published var isLoading = false
+    @Published var focusedPlaces: [CardPlace] = []
+    @Published var selectedLocation: (latitude: Double, longitude: Double)?
     @Published var error: Error?
     
     init(service: HomeServiceType = DefaultHomeService()) {
@@ -22,7 +24,7 @@ final class HomeViewModel: ObservableObject {
         Task {
             isLoading = true
             do {
-                let response = try await service.fetchPickList(userId: 1)
+                let response = try await service.fetchPickList(userId: Config.userId)
                 self.pickList = response.zzimCardResponses
             } catch {
                 self.error = error
@@ -30,4 +32,26 @@ final class HomeViewModel: ObservableObject {
             isLoading = false
         }
     }
+    
+    func fetchFocusedPlace(placeId: Int) {
+            Task {
+                isLoading = true
+                do {
+                    if let selectedPlace = pickList.first(where: { $0.placeId == placeId }) {
+                        selectedLocation = (selectedPlace.latitude, selectedPlace.longitude)
+                    }
+                    
+                    let response = try await service.fetchFocusedPlace(userId: Config.userId, placeId: placeId)
+                    self.focusedPlaces = response.zzimFocusResponseList.map { $0.toCardPlace() }
+                } catch {
+                    self.error = error
+                }
+                isLoading = false
+            }
+        }
+    
+    func clearFocusedPlaces() {
+            focusedPlaces = []
+            selectedLocation = nil
+        }
 }
