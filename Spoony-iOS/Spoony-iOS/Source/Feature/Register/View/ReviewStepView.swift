@@ -34,7 +34,7 @@ struct ReviewStepView: View {
                     }
                 )
             ) {
-                store.dispatch(.didTapNextButton(.middle))                
+                store.dispatch(.didTapNextButton(.middle))
             }
             .padding(.bottom, 20)
         }
@@ -48,7 +48,7 @@ struct ReviewStepView: View {
                     store.dispatch(.movePreviousView)
                 }
             }
-)
+        )        
     }
 }
 
