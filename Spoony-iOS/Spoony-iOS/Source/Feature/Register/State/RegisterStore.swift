@@ -259,7 +259,7 @@ extension RegisterStore {
     
     private func checkDuplicatePlace(_ place: PlaceInfo) {
         let request = ValidatePlaceRequest(
-            userId: 1,
+            userId: Config.userId,
             latitude: place.latitude,
             longitude: place.longitude
         )
@@ -290,7 +290,7 @@ extension RegisterStore {
         guard let selectedPlace = state.selectedPlace,
               let selectedCategory = state.selectedCategory.first else { return }
         let request = RegisterPostRequest(
-            userId: 1,
+            userId: Config.userId,
             title: state.simpleText,
             description: state.detailText,
             placeName: selectedPlace.placeName,
