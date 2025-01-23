@@ -5,11 +5,7 @@
 //  Created by 이명진 on 1/23/25.
 //
 
-protocol DetailSeviceProtocol {
-    func getReviewDetail(userId: Int, postId: Int, completion: @escaping (Result<ReviewDetailModel, SNError>) -> Void)
-}
-
-public class DetailService: DetailSeviceProtocol {
+public class DetailService {
     
     let detailProvider = Providers.detailProvider
     
