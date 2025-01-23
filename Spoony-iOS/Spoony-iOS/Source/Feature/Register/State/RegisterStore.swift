@@ -144,32 +144,46 @@ final class RegisterStore: ObservableObject {
             }
         case .getCategories:
             fetchCategories()
+        case .didTapPhoto(let items):
+            validateSelectedPhotoCount(item: items)
         }
     }
 }
 
 extension RegisterStore {
-    private func loadImage() async {
-        for item in state.pickerItems {
-            do {
-                if let data = try await item.loadTransferable(type: Data.self),
-                   let jpegData = UIImage(data: data)?.jpegData(compressionQuality: 0.1),
-                   let image = UIImage(data: jpegData) {
-                    let image = Image(uiImage: image)
-                    
-                    await MainActor.run {
-                        state.uploadImages.append(.init(image: image, imageData: jpegData))
-                    }
-                }
-            } catch {
-                print("Error loading image: \(error)")
-            }
+    private func validateSelectedPhotoCount(item: [PhotosPickerItem]) {
+        if item.count > state.selectableCount {
+            state.pickerItems = Array(item.prefix(state.selectableCount))
+            state.selectableCount = 0
         }
+    }
+    private func loadImage() async {
         await MainActor.run {
             state.selectableCount -= state.pickerItems.count
-            state.pickerItems = []
-            state.uploadImageErrorState = .noError
-            secondButtonInavlid()
+        }
+        
+        if state.selectableCount >= 0 {
+            for item in state.pickerItems {
+                do {
+                    if let data = try await item.loadTransferable(type: Data.self),
+                       let jpegData = UIImage(data: data)?.jpegData(compressionQuality: 0.1),
+                       let image = UIImage(data: jpegData) {
+                        let image = Image(uiImage: image)
+                        
+                        await MainActor.run {
+                            state.uploadImages.append(.init(image: image, imageData: jpegData))
+                        }
+                    }
+                } catch {
+                    print("Error loading image: \(error)")
+                }
+            }
+            
+            await MainActor.run {
+                state.pickerItems = []
+                state.uploadImageErrorState = .noError
+                secondButtonInavlid()
+            }
         }
     }
     

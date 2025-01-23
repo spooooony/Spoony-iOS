@@ -17,7 +17,7 @@ struct RegisterState {
     var recommendTexts: [TextList] = [.init()]
     
     var toast: Toast?
-    // 나중에 api 연결
+    
     var categorys: [CategoryChip] = []
     var selectedCategory: [CategoryChip] = []
     
@@ -34,7 +34,7 @@ struct RegisterState {
     var selectableCount = 5
     
     var selectedPlace: PlaceInfo?
-    // 나중에 api 연결
+    
     var searchedPlaces: [PlaceInfo] = []
     var pickerItems: [PhotosPickerItem] = []
     var uploadImages: [UploadImage] = []
