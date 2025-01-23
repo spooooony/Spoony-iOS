@@ -145,13 +145,13 @@ final class RegisterStore: ObservableObject {
         case .getCategories:
             fetchCategories()
         case .didTapPhoto(let items):
-            delete(item: items)
+            validateSelectedPhotoCount(item: items)
         }
     }
 }
 
 extension RegisterStore {
-    private func delete(item: [PhotosPickerItem]) {
+    private func validateSelectedPhotoCount(item: [PhotosPickerItem]) {
         if item.count > state.selectableCount {
             state.pickerItems = Array(item.prefix(state.selectableCount))
             state.selectableCount = 0
