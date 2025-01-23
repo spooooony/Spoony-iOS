@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import NMapsMap
 
 enum SNError: Error {
     case networkFail

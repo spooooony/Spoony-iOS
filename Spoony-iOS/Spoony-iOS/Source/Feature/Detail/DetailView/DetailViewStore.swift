@@ -91,7 +91,7 @@ final class DetailViewStore: ObservableObject {
             }
         }
         
-    // 스쿱 버튼 처리
+    // 떠먹기 버튼 처리
     private func handleScoopButton() {
         service.scoopReview(userId: state.userId, postId: state.postId)
 //        state.isScoop = true
@@ -117,5 +117,3 @@ final class DetailViewStore: ObservableObject {
         }
     }
 }
-
-
