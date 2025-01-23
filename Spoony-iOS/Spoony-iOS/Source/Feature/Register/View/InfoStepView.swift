@@ -9,6 +9,7 @@ import SwiftUI
 
 struct InfoStepView: View {
     @ObservedObject private var store: RegisterStore
+    @State private var shouldScrollToTop: Bool = false
     
     init(store: RegisterStore) {
         self.store = store
@@ -197,34 +198,58 @@ extension InfoStepView {
     }
     
     private var nextButton: some View {
-        SpoonyButton(
-            style: .primary,
-            size: .xlarge,
-            title: "다음",
-            disabled: Binding(
-                get: {
-                    store.state.isDisableStartButton
-                }, set: { newValue in
-                    store.dispatch(.updateButtonState(newValue, .start))
-                }
-            )
-        ) {
-            store.dispatch(.didTapNextButton(.start))
-        }
-        .padding(.bottom, 20)
-        .padding(.top, 61)
-        .overlay(alignment: .top) {
-            ToolTipView()
-                .padding(.top, 5)
-                .opacity(store.state.isToolTipPresented ? 1 : 0)
-                .task {
-                    do {
-                        try await Task.sleep(for: .seconds(3))
-                        store.dispatch(.updateToolTipState)
-                    } catch {
-                        
+        ScrollViewReader { proxy in
+            SpoonyButton(
+                style: .primary,
+                size: .xlarge,
+                title: "다음",
+                disabled: Binding(
+                    get: {
+                        store.state.isDisableStartButton
+                    }, set: { newValue in
+                        store.dispatch(.updateButtonState(newValue, .start))
+                    }
+                )
+            ) {
+                store.dispatch(.didTapNextButton(.start))
+            }
+            .padding(.bottom, 20)
+            .padding(.top, 61)
+            .id(1)
+            .onAppear {
+                NotificationCenter.default.addObserver(
+                    forName: UIResponder.keyboardWillShowNotification,
+                    object: nil,
+                    queue: .main
+                ) { notification in
+                    if notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] is CGRect {
+                        withAnimation(.smooth) {
+                            shouldScrollToTop = true
+                        }
                     }
                 }
+            }
+            .onChange(of: shouldScrollToTop) { _, newValue in
+                if newValue {
+                    withAnimation {
+                        proxy.scrollTo(1, anchor: .top)
+                        shouldScrollToTop = false
+                    }
+                }
+            }
+            .overlay(alignment: .top) {
+                ToolTipView()
+                    .padding(.top, 5)
+                    .opacity(store.state.isToolTipPresented ? 1 : 0)
+                    .task {
+                        do {
+                            try await Task.sleep(for: .seconds(3))
+                            store.dispatch(.updateToolTipState)
+                        } catch {
+                            
+                        }
+                    }
+            }
         }
     }
 }
