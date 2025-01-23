@@ -13,6 +13,7 @@ struct SearchView: View {
     @State private var searchResults: [SearchResult] = []
     @State private var searchState: SearchState = .empty
     @State private var recentSearches: [String] = UserManager.shared.recentSearches ?? []
+    @State private var isFirstAppear: Bool = true
     @FocusState private var isSearchFocused: Bool
     private let recentSearchesKey = "RecentSearches"
     private let searchService = SearchService()
@@ -28,6 +29,9 @@ struct SearchView: View {
                     },
                     tappedAction: {
                         handleSearch()
+                    },
+                    onClearTapped: {
+                        clearSearch()
                     }
                 ).focused($isSearchFocused)
                 
@@ -39,7 +43,7 @@ struct SearchView: View {
                         recentSearchesView
                     }
                 case .typing:
-                    recentSearchesView
+                    Color.white
                 case .searched:
                     searchResultListView
                 }
@@ -50,16 +54,23 @@ struct SearchView: View {
         .navigationBarHidden(true)
         .onChange(of: searchText) { newValue, _ in
             if newValue.isEmpty {
+                searchState = recentSearches.isEmpty ? .empty : .empty
+            } else if newValue.count == 1 {
                 searchState = .empty
-            } else if searchState != .searched {
+            } else {
                 searchState = .typing
             }
         }
+
         .onAppear {
             searchText = ""
             searchState = .empty
             searchResults.removeAll()
-            isSearchFocused = true
+            
+            if isFirstAppear {
+                isSearchFocused = true
+                isFirstAppear = false
+            }
         }
     }
     
@@ -68,6 +79,17 @@ struct SearchView: View {
         searchState = .searched
         updateSearchResults()
     }
+    
+    private func clearSearch() {
+        searchText = ""
+        searchResults.removeAll()
+        isSearchFocused = false
+        
+        if !recentSearches.isEmpty {
+            searchState = .empty
+        }
+    }
+
     
     private var emptyStateView: some View {
         VStack(spacing: 0) {
@@ -135,7 +157,6 @@ struct SearchView: View {
                     }
                 }
             }
-            
         }
     }
     
