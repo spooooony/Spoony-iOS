@@ -154,7 +154,7 @@ extension DetailView {
                     .scaledToFill()
                     .frame(width: 335.adjusted)
                     .frame(height: 335.adjustedH)
-                    .blur(radius: store.state.isScoop ? 0 : 12)
+                    .blur(radius: (store.state.isScoop || store.state.isMine) ? 0 : 12)
                     .cornerRadius(11.16)
                     .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
             } else {
@@ -233,7 +233,7 @@ extension DetailView {
             
         }
         .padding(.horizontal, 20.adjusted)
-        .blur(radius: store.state.isScoop ? 0 : 8)
+        .blur(radius: (store.state.isScoop || store.state.isMine) ? 0 : 12)
     }
     
     private var menuInfo: some View {
