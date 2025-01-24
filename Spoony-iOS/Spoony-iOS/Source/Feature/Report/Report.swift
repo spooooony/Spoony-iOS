@@ -84,6 +84,7 @@ struct Report: View {
                     }, set: { _ in
                     })
                 ) {
+                    hideKeyboard()
                     store.dispatch(.reportPostButtonTapped(postId))
                 }
                 .padding(.top, !store.state.isError ? 12 : 20)
@@ -139,7 +140,7 @@ extension Report {
                     store.dispatch(.descriptionChanged(newValue))
                 }),
                 style: .report,
-                placeholder: "내용을 자세히 적 어주시면 신고에 도움이 돼요",
+                placeholder: "내용을 자세히 적어주시면 신고에 도움이 돼요",
                 isError: Binding(get: {
                     store.state.isError
                 }, set: { newValue in
