@@ -63,9 +63,17 @@ struct DetailView: View {
             .scrollIndicators(.hidden)
             .toastView(toast: $toastMessage)
             .onAppear {
-                store.send(
-                    intent: .getInitialValue(userId: 30, postId: postId)
-                )
+                Task {
+                    let data = try await store.send(intent: .getInitialValue(userId: 30, postId: postId))
+                    
+                    print("1️⃣ \(store.state.successService)")
+                    // 상태 확인 후 네비게이션 처리
+                    if !store.state.successService {
+                        navigationManager.pop(1)
+                    }
+                    
+                    print("2️⃣ \(store.state.successService)")
+                }
             }
             .onChange(of: store.state.toast) { _, newValue in
                 toastMessage = newValue
@@ -156,14 +164,16 @@ extension DetailView {
                     HStack(spacing: 10.adjusted) {
                         ForEach(imageList.indices, id: \.self) { index in
                             RemoteImageView(urlString: imageList[index])
-                        .scaledToFill()
-                        .frame(width: 278.adjusted)
-                        .frame(height: 278.adjustedH)
-                        .blur(radius: store.state.isScoop ? 0 : 12)
-                        .cornerRadius(11.16)
+                                .scaledToFill()
+                                .frame(width: 278.adjusted)
+                                .frame(height: 278.adjustedH)
+                                .blur(radius: store.state.isScoop ? 0 : 12)
+                                .cornerRadius(11.16)
+                        }
+                    }
+                    .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
                 }
             }
-            .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
         }
     }
     
@@ -370,6 +380,4 @@ struct Line: Shape {
     }
 }
 
-#Preview {
-    DetailView(postId: 20)
-}
+//
