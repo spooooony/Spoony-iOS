@@ -32,10 +32,9 @@
 
 |이지훈</br>[@hooni0918](https://github.com/hooni0918)|최안용</br>[@ChoiAnYong](https://github.com/ChoiAnYong)|최주리</br>[@juri123123](https://github.com/juri123123)|이명진</br>[@thingineeer](https://github.com/thingineeer)|
 |:---:|:---:|:---:|:---:|
-|<img src = "https://github.com/user-attachments/assets/c902e0b5-2d59-4ee1-ae67-404d987342de" width ="250">|<img src = "https://github.com/user-attachments/assets/f9a78b97-09bf-4816-a6e4-a4e74deea41d" width ="250">|<img src = "https://github.com/user-attachments/assets/d84163d3-cccd-4bac-8a0f-ba3e34d79880" width ="250">|<img src = "https://github.com/user-attachments/assets/e62ef571-917f-4668-b657-321e9b1a8375" width ="250">|
+|<img src = "https://github.com/user-attachments/assets/6cacd948-f678-4cf8-936a-5ceb7c2880d7" width ="250">|<img src = "https://github.com/user-attachments/assets/aef88d62-6007-410d-a6b3-a228cae59ab8" width ="250">|<img src = "https://github.com/user-attachments/assets/04e4c8f6-0acc-489e-ad91-20d8c71baf4d" width ="250">|<img src = "https://github.com/user-attachments/assets/7434cdf9-3153-4259-8a2d-82baa25282a7" width ="250">|
 |`메인 지도`,`장소검색`|`등록하기`|`등록장소 리스트`, `신고하기`| `등록장소 디테일뷰`|
 </br>
-
 
 # **⚒️** Tech stack & Architecture
 <img src="https://img.shields.io/badge/SwiftUI-2C68B5?&style=flat-square&logo=Swift&logoColor=white"/> <img src="https://img.shields.io/badge/Xcode_16-147EFB?style=flat-square&logo=Xcode&logoColor=white"/> <img src="https://img.shields.io/badge/Swift_Concurrency-FF3E00?style=flat-square&logo=Swift&logoColor=white"/>
