@@ -32,7 +32,6 @@ struct SearchView: View {
                     ),
                     onBackTapped: {
                         store.dispatch(.clearSearch)
-                        navigationManager.pop(1)
                     },
                     tappedAction: {
                         store.dispatch(.search)

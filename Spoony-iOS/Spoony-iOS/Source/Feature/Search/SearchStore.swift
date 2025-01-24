@@ -66,6 +66,7 @@ final class SearchStore: ObservableObject {
     private func handleClearSearch() {
         model.searchText = ""
         state = .empty
+        navigationManager.dispatch(.pop(1))
     }
     
     private func handleRemoveRecentSearch(_ search: String) {
@@ -81,8 +82,8 @@ final class SearchStore: ObservableObject {
     }
     
     private func handleLocationSelection(_ result: SearchResult) {
-        navigationManager.currentLocation = result.title
-        navigationManager.pop(1)
+        navigationManager.dispatch(.changeCurrentLocation(result.title))
+        navigationManager.dispatch(.pop(1))
     }
     
     private func updateSearchResults(with query: String) {
