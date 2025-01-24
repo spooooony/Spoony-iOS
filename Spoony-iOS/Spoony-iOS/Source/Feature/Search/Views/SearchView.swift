@@ -96,7 +96,7 @@ struct EmptyStateView: View {
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
-                .frame(height: 72)
+                .frame(height: 72.adjustedH)
             
             VStack(spacing: 8) {
                 Image(.imageEmptySearch)

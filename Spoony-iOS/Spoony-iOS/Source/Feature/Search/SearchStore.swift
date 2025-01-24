@@ -46,9 +46,8 @@ final class SearchStore: ObservableObject {
         
         if normalizedText.isEmpty {
             state = .empty
-        } else if normalizedText.count == 1 {
-            state = .typing(searchText: normalizedText)
         } else {
+            
             state = .typing(searchText: normalizedText)
         }
     }
