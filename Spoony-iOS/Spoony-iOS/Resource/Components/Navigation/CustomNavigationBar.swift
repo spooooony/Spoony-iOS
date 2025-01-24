@@ -12,17 +12,19 @@ struct CustomNavigationBar: View {
     
     private let style: NavigationBarStyle
     private let title: String?
-    private let onBackTapped: (() -> Void)?
     private let tappedAction: (() -> Void)?
+    private let onClearTapped: (() -> Void)?
     private var spoonCount: Int = 0
-    
+    private var onBackTapped: (() -> Void)?
+
     init(
         style: NavigationBarStyle,
         title: String? = nil,
         searchText: Binding<String> = .constant(""),
         spoonCount: Int = 0,
         onBackTapped: (() -> Void)? = nil,
-        tappedAction: (() -> Void)? = nil
+        tappedAction: (() -> Void)? = nil,
+        onClearTapped: (() -> Void)? = nil
     ) {
         self.style = style
         self.title = title
@@ -30,6 +32,7 @@ struct CustomNavigationBar: View {
         self.spoonCount = spoonCount
         self.onBackTapped = onBackTapped
         self.tappedAction = tappedAction
+        self.onClearTapped = onClearTapped
     }
     
     var body: some View {
@@ -181,7 +184,10 @@ struct CustomNavigationBar: View {
                     }
                 
                 if !searchText.isEmpty {
-                    Button(action: { searchText = "" }) {
+                    Button(action: {
+                        searchText = ""
+                        onClearTapped?()
+                    }) {
                         Image(.icCloseGray400)
                             .foregroundStyle(.gray600)
                     }

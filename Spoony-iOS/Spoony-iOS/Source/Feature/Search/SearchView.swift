@@ -13,6 +13,8 @@ struct SearchView: View {
     @State private var searchResults: [SearchResult] = []
     @State private var searchState: SearchState = .empty
     @State private var recentSearches: [String] = UserManager.shared.recentSearches ?? []
+    @State private var isFirstAppear: Bool = true
+    @FocusState private var isSearchFocused: Bool
     private let recentSearchesKey = "RecentSearches"
     private let searchService = SearchService()
     
@@ -27,8 +29,11 @@ struct SearchView: View {
                     },
                     tappedAction: {
                         handleSearch()
+                    },
+                    onClearTapped: {
+                        clearSearch()
                     }
-                )
+                ).focused($isSearchFocused)
                 
                 switch searchState {
                 case .empty:
@@ -38,7 +43,7 @@ struct SearchView: View {
                         recentSearchesView
                     }
                 case .typing:
-                    recentSearchesView
+                    Color.white
                 case .searched:
                     searchResultListView
                 }
@@ -48,24 +53,49 @@ struct SearchView: View {
         }
         .navigationBarHidden(true)
         .onChange(of: searchText) { newValue, _ in
-            if newValue.isEmpty {
+            let normalizedText = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            if normalizedText.isEmpty {
+                searchState = recentSearches.isEmpty ? .empty : .empty
+            } else if normalizedText.count == 1 {
                 searchState = .empty
-            } else if searchState != .searched {
+            } else {
                 searchState = .typing
             }
         }
+
         .onAppear {
             searchText = ""
             searchState = .empty
             searchResults.removeAll()
+            
+            if isFirstAppear {
+                isSearchFocused = true
+                isFirstAppear = false
+            }
         }
     }
     
     private func handleSearch() {
         guard !searchText.isEmpty else { return }
+        
+        let normalizedSearchText = searchText.components(separatedBy: .whitespaces)
+            .filter { !$0.isEmpty }
+            .joined(separator: "")
+        
         searchState = .searched
-        updateSearchResults()
+        updateSearchResults(with: normalizedSearchText)
     }
+    
+    private func clearSearch() {
+        searchText = ""
+        searchResults.removeAll()
+        isSearchFocused = false
+        
+        if !recentSearches.isEmpty {
+            searchState = .empty
+        }
+    }
+
     
     private var emptyStateView: some View {
         VStack(spacing: 0) {
@@ -133,7 +163,6 @@ struct SearchView: View {
                     }
                 }
             }
-            
         }
     }
     
@@ -188,15 +217,15 @@ struct SearchView: View {
         }
     }
     
-    private func updateSearchResults() {
-        guard !searchText.isEmpty else {
+    private func updateSearchResults(with query: String) {
+        guard !query.isEmpty else {
             searchResults.removeAll()
             return
         }
         
         Task {
             do {
-                let response = try await searchService.searchLocation(query: searchText)
+                let response = try await searchService.searchLocation(query: query)
                 let results = response.locationResponseList.map { location in
                     SearchResult(
                         title: location.locationName,
@@ -207,8 +236,8 @@ struct SearchView: View {
                 await MainActor.run {
                     searchResults = results
                     
-                    if !recentSearches.contains(searchText) {
-                        recentSearches.insert(searchText, at: 0)
+                    if !recentSearches.contains(query) {
+                        recentSearches.insert(query, at: 0)
                         if recentSearches.count > 6 {
                             recentSearches.removeLast()
                         }
