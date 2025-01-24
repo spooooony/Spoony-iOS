@@ -10,12 +10,16 @@ import SwiftUI
 struct PlaceImagesLayout: View {
     let images: [String]
     
+    private var limitedImages: [String] {
+        Array(images.prefix(3))
+    }
+    
     var body: some View {
         HStack(spacing: 1) {
-            switch images.count {
+            switch limitedImages.count {
             case 1:
                 imageView(
-                    urlString: images[0],
+                    urlString: limitedImages[0],
                     width: nil,
                     height: 108.adjusted,
                     corners: [.topLeft, .topRight]
@@ -23,7 +27,7 @@ struct PlaceImagesLayout: View {
             case 2:
                 ForEach(0..<2, id: \.self) { index in
                     imageView(
-                        urlString: images[index],
+                        urlString: limitedImages[index],
                         width: nil,
                         height: 108.adjusted,
                         corners: index == 0 ? [.topLeft] : [.topRight]
@@ -33,7 +37,7 @@ struct PlaceImagesLayout: View {
             case 3:
                 ForEach(0..<3, id: \.self) { index in
                     imageView(
-                        urlString: images[index],
+                        urlString: limitedImages[index],
                         width: 108.adjusted,
                         height: 108.adjusted,
                         corners: index == 0 ? [.topLeft] : (index == 2 ? [.topRight] : [])
@@ -54,6 +58,7 @@ struct PlaceImagesLayout: View {
         )
     }
     
+    // 기존 imageView 함수는 그대로 유지
     private func imageView(urlString: String, width: CGFloat?, height: CGFloat, corners: UIRectCorner) -> some View {
         AsyncImage(url: URL(string: urlString)) { phase in
             switch phase {
