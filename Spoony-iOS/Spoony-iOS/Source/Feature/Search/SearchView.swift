@@ -8,96 +8,85 @@
 import SwiftUI
 
 struct SearchView: View {
-    @EnvironmentObject var navigationManager: NavigationManager
-    @State private var searchText = ""
-    @State private var searchResults: [SearchResult] = []
-    @State private var searchState: SearchState = .empty
-    @State private var recentSearches: [String] = UserManager.shared.recentSearches ?? []
-    @State private var isFirstAppear: Bool = true
+    @EnvironmentObject private var navigationManager : NavigationManager
+    @StateObject private var store: SearchStore
     @FocusState private var isSearchFocused: Bool
-    private let recentSearchesKey = "RecentSearches"
-    private let searchService = SearchService()
+    
+    init(navigationManager: NavigationManager) {
+        _store = StateObject(wrappedValue: SearchStore(navigationManager: navigationManager))
+    }
     
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
                 CustomNavigationBar(
                     style: .search(showBackButton: true),
-                    searchText: $searchText,
+                    searchText: Binding(
+                        get: { store.model.searchText },
+                        set: { store.dispatch(.updateSearchText($0)) }
+                    ),
                     onBackTapped: {
-                        navigationManager.pop(1)
+                        store.dispatch(.clearSearch)
                     },
                     tappedAction: {
-                        handleSearch()
+                        store.dispatch(.search)
                     },
                     onClearTapped: {
-                        clearSearch()
+                        store.dispatch(.clearSearch)
                     }
-                ).focused($isSearchFocused)
+                )
+                .focused($isSearchFocused)
                 
-                switch searchState {
-                case .empty:
-                    if recentSearches.isEmpty {
-                        emptyStateView
-                    } else {
-                        recentSearchesView
-                    }
-                case .typing:
-                    Color.white
-                case .searched:
-                    searchResultListView
-                }
+                contentView
                 
                 Spacer()
             }
         }
         .navigationBarHidden(true)
-        .onChange(of: searchText) { newValue, _ in
-            let normalizedText = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-            if normalizedText.isEmpty {
-                searchState = recentSearches.isEmpty ? .empty : .empty
-            } else if normalizedText.count == 1 {
-                searchState = .empty
-            } else {
-                searchState = .typing
-            }
-        }
-
         .onAppear {
-            searchText = ""
-            searchState = .empty
-            searchResults.removeAll()
-            
-            if isFirstAppear {
+            if store.model.isFirstAppear {
                 isSearchFocused = true
-                isFirstAppear = false
+                store.dispatch(.setFirstAppear(false))
             }
         }
     }
     
-    private func handleSearch() {
-        guard !searchText.isEmpty else { return }
-        
-        let normalizedSearchText = searchText.components(separatedBy: .whitespaces)
-            .filter { !$0.isEmpty }
-            .joined(separator: "")
-        
-        searchState = .searched
-        updateSearchResults(with: normalizedSearchText)
-    }
-    
-    private func clearSearch() {
-        searchText = ""
-        searchResults.removeAll()
-        isSearchFocused = false
-        
-        if !recentSearches.isEmpty {
-            searchState = .empty
+    @ViewBuilder
+    private var contentView: some View {
+        switch store.state {
+        case .empty:
+            if store.model.recentSearches.isEmpty {
+                EmptyStateView()
+            } else {
+                RecentSearchesView(
+                    recentSearches: store.model.recentSearches,
+                    onRemoveSearch: { search in
+                        store.dispatch(.removeRecentSearch(search))
+                    },
+                    onClearAll: {
+                        store.dispatch(.clearAllRecentSearches)
+                    }
+                )
+            }
+        case .typing:
+            Color.white
+        case .loading:
+            ProgressView()
+        case .success(let results):
+            SearchResultsView(
+                results: results,
+                onSelectResult: { result in
+                    store.dispatch(.selectLocation(result))
+                }
+            )
+        case .error:
+            SearchResultEmptyView()
         }
     }
-
-    
-    private var emptyStateView: some View {
+}
+// Supporting Views
+struct EmptyStateView: View {
+    var body: some View {
         VStack(spacing: 0) {
             Spacer()
                 .frame(height: 72)
@@ -114,25 +103,27 @@ struct SearchView: View {
             Spacer()
         }
     }
+}
+
+struct RecentSearchesView: View {
+    let recentSearches: [String]
+    let onRemoveSearch: (String) -> Void
+    let onClearAll: () -> Void
     
-    private var recentSearchesView: some View {
+    var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("최근 검색")
                     .customFont(.body2b)
                 
                 Spacer()
-                Button("전체삭제") {
-                    recentSearches.removeAll()
-                    saveRecentSearches()
-                    searchState = .empty
-                }
-                .customFont(.caption1m)
-                .foregroundStyle(.gray500)
-                .frame(width: 57.adjusted, height: 24.adjustedH)
-                .contentShape(Rectangle())
-                .padding(.horizontal, 2)
-                .padding(.vertical, 8)
+                Button("전체삭제", action: onClearAll)
+                    .customFont(.caption1m)
+                    .foregroundStyle(.gray500)
+                    .frame(width: 57.adjusted, height: 24.adjustedH)
+                    .contentShape(Rectangle())
+                    .padding(.horizontal, 2)
+                    .padding(.vertical, 8)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -144,12 +135,7 @@ struct SearchView: View {
                             .customFont(.body1b)
                             .foregroundColor(.gray700)
                         Spacer()
-                        Button(action: {
-                            if let index = recentSearches.firstIndex(of: search) {
-                                recentSearches.remove(at: index)
-                                saveRecentSearches()
-                            }
-                        }) {
+                        Button(action: { onRemoveSearch(search) }) {
                             Image(.icCloseGray400)
                         }
                     }
@@ -165,21 +151,25 @@ struct SearchView: View {
             }
         }
     }
+}
+
+struct SearchResultsView: View {
+    let results: [SearchResult]
+    let onSelectResult: (SearchResult) -> Void
     
-    private var searchResultListView: some View {
+    var body: some View {
         ScrollView {
-            if searchResults.isEmpty {
-                searchResultEmptyView
+            if results.isEmpty {
+                SearchResultEmptyView()
             } else {
                 VStack(alignment: .leading, spacing: 0) {
-                    ForEach(getFilteredResults(), id: \.id) { result in
+                    ForEach(results) { result in
                         VStack(spacing: 0) {
                             SearchResultRow(result: result) {
-                                navigationManager.currentLocation = result.title
-                                navigationManager.pop(1)
+                                onSelectResult(result)
                             }
                             
-                            if result.id != getFilteredResults().last?.id {
+                            if result.id != results.last?.id {
                                 Divider()
                                     .foregroundStyle(.gray400)
                                     .padding(.horizontal, 16)
@@ -190,8 +180,10 @@ struct SearchView: View {
             }
         }
     }
-    
-    private var searchResultEmptyView: some View {
+}
+
+struct SearchResultEmptyView: View {
+    var body: some View {
         VStack(spacing: 0) {
             Spacer()
                 .frame(height: 72.adjusted)
@@ -216,57 +208,4 @@ struct SearchView: View {
             Spacer()
         }
     }
-    
-    private func updateSearchResults(with query: String) {
-        guard !query.isEmpty else {
-            searchResults.removeAll()
-            return
-        }
-        
-        Task {
-            do {
-                let response = try await searchService.searchLocation(query: query)
-                let results = response.locationResponseList.map { location in
-                    SearchResult(
-                        title: location.locationName,
-                        address: location.locationAddress ?? ""
-                    )
-                }
-                
-                await MainActor.run {
-                    searchResults = results
-                    
-                    if !recentSearches.contains(query) {
-                        recentSearches.insert(query, at: 0)
-                        if recentSearches.count > 6 {
-                            recentSearches.removeLast()
-                        }
-                        saveRecentSearches()
-                    }
-                }
-            } catch let error as SearchError {
-                print("Search error: \(error.errorDescription)")
-                await MainActor.run {
-                    searchResults.removeAll()
-                }
-            } catch {
-                print("Unexpected error: \(error)")
-                await MainActor.run {
-                    searchResults.removeAll()
-                }
-            }
-        }
-    }
-    
-    private func saveRecentSearches() {
-        UserManager.shared.recentSearches = recentSearches
-    }
-    
-    private func getFilteredResults() -> [SearchResult] {
-        return searchResults
-    }
-}
-
-#Preview {
-    SearchView()
 }

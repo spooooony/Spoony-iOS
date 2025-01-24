@@ -20,7 +20,7 @@ final class NavigationManager: ObservableObject {
     func build(_ view: ViewType) -> some View {
         switch view {
         case .searchView:
-            SearchView()
+            SearchView(navigationManager: self)
         case .locationView:
             Home()
         case .detailView(let postId):
