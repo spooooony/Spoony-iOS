@@ -58,7 +58,6 @@ struct PlaceImagesLayout: View {
         )
     }
     
-    // 기존 imageView 함수는 그대로 유지
     private func imageView(urlString: String, width: CGFloat?, height: CGFloat, corners: UIRectCorner) -> some View {
         AsyncImage(url: URL(string: urlString)) { phase in
             switch phase {
