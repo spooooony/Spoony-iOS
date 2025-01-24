@@ -13,5 +13,5 @@ enum ViewType: Hashable {
     case detailView(postId: Int)   // 상세 화면
     
     case explore
-    case report
+    case report(postId: Int)
 }

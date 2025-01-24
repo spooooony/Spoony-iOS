@@ -311,7 +311,7 @@ extension DetailView {
                     items: ["신고하기"],
                     isPresented: $isPresented
                 ) { _ in
-                    navigationManager.push(.report)
+                    navigationManager.push(.report(postId: postId))
                 }
                 .frame(alignment: .topTrailing)
                 .padding(.top, 48.adjustedH)

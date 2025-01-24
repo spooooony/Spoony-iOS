@@ -59,6 +59,8 @@ struct Report: View {
     @State private var isError: Bool = true
     @State private var isDisabled: Bool = true
     
+    let postId: Int
+    
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
@@ -81,7 +83,7 @@ struct Report: View {
                 ) {
                     hideKeyboard()
                     Task {
-                        try await store.postReport(postId: 1, description: text)
+                        try await store.postReport(postId: postId, description: text)
                         navigationManager.popup = .reportSuccess(action: {
                             navigationManager.pop(2)
                         })
@@ -170,6 +172,6 @@ extension Report {
     }
 }
 
-#Preview {
-    Report()
-}
+//#Preview {
+//    Report()
+//}
