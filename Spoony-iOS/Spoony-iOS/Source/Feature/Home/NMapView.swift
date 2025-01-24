@@ -182,7 +182,7 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate {
         self.viewModel = viewModel
     }
     
-    @MainActor private func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng) -> Bool {
+    @MainActor func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng) -> Bool {
         selectedPlace = nil
         
         markers.forEach { marker in
