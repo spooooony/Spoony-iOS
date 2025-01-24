@@ -58,13 +58,13 @@
 |:-:|:-:|
 | <img src="https://github.com/user-attachments/assets/06d05895-8c86-4aa4-a2c9-3631839537a8" width="180"/> | <img src="https://github.com/user-attachments/assets/619bc050-7929-4bd5-95b8-b6250bdf7ce8" width="180"/> |
 
-| 탐색 리스트 조회 | 지도 리스트 떠먹기 | 신고하기 |
+| 탐색 리스트 조회 | 지도 리스트 떠먹기 | 신고하기 |
 |:-:|:-:|:-:|
 | <img src="https://github.com/user-attachments/assets/0b393820-b921-4e6a-9210-c2573c23bcf7" width="180"/> | <img src="https://github.com/user-attachments/assets/78e9d4f8-1741-4558-b945-b8c2333e71b2" width="180"/> | <img src="https://github.com/user-attachments/assets/a536e9cb-a797-4b3a-8426-328e34d93215" width="180"/> | 
 
 | 등록 1단계 | 등록 2단계 |  
 |:-:|:-:|
-| <img src="https://github.com/user-attachments/assets/ad0203eb-b17f-4fb9-a997-f038679d3f64" width="180"/> | <img src="https://github.com/user-attachments/assets/642e1274-a91e-460c-8b7d-6a332cc43981" width="180"/> | 
+| <img src="https://github.com/user-attachments/assets/642e1274-a91e-460c-8b7d-6a332cc43981" width="180"/> | <img src="https://github.com/user-attachments/assets/ad0203eb-b17f-4fb9-a997-f038679d3f64" width="180"/> | 
 
 # **🌀 Library**
 
