@@ -65,13 +65,10 @@ struct DetailView: View {
             .onAppear {
                 store.send(intent: .getInitialValue(userId: Config.userId, postId: postId))
                 
-                print("1️⃣ \(store.state.successService)")
-                // 상태 확인 후 네비게이션 처리
                 if !store.state.successService {
                     navigationManager.pop(1)
                 }
                 
-                print("2️⃣ \(store.state.successService)")
             }
             .onChange(of: store.state.toast) { _, newValue in
                 toastMessage = newValue
@@ -182,7 +179,7 @@ extension DetailView {
                 chip: store.state.categoryColorResponse.toEntity()
             )
             
-            Text(store.state.title.splitZeroWidthSpace())
+            Text(store.state.title)
                 .customFont(.title1b)
                 .foregroundStyle(.black)
             
@@ -193,9 +190,16 @@ extension DetailView {
             Spacer()
                 .frame(height: 16.adjustedH)
             
-            Text(store.state.description.splitZeroWidthSpace())
-                .customFont(.body2m)
-                .foregroundStyle(.gray900)
+            Text(
+                (store.state.isScoop || store.state.isMine)
+                ? store.state.description.splitZeroWidthSpace()
+                : (store.state.description.count > 120
+                   ? "\(store.state.description.prefix(120))...".splitZeroWidthSpace()
+                   : store.state.description.splitZeroWidthSpace())
+            )
+            .customFont(.body2m)
+            .frame(width: 335.adjusted)
+            .foregroundStyle(.black)
             
         }
         .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
@@ -377,5 +381,3 @@ struct Line: Shape {
         return path
     }
 }
-
-//
