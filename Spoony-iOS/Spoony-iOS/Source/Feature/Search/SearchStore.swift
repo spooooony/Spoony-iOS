@@ -5,7 +5,6 @@
 //  Created by 이지훈 on 1/24/25.
 //
 
-import Foundation
 import SwiftUI
 
 @MainActor
@@ -14,7 +13,7 @@ final class SearchStore: ObservableObject {
     @Published private(set) var model: SearchModel
     
     private let searchService: SearchService
-    private let navigationManager: NavigationManager
+    private var navigationManager: NavigationManager
     
     init(navigationManager: NavigationManager) {
         self.model = SearchModel()
@@ -123,6 +122,9 @@ final class SearchStore: ObservableObject {
             }
         }
     }
+    func updateNavigationManager(_ manager: NavigationManager) {
+            navigationManager = manager
+        }
     
     private func saveRecentSearches() {
         UserManager.shared.recentSearches = model.recentSearches

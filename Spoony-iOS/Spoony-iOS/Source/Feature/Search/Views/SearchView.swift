@@ -8,12 +8,17 @@
 import SwiftUI
 
 struct SearchView: View {
-    @EnvironmentObject private var navigationManager : NavigationManager
+    @EnvironmentObject private var navigationManager: NavigationManager
     @StateObject private var store: SearchStore
     @FocusState private var isSearchFocused: Bool
     
-    init(navigationManager: NavigationManager) {
-        _store = StateObject(wrappedValue: SearchStore(navigationManager: navigationManager))
+    init() {
+        let tempNavigationManager = NavigationManager()
+        _store = StateObject(wrappedValue: SearchStore(navigationManager: tempNavigationManager))
+    }
+    
+    private var initStore: SearchStore {
+        SearchStore(navigationManager: navigationManager)
     }
     
     var body: some View {
@@ -27,6 +32,7 @@ struct SearchView: View {
                     ),
                     onBackTapped: {
                         store.dispatch(.clearSearch)
+                        navigationManager.pop(1)
                     },
                     tappedAction: {
                         store.dispatch(.search)
@@ -44,6 +50,7 @@ struct SearchView: View {
         }
         .navigationBarHidden(true)
         .onAppear {
+            store.updateNavigationManager(navigationManager)
             if store.model.isFirstAppear {
                 isSearchFocused = true
                 store.dispatch(.setFirstAppear(false))
@@ -84,7 +91,7 @@ struct SearchView: View {
         }
     }
 }
-// Supporting Views
+
 struct EmptyStateView: View {
     var body: some View {
         VStack(spacing: 0) {
@@ -127,7 +134,7 @@ struct RecentSearchesView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-
+            
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(recentSearches, id: \.self) { search in
                     HStack {
