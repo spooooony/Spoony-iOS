@@ -8,7 +8,6 @@
 import SwiftUI
 //TODO: build 고쳐야함
 struct SpoonyTabView: View {
-    
     @EnvironmentObject var navigationManager: NavigationManager
     
     init() {
@@ -38,18 +37,17 @@ struct SpoonyTabView: View {
                                 }
                         }
                     case .explore:
-//                        NavigationStack(path: Binding(get: {
-//                            navigationManager.state.explorePath
-//                        }, set: { newValue in
-//                            navigationManager.dispatch(.changePath(newValue, .explore))
-//                        })) {
-//                            Explore(store: .init(navigationManager: navigationManager))
-//                                .navigationDestination(for: ViewType.self) { view in
-//                                    navigationManager.build(view)
-//                                        .navigationBarBackButtonHidden()
-//                                }
-//                        }
-                        EmptyView()
+                        NavigationStack(path: Binding(get: {
+                            navigationManager.state.explorePath
+                        }, set: { newValue in
+                            navigationManager.dispatch(.changePath(newValue, .explore))
+                        })) {
+                            Explore(store: .init(navigationManager: navigationManager))
+                                .navigationDestination(for: ViewType.self) { view in
+                                    navigationManager.build(view)
+                                        .navigationBarBackButtonHidden()
+                                }
+                        }
                     case .register:
                         NavigationStack(path: Binding(get: {
                             navigationManager.state.registerPath

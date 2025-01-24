@@ -10,7 +10,7 @@ import SwiftUI
 import Lottie
 
 struct Explore: View {
-    @StateObject private var store: ExploreStore
+    @StateObject var store: ExploreStore
     
     var body: some View {
         VStack(spacing: 0) {

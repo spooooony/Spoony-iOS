@@ -11,7 +11,7 @@ final class ExploreStore: ObservableObject {
         private let network: ExploreProtocol = DefaultExploreService()
 //    private let network: ExploreProtocol = MockExploreService()
 
-    private let navigationManager: NavigationManager
+    private var navigationManager: NavigationManager
     
     init(navigationManager: NavigationManager) {
         self.navigationManager = navigationManager
@@ -61,7 +61,6 @@ extension ExploreStore {
         getFeedList()
         state.tempLocation = nil
         state.isPresentedLocation = false
-//        state.isSelectLocationButtonDisabled = true
     }
     
     private func changeFilter(filter: FilterType) {
