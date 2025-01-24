@@ -147,7 +147,11 @@ final class RegisterStore: ObservableObject {
         case .didTapPhoto(let items):
             validateSelectedPhotoCount(item: items)
         case .updateKeyboardHeight(let height):
-            state.keyboardHeight = height
+            Task {
+                await MainActor.run {
+                    state.keyboardHeight = height
+                }
+            }
         }
     }
 }
