@@ -182,7 +182,7 @@ extension DetailView {
                 chip: store.state.categoryColorResponse.toEntity()
             )
             
-            Text(store.state.description.splitZeroWidthSpace())
+            Text(store.state.title.splitZeroWidthSpace())
                 .customFont(.title1b)
                 .foregroundStyle(.black)
             
