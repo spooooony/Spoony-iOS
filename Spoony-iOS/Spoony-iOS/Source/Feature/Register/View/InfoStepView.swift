@@ -77,7 +77,7 @@ extension InfoStepView {
                 SpoonyTextField(
                     text: Binding(
                         get: { store.state.placeText },
-                        set: { newValue in                            
+                        set: { newValue in
                             store.dispatch(.updateText(newValue, .place))
                         }
                     ),
