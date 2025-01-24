@@ -34,6 +34,14 @@ struct Register: View {
                     }
             )
         }
+        .overlay {
+            if store.state.isLoading {
+                ProgressView()
+                    .tint(.main400)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(.white.opacity(0.1))
+            }
+        }
     }
 }
 
@@ -73,4 +81,8 @@ enum RegisterStep: Int {
     case start = 1
     case middle = 2
     case end = 3
+}
+
+#Preview {
+    Register(store: .init(navigationManager: .init()))
 }

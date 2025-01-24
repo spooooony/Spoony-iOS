@@ -11,6 +11,7 @@ import PhotosUI
 struct RegisterState {
     // MARK: - Register
     var registerStep: RegisterStep = .start
+    var isLoading: Bool = false
     
     // MARK: - InfoStepView
     var placeText: String = ""

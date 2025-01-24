@@ -52,12 +52,10 @@ extension SpoonyTextEditor {
     // MARK: - customTextEditor
     private var customTextEditor: some View {
         let borderColor: Color = {
-            if errorState == .noError, isFocused {
-                return .main400
-            } else if errorState == .noError || errorState == .initial {
-                return .gray100
+            if isFocused {
+                return errorState == .noError || errorState == .initial ? .main400 : .error400
             } else {
-                return .error400
+                return errorState == .noError || errorState == .initial ? .gray100 : .error400
             }
         }()
         
@@ -196,4 +194,8 @@ public enum TextEditorErrorState: Equatable {
     var isMaximumInputError: Bool {
         self == .maximumInputError(style: .review) || self == .maximumInputError(style: .report)
     }
+}
+
+#Preview {
+    SpoonyTextEditor(text: .constant(" "), style: .review, placeholder: "dk", isError: .constant(true))
 }
