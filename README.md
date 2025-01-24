@@ -49,17 +49,17 @@
 
 # 시연영상 
 # SpoonMe
-| 지도 | 마커표시 | 마커에서 떠먹은 장소로 이동 | 
+| 지도 | 장소검색 | 장소상세 |
 |:-:|:-:|:-:|
-| <img src="https://github.com/user-attachments/assets/c4ab2685-85fe-4d4c-b222-b71fd099781" width="180"/> | <img src="https://github.com/user-attachments/assets/c4ab2685-85fe-4d4c-b222-b71fd099781" width="180"/> | <img src="https://github.com/user-attachments/assets/c4ab2685-85fe-4d4c-b222-b71fd09978" width="180"/> |
+| <img src="https://github.com/user-attachments/assets/c04b23cd-93be-4b91-9417-e9da0ada5e5" width="180"/> | <img src="https://github.com/user-attachments/assets/c4ab2685-8fe-4d4c-b222-b71fd0997813" width="180"/> | <img src="https://github.com/user-attachments/assets/c4b2685-85fe-4d4c-b222-b71fd099781" width="180"/> 
 
 | 떠먹기 | 네이버 길찾기 | 장소상세 |
 |:-:|:-:|:-:|
 | <img src="https://github.com/user-attachments/assets/c04b23cd-93be-4b91-9417-e9da0ada5ed5" width="180"/> | <img src="https://github.com/user-attachments/assets/c4ab2685-85fe-4d4c-b222-b71fd0997813" width="180"/> | <img src="https://github.com/user-attachments/assets/c4ab2685-85fe-4d4c-b222-b71fd099781" width="180"/> |
 
-| 탐색 리스트 | 신고하기 |
-|:-:|:-:|
-| <img src="https://github.com/user-attachments/assets/2cb84007-f7fd-4632-9047-f6ab7cdd2dfb" width="180"/> | <img src="https://github.com/user-attachments/assets/c4ab2685-85fe-4d4c-b222-b71fd09978" width="180"/> | 
+| 탐색 리스트 조회 | 지도 리스트 떠먹기 | 신고하기 |
+|:-:|:-:|:-:|
+| <img src="https://github.com/user-attachments/assets/33f1bceb-0265-453f-9eb6-13a9a8095781" width="180"/> | <img src="https://github.com/user-attachments/assets/e22d0fd2-54cb-4392-90e4-b611b53a84b9" width="180"/> | <img src="https://github.com/user-attachments/assets/aa59a83c-be5a-4c39-ba80-5f123cc11671" width="180"/> | 
 
 | 등록 1단계 | 등록 2단계 |  
 |:-:|:-:|
