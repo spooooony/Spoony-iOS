@@ -14,10 +14,11 @@ struct RegisterState {
     
     // MARK: - InfoStepView
     var placeText: String = ""
-    var recommendTexts: [TextList] = [.init()]
+    
+    var keyboardHeight: CGFloat = 0
     
     var toast: Toast?
-    
+    var recommendTexts: [TextList] = [.init()]
     var categorys: [CategoryChip] = []
     var selectedCategory: [CategoryChip] = []
     

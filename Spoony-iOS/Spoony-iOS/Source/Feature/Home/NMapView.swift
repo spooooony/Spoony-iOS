@@ -12,6 +12,9 @@ struct NMapView: UIViewRepresentable {
     private let defaultZoomLevel: Double = 11.5
     private let defaultMarker = NMFOverlayImage(name: "ic_unselected_marker")
     private let selectedMarker = NMFOverlayImage(name: "ic_selected_marker")
+    private let defaultLatitude: Double = 37.5666103
+    private let defaultLongitude: Double = 126.9783882
+    private let locationManager = CLLocationManager()
     @ObservedObject var viewModel: HomeViewModel
     @Binding var selectedPlace: CardPlace?
     
@@ -21,6 +24,7 @@ struct NMapView: UIViewRepresentable {
     init(viewModel: HomeViewModel,
          selectedPlace: Binding<CardPlace?>,
          onMoveCamera: ((Double, Double) -> Void)? = nil) {
+        locationManager.requestWhenInUseAuthorization()
         self.viewModel = viewModel
         self._selectedPlace = selectedPlace
         self.onMoveCamera = onMoveCamera
@@ -29,11 +33,38 @@ struct NMapView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> NMFMapView {
         let mapView = configureMapView(context: context)
+        checkLocationPermission(mapView)
         return mapView
     }
     
+    private func checkLocationPermission(_ mapView: NMFMapView) {
+        switch locationManager.authorizationStatus {
+        case .authorizedWhenInUse, .authorizedAlways:
+            if let location = locationManager.location {
+                moveCamera(mapView, to: NMGLatLng(lat: location.coordinate.latitude,
+                                                lng: location.coordinate.longitude))
+            }
+        case .denied, .restricted:
+            moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+            moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
+            default:
+            moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
+        }
+    }
+        
+        private func moveCamera(_ mapView: NMFMapView, to coord: NMGLatLng) {
+            let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
+            mapView.moveCamera(cameraUpdate)
+        }
+    
     func makeCoordinator() -> Coordinator {
-        Coordinator(selectedPlace: $selectedPlace, defaultMarkerImage: defaultMarker)
+        Coordinator(
+            selectedPlace: $selectedPlace,
+            defaultMarkerImage: defaultMarker,
+            viewModel: viewModel
+        )
     }
     
     func updateUIView(_ mapView: NMFMapView, context: Context) {
@@ -72,6 +103,9 @@ struct NMapView: UIViewRepresentable {
         mapView.positionMode = .direction
         mapView.zoomLevel = defaultZoomLevel
         mapView.touchDelegate = context.coordinator
+        mapView.logoAlign = .rightTop
+        mapView.logoInteractionEnabled = true
+        mapView.logoMargin = UIEdgeInsets(top: 60, left: 0, bottom: 0, right: 12)
         return mapView
     }
     
@@ -138,28 +172,30 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate {
     @Binding var selectedPlace: CardPlace?
     var markers: [NMFMarker] = []
     private let defaultMarkerImage: NMFOverlayImage
+    private let viewModel: HomeViewModel
     
-    init(selectedPlace: Binding<CardPlace?>, defaultMarkerImage: NMFOverlayImage) {
+    init(selectedPlace: Binding<CardPlace?>,
+         defaultMarkerImage: NMFOverlayImage,
+         viewModel: HomeViewModel) {
         self._selectedPlace = selectedPlace
         self.defaultMarkerImage = defaultMarkerImage
+        self.viewModel = viewModel
     }
     
-    func mapView(_ mapView: NMFMapView, didTap symbol: NMFSymbol) -> Bool {
+    @MainActor func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng) -> Bool {
         selectedPlace = nil
-        return true
-    }
-    
-    func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng) -> Bool {
-        if selectedPlace != nil {
-            selectedPlace = nil
-            markers.forEach { marker in
-                marker.mapView = nil
-                marker.iconImage = defaultMarkerImage
-                // 지도를 탭했을 때도 캡션 설정 유지
-                marker.mapView = mapView
-            }
-            return true
+        
+        markers.forEach { marker in
+            marker.iconImage = defaultMarkerImage
+            marker.captionMinZoom = 10
         }
-        return false
+        
+        if !viewModel.focusedPlaces.isEmpty {
+            DispatchQueue.main.async {
+                self.viewModel.clearFocusedPlaces()
+            }
+        }
+        
+        return true
     }
 }

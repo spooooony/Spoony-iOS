@@ -9,6 +9,7 @@ import SwiftUI
 
 struct InfoStepView: View {
     @ObservedObject private var store: RegisterStore
+    @FocusState private var isPlaceTextFieldFocused: Bool
     
     init(store: RegisterStore) {
         self.store = store
@@ -27,14 +28,15 @@ struct InfoStepView: View {
             store.dispatch(.didTapBackground(.start))
             hideKeyboard()
         }
-        .toastView(toast: Binding(get: {
-            store.state.toast
-        }, set: { newValue in
-            store.dispatch(.updateToast(newValue))
-        }))
+        .toastView(toast: Binding(
+            get: { store.state.toast },
+            set: { newValue in
+                store.dispatch(.updateToast(newValue))
+            }
+        ))
         .task {
             store.dispatch(.getCategories)
-        }        
+        }
     }
 }
 
@@ -85,6 +87,7 @@ extension InfoStepView {
                 ) {
                     store.dispatch(.didTapButtonIcon(.place))
                 }
+                .focused($isPlaceTextFieldFocused)
                 .onSubmit {
                     store.dispatch(.didTapkeyboardEnter)
                 }
@@ -114,7 +117,7 @@ extension InfoStepView {
                 ChipsContainerView(
                     selectedItem: Binding(get: {
                         store.state.selectedCategory
-                    }, set: { newValue in                        
+                    }, set: { newValue in
                         store.dispatch(.updateSelectedCategoryChip(newValue))
                     }),
                     items: store.state.categorys
@@ -150,7 +153,7 @@ extension InfoStepView {
                     plusButton
                 }
             }
-        }        
+        }
     }
     
     private var dropDownView: some View {
@@ -197,34 +200,75 @@ extension InfoStepView {
     }
     
     private var nextButton: some View {
-        SpoonyButton(
-            style: .primary,
-            size: .xlarge,
-            title: "다음",
-            disabled: Binding(
-                get: {
-                    store.state.isDisableStartButton
-                }, set: { newValue in
-                    store.dispatch(.updateButtonState(newValue, .start))
+        ScrollViewReader { proxy in
+            VStack {
+                SpoonyButton(
+                    style: .primary,
+                    size: .xlarge,
+                    title: "다음",
+                    disabled: Binding(
+                        get: {
+                            store.state.isDisableStartButton
+                        }, set: { newValue in
+                            store.dispatch(.updateButtonState(newValue, .start))
+                        }
+                    )
+                ) {
+                    store.dispatch(.didTapNextButton(.start))
                 }
-            )
-        ) {
-            store.dispatch(.didTapNextButton(.start))
-        }
-        .padding(.bottom, 20)
-        .padding(.top, 61)
-        .overlay(alignment: .top) {
-            ToolTipView()
-                .padding(.top, 5)
-                .opacity(store.state.isToolTipPresented ? 1 : 0)
-                .task {
-                    do {
-                        try await Task.sleep(for: .seconds(3))
-                        store.dispatch(.updateToolTipState)
-                    } catch {
-                        
+                .padding(.bottom, 20)
+                .padding(.top, 61)
+            }
+            .onAppear {
+                NotificationCenter.default.addObserver(
+                    forName: UIResponder.keyboardWillShowNotification,
+                    object: nil,
+                    queue: .main
+                ) { notification in
+                    if let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                        withAnimation(.smooth) {
+                            if !isPlaceTextFieldFocused {
+                                store.dispatch(.updateKeyboardHeight(frame.height))
+                            }
+                        }
                     }
                 }
+                
+                NotificationCenter.default.addObserver(
+                    forName: UIResponder.keyboardWillHideNotification,
+                    object: nil,
+                    queue: .main
+                ) { _ in
+                    withAnimation(.smooth) {
+                        store.dispatch(.updateKeyboardHeight(0))
+                    }
+                }
+            }
+            .id("nextButton")
+            .padding(.bottom, store.state.keyboardHeight)
+            .ignoresSafeArea(.keyboard)
+            .onChange(of: store.state.keyboardHeight) { _, newValue in
+                if newValue != 0 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation {
+                            proxy.scrollTo("nextButton", anchor: .bottom)
+                        }
+                    }
+                }
+            }
+            .overlay(alignment: .top) {
+                ToolTipView()
+                    .padding(.top, 5)
+                    .opacity(store.state.isToolTipPresented ? 1 : 0)
+                    .task {
+                        do {
+                            try await Task.sleep(for: .seconds(3))
+                            store.dispatch(.updateToolTipState)
+                        } catch {
+                            
+                        }
+                    }
+            }
         }
     }
 }
