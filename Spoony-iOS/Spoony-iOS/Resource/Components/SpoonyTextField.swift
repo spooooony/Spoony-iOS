@@ -77,23 +77,25 @@ extension SpoonyTextField {
                     .customFont(.body2m)
                     .foregroundStyle(.gray500)
             }
-            .autocapitalization(.none) 
+            .autocapitalization(.none)
             .autocorrectionDisabled()
             .focused($isFocused)
             .customFont(.body2m)
             .foregroundStyle(.gray900)
-            .onChange(of: text) { oldValue, newValue in
+            .onChange(of: text) { _, newValue in
                 if style != .icon {
-                    switch checkInputError(newValue) {
+                    let removeText = newValue.removeCharacters()
+                    
+                    switch checkInputError(removeText) {
                     case .maximumInputError:
                         errorState = .maximumInputError
-                        text = String(newValue.prefix(30))
+                        text = String(removeText.prefix(30))
                     case .minimumInputError:
                         errorState = .minimumInputError
-                    case .invalidInputError:
-                        text = oldValue
+                        text = removeText
                     case .noError, .initial:
                         errorState = .noError
+                        text = removeText
                     }
                 }
             }
@@ -102,7 +104,7 @@ extension SpoonyTextField {
                     errorState = .noError
                 }
             }
-            .onChange(of: errorState) { 
+            .onChange(of: errorState) {
                 switch errorState {
                 case .noError:
                     isError = false
@@ -174,13 +176,7 @@ extension SpoonyTextField {
 // MARK: - Functions
 extension SpoonyTextField {
     private func checkInputError(_ input: String) -> TextFieldErrorState {
-        let trimmedText = text.replacingOccurrences(of: " ", with: "")
-        let regex = "^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣\\x20\\p{P}\\$\\^\\+=₩|~<>¥£]*$"
-        let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
-        
-        if !predicate.evaluate(with: input) {
-            return .invalidInputError
-        }
+        let trimmedText = input.replacingOccurrences(of: " ", with: "")
         
         if trimmedText.isEmpty {
             return .minimumInputError
@@ -270,7 +266,6 @@ public enum SpoonyTextFieldStyle: Equatable {
 public enum TextFieldErrorState {
     case maximumInputError
     case minimumInputError
-    case invalidInputError
     case noError
     case initial
     
@@ -280,8 +275,25 @@ public enum TextFieldErrorState {
             return "글자 수 30자 이하로 입력해 주세요"
         case .minimumInputError:
             return "한 줄 소개는 필수예요"
-        case .noError, .invalidInputError, .initial:
+        case .noError, .initial:
             return nil
         }
+    }
+}
+
+
+extension String {
+    func removeCharacters() -> String {
+        return .init(
+            unicodeScalars.filter { scalar in
+                let isEmoji = scalar.properties.isEmoji || scalar.properties.isEmojiPresentation
+                let isControlCharacter = scalar.value == 8203 || scalar.value == 8204 || scalar.value == 8205 || scalar.value == 0x200B
+                let isSpecialCharacter = scalar == "*" || scalar == "#"
+                let isInvisibleSpace = scalar.value == 0x200B || scalar.value == 0x200C || scalar.value == 0x200D  // Invisible space characters
+                
+                return (!isEmoji && !isControlCharacter && !isInvisibleSpace) || scalar.properties.numericType == .decimal || isSpecialCharacter
+            }
+                .reduce(into: "") { $0 += String($1) }
+        )
     }
 }
