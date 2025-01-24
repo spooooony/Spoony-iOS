@@ -14,12 +14,14 @@ final class SearchStore: ObservableObject {
     
     private let searchService: SearchService
     private var navigationManager: NavigationManager
+    private let homeViewModel: HomeViewModel
     
-    init(navigationManager: NavigationManager) {
-        self.model = SearchModel()
-        self.searchService = SearchService()
-        self.navigationManager = navigationManager
-    }
+    init(navigationManager: NavigationManager, homeViewModel: HomeViewModel) {
+           self.model = SearchModel()
+           self.searchService = SearchService()
+           self.navigationManager = navigationManager
+           self.homeViewModel = homeViewModel
+       }
     
     func dispatch(_ intent: SearchIntent) {
         switch intent {
@@ -82,6 +84,9 @@ final class SearchStore: ObservableObject {
     
     private func handleLocationSelection(_ result: SearchResult) {
         navigationManager.currentLocation = result.title
+        Task {
+            await homeViewModel.fetchLocationList(locationId: result.locationId)
+        }
         navigationManager.pop(1)
     }
     
@@ -96,7 +101,7 @@ final class SearchStore: ObservableObject {
                 let response = try await searchService.searchLocation(query: query)
                 let results = response.locationResponseList.map { location in
                     SearchResult(
-                        title: location.locationName,
+                        title: location.locationName, locationId: location.locationId,
                         address: location.locationAddress ?? ""
                     )
                 }

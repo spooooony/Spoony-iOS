@@ -20,7 +20,7 @@ struct NMapView: UIViewRepresentable {
     
     private var mapView: NMFMapView
     let onMoveCamera: ((Double, Double) -> Void)?
-        
+    
     init(viewModel: HomeViewModel,
          selectedPlace: Binding<CardPlace?>,
          onMoveCamera: ((Double, Double) -> Void)? = nil) {
@@ -42,22 +42,22 @@ struct NMapView: UIViewRepresentable {
         case .authorizedWhenInUse, .authorizedAlways:
             if let location = locationManager.location {
                 moveCamera(mapView, to: NMGLatLng(lat: location.coordinate.latitude,
-                                                lng: location.coordinate.longitude))
+                                                  lng: location.coordinate.longitude))
             }
         case .denied, .restricted:
             moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
         case .notDetermined:
             locationManager.requestWhenInUseAuthorization()
             moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
-            default:
+        default:
             moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
         }
     }
-        
-        private func moveCamera(_ mapView: NMFMapView, to coord: NMGLatLng) {
-            let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
-            mapView.moveCamera(cameraUpdate)
-        }
+    
+    private func moveCamera(_ mapView: NMFMapView, to coord: NMGLatLng) {
+        let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
+        mapView.moveCamera(cameraUpdate)
+    }
     
     func makeCoordinator() -> Coordinator {
         Coordinator(
@@ -80,7 +80,7 @@ struct NMapView: UIViewRepresentable {
         }
         
         context.coordinator.markers = newMarkers
-
+        
         if !viewModel.pickList.isEmpty {
             let bounds = NMGLatLngBounds(latLngs: viewModel.pickList.map {
                 NMGLatLng(lat: $0.latitude, lng: $0.longitude)
@@ -100,7 +100,7 @@ struct NMapView: UIViewRepresentable {
     
     private func configureMapView(context: Context) -> NMFMapView {
         let mapView = NMFMapView()
-        mapView.positionMode = .direction
+        mapView.positionMode = .disabled
         mapView.zoomLevel = defaultZoomLevel
         mapView.touchDelegate = context.coordinator
         mapView.logoAlign = .rightTop
@@ -114,7 +114,7 @@ struct NMapView: UIViewRepresentable {
         marker.captionColor = .black
         marker.captionTextSize = 14
         
-marker.captionMinZoom = isSelected ? 0 : 10
+        marker.captionMinZoom = isSelected ? 0 : 10
         marker.captionMaxZoom = 20
         
         marker.anchor = CGPoint(x: 0.5, y: 1.0)

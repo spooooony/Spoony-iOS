@@ -50,6 +50,19 @@ final class HomeViewModel: ObservableObject {
             }
         }
     
+    func fetchLocationList(locationId: Int) {
+         Task {
+             isLoading = true
+             do {
+                 let response = try await service.fetchLocationList(userId: Config.userId, locationId: locationId)
+                 self.pickList = response.zzimCardResponses
+             } catch {
+                 self.error = error
+             }
+             isLoading = false
+         }
+     }
+    
     func clearFocusedPlaces() {
             focusedPlaces = []
             selectedLocation = nil

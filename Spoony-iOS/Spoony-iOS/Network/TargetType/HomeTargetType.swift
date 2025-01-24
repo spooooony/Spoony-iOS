@@ -14,6 +14,7 @@ enum HomeTargetType {
     case getMapFocus(userId: Int, placeId: Int)
     case getSearchResultList(query: String)
     case getSearchResultLocation(userId: Int, locationId: Int)
+    case getLocationList(userId: Int, locationId: Int)
 }
 
 extension HomeTargetType: TargetType {
@@ -37,6 +38,8 @@ extension HomeTargetType: TargetType {
             return "/location/search"
         case .getSearchResultLocation(let userId, let locationId):
             return "/post/zzin/\(userId)/\(locationId)"
+        case .getLocationList(let userId, let locationId):
+            return "/post/zzim/location/\(userId)/\(locationId)" 
         }
     }
     
@@ -46,6 +49,7 @@ extension HomeTargetType: TargetType {
                 .getMapList,
                 .getMapFocus,
                 .getSearchResultList,
+                .getLocationList,
                 .getSearchResultLocation:
             return .get
         }
@@ -56,6 +60,7 @@ extension HomeTargetType: TargetType {
         case .getSpoonCount,
                 .getMapList,
                 .getMapFocus,
+                .getLocationList,
                 .getSearchResultLocation:
             return .requestPlain
             

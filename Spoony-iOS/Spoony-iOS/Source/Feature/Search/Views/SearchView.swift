@@ -11,14 +11,16 @@ struct SearchView: View {
     @EnvironmentObject private var navigationManager: NavigationManager
     @StateObject private var store: SearchStore
     @FocusState private var isSearchFocused: Bool
+    let homeViewModel: HomeViewModel
     
-    init() {
+    init(homeViewModel: HomeViewModel) {
+        self.homeViewModel = homeViewModel
         let tempNavigationManager = NavigationManager()
-        _store = StateObject(wrappedValue: SearchStore(navigationManager: tempNavigationManager))
+        _store = StateObject(wrappedValue: SearchStore(navigationManager: tempNavigationManager, homeViewModel: homeViewModel))
     }
     
     private var initStore: SearchStore {
-        SearchStore(navigationManager: navigationManager)
+        SearchStore(navigationManager: navigationManager, homeViewModel: HomeViewModel())
     }
     
     var body: some View {

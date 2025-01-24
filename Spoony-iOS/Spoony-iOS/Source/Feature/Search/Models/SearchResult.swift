@@ -10,5 +10,6 @@ import Foundation
 struct SearchResult: Identifiable, Equatable {
     let id = UUID()
     let title: String
+    let locationId: Int
     let address: String
 }

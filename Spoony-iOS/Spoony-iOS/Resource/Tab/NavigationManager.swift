@@ -16,11 +16,15 @@ final class NavigationManager: ObservableObject {
     
     @Published var popup: PopupType?
     
-    @ViewBuilder
+    @MainActor @ViewBuilder
     func build(_ view: ViewType) -> some View {
         switch view {
         case .searchView:
-            SearchView()
+            if case .map = selectedTab {
+                        SearchView(homeViewModel: HomeViewModel(service: DefaultHomeService()))
+                    } else {
+                        SearchView(homeViewModel: HomeViewModel(service: DefaultHomeService()))
+                    }
         case .locationView:
             Home()
         case .detailView(let postId):
