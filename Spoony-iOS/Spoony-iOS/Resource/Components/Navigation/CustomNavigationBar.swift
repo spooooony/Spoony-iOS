@@ -47,8 +47,8 @@ struct CustomNavigationBar: View {
                 locationTitle
             case .detail:
                 detail
-            case .detailWithChip(let count):
-                detailWithChip(count: count)
+            case .detailWithChip:
+                detailWithChip
             case .search:
                 searchBar
             case .searchBar:
@@ -107,7 +107,7 @@ struct CustomNavigationBar: View {
     private var locationDetail: some View {
         HStack {
             Button(action: { tappedAction?() }) {
-                HStack {
+                HStack(spacing: 4) {
                     Text(title ?? "홍대입구역")
                         .customFont(.title2sb)
                         .foregroundStyle(.spoonBlack)
@@ -152,7 +152,7 @@ struct CustomNavigationBar: View {
         }
     }
     
-    private func detailWithChip(count: Int) -> some View {
+    private var detailWithChip: some View {
         HStack {
             Spacer()
             
@@ -232,7 +232,7 @@ struct CustomNavigationBar_Previews: PreviewProvider {
             .border(.gray)
             
             CustomNavigationBar(
-                style: .detailWithChip(count: 42),
+                style: .detailWithChip,
                 onBackTapped: {}
             )
             .border(.gray)

@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "image_empty_home.svg",
+      "filename" : "defaultImage.svg",
       "idiom" : "universal",
       "scale" : "1x"
     },

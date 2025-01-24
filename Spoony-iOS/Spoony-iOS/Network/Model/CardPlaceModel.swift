@@ -10,6 +10,7 @@ import Foundation
 struct CardPlace: Identifiable, Equatable {
     let id = UUID()
     let placeId: Int
+    let postId: Int
     let name: String
     let visitorCount: String
     let address: String

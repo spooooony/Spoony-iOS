@@ -23,8 +23,8 @@ struct FixedBottomSheetView: View {
             VStack(spacing: 10) {
                 VStack(spacing: 8) {
                     RoundedRectangle(cornerRadius: 3)
-                        .fill(Color.gray.opacity(0.5))
-                        .frame(width: 36.adjusted, height: 5.adjustedH)
+                        .fill(.gray300)
+                        .frame(width: 36.adjusted, height: 2.adjustedH)
                         .padding(.top, 10)
                 }
                 .frame(height: headerHeight)
@@ -33,9 +33,7 @@ struct FixedBottomSheetView: View {
                 VStack(spacing: 16) {
                     Image(.imageGoToList)
                         .resizable()
-                        .scaledToFit()
-                        .frame(width: 125.adjusted, height: 95.adjustedH)
-                        .padding(.leading, 10)
+                        .frame(width: 100.adjusted, height: 100.adjustedH)
                     
                     Text("아직 추가된 장소가 없어요.\n다른 사람의 리스트를 떠먹어 보세요!")
                         .customFont(.body2m)
@@ -48,7 +46,7 @@ struct FixedBottomSheetView: View {
                         title: "떠먹으러 가기",
                         disabled: $isDisabled
                     ) {
-                        navigationManager.push(.detailView)
+                        navigationManager.selectedTab = .explore
                     }
                     .padding(.top, 8)
                 }

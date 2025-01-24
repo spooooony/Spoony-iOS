@@ -8,35 +8,40 @@
 import SwiftUI
 
 struct PlaceCard: View {
+    @EnvironmentObject var navigationManager: NavigationManager
     let places: [CardPlace]
     @Binding var currentPage: Int
     
     var body: some View {
-            VStack(spacing: 0) {
-                TabView(selection: $currentPage) {
-                    ForEach(places.indices, id: \.self) { index in
-                        PlaceCardItem(place: places[index])
-                            .tag(index)
-                            .padding(.horizontal, 26)
-                    }
+        VStack(spacing: 0) {
+            TabView(selection: $currentPage) {
+                ForEach(self.places.indices, id: \.self) { index in
+                    PlaceCardItem(place: places[index])
+                        .tag(index)
+                        .padding(.horizontal, 26)
+                        .onTapGesture {
+                            let postId = places[index].postId
+                            navigationManager.push(.detailView(postId: postId))
+                        }
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 264.adjusted)
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .background(.clear)
-                
-                ZStack {
-                    if places.count > 1 {
-                        PageIndicator(
-                            currentPage: currentPage,
-                            pageCount: places.count
-                        )
-                        .padding(.vertical, 4)
-                    }
-                }
-                .frame(height: 8) 
             }
+            .frame(maxWidth: .infinity)
+            .frame(height: 264.adjusted)
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .background(.clear)
+            
+            ZStack {
+                if places.count > 1 {
+                    PageIndicator(
+                        currentPage: currentPage,
+                        pageCount: places.count
+                    )
+                    .padding(.vertical, 4)
+                }
+            }
+            .frame(height: 8)
         }
+    }
 }
 
 private struct PlaceCardItem: View {
@@ -44,24 +49,30 @@ private struct PlaceCardItem: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            Image(.imagecontainerViewTriangle)
+                .resizable()
+                .frame(width: 16.adjusted, height: 14.adjustedH)
+                .zIndex(1)
+                .background(Color.clear)
+            
             VStack(spacing: 0) {
                 PlaceImagesLayout(images: place.images)
                 
                 PlaceHeaderSection(place: place)
                     .padding(15)
+                
+                PlaceInfoSection(place: place)
+                    .padding(15)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.gray0)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(.horizontal, 15)
+                    .padding(.bottom, 15)
             }
-            .background(.white)
-            
-            PlaceInfoSection(place: place)
-                .padding(15)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.gray0)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .padding(.horizontal, 15)
-                .padding(.bottom, 15)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .background(Color.clear)
     }
 }
 
@@ -116,8 +127,12 @@ private struct VisitorCountLabel: View {
     var body: some View {
         HStack(spacing: 4) {
             Image(.icAddmapGray400)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 16.adjusted, height: 16.adjustedH)
             Text(count)
                 .customFont(.caption2b)
+                .foregroundStyle(.gray500)
         }
     }
 }

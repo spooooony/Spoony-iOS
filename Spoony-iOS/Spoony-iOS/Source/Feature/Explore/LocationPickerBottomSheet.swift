@@ -48,10 +48,6 @@ enum SeoulType: String, CaseIterable {
 }
 
 struct LocationPickerBottomSheet: View {
-    @Binding var isPresented: Bool
-    @State private var isDisabled: Bool = true
-    @State private var selectedRegion: SeoulType = .mapo
-    
     @ObservedObject var store: ExploreStore
     
     var body: some View {
@@ -65,7 +61,7 @@ struct LocationPickerBottomSheet: View {
                     
                     Image(.icCloseGray400)
                         .onTapGesture {
-                            isPresented = false
+                            store.dispatch(.closeLocationTapped)
                         }
                 }
                 .padding(.trailing, 20)
@@ -99,7 +95,7 @@ struct LocationPickerBottomSheet: View {
                             Text(type.rawValue)
                                 .customFont(.body2m)
                                 .foregroundStyle(
-                                    selectedRegion.rawValue != type.rawValue ? .gray400 : .spoonBlack
+                                    store.state.tempLocation?.rawValue != type.rawValue ? .gray400 : .spoonBlack
                                 )
                                 .frame(width: 240.adjusted, height: 44.adjustedH)
                                 .background(
@@ -107,8 +103,7 @@ struct LocationPickerBottomSheet: View {
                                         .stroke(Color.gray0, lineWidth: 1)
                                 )
                                 .onTapGesture {
-                                    selectedRegion = type
-                                    isDisabled = false
+                                    store.dispatch(.locationTapped(type))
                                 }
                         }
                     }
@@ -121,10 +116,12 @@ struct LocationPickerBottomSheet: View {
                 style: .secondary,
                 size: .xlarge,
                 title: "선택하기",
-                disabled: $isDisabled
+                disabled: Binding(get: {
+                    return store.state.tempLocation == nil
+                }, set: { _ in
+                })
             ) {
-                store.changeLocation(location: selectedRegion)
-                isPresented = false
+                store.dispatch(.selectLocationTapped)
             }
             .padding(.top, 12)
             .padding(.bottom, 22)

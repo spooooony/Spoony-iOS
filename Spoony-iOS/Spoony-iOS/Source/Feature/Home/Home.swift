@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct Home: View {
     @EnvironmentObject var navigationManager: NavigationManager
     @StateObject private var viewModel = HomeViewModel(service: DefaultHomeService())
@@ -88,10 +89,11 @@ struct Home: View {
             isBottomSheetPresented = true
             Task {
                 do {
-                    spoonCount = try await restaurantService.fetchSpoonCount(userId: 1)
+                    spoonCount = try await restaurantService.fetchSpoonCount(userId: Config.userId)
                 } catch {
                     print("Failed to fetch spoon count:", error)
                 }
+                viewModel.fetchPickList()
             }
             viewModel.fetchPickList()
         }

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import NMapsMap
 
 enum SNError: Error {
     case networkFail
@@ -20,27 +19,28 @@ struct DetailView: View {
     
     @EnvironmentObject private var navigationManager: NavigationManager
     
-    private let userImage = Image(.icCafeBlue)
-    private let userName: String = "이명진"
-    private let placeAdress: String = "서울시 마포구 합정동 금수저"
+    // ObservableObject 쓰면 안돼! 초기화가 되버림.
+    // StateObeject 는 초기화가 안됌 상태가 유지가 됌
+    @StateObject private var store: DetailViewStore = DetailViewStore()
+    let postId: Int
     
-    @State private var searchName = "연남"
-    @State private var appName: String = "Spoony"
-    @State private var isMyPost: Bool = true
+    init( postId: Int) {
+        self.postId = postId
+    }
+    
+    private let userImage = Image(.icCafeBlue)
+    
     @State private var isPresented: Bool = false
     @State private var popUpIsPresented: Bool = false
-    @State private var privateMode: Bool = false
     @State private var toastMessage: Toast?
-    @State private var toggleRedacted = false
-    
-    @State private var detailModel: ReviewDetailModel = .sample()
     
     // MARK: - body
     
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
-                style: .detailWithChip(count: detailModel.zzimCount),
+                style: .detailWithChip,
+                spoonCount: store.state.spoonCount,
                 onBackTapped: {
                     navigationManager.pop(1)
                 }
@@ -63,20 +63,17 @@ struct DetailView: View {
             .scrollIndicators(.hidden)
             .toastView(toast: $toastMessage)
             .onAppear {
-                DetailService().getReviewDetail(userId: 1, post: 1) { result in
-                    switch result {
-                    case .success(let data):
-                        detailModel = data
-                    case .failure(let error):
-                        print(error)
-                    }
-                }
+                store.send(
+                    intent: .getInitialValue(userId: 30, postId: postId)
+                )
+            }
+            .onChange(of: store.state.toast) { _, newValue in
+                toastMessage = newValue
             }
             
             bottomView
                 .frame(height: 80.adjustedH)
         }
-        .redacted(reason: toggleRedacted ? .placeholder : [])
         .toolbar(.hidden, for: .tabBar)
     }
 }
@@ -104,24 +101,25 @@ extension DetailView {
     private var userProfileSection: some View {
         HStack(alignment: .center, spacing: 14.adjustedH) {
             
-            Image(.imgMockProfile)
+            Image(.imageThingjin)
                 .resizable()
                 .scaledToFit()
+                .clipShape(Circle())
                 .frame(width: 48.adjusted, height: 48.adjustedH)
             
             VStack(alignment: .leading, spacing: 4.adjustedH) {
-                Text(userName)
+                Text(store.state.userName)
                     .customFont(.body2b)
                     .foregroundStyle(.black)
                 
-                Text(placeAdress)
+                Text("서울시 성동구 수저")
                     .customFont(.caption1m)
                     .foregroundStyle(.gray400)
             }
             
             Spacer()
             
-            if isMyPost {
+            if store.state.isMine {
                 Image(.icMenu)
                     .onTapGesture {
                         isPresented.toggle()
@@ -134,17 +132,18 @@ extension DetailView {
     }
     
     private var imageSection: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+        let imageList: [String] = store.state.photoUrlList
+        
+        return ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10.adjusted) {
-                ForEach(0..<4) { _ in
-                    Image(.imgMockGodeung)
-                        .resizable()
-                        .scaledToFit()
+                ForEach(imageList.indices, id: \.self) { index in
+                    RemoteImageView(urlString: imageList[index])
+                        .scaledToFill()
                         .frame(width: 278.adjusted)
-                        .blur(radius: privateMode ? 12 : 0)
+                        .frame(height: 278.adjustedH)
+                        .blur(radius: store.state.isScoop ? 0 : 12)
                         .cornerRadius(11.16)
                 }
-                .frame(height: 278.adjustedH)
             }
             .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
         }
@@ -152,30 +151,29 @@ extension DetailView {
     
     private var reviewSection: some View {
         VStack(alignment: .leading, spacing: 8.adjustedH) {
-//            IconChip(
-//                title: "주류",
-//                foodType: .bar,
-//                chipType: .small,
-//                color: .purple
-//            )
             
-            Text("인생 이자카야. 고등어 초밥 안주가 그냥 미쳤어요.".splitZeroWidthSpace())
+            IconChip(
+                chip: store.state.categoryColorResponse.toEntity()
+            )
+            
+            Text(store.state.description.splitZeroWidthSpace())
                 .customFont(.title1b)
                 .foregroundStyle(.black)
             
-            Text("2025년 8월 21일")
+            Text(store.state.date)
                 .customFont(.caption1m)
                 .foregroundStyle(.gray400)
             
             Spacer()
                 .frame(height: 16.adjustedH)
             
-            Text("이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어 봉초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어짐. 그리고 밤 후식 진짜 맛도리니까 밤 디저트 좋아하는 사람이면 꼭 먹어보기!".splitZeroWidthSpace())
+            Text(store.state.description.splitZeroWidthSpace())
                 .customFont(.body2m)
                 .foregroundStyle(.gray900)
             
         }
         .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var placeInfoSection: some View {
@@ -209,7 +207,7 @@ extension DetailView {
             
         }
         .padding(.horizontal, 20.adjusted)
-        .blur(radius: privateMode ? 8 : 0)
+        .blur(radius: store.state.isScoop ? 0 : 8)
     }
     
     private var menuInfo: some View {
@@ -217,7 +215,7 @@ extension DetailView {
             Text("Menu")
                 .customFont(.body1b)
                 .foregroundStyle(.spoonBlack)
-            menuList()
+            menuList(menus: store.state.menuList)
         }
         .padding(EdgeInsets(top: 20.adjustedH, leading: 16.adjusted, bottom: 28.adjustedH, trailing: 20.adjusted))
     }
@@ -228,21 +226,22 @@ extension DetailView {
                 Text("Location")
                     .customFont(.body1b)
                     .foregroundStyle(.spoonBlack)
-                Text("상호명")
+                
+                Text(store.state.placeName)
                     .customFont(.title2sb)
                     .foregroundStyle(.spoonBlack)
+                
                 HStack(spacing: 4.adjusted) {
                     Image(.icMapGray400)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 20.adjusted, height: 20.adjustedH)
                     
-                    Text("서울 마포구 연희로11가길 39")
+                    Text(store.state.placeAddress)
                         .customFont(.body2m)
                         .foregroundStyle(.spoonBlack)
                 }
             }
-            
             Spacer()
         }
         .padding(EdgeInsets(top: 21.adjustedH, leading: 16.adjusted, bottom: 21.adjustedH, trailing: 16.adjusted))
@@ -252,41 +251,28 @@ extension DetailView {
         HStack(spacing: 0) {
             SpoonyButton(
                 style: .secondary,
-                size: privateMode ? .xlarge : .medium,
-                title: privateMode ? "떠먹기" : "길찾기",
-                isIcon: privateMode ? true : false,
+                size: store.state.isScoop ? .medium : .xlarge,
+                title: store.state.isScoop ? "길찾기" : "떠먹기",
+                isIcon: store.state.isScoop ? false : true,
                 disabled: .constant(false)
             ) {
+                print("⭐️")
                 
-                if privateMode {
-                
-                    DetailService().scoopReview(userId: 1, post: 1)
-                    
-                    navigationManager.popup = .useSpoon(action: {
-                        //TODO: 떠먹기 버튼 기능 구현
-                        Task {
-                            toggleRedacted = true
-                            try? await Task.sleep(nanoseconds: 2 * 1_000_000_000) // 3초 대기
-                            toggleRedacted = false
-                            privateMode = false
-                        }
-                    })
+                if store.state.isScoop {
+                    store.send(intent: .pathInfoInNaverMaps)
                 } else {
-                    let url = URL(string: "nmap://search?query=\(searchName)&appname=\(appName)")!
-                    let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
-                    
-                    if UIApplication.shared.canOpenURL(url) {
-                        UIApplication.shared.open(url)
-                    } else {
-                        UIApplication.shared.open(appStoreURL)
-                    }
+                    navigationManager.popup = .useSpoon(action: {
+                        store.send(intent: .scoopButtonDidTap)
+                    })
                 }
+                
+                print("⭐️")
             }
             
-            if !privateMode {
+            if store.state.isScoop {
                 Spacer()
                 
-                SpoonButton(toastMessage: $toastMessage)
+                ScrapButton(store: store)
             }
         }
         .padding(.horizontal, 20.adjusted)
@@ -300,9 +286,6 @@ extension DetailView {
                     isPresented: $isPresented
                 ) { _ in
                     navigationManager.push(.report)
-                    //                    print("선택된 메뉴: \(menu)")
-                    //                    isPresented = false
-                    //                    privateMode = true
                 }
                 .frame(alignment: .topTrailing)
                 .padding(.top, 48.adjustedH)
@@ -333,37 +316,28 @@ struct menuList: View {
     }
 }
 
-struct SpoonButton: View {
-    @Binding var toastMessage: Toast?
-    @State private var isScrap: Bool = false
-    @State private var scrapCount: Int = 100
+struct ScrapButton: View {
+    
+    @ObservedObject private var store: DetailViewStore
+    
+    init(store: DetailViewStore) {
+        self.store = store
+    }
     
     var body: some View {
         VStack(spacing: 4) {
-            Image(isScrap ? .icAddmapMain400 : .icAddmapGray400)
+            Image(store.state.isZzim ? .icAddmapMain400 : .icAddmapGray400)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 32.adjusted, height: 32.adjustedH)
                 .onTapGesture {
-                    if isScrap {
-                        DetailService().unScrapReview(userId: 1, post: 1)
-                        scrapCount -= 1
-                        toastMessage = Toast(style: .gray, message: "내 지도에서 삭제되었어요.", yOffset: 539.adjustedH)
-                    } else {
-                        
-                        DetailService().scrapReview(userId: 1, post: 1)
-                        scrapCount += 1
-                        toastMessage = Toast(style: .gray, message: "내 지도에 추가되었어요.",
-                                             yOffset: 539.adjustedH)
-                        
-                    }
-                    isScrap.toggle()
+                    store.send(intent: .scrapButtonDidTap(isScrap: store.state.isZzim))
                 }
                 .padding(EdgeInsets(top: 1.5, leading: 12, bottom: 4, trailing: 12))
             
-            Text("\(scrapCount)")
+            Text("\(store.state.zzimCount)")
                 .customFont(.caption1m)
-                .foregroundStyle(isScrap ? .main400 : .gray800)
+                .foregroundStyle(store.state.isZzim ? .main400 : .gray800)
                 .padding(.bottom, 1.5)
         }
     }
@@ -378,83 +352,6 @@ struct Line: Shape {
     }
 }
 
-// MARK: - Network
-// TODO: - Service 분리
-public struct DetailService {
-    
-    let detailProvider = Providers.detailProvider
-    
-    func getReviewDetail(userId: Int, post: Int, completion: @escaping (Result<ReviewDetailModel, SNError>) -> Void) {
-        detailProvider.request(.getDetailReview(userId: 1, postId: 1)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let responseDto = try response.map(BaseResponse<ReviewDetailModel>.self)
-                    
-                    if let data = responseDto.data {
-                        completion(.success(data))
-                    } else {
-                        completion(.failure(.decodeError))
-                    }
-                    
-                } catch {
-                    print("decode map to error")
-                }
-            case .failure(let error):
-                print("통신 실패: \(error)")
-            }
-        }
-    }
-    
-    func scrapReview(userId: Int, post: Int) {
-        detailProvider.request(.scrapReview(userId: 1, postId: 1)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let _ = try response.map(BaseResponse<BlankData>.self)
-                    
-                } catch {
-                    print("decode map to error")
-                }
-            case .failure(let error):
-                print("통신 실패: \(error)")
-            }
-        }
-    }
-    
-    func unScrapReview(userId: Int, post: Int) {
-        detailProvider.request(.unScrapReview(userId: 1, postId: 1)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let _ = try response.map(BaseResponse<BlankData>.self)
-                    
-                } catch {
-                    print("decode map to error")
-                }
-            case .failure(let error):
-                print("통신 실패: \(error)")
-            }
-        }
-    }
-    
-    func scoopReview(userId: Int, post: Int) {
-        detailProvider.request(.scoopReview(userId: 1, postId: 1)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    let _ = try response.map(BaseResponse<BlankData>.self)
-                    
-                } catch {
-                    print("decode map to error")
-                }
-            case .failure(let error):
-                print("통신 실패: \(error)")
-            }
-        }
-    }
-}
-
 #Preview {
-    DetailView()
+    DetailView(postId: 20)
 }

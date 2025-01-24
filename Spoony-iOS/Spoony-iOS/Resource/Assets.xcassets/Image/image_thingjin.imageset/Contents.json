@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "imageTH.png",
       "idiom" : "universal",
       "scale" : "1x"
     },

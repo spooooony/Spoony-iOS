@@ -34,7 +34,7 @@ struct InfoStepView: View {
         }))
         .task {
             store.dispatch(.getCategories)
-        }
+        }        
     }
 }
 
@@ -150,7 +150,7 @@ extension InfoStepView {
                     plusButton
                 }
             }
-        }
+        }        
     }
     
     private var dropDownView: some View {
@@ -224,7 +224,6 @@ extension InfoStepView {
                     } catch {
                         
                     }
-                    
                 }
         }
     }

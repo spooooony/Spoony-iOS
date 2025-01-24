@@ -12,7 +12,7 @@ struct BottomSheetListItem: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
                     Text(pickCard.placeName)
                         .customFont(.body1b)
@@ -48,25 +48,31 @@ struct BottomSheetListItem: View {
                 
                 Text(pickCard.placeAddress)
                     .customFont(.caption1m)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.gray600)
                     .lineLimit(1)
                     .truncationMode(.tail)
                 
                 Text(pickCard.postTitle)
                     .customFont(.caption1m)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.spoonBlack)
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 12)
                     .padding(.horizontal, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    .background(.white)
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color(.gray0), lineWidth: 1)
+                    )
+                    .shadow(
+                        color: Color(.gray0),
+                        radius: 16,
+                        x: 0,
+                        y: 2
                     )
             }
-            .layoutPriority(1)
-            
             // 이미지
             AsyncImage(url: URL(string: pickCard.photoUrl)) { phase in
                 switch phase {
@@ -131,18 +137,22 @@ struct BottomSheetListView: View {
                 // 핸들바 영역
                 VStack(spacing: 8) {
                     RoundedRectangle(cornerRadius: 3)
-                        .fill(Color.gray.opacity(0.5))
-                        .frame(width: 36, height: 5)
+                        .fill(Color.gray200)
+                        .frame(width: 24.adjusted, height: 2.adjustedH)
                         .padding(.top, 10)
                     
-                    Text("타이틀")
-                        .customFont(.body2b)
-                        .padding(.bottom, 8)
+                    HStack(spacing: 4) {
+                        Text("양수정님의 찐맛집")
+                            .customFont(.body2b)
+                        Text("\(viewModel.pickList.count)")
+                            .customFont(.body2b)
+                            .foregroundColor(.gray500)
+                    }
+                    .padding(.bottom, 8)
                 }
                 .frame(height: 60.adjustedH)
                 .background(.white)
                 
-                // 컨텐츠 영역
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         LazyVStack(spacing: 0) {
@@ -156,8 +166,8 @@ struct BottomSheetListView: View {
                                                 isScrollEnabled = true
                                             }
                                         }
+                                        viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
                                     }
-                                Divider()
                             }
                         }
                         Color.clear.frame(height: 90.adjusted)
@@ -238,4 +248,8 @@ struct BottomSheetListView: View {
             }
         }
     }
+}
+
+#Preview {
+    BottomSheetListView(viewModel: HomeViewModel())
 }

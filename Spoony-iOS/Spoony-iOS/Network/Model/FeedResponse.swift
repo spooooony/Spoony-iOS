@@ -29,20 +29,23 @@ struct CategoryColorResponse: Codable, Hashable {
     let iconBackgroundColor: String
 }
 
-extension FeedResponse {
-    func toEntity() -> FeedEntity {
-        .init(
-            id: UUID(),
-            userName: self.userName,
-            userRegion: self.userRegion,
-            title: self.title,
-            categorColorResponse: self.categoryColorResponse,
-            zzimCount: self.zzimCount
-        )
+extension FeedListResponse {
+    func toEntity() -> [FeedEntity] {
+        feedResponseList.map { feed in
+            .init(
+                id: UUID(),
+                postId: feed.postId,
+                userName: feed.userName,
+                userRegion: feed.userRegion,
+                title: feed.title,
+                categorColorResponse: feed.categoryColorResponse,
+                zzimCount: feed.zzimCount
+            )
+        }
     }
     
     static let sample: FeedResponse = .init(
-        userId: 1,
+        userId: Config.userId,
         userName: "안용아안용",
         createdAt: "2025-01-19T22:58:53.622066",
         userRegion: "서울시 성북구",

@@ -12,11 +12,13 @@
 		787B5B042D32D9C50017A378 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B032D32D9C50017A378 /* Kingfisher */; };
 		787B5B072D32DA0F0017A378 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B062D32DA0F0017A378 /* Moya */; };
 		787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B092D32DA500017A378 /* NMapsMap */; };
+		78AD4F082D4299110090E9E3 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		71F8F73E2D230EF100B822F3 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		71F8F8B72D27EE0700B822F3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		78C002082D1D9FC400DA101C /* Spoony-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Spoony-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -46,6 +48,7 @@
 		78C001FF2D1D9FC300DA101C = {
 			isa = PBXGroup;
 			children = (
+				78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */,
 				71F8F73E2D230EF100B822F3 /* .swiftlint.yml */,
 				78C0020A2D1D9FC400DA101C /* Spoony-iOS */,
 				71F8F8B72D27EE0700B822F3 /* Info.plist */,
@@ -136,6 +139,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				78AD4F082D4299110090E9E3 /* Launch Screen.storyboard in Resources */,
 				71F8F73F2D230EFE00B822F3 /* .swiftlint.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -300,6 +304,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -341,6 +347,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;

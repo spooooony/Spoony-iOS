@@ -22,21 +22,18 @@ enum FilterType: String, CaseIterable {
 }
 
 struct FilterBottomSheet: View {
-    @Binding var isPresented: Bool
-    
     @ObservedObject var store: ExploreStore
     
     var body: some View {
         VStack(spacing: 12) {
             ForEach(FilterType.allCases, id: \.self) { filter in
                 SpoonyButton(
-                    style: store.selectedFilter == filter ? .activate : .deactivate,
+                    style: store.state.selectedFilter == filter ? .activate : .deactivate,
                     size: .xlarge,
                     title: filter.title,
                     disabled: .constant(false)
                 ) {
-                    store.changeFilter(filter: filter)
-                    isPresented = false
+                    store.dispatch(.filterTapped(filter))
                 }
             }
             SpoonyButton(
@@ -45,7 +42,7 @@ struct FilterBottomSheet: View {
                 title: "취소",
                 disabled: .constant(false)
             ) {
-                isPresented = false
+                store.dispatch(.closeFilterTapped)
             }
             Spacer()
         }
