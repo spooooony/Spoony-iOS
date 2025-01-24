@@ -125,7 +125,7 @@ extension DetailView {
             
             Spacer()
             
-            if store.state.isMine {
+            if !store.state.isMine {
                 Image(.icMenu)
                     .onTapGesture {
                         isPresented.toggle()
@@ -165,7 +165,7 @@ extension DetailView {
                                 .scaledToFill()
                                 .frame(width: 278.adjusted)
                                 .frame(height: 278.adjustedH)
-                                .blur(radius: store.state.isScoop ? 0 : 12)
+                                .blur(radius: (store.state.isScoop || store.state.isMine) ? 0 : 12)
                                 .cornerRadius(11.16)
                         }
                     }
@@ -277,9 +277,9 @@ extension DetailView {
         HStack(spacing: 0) {
             SpoonyButton(
                 style: .secondary,
-                size: store.state.isScoop ? .medium : .xlarge,
-                title: store.state.isScoop ? "길찾기" : "떠먹기",
-                isIcon: store.state.isScoop ? false : true,
+                size: (store.state.isScoop) ? .medium : .xlarge,
+                title: (store.state.isScoop || store.state.isMine) ? "길찾기" : "떠먹기",
+                isIcon: (store.state.isScoop || store.state.isMine) ? false : true,
                 disabled: .constant(false)
             ) {
                 print("⭐️")
