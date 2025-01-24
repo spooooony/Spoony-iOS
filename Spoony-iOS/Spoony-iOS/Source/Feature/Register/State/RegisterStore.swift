@@ -310,6 +310,9 @@ extension RegisterStore {
         
         Task {
             do {
+                await MainActor.run {
+                    state.isLoading = true
+                }
                 let success = try await network.registerPost(
                     request: request,
                     imagesData: state.uploadImages.map {
@@ -318,12 +321,14 @@ extension RegisterStore {
                 await MainActor.run {
                     if success {
                         state.registerStep = .end
+                        state.isLoading = false
                         navigationManager.popup = .registerSuccess(action: {
                             self.navigationManager.selectedTab = .explore
                             self.state = .init()
                             self.state.isToolTipPresented = false
                         })
                     } else {
+                        state.isLoading = false
                         print("Error")
                     }
                 }
