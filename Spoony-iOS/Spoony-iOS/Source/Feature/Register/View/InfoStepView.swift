@@ -248,7 +248,7 @@ extension InfoStepView {
             .padding(.bottom, store.state.keyboardHeight)
             .ignoresSafeArea(.keyboard)
             .onChange(of: store.state.keyboardHeight) { _, newValue in
-                if newValue != 0 {
+                if newValue != 0 && !isPlaceTextFieldFocused {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         withAnimation {
                             proxy.scrollTo("nextButton", anchor: .bottom)
