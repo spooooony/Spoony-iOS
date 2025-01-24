@@ -34,7 +34,7 @@ struct ExploreCell: View {
             HStack(alignment: .bottom, spacing: 4) {
                 Text(feed.userName)
                     .customFont(.body2b)
-                Text("\(feed.userRegion) 수저")
+                Text("서울시 \(feed.userRegion) 수저")
                     .customFont(.caption2m)
                     .foregroundStyle(.gray500)
             }
