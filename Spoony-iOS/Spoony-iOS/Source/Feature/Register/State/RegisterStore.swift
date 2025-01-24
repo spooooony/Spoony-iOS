@@ -146,6 +146,8 @@ final class RegisterStore: ObservableObject {
             fetchCategories()
         case .didTapPhoto(let items):
             validateSelectedPhotoCount(item: items)
+        case .updateKeyboardHeight(let height):
+            state.keyboardHeight = height
         }
     }
 }

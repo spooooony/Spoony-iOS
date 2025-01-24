@@ -29,4 +29,5 @@ enum RegisterIntent {
     case deleteImage(UploadImage)
     case getCategories
     case didTapPhoto([PhotosPickerItem])
+    case updateKeyboardHeight(CGFloat)
 }

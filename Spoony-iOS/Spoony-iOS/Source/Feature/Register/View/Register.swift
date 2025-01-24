@@ -26,6 +26,13 @@ struct Register: View {
                 .transition(.slide)
                 .animation(.easeInOut, value: store.state.registerStep)
             }
+            .scrollIndicators(.hidden)
+            .simultaneousGesture(
+                DragGesture()
+                    .onChanged { _ in
+                        hideKeyboard()
+                    }
+            )
         }
     }
 }
@@ -66,8 +73,4 @@ enum RegisterStep: Int {
     case start = 1
     case middle = 2
     case end = 3
-}
-
-#Preview {
-    Register(store: .init(navigationManager: .init()))
 }
