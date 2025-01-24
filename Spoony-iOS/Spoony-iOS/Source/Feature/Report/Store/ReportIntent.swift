@@ -14,5 +14,4 @@ enum ReportIntent {
     
     case descriptionChanged(String)
     case isErrorChanged(Bool)
-    case isDisabledChanged(Bool)
 }

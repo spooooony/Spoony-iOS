@@ -20,17 +20,11 @@ final class ReportStore: ObservableObject {
             sendReport(postId: postId, description: state.description)
         case .descriptionChanged(let newValue):
             state.description = newValue
-        // 여기서 hideKeyboard() 로직이 들어가야하는데 view의 extension이라 어떻게해야할지... 
         case .backgroundTapped: break
         case .isErrorChanged(let newValue):
-            state.isError = newValue
-            state.isDisabled = state.isError
-        case .isDisabledChanged(let newValue):
-            state.isDisabled = newValue
+            state.isError = newValue    
         }
     }
-    
-    
 }
 
 extension ReportStore {

@@ -73,9 +73,8 @@ struct Report: View {
                     size: .xlarge,
                     title: "신고하기",
                     disabled: Binding(get: {
-                        store.state.isDisabled
-                    }, set: { newValue in
-                        store.dispatch(.isDisabledChanged(newValue))
+                        store.state.isError
+                    }, set: { _ in
                     })
                 ) {
                     store.dispatch(.reportPostButtonTapped(1))
@@ -111,7 +110,6 @@ extension Report {
                 )
                 .onTapGesture {
                     store.dispatch(.reportReasonButtonTapped(report))
-                    // 이것도 intent로 바꿀 방법 생각해보기
                     hideKeyboard()
                 }
             }
