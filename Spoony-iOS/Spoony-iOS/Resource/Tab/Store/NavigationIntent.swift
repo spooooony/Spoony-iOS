@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum NavigationIntent {
-//    case build
+    case build(ViewType)
     case changeTab(TabType)
     case push(ViewType)
     case pop(Int)

@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-//TODO: build 고쳐야함
+
 struct SpoonyTabView: View {
     @EnvironmentObject var navigationManager: NavigationManager
     

@@ -5,7 +5,7 @@
 //  Created by 최주리 on 1/24/25.
 //
 
-import Foundation
+import SwiftUI
 
 struct NavigationState {
     var selectedTab: TabType = .map
@@ -14,4 +14,5 @@ struct NavigationState {
     var registerPath: [ViewType] = []
     var currentLocation: String?
     var popup: PopupType?
+    var newView: any View = Home()
 }

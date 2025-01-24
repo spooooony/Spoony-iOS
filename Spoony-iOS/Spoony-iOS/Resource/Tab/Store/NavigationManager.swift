@@ -12,8 +12,8 @@ final class NavigationManager: ObservableObject {
     
     func dispatch(_ intent: NavigationIntent) {
         switch intent {
-//        case .build:
-//            <#code#>
+        case .build(let newView):
+            state.newView = build(newView)
         case .changeTab(let tab):
             state.selectedTab = tab
         case .push(let nextView):
@@ -37,7 +37,7 @@ final class NavigationManager: ObservableObject {
             state.currentLocation = location
         }
     }
-    
+    //TODO: 여기 어떻게 할지 생각해보기.........
     @ViewBuilder
     func build(_ view: ViewType) -> some View {
         switch view {
@@ -63,6 +63,7 @@ extension NavigationManager {
         case .register:
             state.registerPath.append(view)
         }
+        state.newView = build(view)
     }
 
     private func pop(_ depth: Int) {
