@@ -60,7 +60,11 @@ struct NMapView: UIViewRepresentable {
         }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(selectedPlace: $selectedPlace, defaultMarkerImage: defaultMarker)
+        Coordinator(
+            selectedPlace: $selectedPlace,
+            defaultMarkerImage: defaultMarker,
+            viewModel: viewModel
+        )
     }
     
     func updateUIView(_ mapView: NMFMapView, context: Context) {
@@ -168,28 +172,30 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate {
     @Binding var selectedPlace: CardPlace?
     var markers: [NMFMarker] = []
     private let defaultMarkerImage: NMFOverlayImage
+    private let viewModel: HomeViewModel
     
-    init(selectedPlace: Binding<CardPlace?>, defaultMarkerImage: NMFOverlayImage) {
+    init(selectedPlace: Binding<CardPlace?>,
+         defaultMarkerImage: NMFOverlayImage,
+         viewModel: HomeViewModel) {
         self._selectedPlace = selectedPlace
         self.defaultMarkerImage = defaultMarkerImage
+        self.viewModel = viewModel
     }
     
-    func mapView(_ mapView: NMFMapView, didTap symbol: NMFSymbol) -> Bool {
+    @MainActor private func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng) -> Bool {
         selectedPlace = nil
-        return true
-    }
-    
-    func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng) -> Bool {
-        if selectedPlace != nil {
-            selectedPlace = nil
-            markers.forEach { marker in
-                marker.mapView = nil
-                marker.iconImage = defaultMarkerImage
-                // 지도를 탭했을 때도 캡션 설정 유지
-                marker.mapView = mapView
-            }
-            return true
+        
+        markers.forEach { marker in
+            marker.iconImage = defaultMarkerImage
+            marker.captionMinZoom = 10
         }
-        return false
+        
+        if !viewModel.focusedPlaces.isEmpty {
+            DispatchQueue.main.async {
+                self.viewModel.clearFocusedPlaces()
+            }
+        }
+        
+        return true
     }
 }
