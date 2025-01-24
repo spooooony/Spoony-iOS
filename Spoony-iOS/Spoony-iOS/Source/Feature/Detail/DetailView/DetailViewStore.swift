@@ -109,6 +109,7 @@ final class DetailViewStore: ObservableObject {
             
             if data {
                 state.isScoop.toggle()
+                state.spoonCount -= 1
             }
             
         } catch {

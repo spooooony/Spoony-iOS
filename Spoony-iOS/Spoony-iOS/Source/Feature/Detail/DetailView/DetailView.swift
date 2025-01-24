@@ -134,10 +134,28 @@ extension DetailView {
     private var imageSection: some View {
         let imageList: [String] = store.state.photoUrlList
         
-        return ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10.adjusted) {
-                ForEach(imageList.indices, id: \.self) { index in
-                    RemoteImageView(urlString: imageList[index])
+        return Group {
+            if imageList.isEmpty {
+                // Placeholder 뷰를 사용해 레이아웃 유지
+                Rectangle()
+                    .foregroundStyle(.gray400)
+                    .frame(width: 335.adjusted)
+                    .frame(height: 335.adjustedH)
+                    .cornerRadius(11.16)
+                    .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
+            } else if imageList.count == 1 {
+                RemoteImageView(urlString: imageList[0])
+                    .scaledToFill()
+                    .frame(width: 335.adjusted)
+                    .frame(height: 335.adjustedH)
+                    .blur(radius: store.state.isScoop ? 0 : 12)
+                    .cornerRadius(11.16)
+                    .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10.adjusted) {
+                        ForEach(imageList.indices, id: \.self) { index in
+                            RemoteImageView(urlString: imageList[index])
                         .scaledToFill()
                         .frame(width: 278.adjusted)
                         .frame(height: 278.adjustedH)
