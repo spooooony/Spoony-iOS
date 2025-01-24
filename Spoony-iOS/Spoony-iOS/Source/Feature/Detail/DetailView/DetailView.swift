@@ -63,17 +63,15 @@ struct DetailView: View {
             .scrollIndicators(.hidden)
             .toastView(toast: $toastMessage)
             .onAppear {
-                Task {
-                    let data = try await store.send(intent: .getInitialValue(userId: 30, postId: postId))
-                    
-                    print("1️⃣ \(store.state.successService)")
-                    // 상태 확인 후 네비게이션 처리
-                    if !store.state.successService {
-                        navigationManager.pop(1)
-                    }
-                    
-                    print("2️⃣ \(store.state.successService)")
+                store.send(intent: .getInitialValue(userId: Config.userId, postId: postId))
+                
+                print("1️⃣ \(store.state.successService)")
+                // 상태 확인 후 네비게이션 처리
+                if !store.state.successService {
+                    navigationManager.pop(1)
                 }
+                
+                print("2️⃣ \(store.state.successService)")
             }
             .onChange(of: store.state.toast) { _, newValue in
                 toastMessage = newValue
