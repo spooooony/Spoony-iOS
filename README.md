@@ -47,6 +47,24 @@
 ![의존관계도](https://github.com/user-attachments/assets/aa247fb7-ce0b-4300-8753-e884c24cffcb)
 
 
+# 시연영상 
+# SpoonMe
+| 지도 | 마커표시 | 마커에서 떠먹은 장소로 이동 | 
+|:-:|:-:|:-:|
+| <img src="https://github.com/user-attachments/assets/c4ab2685-85fe-4d4c-b222-b71fd099781" width="180"/> | <img src="https://github.com/user-attachments/assets/c4ab2685-85fe-4d4c-b222-b71fd099781" width="180"/> | <img src="" width="180"/> | <img src="" width="180"/> |
+
+| 떠먹기 | 네이버 길찾기 | 장소상세 |
+|:-:|:-:|:-:|
+| <img src="https://github.com/user-attachments/assets/c04b23cd-93be-4b91-9417-e9da0ada5ed5" width="180"/> | <img src="https://github.com/user-attachments/assets/c4ab2685-85fe-4d4c-b222-b71fd0997813" width="180"/> | <img src="https://github.com/user-attachments/assets/c4ab2685-85fe-4d4c-b222-b71fd099781" width="180"/> |
+
+| 탐색 리스트 | 신고하기 |
+|:-:|:-:|
+| <img src="https://github.com/user-attachments/assets/2cb84007-f7fd-4632-9047-f6ab7cdd2dfb" width="180"/> | <img src="" width="180"/> | 
+
+| 등록 1단계 | 등록 2단계 |  
+|:-:|:-:|
+| <img src="https://github.com/user-attachments/assets/9a2e7ff4-7c44-418c-8cf2-bb9cf1c63f2c" width="180"/> | <img src="https://github.com/user-attachments/assets/3a827331-6f73-4c6f-9c94-e3596b97be24" width="180"/> | 
+
 # **🌀 Library**
 
 | library | description | version |
