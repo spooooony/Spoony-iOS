@@ -15,14 +15,20 @@ final class DetailViewStore: ObservableObject {
     private var userSpoonCount: Int = 0
     // MARK: - Reducer
     
+    @MainActor
     func send(intent: DetailIntent) {
         switch intent {
         case .getInitialValue(let userId, let postId):
             Task {
-                let data = try await DefaultHomeService().fetchSpoonCount(userId: Config.userId)
-                self.userSpoonCount = data
-                
-                await fetchInitialData(userId: Config.userId, postId: postId)
+                do {
+                    let data = try await DefaultHomeService().fetchSpoonCount(userId: Config.userId)
+                    self.userSpoonCount = data
+                    state.successService = true
+                    
+                    await fetchInitialData(userId: Config.userId, postId: postId)
+                } catch {
+                    state.successService = false
+                }
             }
         case .scrapButtonDidTap(let isScrap):
             handleScrapButton(isScrap: isScrap)
@@ -48,6 +54,7 @@ final class DetailViewStore: ObservableObject {
             updateState(with: data)
         } catch {
             state.toast = Toast(style: .gray, message: "데이터를 불러오는데 실패했습니다.", yOffset: 539.adjustedH)
+            state.successService = false
         }
         state.isLoading = false
     }
@@ -73,7 +80,8 @@ final class DetailViewStore: ObservableObject {
             iconUrl: data.categoryColorResponse.iconUrl,
             categoryColorResponse: data.categoryColorResponse,
             isMine: data.isMine,
-            spoonCount: self.userSpoonCount
+            spoonCount: self.userSpoonCount,
+            successService: true
         )
     }
     
@@ -109,6 +117,7 @@ final class DetailViewStore: ObservableObject {
             
             if data {
                 state.isScoop.toggle()
+                state.spoonCount -= 1
             }
             
         } catch {
