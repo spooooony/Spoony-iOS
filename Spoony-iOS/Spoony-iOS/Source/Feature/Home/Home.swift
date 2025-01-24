@@ -83,7 +83,7 @@ struct Home: View {
                     }
                 }
             }
-        } // ZStack 닫기
+        } 
         .navigationBarHidden(true)
         .task {
             isBottomSheetPresented = true
