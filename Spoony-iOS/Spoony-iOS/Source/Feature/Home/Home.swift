@@ -41,13 +41,13 @@ struct Home: View {
                 }
             
             VStack(spacing: 0) {
-                if let locationTitle = navigationManager.currentLocation {
+                if let locationTitle = navigationManager.state.currentLocation {
                     CustomNavigationBar(
                         style: .locationTitle,
                         title: locationTitle,
                         searchText: $searchText,
                         onBackTapped: {
-                            navigationManager.currentLocation = nil
+                            navigationManager.dispatch(.changeCurrentLocation(nil))
                         }
                     )
                     .frame(height: 56.adjusted)
@@ -57,7 +57,7 @@ struct Home: View {
                         searchText: $searchText,
                         spoonCount: spoonCount,
                         tappedAction: {
-                            navigationManager.push(.searchView)
+                            navigationManager.dispatch(.push(.searchView))
                         }
                     )
                     .frame(height: 56.adjusted)
@@ -74,7 +74,7 @@ struct Home: View {
                     .padding(.bottom, 12)
                     .transition(.move(edge: .bottom))
                 } else {
-                    if navigationManager.currentLocation != nil {
+                    if navigationManager.state.currentLocation != nil {
                         BottomSheetListView(viewModel: viewModel)
                     } else if !viewModel.pickList.isEmpty {
                         BottomSheetListView(viewModel: viewModel)

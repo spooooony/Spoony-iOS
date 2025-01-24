@@ -15,7 +15,11 @@ struct SpoonyApp: App {
         WindowGroup {
             SpoonyTabView()
                 .environmentObject(navigationManager)
-                .popup(popup: $navigationManager.popup)
+                .popup(popup: Binding(get: {
+                    navigationManager.state.popup
+                }, set: { newValue in
+                    navigationManager.dispatch(.showPopup(newValue ?? nil))
+                }))
         }
     }
 }

@@ -21,7 +21,7 @@ struct PlaceCard: View {
                         .padding(.horizontal, 26)
                         .onTapGesture {
                             let postId = places[index].postId
-                            navigationManager.push(.detailView(postId: postId))
+                            navigationManager.dispatch(.push(.detailView(postId: postId)))
                         }
                 }
             }

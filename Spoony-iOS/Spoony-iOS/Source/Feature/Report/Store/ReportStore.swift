@@ -10,6 +10,12 @@ import Foundation
 final class ReportStore: ObservableObject {
     private let network: ReportProtocol = DefaultReportService()
     
+    private var navigationManager: NavigationManager
+    
+    init(navigationManager: NavigationManager) {
+        self.navigationManager = navigationManager
+    }
+    
     @Published private(set) var state: ReportState = ReportState()
     
     func dispatch(_ intent: ReportIntent) {
@@ -23,6 +29,10 @@ final class ReportStore: ObservableObject {
         case .backgroundTapped: break
         case .isErrorChanged(let newValue):
             state.isError = newValue    
+        case .backButtonTapped:
+            navigationManager.dispatch(.pop(1))
+        case .onAppear(let manager):
+            navigationManager = manager
         }
     }
 }
@@ -33,6 +43,10 @@ extension ReportStore {
     }
     
     private func sendReport(postId: Int, description: String) {
+        navigationManager.dispatch(.showPopup(.reportSuccess(action: { [weak self] in
+            self?.navigationManager.dispatch(.pop(2))
+        })))
+        
         Task {
             try await postReport(postId: postId, description: description)
         }

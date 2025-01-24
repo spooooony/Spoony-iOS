@@ -14,4 +14,8 @@ enum ReportIntent {
     
     case descriptionChanged(String)
     case isErrorChanged(Bool)
+    
+    case backButtonTapped
+    
+    case onAppear(NavigationManager)
 }

@@ -46,7 +46,7 @@ struct FixedBottomSheetView: View {
                         title: "떠먹으러 가기",
                         disabled: $isDisabled
                     ) {
-                        navigationManager.selectedTab = .explore
+                        navigationManager.dispatch(.changeTab(.explore))
                     }
                     .padding(.top, 8)
                 }

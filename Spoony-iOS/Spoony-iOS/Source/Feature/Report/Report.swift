@@ -52,7 +52,14 @@ enum ReportType: String, CaseIterable, Encodable {
 
 struct Report: View {
     @EnvironmentObject private var navigationManager: NavigationManager
-    @StateObject private var store: ReportStore = ReportStore()
+    @StateObject var store: ReportStore
+    
+    let postId: Int
+    
+    init(postId: Int) {
+        self._store = StateObject(wrappedValue: ReportStore(navigationManager: .init()))
+        self.postId = postId
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -60,7 +67,7 @@ struct Report: View {
                 style: .detail,
                 title: "신고하기",
                 onBackTapped: {
-                    navigationManager.pop(1)
+                    store.dispatch(.backButtonTapped)
                 }
             )
             Divider()
@@ -77,10 +84,7 @@ struct Report: View {
                     }, set: { _ in
                     })
                 ) {
-                    store.dispatch(.reportPostButtonTapped(1))
-                    navigationManager.popup = .reportSuccess(action: {
-                        navigationManager.pop(2)
-                    })
+                    store.dispatch(.reportPostButtonTapped(postId))
                 }
                 .padding(.top, !store.state.isError ? 12 : 20)
                 .padding(.bottom, 20)
@@ -91,6 +95,9 @@ struct Report: View {
         .background(.white)
         .onTapGesture {
             hideKeyboard()
+        }
+        .onAppear {
+            store.dispatch(.onAppear(navigationManager))
         }
     }
 }
@@ -132,7 +139,7 @@ extension Report {
                     store.dispatch(.descriptionChanged(newValue))
                 }),
                 style: .report,
-                placeholder: "내용을 자세히 적어주시면 신고에 도움이 돼요",
+                placeholder: "내용을 자세히 적 어주시면 신고에 도움이 돼요",
                 isError: Binding(get: {
                     store.state.isError
                 }, set: { newValue in
@@ -168,8 +175,4 @@ extension Report {
         }
         .frame(height: 42.adjustedH)
     }
-}
-
-#Preview {
-    Report()
 }

@@ -23,7 +23,7 @@ struct SearchView: View {
                     style: .search(showBackButton: true),
                     searchText: $searchText,
                     onBackTapped: {
-                        navigationManager.pop(1)
+                        navigationManager.dispatch(.pop(1))
                     },
                     tappedAction: {
                         handleSearch()
@@ -146,8 +146,9 @@ struct SearchView: View {
                     ForEach(getFilteredResults(), id: \.id) { result in
                         VStack(spacing: 0) {
                             SearchResultRow(result: result) {
-                                navigationManager.currentLocation = result.title
-                                navigationManager.pop(1)
+                                //TODO: 이거 어케함
+//                                navigationManager.currentLocation = result.title
+                                navigationManager.dispatch(.pop(1))
                             }
                             
                             if result.id != getFilteredResults().last?.id {
