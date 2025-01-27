@@ -61,6 +61,8 @@ struct Report: View {
         self.postId = postId
     }
     
+    let postId: Int
+    
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
@@ -86,6 +88,13 @@ struct Report: View {
                 ) {
                     hideKeyboard()
                     store.dispatch(.reportPostButtonTapped(postId))
+//                    Task {
+//                        try await store.dispatch(.reportPostButtonTapped(postId))
+//                        try await store.postReport(postId: postId, description: text)
+//                        navigationManager.popup = .reportSuccess(action: {
+//                            navigationManager.pop(2)
+//                        })
+//                    }
                 }
                 .padding(.top, !store.state.isError ? 12 : 20)
                 .padding(.bottom, 20)

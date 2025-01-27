@@ -147,7 +147,11 @@ final class RegisterStore: ObservableObject {
         case .didTapPhoto(let items):
             validateSelectedPhotoCount(item: items)
         case .updateKeyboardHeight(let height):
-            state.keyboardHeight = height
+            Task {
+                await MainActor.run {
+                    state.keyboardHeight = height
+                }
+            }
         }
     }
 }
@@ -306,6 +310,9 @@ extension RegisterStore {
         
         Task {
             do {
+                await MainActor.run {
+                    state.isLoading = true
+                }
                 let success = try await network.registerPost(
                     request: request,
                     imagesData: state.uploadImages.map {
@@ -314,12 +321,14 @@ extension RegisterStore {
                 await MainActor.run {
                     if success {
                         state.registerStep = .end
+                        state.isLoading = false
                         navigationManager.dispatch(.showPopup(.registerSuccess(action: {
                             self.navigationManager.dispatch(.changeTab(.explore))
                             self.state = .init()
                             self.state.isToolTipPresented = false
                         })))
                     } else {
+                        state.isLoading = false
                         print("Error")
                     }
                 }

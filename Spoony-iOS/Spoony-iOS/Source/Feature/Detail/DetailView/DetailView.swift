@@ -65,13 +65,10 @@ struct DetailView: View {
             .onAppear {
                 store.send(intent: .getInitialValue(userId: Config.userId, postId: postId))
                 
-                print("1️⃣ \(store.state.successService)")
-                // 상태 확인 후 네비게이션 처리
                 if !store.state.successService {
                     navigationManager.pop(1)
                 }
                 
-                print("2️⃣ \(store.state.successService)")
             }
             .onChange(of: store.state.toast) { _, newValue in
                 toastMessage = newValue
@@ -125,7 +122,7 @@ extension DetailView {
             
             Spacer()
             
-            if store.state.isMine {
+            if !store.state.isMine {
                 Image(.icMenu)
                     .onTapGesture {
                         isPresented.toggle()
@@ -154,7 +151,7 @@ extension DetailView {
                     .scaledToFill()
                     .frame(width: 335.adjusted)
                     .frame(height: 335.adjustedH)
-                    .blur(radius: store.state.isScoop ? 0 : 12)
+                    .blur(radius: (store.state.isScoop || store.state.isMine) ? 0 : 12)
                     .cornerRadius(11.16)
                     .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
             } else {
@@ -165,7 +162,7 @@ extension DetailView {
                                 .scaledToFill()
                                 .frame(width: 278.adjusted)
                                 .frame(height: 278.adjustedH)
-                                .blur(radius: store.state.isScoop ? 0 : 12)
+                                .blur(radius: (store.state.isScoop || store.state.isMine) ? 0 : 12)
                                 .cornerRadius(11.16)
                         }
                     }
@@ -182,7 +179,7 @@ extension DetailView {
                 chip: store.state.categoryColorResponse.toEntity()
             )
             
-            Text(store.state.description.splitZeroWidthSpace())
+            Text(store.state.title)
                 .customFont(.title1b)
                 .foregroundStyle(.black)
             
@@ -193,9 +190,16 @@ extension DetailView {
             Spacer()
                 .frame(height: 16.adjustedH)
             
-            Text(store.state.description.splitZeroWidthSpace())
-                .customFont(.body2m)
-                .foregroundStyle(.gray900)
+            Text(
+                (store.state.isScoop || store.state.isMine)
+                ? store.state.description.splitZeroWidthSpace()
+                : (store.state.description.count > 120
+                   ? "\(store.state.description.prefix(120))...".splitZeroWidthSpace()
+                   : store.state.description.splitZeroWidthSpace())
+            )
+            .customFont(.body2m)
+            .frame(width: 335.adjusted)
+            .foregroundStyle(.black)
             
         }
         .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
@@ -233,7 +237,7 @@ extension DetailView {
             
         }
         .padding(.horizontal, 20.adjusted)
-        .blur(radius: store.state.isScoop ? 0 : 8)
+        .blur(radius: (store.state.isScoop || store.state.isMine) ? 0 : 12)
     }
     
     private var menuInfo: some View {
@@ -277,9 +281,9 @@ extension DetailView {
         HStack(spacing: 0) {
             SpoonyButton(
                 style: .secondary,
-                size: store.state.isScoop ? .medium : .xlarge,
-                title: store.state.isScoop ? "길찾기" : "떠먹기",
-                isIcon: store.state.isScoop ? false : true,
+                size: (store.state.isScoop) ? .medium : .xlarge,
+                title: (store.state.isScoop || store.state.isMine) ? "길찾기" : "떠먹기",
+                isIcon: (store.state.isScoop || store.state.isMine) ? false : true,
                 disabled: .constant(false)
             ) {
                 print("⭐️")
@@ -378,5 +382,3 @@ struct Line: Shape {
         return path
     }
 }
-
-//

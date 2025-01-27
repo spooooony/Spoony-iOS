@@ -28,14 +28,14 @@
 <br>
 
 
+
 # **🍎 iOS Developer**
 
 |이지훈</br>[@hooni0918](https://github.com/hooni0918)|최안용</br>[@ChoiAnYong](https://github.com/ChoiAnYong)|최주리</br>[@juri123123](https://github.com/juri123123)|이명진</br>[@thingineeer](https://github.com/thingineeer)|
 |:---:|:---:|:---:|:---:|
-|<img src = "https://github.com/user-attachments/assets/c902e0b5-2d59-4ee1-ae67-404d987342de" width ="250">|<img src = "https://github.com/user-attachments/assets/f9a78b97-09bf-4816-a6e4-a4e74deea41d" width ="250">|<img src = "https://github.com/user-attachments/assets/d84163d3-cccd-4bac-8a0f-ba3e34d79880" width ="250">|<img src = "https://github.com/user-attachments/assets/e62ef571-917f-4668-b657-321e9b1a8375" width ="250">|
+|<img src = "https://github.com/user-attachments/assets/6cacd948-f678-4cf8-936a-5ceb7c2880d7" width ="250">|<img src = "https://github.com/user-attachments/assets/aef88d62-6007-410d-a6b3-a228cae59ab8" width ="250">|<img src = "https://github.com/user-attachments/assets/04e4c8f6-0acc-489e-ad91-20d8c71baf4d" width ="250">|<img src = "https://github.com/user-attachments/assets/7434cdf9-3153-4259-8a2d-82baa25282a7" width ="250">|
 |`메인 지도`,`장소검색`|`등록하기`|`등록장소 리스트`, `신고하기`| `등록장소 디테일뷰`|
 </br>
-
 
 # **⚒️** Tech stack & Architecture
 <img src="https://img.shields.io/badge/SwiftUI-2C68B5?&style=flat-square&logo=Swift&logoColor=white"/> <img src="https://img.shields.io/badge/Xcode_16-147EFB?style=flat-square&logo=Xcode&logoColor=white"/> <img src="https://img.shields.io/badge/Swift_Concurrency-FF3E00?style=flat-square&logo=Swift&logoColor=white"/>
@@ -47,6 +47,24 @@
 
 ![의존관계도](https://github.com/user-attachments/assets/aa247fb7-ce0b-4300-8753-e884c24cffcb)
 
+
+# 시연영상 
+# SpoonMe
+| 지도 | 장소검색 |
+|:-:|:-:|
+| <img src="https://github.com/user-attachments/assets/b6421bba-5848-4bdb-87ac-a0ec883f0b8e" width="180"/> | <img src="https://github.com/user-attachments/assets/bbdbad16-37a9-442e-9755-b61142154141" width="180"/> |
+
+| 떠먹기 | 네이버 길찾기 |
+|:-:|:-:|
+| <img src="https://github.com/user-attachments/assets/06d05895-8c86-4aa4-a2c9-3631839537a8" width="180"/> | <img src="https://github.com/user-attachments/assets/619bc050-7929-4bd5-95b8-b6250bdf7ce8" width="180"/> |
+
+| 탐색 리스트 조회 | 지도 리스트 떠먹기 | 신고하기 |
+|:-:|:-:|:-:|
+| <img src="https://github.com/user-attachments/assets/0b393820-b921-4e6a-9210-c2573c23bcf7" width="180"/> | <img src="https://github.com/user-attachments/assets/78e9d4f8-1741-4558-b945-b8c2333e71b2" width="180"/> | <img src="https://github.com/user-attachments/assets/a536e9cb-a797-4b3a-8426-328e34d93215" width="180"/> | 
+
+| 등록 1단계 | 등록 2단계 |  
+|:-:|:-:|
+| <img src="https://github.com/user-attachments/assets/642e1274-a91e-460c-8b7d-6a332cc43981" width="180"/> | <img src="https://github.com/user-attachments/assets/ad0203eb-b17f-4fb9-a997-f038679d3f64" width="180"/> | 
 
 # **🌀 Library**
 
