@@ -174,7 +174,7 @@ struct NMapView: UIViewRepresentable {
 final class Coordinator: NSObject, NMFMapViewTouchDelegate {
     @Binding var selectedPlace: CardPlace?
     var markers: [NMFMarker] = []
-    var isInitialLoad = true
+    var isInitialLoad: Bool = true
     private let defaultMarkerImage: NMFOverlayImage
     private let viewModel: HomeViewModel
     
