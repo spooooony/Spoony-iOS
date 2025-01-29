@@ -65,6 +65,5 @@ final class HomeViewModel: ObservableObject {
     
     func clearFocusedPlaces() {
             focusedPlaces = []
-            selectedLocation = nil
-        }
+    }
 }

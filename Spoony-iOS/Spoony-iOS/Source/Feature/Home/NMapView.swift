@@ -79,16 +79,17 @@ struct NMapView: UIViewRepresentable {
             return marker
         }
         
-        context.coordinator.markers = newMarkers
-        
-        if !viewModel.pickList.isEmpty {
+        // 처음 지도가 로드될 때만 모든 마커가 보이도록 카메라 이동
+        if context.coordinator.isInitialLoad && !viewModel.pickList.isEmpty {
             let bounds = NMGLatLngBounds(latLngs: viewModel.pickList.map {
                 NMGLatLng(lat: $0.latitude, lng: $0.longitude)
             })
             let cameraUpdate = NMFCameraUpdate(fit: bounds, padding: 50)
             mapView.moveCamera(cameraUpdate)
+            context.coordinator.isInitialLoad = false
         }
         
+        // 마커가 선택됐을 때만 해당 위치로 카메라 이동
         if let location = viewModel.selectedLocation {
             let coord = NMGLatLng(lat: location.latitude, lng: location.longitude)
             let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
@@ -96,6 +97,8 @@ struct NMapView: UIViewRepresentable {
             cameraUpdate.animationDuration = 0.2
             mapView.moveCamera(cameraUpdate)
         }
+        
+        context.coordinator.markers = newMarkers
     }
     
     private func configureMapView(context: Context) -> NMFMapView {
@@ -171,6 +174,7 @@ struct NMapView: UIViewRepresentable {
 final class Coordinator: NSObject, NMFMapViewTouchDelegate {
     @Binding var selectedPlace: CardPlace?
     var markers: [NMFMarker] = []
+    var isInitialLoad = true
     private let defaultMarkerImage: NMFOverlayImage
     private let viewModel: HomeViewModel
     
