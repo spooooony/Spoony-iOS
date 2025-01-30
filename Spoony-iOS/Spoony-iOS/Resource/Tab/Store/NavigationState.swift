@@ -14,5 +14,4 @@ struct NavigationState {
     var registerPath: [ViewType] = []
     var currentLocation: String?
     var popup: PopupType?
-    var newView: any View = Home()
 }
