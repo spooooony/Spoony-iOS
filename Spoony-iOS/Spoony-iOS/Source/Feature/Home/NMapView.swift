@@ -146,7 +146,6 @@ struct NMapView: UIViewRepresentable {
             marker.iconImage = defaultMarker
         }
         
-        // 모든 마커에 캡션 설정
         configureMarkerCaption(marker, with: pickCard.placeName, isSelected: isSelected)
         
         marker.touchHandler = { [weak viewModel, weak marker] (_) -> Bool in
@@ -162,12 +161,13 @@ struct NMapView: UIViewRepresentable {
                 resetMarker(marker)
                 marker.mapView = mapView
                 selectedPlace = nil
+                viewModel?.clearFocusedPlaces()
             }
             
             return true
         }
         
-        return marker
+        return marker  // 마커 반환 추가
     }
 }
 

@@ -37,7 +37,7 @@ extension HomeTargetType: TargetType {
         case .getSearchResultList:
             return "/location/search"
         case .getSearchResultLocation(let userId, let locationId):
-            return "/post/zzin/\(userId)/\(locationId)"
+            return "/post/zzim/\(userId)/\(locationId)"
         case .getLocationList(let userId, let locationId):
             return "/post/zzim/location/\(userId)/\(locationId)" 
         }

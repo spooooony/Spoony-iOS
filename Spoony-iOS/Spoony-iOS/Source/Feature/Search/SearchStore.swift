@@ -21,7 +21,7 @@ final class SearchStore: ObservableObject {
            self.searchService = SearchService()
            self.navigationManager = navigationManager
            self.homeViewModel = homeViewModel
-       }
+    }
     
     func dispatch(_ intent: SearchIntent) {
         switch intent {
@@ -49,7 +49,6 @@ final class SearchStore: ObservableObject {
         if normalizedText.isEmpty {
             state = .empty
         } else {
-            
             state = .typing(searchText: normalizedText)
         }
     }
@@ -59,7 +58,7 @@ final class SearchStore: ObservableObject {
         
         let normalizedSearchText = model.searchText.components(separatedBy: .whitespaces)
             .filter { !$0.isEmpty }
-            .joined(separator: "")
+            .joined(separator: " ")
         
         state = .loading
         updateSearchResults(with: normalizedSearchText)
@@ -83,11 +82,17 @@ final class SearchStore: ObservableObject {
     }
     
     private func handleLocationSelection(_ result: SearchResult) {
-        navigationManager.currentLocation = result.title
         Task {
-            await homeViewModel.fetchLocationList(locationId: result.locationId)
+            do {
+                await homeViewModel.fetchLocationList(locationId: result.locationId)
+                await MainActor.run {
+                    navigationManager.currentLocation = result.title
+                    navigationManager.pop(1)
+                }
+            } catch {
+                print("Failed to fetch location list:", error)
+            }
         }
-        navigationManager.pop(1)
     }
     
     private func updateSearchResults(with query: String) {
@@ -101,7 +106,8 @@ final class SearchStore: ObservableObject {
                 let response = try await searchService.searchLocation(query: query)
                 let results = response.locationResponseList.map { location in
                     SearchResult(
-                        title: location.locationName, locationId: location.locationId,
+                        title: location.locationName,
+                        locationId: location.locationId,
                         address: location.locationAddress ?? ""
                     )
                 }
@@ -126,9 +132,10 @@ final class SearchStore: ObservableObject {
             }
         }
     }
+    
     func updateNavigationManager(_ manager: NavigationManager) {
-            navigationManager = manager
-        }
+        navigationManager = manager
+    }
     
     private func saveRecentSearches() {
         UserManager.shared.recentSearches = model.recentSearches

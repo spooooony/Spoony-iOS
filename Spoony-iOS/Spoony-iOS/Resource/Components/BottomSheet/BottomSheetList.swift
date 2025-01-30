@@ -142,13 +142,18 @@ struct BottomSheetListView: View {
                         .padding(.top, 10)
                     
                     HStack(spacing: 4) {
-                        Text("양수정님의 찐맛집")
-                            .customFont(.body2b)
-                        Text("\(viewModel.pickList.count)")
-                            .customFont(.body2b)
-                            .foregroundColor(.gray500)
-                    }
-                    .padding(.bottom, 8)
+                                          if !viewModel.focusedPlaces.isEmpty {
+                                              Text("상세 정보")
+                                                  .customFont(.body2b)
+                                          } else {
+                                              Text("양수정님의 찐맛집")
+                                                  .customFont(.body2b)
+                                              Text("\(viewModel.pickList.count)")
+                                                  .customFont(.body2b)
+                                                  .foregroundColor(.gray500)
+                                          }
+                                      }
+                                      .padding(.bottom, 8)
                 }
                 .frame(height: 60.adjustedH)
                 .background(.white)

@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct Home: View {
     @EnvironmentObject var navigationManager: NavigationManager
     @StateObject private var viewModel = HomeViewModel(service: DefaultHomeService())
@@ -34,9 +33,11 @@ struct Home: View {
                         selectedPlace = newPlaces[0]
                     }
                 }
-                .onChange(of: selectedPlace) { _, newPlace in
-                    if newPlace == nil {
-                        viewModel.clearFocusedPlaces()
+                .onChange(of: viewModel.pickList) { _ in
+                    // Reset selection when new search results arrive
+                    selectedPlace = nil
+                    if let location = viewModel.selectedLocation {
+                        print("Moving to new location: \(location)")
                     }
                 }
             
@@ -47,6 +48,7 @@ struct Home: View {
                         title: locationTitle,
                         searchText: $searchText,
                         onBackTapped: {
+                            viewModel.fetchPickList()  // Fetch original list when going back
                             navigationManager.currentLocation = nil
                         }
                     )
@@ -74,28 +76,26 @@ struct Home: View {
                     .padding(.bottom, 12)
                     .transition(.move(edge: .bottom))
                 } else {
-                    if navigationManager.currentLocation != nil {
-                        BottomSheetListView(viewModel: viewModel)
-                    } else if !viewModel.pickList.isEmpty {
+                    if !viewModel.pickList.isEmpty {
                         BottomSheetListView(viewModel: viewModel)
                     } else {
                         FixedBottomSheetView()
                     }
                 }
             }
-        } 
+        }
         .navigationBarHidden(true)
         .task {
             isBottomSheetPresented = true
-            Task {
-                do {
-                    spoonCount = try await restaurantService.fetchSpoonCount(userId: Config.userId)
-                } catch {
-                    print("Failed to fetch spoon count:", error)
+            do {
+                spoonCount = try await restaurantService.fetchSpoonCount(userId: Config.userId)
+                // Only fetch initial list if not in search results
+                if navigationManager.currentLocation == nil {
+                    viewModel.fetchPickList()
                 }
-                viewModel.fetchPickList()
+            } catch {
+                print("Failed to fetch spoon count:", error)
             }
-            viewModel.fetchPickList()
         }
     }
 }
