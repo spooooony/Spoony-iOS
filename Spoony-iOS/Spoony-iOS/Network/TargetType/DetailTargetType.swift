@@ -13,6 +13,7 @@ enum DetailTargetType {
     case scoopReview(userId: Int, postId: Int)
     case scrapReview(userId: Int, postId: Int)
     case unScrapReview(userId: Int, postId: Int)
+    case getUserInfo(userId: Int)
 }
 
 extension DetailTargetType: TargetType {
@@ -34,12 +35,14 @@ extension DetailTargetType: TargetType {
             return "/post/zzim"
         case .unScrapReview(let userId, let postId):
             return "/post/zzim/\(userId)/\(postId)"
+        case .getUserInfo(let userId):
+            return "/user/\(userId)"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .getDetailReview:
+        case .getDetailReview, .getUserInfo:
             return .get
         case .scoopReview,
                 .scrapReview:
@@ -51,7 +54,7 @@ extension DetailTargetType: TargetType {
     
     var task: Moya.Task {
         switch self {
-        case .getDetailReview:
+        case .getDetailReview, .getUserInfo:
             return .requestPlain
         case .scoopReview(let userId, let postId), .scrapReview(let userId, let postId):
             return .requestParameters(

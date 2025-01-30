@@ -111,7 +111,3 @@ struct ToastModifier: ViewModifier {
         workItem = nil
     }
 }
-
-#Preview {
-    ContentView()
-}

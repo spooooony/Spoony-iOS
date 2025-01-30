@@ -39,4 +39,5 @@ struct DetailState {
     var toast: Toast?
     
     var successService: Bool = true
+    var userInfo: UserInfoModel = .init(userId: 30, userEmail: "", userName: "", userImageUrl: "", regionName: "", createdAt: "", updatedAt: "")
 }

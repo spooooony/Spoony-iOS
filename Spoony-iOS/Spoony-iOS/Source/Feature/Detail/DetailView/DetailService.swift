@@ -82,4 +82,26 @@ public class DetailService {
             }
         }
     }
+    
+    func getUserInfo(userId: Int) async throws -> UserInfoModel {
+        return try await withCheckedThrowingContinuation { continuation in
+            detailProvider.request(.getUserInfo(userId: userId)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let result = try response.map(BaseResponse<UserInfoModel>.self)
+                        if let result = result.data {
+                            return continuation.resume(returning: result)
+                        } else {
+                            print("옵셔널 바인딩 X")
+                        }
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
 }

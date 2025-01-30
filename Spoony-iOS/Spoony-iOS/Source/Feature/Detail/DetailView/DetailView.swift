@@ -24,7 +24,7 @@ struct DetailView: View {
     @StateObject private var store: DetailViewStore = DetailViewStore()
     let postId: Int
     
-    init( postId: Int) {
+    init(postId: Int) {
         self.postId = postId
     }
     
@@ -104,18 +104,17 @@ extension DetailView {
     private var userProfileSection: some View {
         HStack(alignment: .center, spacing: 14.adjustedH) {
             
-            Image(.imageThingjin)
-                .resizable()
+            RemoteImageView(urlString: store.state.userInfo.userImageUrl)
                 .scaledToFit()
                 .clipShape(Circle())
                 .frame(width: 48.adjusted, height: 48.adjustedH)
             
             VStack(alignment: .leading, spacing: 4.adjustedH) {
-                Text(store.state.userName)
+                Text(store.state.userInfo.userName)
                     .customFont(.body2b)
                     .foregroundStyle(.black)
                 
-                Text("서울시 성동구 수저")
+                Text(store.state.userInfo.regionName)
                     .customFont(.caption1m)
                     .foregroundStyle(.gray400)
             }

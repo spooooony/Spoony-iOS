@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 // MARK: - ReviewDetailModel
 
 struct ReviewDetailModel: Codable {
