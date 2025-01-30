@@ -34,7 +34,6 @@ struct Home: View {
                     }
                 }
                 .onChange(of: viewModel.pickList) { _ in
-                    // Reset selection when new search results arrive
                     selectedPlace = nil
                     if let location = viewModel.selectedLocation {
                         print("Moving to new location: \(location)")
@@ -48,7 +47,7 @@ struct Home: View {
                         title: locationTitle,
                         searchText: $searchText,
                         onBackTapped: {
-                            viewModel.fetchPickList()  // Fetch original list when going back
+                            viewModel.fetchPickList()
                             navigationManager.currentLocation = nil
                         }
                     )
@@ -73,14 +72,17 @@ struct Home: View {
                         places: viewModel.focusedPlaces,
                         currentPage: $currentPage
                     )
-                    .padding(.bottom, 12)
-                    .transition(.move(edge: .bottom))
+                } else if navigationManager.currentLocation != nil && !viewModel.searchPickList.isEmpty {
+                    // 검색 결과가 있을 때는 SearchLocationBottomSheetView 표시
+                    SearchLocationBottomSheetView(viewModel: viewModel)
+                        .onAppear {
+                            print("✅ Showing SearchLocationBottomSheetView with \(viewModel.searchPickList.count) items")
+                        }
+                } else if !viewModel.pickList.isEmpty {
+                    // 일반 목록이 있을 때는 BottomSheetListView 표시
+                    BottomSheetListView(viewModel: viewModel)
                 } else {
-                    if !viewModel.pickList.isEmpty {
-                        BottomSheetListView(viewModel: viewModel)
-                    } else {
-                        FixedBottomSheetView()
-                    }
+                    FixedBottomSheetView()
                 }
             }
         }
@@ -89,7 +91,6 @@ struct Home: View {
             isBottomSheetPresented = true
             do {
                 spoonCount = try await restaurantService.fetchSpoonCount(userId: Config.userId)
-                // Only fetch initial list if not in search results
                 if navigationManager.currentLocation == nil {
                     viewModel.fetchPickList()
                 }

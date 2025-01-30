@@ -25,7 +25,7 @@ extension PickListCardResponse {
             photoUrl: self.photoUrl,
             latitude: self.latitude,
             longitude: self.longitude,
-            categoryColorResponse: self.categoryColorResponse.toSearchCategoryColorResponse() 
+            categoryColorResponse: self.categoryColorResponse.toSearchCategoryColorResponse()
         )
     }
 }
@@ -33,6 +33,34 @@ extension PickListCardResponse {
 extension BottomSheetCategoryColorResponse {
     func toSearchCategoryColorResponse() -> SearchCategoryColorResponse {
         return SearchCategoryColorResponse(
+            categoryId: self.categoryId,
+            categoryName: self.categoryName,
+            iconUrl: self.iconUrl,
+            iconTextColor: self.iconTextColor,
+            iconBackgroundColor: self.iconBackgroundColor
+        )
+    }
+}
+
+extension SearchLocationResult {
+    func toPickListCardResponse() -> PickListCardResponse {
+        return PickListCardResponse(
+            placeId: self.placeId ?? 0,
+            placeName: self.title,
+            placeAddress: self.address,
+            postTitle: self.postTitle ?? "",
+            photoUrl: self.photoUrl ?? "",
+            latitude: self.latitude ?? 0.0,
+            longitude: self.longitude ?? 0.0,
+            categoryColorResponse: self.categoryColorResponse?.toBottomSheetCategoryColorResponse() ??
+                BottomSheetCategoryColorResponse(categoryId: 0, categoryName: "", iconUrl: "", iconTextColor: "", iconBackgroundColor: "")
+        )
+    }
+}
+
+extension SearchCategoryColorResponse {
+    func toBottomSheetCategoryColorResponse() -> BottomSheetCategoryColorResponse {
+        return BottomSheetCategoryColorResponse(
             categoryId: self.categoryId,
             categoryName: self.categoryName,
             iconUrl: self.iconUrl,

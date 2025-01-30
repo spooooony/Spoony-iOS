@@ -84,13 +84,15 @@ final class SearchStore: ObservableObject {
     private func handleLocationSelection(_ result: SearchResult) {
         Task {
             do {
+                print("🔍 Searching location list for locationId:", result.locationId)
                 await homeViewModel.fetchLocationList(locationId: result.locationId)
                 await MainActor.run {
                     navigationManager.currentLocation = result.title
                     navigationManager.pop(1)
                 }
+                print("✅ Location selection completed")
             } catch {
-                print("Failed to fetch location list:", error)
+                print("❌ Failed to fetch location list:", error)
             }
         }
     }

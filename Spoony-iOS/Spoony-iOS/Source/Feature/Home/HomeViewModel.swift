@@ -11,6 +11,7 @@ import Foundation
 final class HomeViewModel: ObservableObject {
     private let service: HomeServiceType
     @Published private(set) var pickList: [PickListCardResponse] = []
+    @Published private(set) var searchPickList: [SearchLocationResult] = []
     @Published var isLoading = false
     @Published var focusedPlaces: [CardPlace] = []
     @Published var selectedLocation: (latitude: Double, longitude: Double)?
@@ -24,21 +25,58 @@ final class HomeViewModel: ObservableObject {
         Task {
             isLoading = true
             do {
+                clearFocusedPlaces()
                 let response = try await service.fetchPickList(userId: Config.userId)
-                self.pickList = response.zzimCardResponses
+                await MainActor.run {
+                    self.pickList = response.zzimCardResponses
+                    self.searchPickList = []  // 검색 결과 초기화
+                }
             } catch {
                 self.error = error
             }
             isLoading = false
         }
     }
+
+    @MainActor
+    func fetchLocationList(locationId: Int) async {
+        print("📌 fetchLocationList called with locationId:", locationId)
+        isLoading = true
+        do {
+            clearFocusedPlaces()
+
+            let response = try await service.fetchLocationList(userId: Config.userId, locationId: locationId)
+
+            await MainActor.run {  // ✅ 메인 스레드에서 실행 보장
+                self.pickList = response.zzimCardResponses
+                self.searchPickList = response.zzimCardResponses.map { $0.toSearchLocationResult() }
+
+                if let firstResult = response.zzimCardResponses.first {
+                    selectedLocation = (firstResult.latitude, firstResult.longitude)
+                }
+            }
+
+            print("✅ Updated pickList count:", self.pickList.count)
+            print("✅ Updated searchPickList count:", self.searchPickList.count)
+        } catch {
+            self.error = error
+            print("❌ Error in fetchLocationList:", error)
+        }
+        isLoading = false
+    }
+
     
     func fetchFocusedPlace(placeId: Int) {
         Task {
             isLoading = true
             do {
-                if let selectedPlace = pickList.first(where: { $0.placeId == placeId }) {
-                    selectedLocation = (selectedPlace.latitude, selectedPlace.longitude)
+                // searchPickList에서 먼저 찾기
+                if let selectedSearchPlace = searchPickList.first(where: { $0.placeId == placeId }) {
+                    selectedLocation = (selectedSearchPlace.latitude ?? 0.0, selectedSearchPlace.longitude ?? 0.0)
+                }
+                // pickList에서 찾기
+                else if let selectedPickPlace = pickList.first(where: { $0.placeId == placeId }) {
+                    selectedLocation = (selectedPickPlace.latitude, selectedPickPlace.longitude)
                 }
                 
                 let response = try await service.fetchFocusedPlace(userId: Config.userId, placeId: placeId)
@@ -49,34 +87,7 @@ final class HomeViewModel: ObservableObject {
             isLoading = false
         }
     }
-    
-    @MainActor
-    func fetchLocationList(locationId: Int) async {
-        isLoading = true
-        do {
-            // Clear existing data first
-            clearFocusedPlaces()
-            selectedLocation = nil
-            pickList = []
-            
-            let response = try await service.fetchLocationList(userId: Config.userId, locationId: locationId)
-            
-            // Set new data
-            await MainActor.run {
-                self.pickList = response.zzimCardResponses
-                
-                if let firstPlace = response.zzimCardResponses.first {
-                    self.selectedLocation = (firstPlace.latitude, firstPlace.longitude)
-                }
-            }
-        } catch {
-            self.error = error
-            print("Error in fetchLocationList:", error)
-        }
-        isLoading = false
-    }
 
-    
     func clearFocusedPlaces() {
         focusedPlaces = []
     }
