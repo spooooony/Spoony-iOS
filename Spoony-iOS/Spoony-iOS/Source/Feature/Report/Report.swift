@@ -61,8 +61,6 @@ struct Report: View {
         self.postId = postId
     }
     
-    let postId: Int
-    
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(

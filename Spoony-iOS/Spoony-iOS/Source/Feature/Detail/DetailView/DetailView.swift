@@ -66,7 +66,7 @@ struct DetailView: View {
                 store.send(intent: .getInitialValue(userId: Config.userId, postId: postId))
                 
                 if !store.state.successService {
-                    navigationManager.pop(1)
+                    navigationManager.dispatch(.pop(1))
                 }
                 
             }

@@ -56,6 +56,7 @@ struct Explore: View {
         .task {
             store.dispatch(.onAppear)
         }
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
