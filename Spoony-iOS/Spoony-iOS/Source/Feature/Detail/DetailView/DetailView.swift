@@ -290,7 +290,6 @@ extension DetailView {
                 if store.state.isScoop {
                     store.send(intent: .pathInfoInNaverMaps)
                 } else {
-                    // action 어떻게 하묘
                     navigationManager.dispatch(.showPopup(.useSpoon(action: {
                         store.send(intent: .scoopButtonDidTap)
                     })))

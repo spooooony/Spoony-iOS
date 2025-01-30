@@ -53,7 +53,7 @@ extension ReportStore {
     }
     
     // MARK: - Network
-    func postReport(
+    private func postReport(
         postId: Int,
         description: String
     ) async throws {
