@@ -33,36 +33,17 @@ struct Home: View {
                         selectedPlace = newPlaces[0]
                     }
                 }
-                .onChange(of: viewModel.pickList) { _ in
-                    selectedPlace = nil
-                    if let location = viewModel.selectedLocation {
-                        print("Moving to new location: \(location)")
-                    }
-                }
             
             VStack(spacing: 0) {
-                if let locationTitle = navigationManager.currentLocation {
-                    CustomNavigationBar(
-                        style: .locationTitle,
-                        title: locationTitle,
-                        searchText: $searchText,
-                        onBackTapped: {
-                            viewModel.fetchPickList()
-                            navigationManager.currentLocation = nil
-                        }
-                    )
-                    .frame(height: 56.adjusted)
-                } else {
-                    CustomNavigationBar(
-                        style: .searchContent,
-                        searchText: $searchText,
-                        spoonCount: spoonCount,
-                        tappedAction: {
-                            navigationManager.push(.searchView)
-                        }
-                    )
-                    .frame(height: 56.adjusted)
-                }
+                CustomNavigationBar(
+                    style: .searchContent,
+                    searchText: $searchText,
+                    spoonCount: spoonCount,
+                    tappedAction: {
+                        navigationManager.push(.searchView)
+                    }
+                )
+                .frame(height: 56.adjusted)
                 Spacer()
             }
             
@@ -72,17 +53,14 @@ struct Home: View {
                         places: viewModel.focusedPlaces,
                         currentPage: $currentPage
                     )
-                } else if navigationManager.currentLocation != nil && !viewModel.searchPickList.isEmpty {
-                    // 검색 결과가 있을 때는 SearchLocationBottomSheetView 표시
-                    SearchLocationBottomSheetView(viewModel: viewModel)
-                        .onAppear {
-                            print("✅ Showing SearchLocationBottomSheetView with \(viewModel.searchPickList.count) items")
-                        }
-                } else if !viewModel.pickList.isEmpty {
-                    // 일반 목록이 있을 때는 BottomSheetListView 표시
-                    BottomSheetListView(viewModel: viewModel)
+                    .padding(.bottom, 12)
+                    .transition(.move(edge: .bottom))
                 } else {
-                    FixedBottomSheetView()
+                    if !viewModel.pickList.isEmpty {
+                        BottomSheetListView(viewModel: viewModel)
+                    } else {
+                        FixedBottomSheetView()
+                    }
                 }
             }
         }
@@ -91,9 +69,7 @@ struct Home: View {
             isBottomSheetPresented = true
             do {
                 spoonCount = try await restaurantService.fetchSpoonCount(userId: Config.userId)
-                if navigationManager.currentLocation == nil {
-                    viewModel.fetchPickList()
-                }
+                viewModel.fetchPickList()
             } catch {
                 print("Failed to fetch spoon count:", error)
             }

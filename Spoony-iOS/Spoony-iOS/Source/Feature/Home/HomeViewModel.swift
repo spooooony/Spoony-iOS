@@ -9,9 +9,8 @@ import Foundation
 
 @MainActor
 final class HomeViewModel: ObservableObject {
-    private let service: HomeServiceType
+    let service: HomeServiceType
     @Published private(set) var pickList: [PickListCardResponse] = []
-    @Published private(set) var searchPickList: [SearchLocationResult] = []
     @Published var isLoading = false
     @Published var focusedPlaces: [CardPlace] = []
     @Published var selectedLocation: (latitude: Double, longitude: Double)?
@@ -25,58 +24,21 @@ final class HomeViewModel: ObservableObject {
         Task {
             isLoading = true
             do {
-                clearFocusedPlaces()
                 let response = try await service.fetchPickList(userId: Config.userId)
-                await MainActor.run {
-                    self.pickList = response.zzimCardResponses
-                    self.searchPickList = []  // 검색 결과 초기화
-                }
+                self.pickList = response.zzimCardResponses
             } catch {
                 self.error = error
             }
             isLoading = false
         }
     }
-
-    @MainActor
-    func fetchLocationList(locationId: Int) async {
-        print("📌 fetchLocationList called with locationId:", locationId)
-        isLoading = true
-        do {
-            clearFocusedPlaces()
-
-            let response = try await service.fetchLocationList(userId: Config.userId, locationId: locationId)
-
-            await MainActor.run {  // ✅ 메인 스레드에서 실행 보장
-                self.pickList = response.zzimCardResponses
-                self.searchPickList = response.zzimCardResponses.map { $0.toSearchLocationResult() }
-
-                if let firstResult = response.zzimCardResponses.first {
-                    selectedLocation = (firstResult.latitude, firstResult.longitude)
-                }
-            }
-
-            print("✅ Updated pickList count:", self.pickList.count)
-            print("✅ Updated searchPickList count:", self.searchPickList.count)
-        } catch {
-            self.error = error
-            print("❌ Error in fetchLocationList:", error)
-        }
-        isLoading = false
-    }
-
     
     func fetchFocusedPlace(placeId: Int) {
         Task {
             isLoading = true
             do {
-                // searchPickList에서 먼저 찾기
-                if let selectedSearchPlace = searchPickList.first(where: { $0.placeId == placeId }) {
-                    selectedLocation = (selectedSearchPlace.latitude ?? 0.0, selectedSearchPlace.longitude ?? 0.0)
-                }
-                // pickList에서 찾기
-                else if let selectedPickPlace = pickList.first(where: { $0.placeId == placeId }) {
-                    selectedLocation = (selectedPickPlace.latitude, selectedPickPlace.longitude)
+                if let selectedPlace = pickList.first(where: { $0.placeId == placeId }) {
+                    selectedLocation = (selectedPlace.latitude, selectedPlace.longitude)
                 }
                 
                 let response = try await service.fetchFocusedPlace(userId: Config.userId, placeId: placeId)
@@ -87,7 +49,34 @@ final class HomeViewModel: ObservableObject {
             isLoading = false
         }
     }
-
+    
+    func fetchLocationList(locationId: Int) async {
+            isLoading = true
+            do {
+                clearFocusedPlaces()
+                selectedLocation = nil
+                
+                // API 호출하여 새 데이터 받아오기
+                let response = try await service.fetchLocationList(
+                    userId: Config.userId,
+                    locationId: locationId
+                )
+                
+                // 데이터가 성공적으로 받아와진 후에만 기존 리스트 교체
+                self.pickList = response.zzimCardResponses
+                
+                // 첫 번째 장소가 있다면 지도 중심점 이동
+                if let firstPlace = response.zzimCardResponses.first {
+                    self.selectedLocation = (firstPlace.latitude, firstPlace.longitude)
+                }
+            } catch {
+                self.error = error
+                print("Error in fetchLocationList:", error)
+                // 에러 발생 시 기존 데이터 유지
+            }
+            isLoading = false
+        }
+    
     func clearFocusedPlaces() {
         focusedPlaces = []
     }

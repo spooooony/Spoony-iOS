@@ -12,15 +12,13 @@ final class SearchStore: ObservableObject {
     @Published private(set) var state: SearchState = .empty
     @Published private(set) var model: SearchModel
     
-    private let searchService: SearchService
     private var navigationManager: NavigationManager
-    private let homeViewModel: HomeViewModel
+    private let navigationCoordinator = NavigationCoordinator()
+    private let searchService = SearchService()
     
-    init(navigationManager: NavigationManager, homeViewModel: HomeViewModel) {
-           self.model = SearchModel()
-           self.searchService = SearchService()
-           self.navigationManager = navigationManager
-           self.homeViewModel = homeViewModel
+    init(navigationManager: NavigationManager) {
+        self.navigationManager = navigationManager
+        self.model = SearchModel()
     }
     
     func dispatch(_ intent: SearchIntent) {
@@ -83,16 +81,17 @@ final class SearchStore: ObservableObject {
     
     private func handleLocationSelection(_ result: SearchResult) {
         Task {
-            do {
-                print("🔍 Searching location list for locationId:", result.locationId)
-                await homeViewModel.fetchLocationList(locationId: result.locationId)
-                await MainActor.run {
-                    navigationManager.currentLocation = result.title
-                    navigationManager.pop(1)
-                }
-                print("✅ Location selection completed")
-            } catch {
-                print("❌ Failed to fetch location list:", error)
+            state = .loading  // 로딩 상태 표시
+            
+            // 네비게이션 수행
+            await navigationCoordinator.coordinate(
+                navigationManager: navigationManager,
+                result: result
+            )
+            
+            // 상태 초기화
+            await MainActor.run {
+                state = .empty
             }
         }
     }
@@ -115,28 +114,29 @@ final class SearchStore: ObservableObject {
                 }
                 
                 await MainActor.run {
-                    state = .success(results: results)
-                    
-                    if !model.recentSearches.contains(query) {
-                        model.recentSearches.insert(query, at: 0)
-                        if model.recentSearches.count > 6 {
-                            model.recentSearches.removeLast()
+                    if !results.isEmpty {
+                        state = .success(results: results)
+                        
+                        if !model.recentSearches.contains(query) {
+                            model.recentSearches.insert(query, at: 0)
+                            if model.recentSearches.count > 6 {
+                                model.recentSearches.removeLast()
+                            }
+                            saveRecentSearches()
                         }
-                        saveRecentSearches()
+                    } else {
+                        state = .error(message: "검색 결과가 없습니다")
                     }
                 }
-            } catch let error as SearchError {
-                print("Search error: \(error.errorDescription)")
-                state = .error(message: error.errorDescription)
             } catch {
-                print("Unexpected error: \(error)")
-                state = .error(message: "예상치 못한 오류가 발생했습니다")
+                print("Search error:", error)
+                state = .error(message: "검색 중 오류가 발생했습니다")
             }
         }
     }
     
     func updateNavigationManager(_ manager: NavigationManager) {
-        navigationManager = manager
+        self.navigationManager = manager
     }
     
     private func saveRecentSearches() {

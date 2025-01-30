@@ -11,16 +11,10 @@ struct SearchView: View {
     @EnvironmentObject private var navigationManager: NavigationManager
     @StateObject private var store: SearchStore
     @FocusState private var isSearchFocused: Bool
-    let homeViewModel: HomeViewModel
     
-    init(homeViewModel: HomeViewModel) {
-        self.homeViewModel = homeViewModel
+    init() {
         let tempNavigationManager = NavigationManager()
-        _store = StateObject(wrappedValue: SearchStore(navigationManager: tempNavigationManager, homeViewModel: homeViewModel))
-    }
-    
-    private var initStore: SearchStore {
-        SearchStore(navigationManager: navigationManager, homeViewModel: HomeViewModel())
+        _store = StateObject(wrappedValue: SearchStore(navigationManager: tempNavigationManager))
     }
     
     var body: some View {
@@ -28,7 +22,7 @@ struct SearchView: View {
             VStack(spacing: 0) {
                 CustomNavigationBar(
                     style: .search(showBackButton: true),
-                    searchText: Binding(
+                    searchText: .init(
                         get: { store.model.searchText },
                         set: { store.dispatch(.updateSearchText($0)) }
                     ),
@@ -53,13 +47,14 @@ struct SearchView: View {
         .navigationBarHidden(true)
         .onAppear {
             store.updateNavigationManager(navigationManager)
+            
             if store.model.isFirstAppear {
                 isSearchFocused = true
                 store.dispatch(.setFirstAppear(false))
             }
         }
     }
-    
+
     @ViewBuilder
     private var contentView: some View {
         switch store.state {

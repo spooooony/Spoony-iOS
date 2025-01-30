@@ -20,11 +20,7 @@ final class NavigationManager: ObservableObject {
     func build(_ view: ViewType) -> some View {
         switch view {
         case .searchView:
-            if case .map = selectedTab {
-                        SearchView(homeViewModel: HomeViewModel(service: DefaultHomeService()))
-                    } else {
-                        SearchView(homeViewModel: HomeViewModel(service: DefaultHomeService()))
-                    }
+            SearchView()
         case .locationView:
             Home()
         case .detailView(let postId):
@@ -33,6 +29,8 @@ final class NavigationManager: ObservableObject {
             Explore()
         case .report(let postId):
             Report(postId: postId)
+        case .searchLocationView(locationId: let locationId, locationTitle: let locationTitle):
+            SearchLocation(locationId: locationId, locationTitle: locationTitle)
         }
     }
     
