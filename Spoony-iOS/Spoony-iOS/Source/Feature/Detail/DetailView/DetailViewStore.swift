@@ -11,18 +11,22 @@ import UIKit
 final class DetailViewStore: ObservableObject {
     @Published private(set) var state: DetailState = DetailState()
     
-    private let service = DetailService()
+    private let detailService = DetailService()
+    private let homeService = DefaultHomeService()
     private var userSpoonCount: Int = 0
+    private var userInfo: UserInfoModel = .init(userId: 30, userEmail: "", userName: "", userImageUrl: "", regionName: "", createdAt: "", updatedAt: "")
     // MARK: - Reducer
     
     @MainActor
     func send(intent: DetailIntent) {
         switch intent {
-        case .getInitialValue(let userId, let postId):
+        case .getInitialValue(_, let postId):
             Task {
                 do {
-                    let data = try await DefaultHomeService().fetchSpoonCount(userId: Config.userId)
+                    let data = try await homeService.fetchSpoonCount(userId: Config.userId)
+                    let userData = try await detailService.getUserInfo(userId: Config.userId)
                     self.userSpoonCount = data
+                    self.userInfo = userData
                     state.successService = true
                     
                     await fetchInitialData(userId: Config.userId, postId: postId)
@@ -50,7 +54,7 @@ final class DetailViewStore: ObservableObject {
     private func fetchInitialData(userId: Int, postId: Int) async {
         state.isLoading = true
         do {
-            let data = try await service.getReviewDetail(userId: userId, postId: postId)
+            let data = try await detailService.getReviewDetail(userId: userId, postId: postId)
             updateState(with: data)
         } catch {
             state.toast = Toast(style: .gray, message: "데이터를 불러오는데 실패했습니다.", yOffset: 539.adjustedH)
@@ -81,14 +85,15 @@ final class DetailViewStore: ObservableObject {
             categoryColorResponse: data.categoryColorResponse,
             isMine: data.isMine,
             spoonCount: self.userSpoonCount,
-            successService: true
+            successService: true,
+            userInfo: self.userInfo
         )
     }
     
     // 스크랩 버튼 처리
     private func handleScrapButton(isScrap: Bool) {
         if isScrap {
-            service.unScrapReview(userId: state.userId, postId: state.postId)
+            detailService.unScrapReview(userId: state.userId, postId: state.postId)
             state.zzimCount -= 1
             state.isZzim = false
             state.toast = Toast(
@@ -97,7 +102,7 @@ final class DetailViewStore: ObservableObject {
                 yOffset: 539.adjustedH
             )
         } else {
-            service.scrapReview(userId: state.userId, postId: state.postId)
+            detailService.scrapReview(userId: state.userId, postId: state.postId)
             state.zzimCount += 1
             state.isZzim = true
             state.toast = Toast(
@@ -113,7 +118,7 @@ final class DetailViewStore: ObservableObject {
     private func handleScoopButton() async throws {
         
         do {
-            let data = try await service.scoopReview(userId: Config.userId, postId: state.postId)
+            let data = try await detailService.scoopReview(userId: Config.userId, postId: state.postId)
             
             if data {
                 state.isScoop.toggle()
