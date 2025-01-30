@@ -14,24 +14,30 @@ struct SearchResult: Identifiable, Equatable {
     let address: String
 }
 
-struct Location: Equatable {
-    let title: String
-    let id: Int
-    let latitude: Double
-    let longitude: Double
-    
-    init(title: String, id: Int, latitude: Double, longitude: Double) {
-        self.title = title
-        self.id = id
-        self.latitude = latitude
-        self.longitude = longitude
+extension PickListCardResponse {
+    func toSearchLocationResult() -> SearchLocationResult {
+        return SearchLocationResult(
+            locationId: self.placeId,
+            placeId: self.placeId,
+            title: self.placeName,
+            address: self.placeAddress,
+            postTitle: self.postTitle,
+            photoUrl: self.photoUrl,
+            latitude: self.latitude,
+            longitude: self.longitude,
+            categoryColorResponse: self.categoryColorResponse.toSearchCategoryColorResponse() 
+        )
     }
-    
-    init(searchResult: SearchResult) {
-        self.title = searchResult.title
-        self.id = searchResult.locationId
-        // 검색 결과에서는 기본 위치 사용
-        self.latitude = 37.5666103  // 서울시청 위도
-        self.longitude = 126.9783882 // 서울시청 경도
+}
+
+extension BottomSheetCategoryColorResponse {
+    func toSearchCategoryColorResponse() -> SearchCategoryColorResponse {
+        return SearchCategoryColorResponse(
+            categoryId: self.categoryId,
+            categoryName: self.categoryName,
+            iconUrl: self.iconUrl,
+            iconTextColor: self.iconTextColor,
+            iconBackgroundColor: self.iconBackgroundColor
+        )
     }
 }
