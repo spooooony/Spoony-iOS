@@ -39,6 +39,7 @@ struct SearchLocationBottomSheetView: View {
     var body: some View {
         GeometryReader { _ in
             VStack(spacing: 0) {
+                // 핸들바 영역
                 VStack(spacing: 8) {
                     RoundedRectangle(cornerRadius: 3)
                         .fill(Color.gray200)
@@ -102,7 +103,12 @@ struct SearchLocationBottomSheetView: View {
                     }
                     .onChanged { value in
                         let translation = value.translation.height
-                        offset = translation
+                        
+                        if currentStyle == .full && translation < 0 {
+                            offset = 0
+                        } else {
+                            offset = translation
+                        }
                     }
                     .onEnded { value in
                         let translation = value.translation.height
@@ -141,6 +147,10 @@ struct SearchLocationBottomSheetView: View {
                         }
                     }
             )
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentStyle)
+            .onChange(of: currentStyle) { _, newStyle in
+                isScrollEnabled = (newStyle == .full)
+            }
         }
     }
 }
