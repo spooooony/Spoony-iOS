@@ -21,7 +21,7 @@ struct SearchView: View {
             VStack(spacing: 0) {
                 CustomNavigationBar(
                     style: .search(showBackButton: true),
-                    searchText: .init(
+                    searchText: Binding(
                         get: { store.model.searchText },
                         set: { store.dispatch(.updateSearchText($0)) }
                     ),
@@ -46,7 +46,6 @@ struct SearchView: View {
         .navigationBarHidden(true)
         .onAppear {
             store.updateNavigationManager(navigationManager)
-            
             if store.model.isFirstAppear {
                 isSearchFocused = true
                 store.dispatch(.setFirstAppear(false))

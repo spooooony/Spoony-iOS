@@ -74,9 +74,6 @@ final class NavigationManager: ObservableObject {
         }
     }
     
-}
-
-extension NavigationManager {
     func navigateToSearchLocation(locationId: Int, locationTitle: String) {
         if let lastView = mapPath.last,
            case .searchView = lastView {
@@ -88,4 +85,5 @@ extension NavigationManager {
             locationTitle: locationTitle
         ))
     }
+    
 }
