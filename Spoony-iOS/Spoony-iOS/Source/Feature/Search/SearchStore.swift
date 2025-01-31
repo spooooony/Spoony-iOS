@@ -13,7 +13,6 @@ final class SearchStore: ObservableObject {
     @Published private(set) var model: SearchModel
     
     private var navigationManager: NavigationManager
-    private let navigationCoordinator = NavigationCoordinator()
     private let searchService = SearchService()
     
     init(navigationManager: NavigationManager) {
@@ -80,20 +79,14 @@ final class SearchStore: ObservableObject {
     }
     
     private func handleLocationSelection(_ result: SearchResult) {
-        Task {
-            state = .loading  // 로딩 상태 표시
-            
-            // 네비게이션 수행
-            await navigationCoordinator.coordinate(
-                navigationManager: navigationManager,
-                result: result
-            )
-            
-            // 상태 초기화
-            await MainActor.run {
-                state = .empty
-            }
-        }
+        state = .loading
+        
+        navigationManager.navigateToSearchLocation(
+            locationId: result.locationId,
+            locationTitle: result.title
+        )
+        
+        state = .empty
     }
     
     private func updateSearchResults(with query: String) {
