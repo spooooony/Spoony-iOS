@@ -47,7 +47,7 @@ struct SearchLocationBottomSheetView: View {
                         .padding(.top, 10)
                     
                     HStack(spacing: 4) {
-                        Text("검색 결과")
+                        Text("이 지역의 찐맛집")
                             .customFont(.body2b)
                         Text("\(viewModel.pickList.count)")
                             .customFont(.body2b)
