@@ -83,7 +83,6 @@ struct BottomSheetListView: View {
                         Color.clear.frame(height: 90.adjusted)
                     }
                 }
-                .coordinateSpace(name: "scrollView")
                 .simultaneousGesture(
                     DragGesture()
                         .onChanged { value in

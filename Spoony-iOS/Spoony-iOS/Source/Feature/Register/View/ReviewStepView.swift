@@ -42,7 +42,7 @@ struct ReviewStepView: View {
         .onTapGesture {
             hideKeyboard()
         }
-        .gesture(DragGesture(minimumDistance: 30, coordinateSpace: .local)
+        .gesture(DragGesture(minimumDistance: 30)
             .onChanged { value in
                 if value.translation.width > 150 {
                     store.dispatch(.movePreviousView)
