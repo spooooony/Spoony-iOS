@@ -85,7 +85,7 @@ struct SearchLocationCardItem: View {
                     defaultPlaceholder
                 case .empty:
                     defaultPlaceholder
-                @unknown default:
+                default:
                     defaultPlaceholder
                 }
             }
