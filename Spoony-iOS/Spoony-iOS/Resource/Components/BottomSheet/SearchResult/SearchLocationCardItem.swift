@@ -27,10 +27,10 @@ struct SearchLocationCardItem: View {
                                     image
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(width: 16, height: 16)
+                                        .frame(width: 16.adjusted, height: 16.adjustedH)
                                 default:
                                     Color.clear
-                                        .frame(width: 16, height: 16)
+                                        .frame(width: 16.adjusted, height: 16.adjustedH)
                                 }
                             }
                             
@@ -59,8 +59,7 @@ struct SearchLocationCardItem: View {
                         .lineLimit(1)
                         .truncationMode(.tail)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 12)
+                        .padding(12)
                         .background(.white)
                         .cornerRadius(8)
                         .overlay(

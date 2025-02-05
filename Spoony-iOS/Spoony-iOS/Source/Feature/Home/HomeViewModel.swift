@@ -9,7 +9,7 @@ import Foundation
 
 @MainActor
 final class HomeViewModel: ObservableObject {
-    let service: HomeServiceType
+    private let service: HomeServiceType
     @Published private(set) var pickList: [PickListCardResponse] = []
     @Published var isLoading = false
     @Published var focusedPlaces: [CardPlace] = []

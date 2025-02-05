@@ -16,7 +16,7 @@ final class NavigationManager: ObservableObject {
     
     @Published var popup: PopupType?
     
-    @MainActor @ViewBuilder
+    @ViewBuilder
     func build(_ view: ViewType) -> some View {
         switch view {
         case .searchView:
