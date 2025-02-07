@@ -6,7 +6,7 @@
 //
 
 protocol DetailUseCaseProtocol {
-    func fetchInitialDetail(userId: Int, postId: Int) async throws -> DetailEntity
+    func fetchInitialDetail(userId: Int, postId: Int) async throws -> ReviewDetailModel
     func scrapReview(userId: Int, postId: Int)
     func unScrapReview(userId: Int, postId: Int)
     func scoopReview(userId: Int, postId: Int) async throws -> Bool
@@ -27,12 +27,12 @@ struct DefaultDetailUseCase {
 }
 
 extension DefaultDetailUseCase: DetailUseCaseProtocol {
-    func fetchInitialDetail(userId: Int, postId: Int) async throws -> DetailEntity {
+    func fetchInitialDetail(userId: Int, postId: Int) async throws -> ReviewDetailModel {
         let spoonCount = try await homeService.fetchSpoonCount(userId: userId)
         let reviewDetail = try await detailRepository.fetchReviewDetail(userId: userId, postId: postId)
         let userInfo = try await detailRepository.fetchUserInfo(userId: userId)
-
-        return .init(reviewDetail: reviewDetail, spoonCount: spoonCount, userInfo: userInfo)
+        
+        return .init(reviewDetail: reviewDetail,  userInfo: userInfo, spoonCount: spoonCount)
     }
     
     func scrapReview(userId: Int, postId: Int) {

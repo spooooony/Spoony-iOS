@@ -370,3 +370,8 @@ struct Line: Shape {
         return path
     }
 }
+
+#Preview {
+    DetailView(postId: 9)
+        .environmentObject(NavigationManager())
+}

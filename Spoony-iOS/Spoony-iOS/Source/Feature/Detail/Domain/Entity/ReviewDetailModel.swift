@@ -1,5 +1,5 @@
 //
-//  DetailEntity.swift
+//  ReviewDetailModel.swift
 //  Spoony-iOS
 //
 //  Created by 이명진 on 2/7/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DetailEntity: Codable {
+struct ReviewDetailModel: Codable {
     let postId: Int
     let userId: Int
     let photoUrlList: [String]
@@ -29,7 +29,7 @@ struct DetailEntity: Codable {
     let userImageUrl: String
     let regionName: String
     
-    public init(reviewDetail: ReviewDetailResponseDTO, spoonCount: Int, userInfo: UserInfoResponseDTO) {
+    public init(reviewDetail: ReviewDetailResponseDTO, userInfo: UserInfoResponseDTO, spoonCount: Int) {
         self.postId = reviewDetail.postId
         self.userId = reviewDetail.userId
         self.photoUrlList = reviewDetail.photoUrlList
@@ -46,9 +46,9 @@ struct DetailEntity: Codable {
         self.isScoop = reviewDetail.isScoop
         self.categoryColorResponse = reviewDetail.categoryColorResponse
         self.isMine = reviewDetail.isMine
-        self.spoonCount = spoonCount
         self.userName = userInfo.userName
         self.userImageUrl = userInfo.userImageUrl
         self.regionName = userInfo.regionName
+        self.spoonCount = spoonCount
     }
 }

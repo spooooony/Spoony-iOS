@@ -56,7 +56,7 @@ final class DetailViewStore: ObservableObject {
     }
     
     // State 업데이트
-    private func updateState(with data: DetailEntity) {
+    private func updateState(with data: ReviewDetailModel) {
         state = DetailState(
             postId: data.postId,
             userId: data.userId,
