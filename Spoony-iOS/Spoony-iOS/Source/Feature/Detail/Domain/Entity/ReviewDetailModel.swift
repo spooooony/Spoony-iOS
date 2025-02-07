@@ -9,7 +9,6 @@ import Foundation
 
 struct ReviewDetailModel: Codable {
     let postId: Int
-    let userId: Int
     let photoUrlList: [String]
     let title: String
     let date: String
@@ -31,7 +30,6 @@ struct ReviewDetailModel: Codable {
     
     public init(reviewDetail: ReviewDetailResponseDTO, userInfo: UserInfoResponseDTO, spoonCount: Int) {
         self.postId = reviewDetail.postId
-        self.userId = reviewDetail.userId
         self.photoUrlList = reviewDetail.photoUrlList
         self.title = reviewDetail.title
         self.date = reviewDetail.date

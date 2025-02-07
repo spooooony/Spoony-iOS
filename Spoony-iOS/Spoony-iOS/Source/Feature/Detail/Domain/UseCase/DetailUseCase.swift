@@ -17,6 +17,7 @@ struct DefaultDetailUseCase {
     private let detailRepository: DetailRepositoryInterface
     private let homeService: HomeServiceType
     
+    // TDOO: HomeService 리팩토링 되면 코드 수정
     init(
         detailRepository: DetailRepositoryInterface = DefaultDetailRepository(),
         homeService: HomeServiceType = DefaultHomeService()
@@ -35,7 +36,7 @@ extension DefaultDetailUseCase: DetailUseCaseProtocol {
         return ReviewDetailModel(reviewDetail: reviewDetail, userInfo: userInfo, spoonCount: spoonCount)
     }
     
-    func scrapReview(userId: Int, postId: Int) async throws{
+    func scrapReview(userId: Int, postId: Int) async throws {
         try await detailRepository.scrapReview(userId: userId, postId: postId)
     }
     

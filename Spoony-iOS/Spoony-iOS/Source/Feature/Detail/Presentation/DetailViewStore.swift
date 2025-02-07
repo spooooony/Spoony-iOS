@@ -13,6 +13,7 @@ final class DetailViewStore: ObservableObject {
     
     private let detailUseCase: DetailUseCaseProtocol
     
+    // TDOO: HomeService 리팩토링 되면 코드 수정
     init(detailUseCase: DetailUseCaseProtocol = DefaultDetailUseCase(detailRepository: DefaultDetailRepository(),
                                                                      homeService: DefaultHomeService())) {
         self.detailUseCase = detailUseCase
@@ -28,7 +29,9 @@ final class DetailViewStore: ObservableObject {
                 await fetchInitialData(userId: Config.userId, postId: postId)
             }
         case .scrapButtonDidTap(let isScrap):
-            handleScrapButton(isScrap: isScrap)
+            Task {
+                await handleScrapButton(isScrap: isScrap)
+            }
         case .scoopButtonDidTap:
             Task {
                 try await handleScoopButton()
@@ -43,15 +46,17 @@ final class DetailViewStore: ObservableObject {
     // 초기 데이터 로드
     @MainActor
     private func fetchInitialData(userId: Int, postId: Int) async {
-        state.isLoading = true
-        defer { state.isLoading = false }
-        do {
-            let data = try await detailUseCase.fetchInitialDetail(userId: userId, postId: postId)
-            updateState(with: data)
-            state.successService = true
-        } catch {
-            state.toast = Toast(style: .gray, message: "데이터를 불러오는데 실패했습니다.", yOffset: 539.adjustedH)
-            state.successService = false
+        Task {
+            state.isLoading = true
+            do {
+                let data = try await detailUseCase.fetchInitialDetail(userId: userId, postId: postId)
+                updateState(with: data)
+                state.successService = true
+            } catch {
+                state.toast = Toast(style: .gray, message: "데이터를 불러오는데 실패했습니다.", yOffset: 539.adjustedH)
+                state.successService = false
+            }
+            state.isLoading = false
         }
     }
     
@@ -59,7 +64,6 @@ final class DetailViewStore: ObservableObject {
     private func updateState(with data: ReviewDetailModel) {
         state = DetailState(
             postId: data.postId,
-            userId: data.userId,
             userName: data.userName,
             photoUrlList: data.photoUrlList,
             title: data.title,
@@ -86,11 +90,13 @@ final class DetailViewStore: ObservableObject {
     
     // 스크랩 버튼 처리
     @MainActor
-    private func handleScrapButton(isScrap: Bool) {
+    private func handleScrapButton(isScrap: Bool) async {
+        
         Task {
+            state.isLoading = true
             do {
                 if isScrap {
-                    try await detailUseCase.unScrapReview(userId: state.userId, postId: state.postId)
+                    try await detailUseCase.unScrapReview(userId: Config.userId, postId: state.postId)
                     state.zzimCount -= 1
                     state.isZzim = false
                     state.toast = Toast(
@@ -99,7 +105,7 @@ final class DetailViewStore: ObservableObject {
                         yOffset: 539.adjustedH
                     )
                 } else {
-                    try await detailUseCase.scrapReview(userId: state.userId, postId: state.postId)
+                    try await detailUseCase.scrapReview(userId: Config.userId, postId: state.postId)
                     state.zzimCount += 1
                     state.isZzim = true
                     state.toast = Toast(
@@ -115,23 +121,27 @@ final class DetailViewStore: ObservableObject {
                     yOffset: 539.adjustedH
                 )
             }
+            state.isLoading = false
         }
     }
     
     // 떠먹기 버튼 처리
     @MainActor
     private func handleScoopButton() async throws {
-        
-        do {
-            let data = try await detailUseCase.scoopReview(userId: Config.userId, postId: state.postId)
-            
-            if data {
-                state.isScoop.toggle()
-                state.spoonCount -= 1
+        Task {
+            state.isLoading = true
+            do {
+                let data = try await detailUseCase.scoopReview(userId: Config.userId, postId: state.postId)
+                
+                if data {
+                    state.isScoop.toggle()
+                    state.spoonCount -= 1
+                }
+                
+            } catch {
+                print(error.localizedDescription)
             }
-            
-        } catch {
-            print(error.localizedDescription)
+            state.isLoading = false
         }
     }
     

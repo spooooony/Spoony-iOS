@@ -11,7 +11,6 @@ import Foundation
 
 struct DetailState {
     var postId: Int = 0
-    var userId: Int = 0
     var userName: String = "이명진"
     var photoUrlList: [String] = []
     var title: String = "내용 없음"

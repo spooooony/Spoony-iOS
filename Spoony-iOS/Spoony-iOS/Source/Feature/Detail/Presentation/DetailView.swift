@@ -31,47 +31,58 @@ struct DetailView: View {
     // MARK: - body
     
     var body: some View {
-        VStack(spacing: 0) {
-            CustomNavigationBar(
-                style: .detailWithChip,
-                spoonCount: store.state.spoonCount,
-                onBackTapped: {
-                    navigationManager.pop(1)
+        ZStack {
+            VStack(spacing: 0) {
+                CustomNavigationBar(
+                    style: .detailWithChip,
+                    spoonCount: store.state.spoonCount,
+                    onBackTapped: {
+                        navigationManager.pop(1)
+                    }
+                )
+                ScrollView(.vertical) {
+                    VStack(spacing: 0) {
+                        userProfileSection
+                        imageSection
+                        reviewSection
+                        placeInfoSection
+                    }
                 }
-            )
-            ScrollView(.vertical) {
-                VStack(spacing: 0) {
-                    userProfileSection
-                    imageSection
-                    reviewSection
-                    placeInfoSection
+                .simultaneousGesture(dragGesture)
+                .onTapGesture {
+                    dismissDropDown()
                 }
-            }
-            .simultaneousGesture(dragGesture)
-            .onTapGesture {
-                dismissDropDown()
-            }
-            .overlay(alignment: .topTrailing, content: {
-                dropDownView
-            })
-            .scrollIndicators(.hidden)
-            .toastView(toast: $toastMessage)
-            .onAppear {
-                store.send(intent: .fetchInitialValue(userId: Config.userId, postId: postId))
+                .overlay(alignment: .topTrailing, content: {
+                    dropDownView
+                })
+                .scrollIndicators(.hidden)
+                .toastView(toast: $toastMessage)
+                .onAppear {
+                    store.send(intent: .fetchInitialValue(userId: Config.userId, postId: postId))
+                    
+                    if !store.state.successService {
+                        navigationManager.pop(1)
+                    }
+                    
+                }
+                .onChange(of: store.state.toast) { _, newValue in
+                    toastMessage = newValue
+                }
                 
-                if !store.state.successService {
-                    navigationManager.pop(1)
-                }
-                
+                bottomView
+                    .frame(height: 80.adjustedH)
             }
-            .onChange(of: store.state.toast) { _, newValue in
-                toastMessage = newValue
-            }
+            .toolbar(.hidden, for: .tabBar)
             
-            bottomView
-                .frame(height: 80.adjustedH)
+            if store.state.isLoading {
+                ZStack {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                }
+                .transition(.opacity)
+                .animation(.easeInOut, value: store.state.isLoading)
+            }
         }
-        .toolbar(.hidden, for: .tabBar)
     }
 }
 
