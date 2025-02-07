@@ -58,9 +58,10 @@ struct SearchLocation: View {
                         )
                         .padding(.bottom, 12)
                         .transition(.move(edge: .bottom))
-                    } else {
-                        SearchLocationBottomSheetView(viewModel: viewModel)
                     }
+//                    } else {
+//                        SearchLocationBottomSheetView(viewModel: viewModel)
+//                    }
                 }
             }
         }

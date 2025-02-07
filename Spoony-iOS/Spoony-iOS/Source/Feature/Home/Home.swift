@@ -49,21 +49,21 @@ struct Home: View {
             }
             
             Group {
-                if !viewModel.focusedPlaces.isEmpty {
-                    PlaceCard(
-                        places: viewModel.focusedPlaces,
-                        currentPage: $currentPage
-                    )
-                    .padding(.bottom, 12)
-                    .transition(.move(edge: .bottom))
-                } else {
-                    if !viewModel.pickList.isEmpty {
-                        BottomSheetListView(viewModel: viewModel)
-                    } else {
-                        FixedBottomSheetView()
-                    }
-                }
-            }
+                            if !viewModel.focusedPlaces.isEmpty {
+                                PlaceCard(
+                                    places: viewModel.focusedPlaces,
+                                    currentPage: $currentPage
+                                )
+                                .padding(.bottom, 12)
+                                .transition(.move(edge: .bottom))
+                            } else {
+                                if !viewModel.pickList.isEmpty {
+                                    FlexibleListBottomSheet(viewModel: viewModel)
+                                } else {
+                                    EmptyStateBottomSheet()
+                                }
+                            }
+                        }
         }
         .navigationBarHidden(true)
         .task {
@@ -74,6 +74,104 @@ struct Home: View {
             } catch {
                 print("Failed to fetch spoon count:", error)
             }
+        }
+    }
+}
+
+struct FlexibleListBottomSheet: View {
+    @ObservedObject var viewModel: HomeViewModel
+    @State private var currentStyle: BottomSheetStyle = .minimal
+    
+    private let flexStyle = FlexSheetStyle(
+        animation: .spring(response: 0.3, dampingFraction: 0.7),
+        dragSensitivity: 500,
+        allowHide: false,
+        sheetSize: .minimal
+    )
+    
+    var body: some View {
+        FlexibleBottomSheet(
+            currentStyle: $currentStyle,
+            style: flexStyle
+        ) {
+            VStack(spacing: 0) {
+                VStack(spacing: 8) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.gray200)
+                        .frame(width: 24.adjusted, height: 2.adjustedH)
+                        .padding(.top, 10)
+                    
+                    HStack(spacing: 4) {
+                        if !viewModel.focusedPlaces.isEmpty {
+                            Text("상세 정보")
+                                .customFont(.body2b)
+                        } else {
+                            Text("양수정님의 찐맛집")
+                                .customFont(.body2b)
+                            Text("\(viewModel.pickList.count)")
+                                .customFont(.body2b)
+                                .foregroundColor(.gray500)
+                        }
+                    }
+                    .padding(.bottom, 8)
+                }
+                .frame(height: 60.adjustedH)
+                .background(.white)
+                
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: 0) {
+                        ForEach(viewModel.pickList, id: \.placeId) { pickCard in
+                            BottomSheetListItem(pickCard: pickCard)
+                                .background(Color.white)
+                                .onTapGesture {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                        currentStyle = .full
+                                    }
+                                    viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
+                                }
+                        }
+                    }
+                    Color.clear.frame(height: 90.adjusted)
+                }
+            }
+        }
+    }
+}
+
+struct EmptyStateBottomSheet: View {
+    @EnvironmentObject private var navigationManager: NavigationManager
+    @State private var isDisabled = false
+    
+    private let fixedStyle = FlexSheetStyle(
+        animation: .spring(response: 0.3, dampingFraction: 0.7),
+        dragSensitivity: 500,
+        allowHide: false,
+        fixedHeight: UIScreen.main.bounds.height * 0.5
+    )
+    
+    var body: some View {
+        FixedBottomSheet(style: fixedStyle) {
+            VStack(spacing: 16) {
+                Image(.imageGoToList)
+                    .resizable()
+                    .frame(width: 100.adjusted, height: 100.adjustedH)
+                
+                Text("아직 추가된 장소가 없어요.\n다른 사람의 리스트를 떠먹어 보세요!")
+                    .customFont(.body2m)
+                    .foregroundStyle(.gray500)
+                    .multilineTextAlignment(.center)
+                
+                SpoonyButton(
+                    style: .secondary,
+                    size: .xsmall,
+                    title: "떠먹으러 가기",
+                    disabled: $isDisabled
+                ) {
+                    navigationManager.selectedTab = .explore
+                }
+                .padding(.top, 8)
+            }
+            .padding(.top, 24)
         }
     }
 }
