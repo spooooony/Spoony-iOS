@@ -5,40 +5,43 @@
 //  Created by 이명진 on 1/23/25.
 //
 
-public class DetailService {
-    
-    let detailProvider = Providers.detailProvider
-    
+protocol DetailServiceProtocol {
+    func getReviewDetail(userId: Int, postId: Int) async throws -> ReviewDetailModel
+    func scrapReview(userId: Int, postId: Int)
+    func unScrapReview(userId: Int, postId: Int)
+    func scoopReview(userId: Int, postId: Int) async throws -> Bool
+    func getUserInfo(userId: Int) async throws -> UserInfoModel
+}
+
+extension DetailServiceProtocol {
     func getReviewDetail(userId: Int, postId: Int) async throws -> ReviewDetailModel {
         return try await withCheckedThrowingContinuation { continuation in
-            detailProvider.request(.getDetailReview(userId: userId, postId: postId)) { result in
+            Providers.detailProvider.request(.getDetailReview(userId: userId, postId: postId)) { result in
                 switch result {
                 case .success(let response):
                     do {
                         let responseDto = try response.map(BaseResponse<ReviewDetailModel>.self)
                         if let data = responseDto.data {
-                            return continuation.resume(returning: data)
+                            continuation.resume(returning: data)
                         } else {
                             continuation.resume(throwing: SNError.decodeError)
                         }
                     } catch {
                         continuation.resume(throwing: SNError.etc)
                     }
-                case .failure(let error):
+                case .failure:
                     continuation.resume(throwing: SNError.networkFail)
-                    
                 }
             }
         }
     }
     
     func scrapReview(userId: Int, postId: Int) {
-        detailProvider.request(.scrapReview(userId: 30, postId: postId)) { result in
+        Providers.detailProvider.request(.scrapReview(userId: userId, postId: postId)) { result in
             switch result {
             case .success(let response):
                 do {
                     _ = try response.map(BaseResponse<BlankData>.self)
-                    
                 } catch {
                     print("decode map to error")
                 }
@@ -49,12 +52,11 @@ public class DetailService {
     }
     
     func unScrapReview(userId: Int, postId: Int) {
-        detailProvider.request(.unScrapReview(userId: 30, postId: postId)) { result in
+        Providers.detailProvider.request(.unScrapReview(userId: userId, postId: postId)) { result in
             switch result {
             case .success(let response):
                 do {
                     _ = try response.map(BaseResponse<BlankData>.self)
-                    
                 } catch {
                     print("decode map to error")
                 }
@@ -65,14 +67,13 @@ public class DetailService {
     }
     
     func scoopReview(userId: Int, postId: Int) async throws -> Bool {
-        
         return try await withCheckedThrowingContinuation { continuation in
-            detailProvider.request(.scoopReview(userId: Config.userId, postId: postId)) { result in
+            Providers.detailProvider.request(.scoopReview(userId: userId, postId: postId)) { result in
                 switch result {
                 case .success(let response):
                     do {
                         _ = try response.map(BaseResponse<BlankData>.self)
-                        return continuation.resume(returning: true)
+                        continuation.resume(returning: true)
                     } catch {
                         continuation.resume(throwing: error)
                     }
@@ -85,15 +86,15 @@ public class DetailService {
     
     func getUserInfo(userId: Int) async throws -> UserInfoModel {
         return try await withCheckedThrowingContinuation { continuation in
-            detailProvider.request(.getUserInfo(userId: userId)) { result in
+            Providers.detailProvider.request(.getUserInfo(userId: userId)) { result in
                 switch result {
                 case .success(let response):
                     do {
-                        let result = try response.map(BaseResponse<UserInfoModel>.self)
-                        if let result = result.data {
-                            return continuation.resume(returning: result)
+                        let responseDto = try response.map(BaseResponse<UserInfoModel>.self)
+                        if let data = responseDto.data {
+                            continuation.resume(returning: data)
                         } else {
-                            print("옵셔널 바인딩 X")
+                            continuation.resume(throwing: SNError.decodeError)
                         }
                     } catch {
                         continuation.resume(throwing: error)
