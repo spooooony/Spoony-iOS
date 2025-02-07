@@ -22,12 +22,12 @@ extension DefaultDetailRepository: DetailRepositoryInterface {
         return try await detailService.getReviewDetail(userId: userId, postId: postId)
     }
     
-    public func scrapReview(userId: Int, postId: Int) {
-        detailService.scrapReview(userId: userId, postId: postId)
+    public func scrapReview(userId: Int, postId: Int) async throws {
+        try await detailService.scrapReview(userId: userId, postId: postId)
     }
     
-    public func unScrapReview(userId: Int, postId: Int) {
-        detailService.unScrapReview(userId: userId, postId: postId)
+    public func unScrapReview(userId: Int, postId: Int) async throws {
+        try await detailService.unScrapReview(userId: userId, postId: postId)
     }
     
     public func scoopReview(userId: Int, postId: Int) async throws -> Bool {

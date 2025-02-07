@@ -7,8 +7,8 @@
 
 protocol DetailServiceProtocol {
     func getReviewDetail(userId: Int, postId: Int) async throws -> ReviewDetailResponseDTO
-    func scrapReview(userId: Int, postId: Int)
-    func unScrapReview(userId: Int, postId: Int)
+    func scrapReview(userId: Int, postId: Int) async throws
+    func unScrapReview(userId: Int, postId: Int) async throws
     func scoopReview(userId: Int, postId: Int) async throws -> Bool
     func getUserInfo(userId: Int) async throws -> UserInfoResponseDTO
 }
@@ -36,34 +36,12 @@ extension DetailServiceProtocol {
         }
     }
     
-    func scrapReview(userId: Int, postId: Int) {
-        Providers.detailProvider.request(.scrapReview(userId: userId, postId: postId)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    _ = try response.map(BaseResponse<BlankData>.self)
-                } catch {
-                    print("decode map to error")
-                }
-            case .failure(let error):
-                print("통신 실패: \(error)")
-            }
-        }
+    func scrapReview(userId: Int, postId: Int) async throws {
+        try await requestReviewAction(targetType: .scrapReview(userId: userId, postId: postId))
     }
     
-    func unScrapReview(userId: Int, postId: Int) {
-        Providers.detailProvider.request(.unScrapReview(userId: userId, postId: postId)) { result in
-            switch result {
-            case .success(let response):
-                do {
-                    _ = try response.map(BaseResponse<BlankData>.self)
-                } catch {
-                    print("decode map to error")
-                }
-            case .failure(let error):
-                print("통신 실패: \(error)")
-            }
-        }
+    func unScrapReview(userId: Int, postId: Int) async throws {
+        try await requestReviewAction(targetType: .unScrapReview(userId: userId, postId: postId))
     }
     
     func scoopReview(userId: Int, postId: Int) async throws -> Bool {
@@ -98,6 +76,25 @@ extension DetailServiceProtocol {
                         }
                     } catch {
                         continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    // 스크랩 공용 Logic
+    private func requestReviewAction(targetType: DetailTargetType) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            Providers.detailProvider.request(targetType) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        _ = try response.map(BaseResponse<BlankData>.self)
+                        continuation.resume()
+                    } catch {
+                        continuation.resume(throwing: SNError.decodeError)
                     }
                 case .failure(let error):
                     continuation.resume(throwing: error)

@@ -7,8 +7,8 @@
 
 protocol DetailUseCaseProtocol {
     func fetchInitialDetail(userId: Int, postId: Int) async throws -> ReviewDetailModel
-    func scrapReview(userId: Int, postId: Int)
-    func unScrapReview(userId: Int, postId: Int)
+    func scrapReview(userId: Int, postId: Int) async throws
+    func unScrapReview(userId: Int, postId: Int) async throws
     func scoopReview(userId: Int, postId: Int) async throws -> Bool
     func getUserInfo(userId: Int) async throws -> UserInfoResponseDTO
 }
@@ -35,12 +35,12 @@ extension DefaultDetailUseCase: DetailUseCaseProtocol {
         return ReviewDetailModel(reviewDetail: reviewDetail, userInfo: userInfo, spoonCount: spoonCount)
     }
     
-    func scrapReview(userId: Int, postId: Int) {
-        detailRepository.scrapReview(userId: userId, postId: postId)
+    func scrapReview(userId: Int, postId: Int) async throws{
+        try await detailRepository.scrapReview(userId: userId, postId: postId)
     }
     
-    func unScrapReview(userId: Int, postId: Int) {
-        detailRepository.unScrapReview(userId: userId, postId: postId)
+    func unScrapReview(userId: Int, postId: Int) async throws {
+        try await detailRepository.unScrapReview(userId: userId, postId: postId)
     }
     
     func scoopReview(userId: Int, postId: Int) async throws -> Bool {

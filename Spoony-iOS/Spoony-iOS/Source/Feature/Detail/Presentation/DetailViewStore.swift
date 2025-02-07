@@ -85,25 +85,36 @@ final class DetailViewStore: ObservableObject {
     }
     
     // 스크랩 버튼 처리
+    @MainActor
     private func handleScrapButton(isScrap: Bool) {
-        if isScrap {
-            detailUseCase.unScrapReview(userId: state.userId, postId: state.postId)
-            state.zzimCount -= 1
-            state.isZzim = false
-            state.toast = Toast(
-                style: .gray,
-                message: "내 지도에서 삭제되었어요.",
-                yOffset: 539.adjustedH
-            )
-        } else {
-            detailUseCase.scrapReview(userId: state.userId, postId: state.postId)
-            state.zzimCount += 1
-            state.isZzim = true
-            state.toast = Toast(
-                style: .gray,
-                message: "내 지도에 추가되었어요.",
-                yOffset: 539.adjustedH
-            )
+        Task {
+            do {
+                if isScrap {
+                    try await detailUseCase.unScrapReview(userId: state.userId, postId: state.postId)
+                    state.zzimCount -= 1
+                    state.isZzim = false
+                    state.toast = Toast(
+                        style: .gray,
+                        message: "내 지도에서 삭제되었어요.",
+                        yOffset: 539.adjustedH
+                    )
+                } else {
+                    try await detailUseCase.scrapReview(userId: state.userId, postId: state.postId)
+                    state.zzimCount += 1
+                    state.isZzim = true
+                    state.toast = Toast(
+                        style: .gray,
+                        message: "내 지도에 추가되었어요.",
+                        yOffset: 539.adjustedH
+                    )
+                }
+            } catch {
+                state.toast = Toast(
+                    style: .gray,
+                    message: "요청에 실패했습니다. 다시 시도해주세요.",
+                    yOffset: 539.adjustedH
+                )
+            }
         }
     }
     
@@ -123,7 +134,7 @@ final class DetailViewStore: ObservableObject {
             print(error.localizedDescription)
         }
     }
-
+    
     // 네이버 지도 열기
     private func openNaverMaps() {
         let appName: String = "Spoony"
