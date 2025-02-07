@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-enum SNError: Error {
-    case networkFail
-    case decodeError
-    case etc
-}
-
 struct DetailView: View {
     
     // MARK: - Properties
@@ -63,7 +57,7 @@ struct DetailView: View {
             .scrollIndicators(.hidden)
             .toastView(toast: $toastMessage)
             .onAppear {
-                store.send(intent: .getInitialValue(userId: Config.userId, postId: postId))
+                store.send(intent: .fetchInitialValue(userId: Config.userId, postId: postId))
                 
                 if !store.state.successService {
                     navigationManager.pop(1)
@@ -104,17 +98,17 @@ extension DetailView {
     private var userProfileSection: some View {
         HStack(alignment: .center, spacing: 14.adjustedH) {
             
-            RemoteImageView(urlString: store.state.userInfo.userImageUrl)
+            RemoteImageView(urlString: store.state.userImageUrl)
                 .scaledToFit()
                 .clipShape(Circle())
                 .frame(width: 48.adjusted, height: 48.adjustedH)
             
             VStack(alignment: .leading, spacing: 4.adjustedH) {
-                Text(store.state.userInfo.userName)
+                Text(store.state.userName)
                     .customFont(.body2b)
                     .foregroundStyle(.black)
                 
-                Text(store.state.userInfo.regionName)
+                Text(store.state.regionName)
                     .customFont(.caption1m)
                     .foregroundStyle(.gray400)
             }
@@ -285,8 +279,6 @@ extension DetailView {
                 isIcon: (store.state.isScoop || store.state.isMine) ? false : true,
                 disabled: .constant(false)
             ) {
-                print("⭐️")
-                
                 if store.state.isScoop {
                     store.send(intent: .pathInfoInNaverMaps)
                 } else {
@@ -294,8 +286,6 @@ extension DetailView {
                         store.send(intent: .scoopButtonDidTap)
                     })
                 }
-                
-                print("⭐️")
             }
             
             if store.state.isScoop {
