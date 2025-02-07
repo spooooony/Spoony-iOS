@@ -32,7 +32,7 @@ extension DefaultDetailUseCase: DetailUseCaseProtocol {
         let reviewDetail = try await detailRepository.fetchReviewDetail(userId: userId, postId: postId)
         let userInfo = try await detailRepository.fetchUserInfo(userId: userId)
         
-        return .init(reviewDetail: reviewDetail,  userInfo: userInfo, spoonCount: spoonCount)
+        return ReviewDetailModel(reviewDetail: reviewDetail, userInfo: userInfo, spoonCount: spoonCount)
     }
     
     func scrapReview(userId: Int, postId: Int) {
