@@ -38,7 +38,7 @@ struct DetailCategoryColorResponse: Codable {
     let categoryId: Int
 }
 
-// MARK: - Entity
+// MARK: - ChipColorEntity
 
 extension DetailCategoryColorResponse {
     func toEntity() -> ChipColorEntity {
