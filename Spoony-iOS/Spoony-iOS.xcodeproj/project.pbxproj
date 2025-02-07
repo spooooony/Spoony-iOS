@@ -13,6 +13,7 @@
 		787B5B072D32DA0F0017A378 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B062D32DA0F0017A378 /* Moya */; };
 		787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B092D32DA500017A378 /* NMapsMap */; };
 		78AD4F082D4299110090E9E3 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */; };
+		78E985B42D564A9D00E02ABB /* FlexSheet in Frameworks */ = {isa = PBXBuildFile; productRef = 78E985B32D564A9D00E02ABB /* FlexSheet */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +38,7 @@
 			files = (
 				787B5B072D32DA0F0017A378 /* Moya in Frameworks */,
 				787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */,
+				78E985B42D564A9D00E02ABB /* FlexSheet in Frameworks */,
 				787B5B042D32D9C50017A378 /* Kingfisher in Frameworks */,
 				71EDD4792D38EC8700D94926 /* Lottie in Frameworks */,
 			);
@@ -89,6 +91,7 @@
 				787B5B062D32DA0F0017A378 /* Moya */,
 				787B5B092D32DA500017A378 /* NMapsMap */,
 				71EDD4782D38EC8700D94926 /* Lottie */,
+				78E985B32D564A9D00E02ABB /* FlexSheet */,
 			);
 			productName = SpoonMe;
 			productReference = 78C002082D1D9FC400DA101C /* Spoony-iOS.app */;
@@ -123,6 +126,7 @@
 				787B5B052D32DA0F0017A378 /* XCRemoteSwiftPackageReference "Moya" */,
 				787B5B082D32DA500017A378 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */,
 				71EDD4772D38EC8700D94926 /* XCRemoteSwiftPackageReference "lottie-spm" */,
+				78E985B22D564A9D00E02ABB /* XCRemoteSwiftPackageReference "FlexSheet" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 78C002092D1D9FC400DA101C /* Products */;
@@ -439,6 +443,14 @@
 				minimumVersion = 3.20.0;
 			};
 		};
+		78E985B22D564A9D00E02ABB /* XCRemoteSwiftPackageReference "FlexSheet" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hooni0918/FlexSheet.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.4;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -461,6 +473,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 787B5B082D32DA500017A378 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */;
 			productName = NMapsMap;
+		};
+		78E985B32D564A9D00E02ABB /* FlexSheet */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 78E985B22D564A9D00E02ABB /* XCRemoteSwiftPackageReference "FlexSheet" */;
+			productName = FlexSheet;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
