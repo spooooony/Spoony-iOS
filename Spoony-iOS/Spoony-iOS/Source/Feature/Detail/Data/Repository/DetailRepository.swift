@@ -18,7 +18,7 @@ struct DefaultDetailRepository {
 }
 
 extension DefaultDetailRepository: DetailRepositoryInterface {
-    public func fetchReviewDetail(userId: Int, postId: Int) async throws -> ReviewDetailModel {
+    public func fetchReviewDetail(userId: Int, postId: Int) async throws -> ReviewDetailResponseDTO {
         return try await detailService.getReviewDetail(userId: userId, postId: postId)
     }
     
@@ -34,7 +34,7 @@ extension DefaultDetailRepository: DetailRepositoryInterface {
         return try await detailService.scoopReview(userId: userId, postId: postId)
     }
     
-    public func fetchUserInfo(userId: Int) async throws -> UserInfoModel {
+    public func fetchUserInfo(userId: Int) async throws -> UserInfoResponseDTO {
         return try await detailService.getUserInfo(userId: userId)
     }
 }

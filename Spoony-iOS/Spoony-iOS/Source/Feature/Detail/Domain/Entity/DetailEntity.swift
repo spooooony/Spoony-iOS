@@ -29,7 +29,7 @@ struct DetailEntity: Codable {
     let userImageUrl: String
     let regionName: String
     
-    public init(reviewDetail: ReviewDetailModel, spoonCount: Int, userInfo: UserInfoModel) {
+    public init(reviewDetail: ReviewDetailResponseDTO, spoonCount: Int, userInfo: UserInfoResponseDTO) {
         self.postId = reviewDetail.postId
         self.userId = reviewDetail.userId
         self.photoUrlList = reviewDetail.photoUrlList

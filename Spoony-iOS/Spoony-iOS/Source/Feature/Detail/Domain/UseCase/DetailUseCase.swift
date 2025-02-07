@@ -10,12 +10,12 @@ protocol DetailUseCaseProtocol {
     func scrapReview(userId: Int, postId: Int)
     func unScrapReview(userId: Int, postId: Int)
     func scoopReview(userId: Int, postId: Int) async throws -> Bool
-    func getUserInfo(userId: Int) async throws -> UserInfoModel
+    func getUserInfo(userId: Int) async throws -> UserInfoResponseDTO
 }
 
 struct DefaultDetailUseCase {
-    let detailRepository: DetailRepositoryInterface
-    let homeService: HomeServiceType
+    private let detailRepository: DetailRepositoryInterface
+    private let homeService: HomeServiceType
     
     init(
         detailRepository: DetailRepositoryInterface = DefaultDetailRepository(),
@@ -47,7 +47,7 @@ extension DefaultDetailUseCase: DetailUseCaseProtocol {
         return try await detailRepository.scoopReview(userId: userId, postId: postId)
     }
     
-    func getUserInfo(userId: Int) async throws -> UserInfoModel {
+    func getUserInfo(userId: Int) async throws -> UserInfoResponseDTO {
         return try await detailRepository.fetchUserInfo(userId: userId)
     }
 }

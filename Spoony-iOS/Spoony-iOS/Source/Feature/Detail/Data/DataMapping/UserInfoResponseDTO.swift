@@ -1,5 +1,5 @@
 //
-//  UserInfoModel.swift
+//  UserInfoResponseDTO.swift
 //  Spoony-iOS
 //
 //  Created by 이명진 on 1/28/25.
@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - UserData
 
-struct UserInfoModel: Codable {
+struct UserInfoResponseDTO: Codable {
     let userId: Int
     let userEmail: String
     let userName: String
