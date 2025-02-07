@@ -34,7 +34,7 @@ final class DetailViewStore: ObservableObject {
             }
         case .scoopButtonDidTap:
             Task {
-                try await handleScoopButton()
+                await handleScoopButton()
             }
         case .pathInfoInNaverMaps:
             openNaverMaps()
@@ -46,17 +46,16 @@ final class DetailViewStore: ObservableObject {
     // 초기 데이터 로드
     @MainActor
     private func fetchInitialData(userId: Int, postId: Int) async {
-        Task {
-            state.isLoading = true
-            do {
-                let data = try await detailUseCase.fetchInitialDetail(userId: userId, postId: postId)
-                updateState(with: data)
-                state.successService = true
-            } catch {
-                state.toast = Toast(style: .gray, message: "데이터를 불러오는데 실패했습니다.", yOffset: 539.adjustedH)
-                state.successService = false
-            }
-            state.isLoading = false
+        state.isLoading = true
+        defer { state.isLoading = false }
+        
+        do {
+            let data = try await detailUseCase.fetchInitialDetail(userId: userId, postId: postId)
+            updateState(with: data)
+            state.successService = true
+        } catch {
+            state.toast = Toast(style: .gray, message: "데이터를 불러오는데 실패했습니다.", yOffset: 539.adjustedH)
+            state.successService = false
         }
     }
     
@@ -91,57 +90,58 @@ final class DetailViewStore: ObservableObject {
     // 스크랩 버튼 처리
     @MainActor
     private func handleScrapButton(isScrap: Bool) async {
+        state.isLoading = true
+        defer { state.isLoading = false }
         
-        Task {
-            state.isLoading = true
-            do {
-                if isScrap {
-                    try await detailUseCase.unScrapReview(userId: Config.userId, postId: state.postId)
-                    state.zzimCount -= 1
-                    state.isZzim = false
-                    state.toast = Toast(
-                        style: .gray,
-                        message: "내 지도에서 삭제되었어요.",
-                        yOffset: 539.adjustedH
-                    )
-                } else {
-                    try await detailUseCase.scrapReview(userId: Config.userId, postId: state.postId)
-                    state.zzimCount += 1
-                    state.isZzim = true
-                    state.toast = Toast(
-                        style: .gray,
-                        message: "내 지도에 추가되었어요.",
-                        yOffset: 539.adjustedH
-                    )
-                }
-            } catch {
+        do {
+            if isScrap {
+                try await detailUseCase.unScrapReview(userId: Config.userId, postId: state.postId)
+                state.zzimCount -= 1
+                state.isZzim = false
                 state.toast = Toast(
                     style: .gray,
-                    message: "요청에 실패했습니다. 다시 시도해주세요.",
+                    message: "내 지도에서 삭제되었어요.",
+                    yOffset: 539.adjustedH
+                )
+            } else {
+                try await detailUseCase.scrapReview(userId: Config.userId, postId: state.postId)
+                state.zzimCount += 1
+                state.isZzim = true
+                state.toast = Toast(
+                    style: .gray,
+                    message: "내 지도에 추가되었어요.",
                     yOffset: 539.adjustedH
                 )
             }
-            state.isLoading = false
+        } catch {
+            state.toast = Toast(
+                style: .gray,
+                message: "요청에 실패했습니다. 다시 시도해주세요.",
+                yOffset: 539.adjustedH
+            )
         }
     }
     
     // 떠먹기 버튼 처리
     @MainActor
-    private func handleScoopButton() async throws {
-        Task {
-            state.isLoading = true
-            do {
-                let data = try await detailUseCase.scoopReview(userId: Config.userId, postId: state.postId)
-                
-                if data {
-                    state.isScoop.toggle()
-                    state.spoonCount -= 1
-                }
-                
-            } catch {
-                print(error.localizedDescription)
+    private func handleScoopButton() async {
+        state.isLoading = true
+        defer { state.isLoading = false }
+        
+        do {
+            let data = try await detailUseCase.scoopReview(userId: Config.userId, postId: state.postId)
+            
+            if data {
+                state.isScoop.toggle()
+                state.spoonCount -= 1
             }
-            state.isLoading = false
+            
+        } catch {
+            state.toast = Toast(
+                style: .gray,
+                message: "떠먹기 실패했습니다.",
+                yOffset: 539.adjustedH
+            )
         }
     }
     
