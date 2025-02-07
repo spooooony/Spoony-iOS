@@ -12,6 +12,7 @@ protocol HomeServiceType {
     func fetchPickList(userId: Int) async throws -> ResturantpickListResponse
     func fetchSpoonCount(userId: Int) async throws -> Int
     func fetchFocusedPlace(userId: Int, placeId: Int) async throws -> MapFocusResponse
+    func fetchLocationList(userId: Int, locationId: Int) async throws -> ResturantpickListResponse
 }
 
 final class DefaultHomeService: HomeServiceType {
@@ -79,6 +80,27 @@ final class DefaultHomeService: HomeServiceType {
                         }
                     case .failure:
                         continuation.resume(throwing: SearchError.networkError)
+                    }
+                }
+            }
+        }
+    
+    func fetchLocationList(userId: Int, locationId: Int) async throws -> ResturantpickListResponse {
+            return try await withCheckedThrowingContinuation { continuation in
+                provider.request(.getLocationList(userId: userId, locationId: locationId)) { result in
+                    switch result {
+                    case .success(let response):
+                        do {
+                            let responseDto = try response.map(BaseResponse<ResturantpickListResponse>.self)
+                            guard let data = responseDto.data else {
+                                throw NSError(domain: "HomeService", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data available"])
+                            }
+                            continuation.resume(returning: data)
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
                     }
                 }
             }

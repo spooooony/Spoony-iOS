@@ -29,6 +29,8 @@ final class NavigationManager: ObservableObject {
             Explore()
         case .report(let postId):
             Report(postId: postId)
+        case .searchLocationView(locationId: let locationId, locationTitle: let locationTitle):
+            SearchLocation(locationId: locationId, locationTitle: locationTitle)
         }
     }
     
@@ -46,14 +48,14 @@ final class NavigationManager: ObservableObject {
     func pop(_ depth: Int) {
         switch selectedTab {
         case .map:
-            if mapPath.isEmpty || mapPath.contains(where: {
-                if case .locationView = $0 { return true }
-                return false
-            }) {
-                currentLocation = nil
-            }
-            mapPath.removeLast(depth)
-            
+                if mapPath.isEmpty { return }
+                if mapPath.contains(where: {
+                    if case .locationView = $0 { return true }
+                    return false
+                }) {
+                    currentLocation = nil
+                }
+                mapPath.removeLast(min(depth, mapPath.count))
         case .explore:
             explorePath.removeLast(depth)
         case .register:
@@ -70,6 +72,18 @@ final class NavigationManager: ObservableObject {
         case .register:
             registerPath = []
         }
+    }
+    
+    func navigateToSearchLocation(locationId: Int, locationTitle: String) {
+        if let lastView = mapPath.last,
+           case .searchView = lastView {
+            pop(1)
+        }
+        
+        push(.searchLocationView(
+            locationId: locationId,
+            locationTitle: locationTitle
+        ))
     }
     
 }

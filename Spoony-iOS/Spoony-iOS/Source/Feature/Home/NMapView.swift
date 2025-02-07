@@ -20,7 +20,7 @@ struct NMapView: UIViewRepresentable {
     
     private var mapView: NMFMapView
     let onMoveCamera: ((Double, Double) -> Void)?
-        
+    
     init(viewModel: HomeViewModel,
          selectedPlace: Binding<CardPlace?>,
          onMoveCamera: ((Double, Double) -> Void)? = nil) {
@@ -42,22 +42,22 @@ struct NMapView: UIViewRepresentable {
         case .authorizedWhenInUse, .authorizedAlways:
             if let location = locationManager.location {
                 moveCamera(mapView, to: NMGLatLng(lat: location.coordinate.latitude,
-                                                lng: location.coordinate.longitude))
+                                                  lng: location.coordinate.longitude))
             }
         case .denied, .restricted:
             moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
         case .notDetermined:
             locationManager.requestWhenInUseAuthorization()
             moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
-            default:
+        default:
             moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
         }
     }
-        
-        private func moveCamera(_ mapView: NMFMapView, to coord: NMGLatLng) {
-            let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
-            mapView.moveCamera(cameraUpdate)
-        }
+    
+    private func moveCamera(_ mapView: NMFMapView, to coord: NMGLatLng) {
+        let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
+        mapView.moveCamera(cameraUpdate)
+    }
     
     func makeCoordinator() -> Coordinator {
         Coordinator(
@@ -79,16 +79,17 @@ struct NMapView: UIViewRepresentable {
             return marker
         }
         
-        context.coordinator.markers = newMarkers
-
-        if !viewModel.pickList.isEmpty {
+        // 처음 지도가 로드될 때만 모든 마커가 보이도록 카메라 이동
+        if context.coordinator.isInitialLoad && !viewModel.pickList.isEmpty {
             let bounds = NMGLatLngBounds(latLngs: viewModel.pickList.map {
                 NMGLatLng(lat: $0.latitude, lng: $0.longitude)
             })
             let cameraUpdate = NMFCameraUpdate(fit: bounds, padding: 50)
             mapView.moveCamera(cameraUpdate)
+            context.coordinator.isInitialLoad = false
         }
         
+        // 마커가 선택됐을 때만 해당 위치로 카메라 이동
         if let location = viewModel.selectedLocation {
             let coord = NMGLatLng(lat: location.latitude, lng: location.longitude)
             let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
@@ -96,11 +97,13 @@ struct NMapView: UIViewRepresentable {
             cameraUpdate.animationDuration = 0.2
             mapView.moveCamera(cameraUpdate)
         }
+        
+        context.coordinator.markers = newMarkers
     }
     
     private func configureMapView(context: Context) -> NMFMapView {
         let mapView = NMFMapView()
-        mapView.positionMode = .direction
+        mapView.positionMode = .disabled
         mapView.zoomLevel = defaultZoomLevel
         mapView.touchDelegate = context.coordinator
         mapView.logoAlign = .rightTop
@@ -114,7 +117,7 @@ struct NMapView: UIViewRepresentable {
         marker.captionColor = .black
         marker.captionTextSize = 14
         
-marker.captionMinZoom = isSelected ? 0 : 10
+        marker.captionMinZoom = isSelected ? 0 : 10
         marker.captionMaxZoom = 20
         
         marker.anchor = CGPoint(x: 0.5, y: 1.0)
@@ -143,7 +146,6 @@ marker.captionMinZoom = isSelected ? 0 : 10
             marker.iconImage = defaultMarker
         }
         
-        // 모든 마커에 캡션 설정
         configureMarkerCaption(marker, with: pickCard.placeName, isSelected: isSelected)
         
         marker.touchHandler = { [weak viewModel, weak marker] (_) -> Bool in
@@ -159,18 +161,20 @@ marker.captionMinZoom = isSelected ? 0 : 10
                 resetMarker(marker)
                 marker.mapView = mapView
                 selectedPlace = nil
+                viewModel?.clearFocusedPlaces()
             }
             
             return true
         }
         
-        return marker
+        return marker  // 마커 반환 추가
     }
 }
 
 final class Coordinator: NSObject, NMFMapViewTouchDelegate {
     @Binding var selectedPlace: CardPlace?
     var markers: [NMFMarker] = []
+    var isInitialLoad: Bool = true
     private let defaultMarkerImage: NMFOverlayImage
     private let viewModel: HomeViewModel
     

@@ -13,12 +13,7 @@ struct SearchView: View {
     @FocusState private var isSearchFocused: Bool
     
     init() {
-        let tempNavigationManager = NavigationManager()
-        _store = StateObject(wrappedValue: SearchStore(navigationManager: tempNavigationManager))
-    }
-    
-    private var initStore: SearchStore {
-        SearchStore(navigationManager: navigationManager)
+        _store = StateObject(wrappedValue: SearchStore(navigationManager: NavigationManager()))
     }
     
     var body: some View {
@@ -57,7 +52,7 @@ struct SearchView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private var contentView: some View {
         switch store.state {

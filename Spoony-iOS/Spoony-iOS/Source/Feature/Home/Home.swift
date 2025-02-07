@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct Home: View {
     @EnvironmentObject var navigationManager: NavigationManager
     @StateObject private var viewModel = HomeViewModel(service: DefaultHomeService())
@@ -34,34 +33,17 @@ struct Home: View {
                         selectedPlace = newPlaces[0]
                     }
                 }
-                .onChange(of: selectedPlace) { _, newPlace in
-                    if newPlace == nil {
-                        viewModel.clearFocusedPlaces()
-                    }
-                }
             
             VStack(spacing: 0) {
-                if let locationTitle = navigationManager.currentLocation {
-                    CustomNavigationBar(
-                        style: .locationTitle,
-                        title: locationTitle,
-                        searchText: $searchText,
-                        onBackTapped: {
-                            navigationManager.currentLocation = nil
-                        }
-                    )
-                    .frame(height: 56.adjusted)
-                } else {
-                    CustomNavigationBar(
-                        style: .searchContent,
-                        searchText: $searchText,
-                        spoonCount: spoonCount,
-                        tappedAction: {
-                            navigationManager.push(.searchView)
-                        }
-                    )
-                    .frame(height: 56.adjusted)
-                }
+                CustomNavigationBar(
+                    style: .searchContent,
+                    searchText: $searchText,
+                    spoonCount: spoonCount,
+                    tappedAction: {
+                        navigationManager.push(.searchView)
+                    }
+                )
+                .frame(height: 56.adjusted)
                 Spacer()
             }
             
@@ -74,28 +56,23 @@ struct Home: View {
                     .padding(.bottom, 12)
                     .transition(.move(edge: .bottom))
                 } else {
-                    if navigationManager.currentLocation != nil {
-                        BottomSheetListView(viewModel: viewModel)
-                    } else if !viewModel.pickList.isEmpty {
+                    if !viewModel.pickList.isEmpty {
                         BottomSheetListView(viewModel: viewModel)
                     } else {
                         FixedBottomSheetView()
                     }
                 }
             }
-        } 
+        }
         .navigationBarHidden(true)
         .task {
             isBottomSheetPresented = true
-            Task {
-                do {
-                    spoonCount = try await restaurantService.fetchSpoonCount(userId: Config.userId)
-                } catch {
-                    print("Failed to fetch spoon count:", error)
-                }
+            do {
+                spoonCount = try await restaurantService.fetchSpoonCount(userId: Config.userId)
                 viewModel.fetchPickList()
+            } catch {
+                print("Failed to fetch spoon count:", error)
             }
-            viewModel.fetchPickList()
         }
     }
 }
