@@ -80,58 +80,56 @@ struct Home: View {
 
 struct FlexibleListBottomSheet: View {
     @ObservedObject var viewModel: HomeViewModel
-    @State private var currentStyle: BottomSheetStyle = .minimal
-    
-    private let flexStyle = FlexSheetStyle(
-        animation: .spring(response: 0.3, dampingFraction: 0.7),
-        dragSensitivity: 500,
-        allowHide: false,
-        sheetSize: .minimal
-    )
+    @State private var currentStyle: BottomSheetStyle = .full
     
     var body: some View {
-        FlexibleBottomSheet(
-            currentStyle: $currentStyle,
-            style: flexStyle
-        ) {
-            VStack(spacing: 0) {
-                VStack(spacing: 8) {
-                    RoundedRectangle(cornerRadius: 3)
-                        .fill(Color.gray200)
-                        .frame(width: 24.adjusted, height: 2.adjustedH)
-                        .padding(.top, 10)
+        GeometryReader { geo in
+            FlexibleBottomSheet(
+                currentStyle: $currentStyle,
+                style: .defaultFlex
+            ) {
+                VStack(spacing: 0) {
+                    // 헤더 영역
+                    VStack(spacing: 8) {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(Color.gray200)
+                            .frame(width: 24.adjusted, height: 2.adjustedH)
+                            .padding(.top, 10)
+                        
+                        HStack(spacing: 4) {
+                            if !viewModel.focusedPlaces.isEmpty {
+                                Text("상세 정보")
+                                    .customFont(.body2b)
+                            } else {
+                                Text("양수정님의 찐맛집")
+                                    .customFont(.body2b)
+                                Text("\(viewModel.pickList.count)")
+                                    .customFont(.body2b)
+                                    .foregroundColor(.gray500)
+                            }
+                        }
+                        .padding(.bottom, 8)
+                    }
+                    .frame(height: 60.adjustedH)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.green)
                     
-                    HStack(spacing: 4) {
-                        if !viewModel.focusedPlaces.isEmpty {
-                            Text("상세 정보")
-                                .customFont(.body2b)
-                        } else {
-                            Text("양수정님의 찐맛집")
-                                .customFont(.body2b)
-                            Text("\(viewModel.pickList.count)")
-                                .customFont(.body2b)
-                                .foregroundColor(.gray500)
-                        }
-                    }
-                    .padding(.bottom, 8)
-                }
-                .frame(height: 60.adjustedH)
-                .background(.white)
-                
-                ScrollView(showsIndicators: false) {
-                    LazyVStack(spacing: 0) {
-                        ForEach(viewModel.pickList, id: \.placeId) { pickCard in
-                            BottomSheetListItem(pickCard: pickCard)
-                                .background(Color.white)
-                                .onTapGesture {
-                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                        currentStyle = .full
+                    // 스크롤 영역
+                    ScrollView(showsIndicators: false) {
+                        LazyVStack(spacing: 0) {
+                            ForEach(viewModel.pickList, id: \.placeId) { pickCard in
+                                BottomSheetListItem(pickCard: pickCard)
+                                    .background(Color.white)
+                                    .onTapGesture {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                            currentStyle = .full
+                                        }
+                                        viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
                                     }
-                                    viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
-                                }
+                            }
+                            Color.clear.frame(height: 90.adjusted)
                         }
                     }
-                    Color.clear.frame(height: 90.adjusted)
                 }
             }
         }
@@ -179,3 +177,4 @@ struct EmptyStateBottomSheet: View {
 #Preview {
     Home().environmentObject(NavigationManager())
 }
+
