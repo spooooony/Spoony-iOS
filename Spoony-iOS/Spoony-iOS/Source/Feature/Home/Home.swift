@@ -86,7 +86,7 @@ struct FlexibleListBottomSheet: View {
         GeometryReader { geo in
             FlexibleBottomSheet(
                 currentStyle: $currentStyle,
-                style: .defaultFlex
+                style: .interactiveFlex
             ) {
                 VStack(spacing: 0) {
                     // 헤더 영역
@@ -114,26 +114,28 @@ struct FlexibleListBottomSheet: View {
                     .frame(maxWidth: .infinity)
                     .background(Color.white)
                     
-                    // 리스트 영역
-                    ScrollView(showsIndicators: false) {
-                        LazyVStack(spacing: 0) {
-                            ForEach(viewModel.pickList, id: \.placeId) { pickCard in
-                                if currentStyle == .full || (currentStyle == .half && viewModel.pickList.firstIndex(where: { $0.placeId == pickCard.placeId })! < 2) {
-                                    BottomSheetListItem(pickCard: pickCard)
-                                        .background(Color.white)
-                                        .onTapGesture {
-                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                                currentStyle = .full
+                    if currentStyle != .minimal {
+                        ScrollView(showsIndicators: false) {
+                            LazyVStack(spacing: 0) {
+                                ForEach(viewModel.pickList, id: \.placeId) { pickCard in
+                                    if currentStyle == .full || (currentStyle == .half && viewModel.pickList.firstIndex(where: { $0.placeId == pickCard.placeId })! < 2) {
+                                        BottomSheetListItem(pickCard: pickCard)
+                                            .background(Color.white)
+                                            .onTapGesture {
+                                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                    currentStyle = .full
+                                                }
+                                                viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
                                             }
-                                            viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
-                                        }
+                                    }
+                                }
+                                
+                                if currentStyle == .full {
+                                    Color.clear.frame(height: 90.adjusted)
                                 }
                             }
-                            
-                            if currentStyle == .full {
-                                Color.clear.frame(height: 90.adjusted)
-                            }
                         }
+                        .padding(.bottom, currentStyle == .half ? 80 : 0)
                     }
                 }
                 .background(Color.white)
@@ -141,6 +143,7 @@ struct FlexibleListBottomSheet: View {
         }
     }
 }
+
 struct EmptyStateBottomSheet: View {
     @EnvironmentObject private var navigationManager: NavigationManager
     @State private var isDisabled = false
@@ -182,4 +185,3 @@ struct EmptyStateBottomSheet: View {
 #Preview {
     Home().environmentObject(NavigationManager())
 }
-
