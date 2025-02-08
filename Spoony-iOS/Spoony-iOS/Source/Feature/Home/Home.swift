@@ -49,21 +49,21 @@ struct Home: View {
             }
             
             Group {
-                            if !viewModel.focusedPlaces.isEmpty {
-                                PlaceCard(
-                                    places: viewModel.focusedPlaces,
-                                    currentPage: $currentPage
-                                )
-                                .padding(.bottom, 12)
-                                .transition(.move(edge: .bottom))
-                            } else {
-                                if !viewModel.pickList.isEmpty {
-                                    FlexibleListBottomSheet(viewModel: viewModel)
-                                } else {
-                                    EmptyStateBottomSheet()
-                                }
-                            }
-                        }
+                if !viewModel.focusedPlaces.isEmpty {
+                    PlaceCard(
+                        places: viewModel.focusedPlaces,
+                        currentPage: $currentPage
+                    )
+                    .padding(.bottom, 12)
+                    .transition(.move(edge: .bottom))
+                } else {
+                    if !viewModel.pickList.isEmpty {
+                        FlexibleListBottomSheet(viewModel: viewModel)
+                    } else {
+                        EmptyStateBottomSheet()
+                    }
+                }
+            }
         }
         .navigationBarHidden(true)
         .task {
@@ -112,30 +112,35 @@ struct FlexibleListBottomSheet: View {
                     }
                     .frame(height: 60.adjustedH)
                     .frame(maxWidth: .infinity)
-                    .background(Color.green)
+                    .background(Color.white)
                     
-                    // 스크롤 영역
+                    // 리스트 영역
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0) {
                             ForEach(viewModel.pickList, id: \.placeId) { pickCard in
-                                BottomSheetListItem(pickCard: pickCard)
-                                    .background(Color.white)
-                                    .onTapGesture {
-                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                            currentStyle = .full
+                                if currentStyle == .full || (currentStyle == .half && viewModel.pickList.firstIndex(where: { $0.placeId == pickCard.placeId })! < 2) {
+                                    BottomSheetListItem(pickCard: pickCard)
+                                        .background(Color.white)
+                                        .onTapGesture {
+                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                currentStyle = .full
+                                            }
+                                            viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
                                         }
-                                        viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
-                                    }
+                                }
                             }
-                            Color.clear.frame(height: 90.adjusted)
+                            
+                            if currentStyle == .full {
+                                Color.clear.frame(height: 90.adjusted)
+                            }
                         }
                     }
                 }
+                .background(Color.white)
             }
         }
     }
 }
-
 struct EmptyStateBottomSheet: View {
     @EnvironmentObject private var navigationManager: NavigationManager
     @State private var isDisabled = false

@@ -22,14 +22,7 @@ struct PickListCardResponse: Codable, Equatable {
     let categoryColorResponse: BottomSheetCategoryColorResponse
     
     static func == (lhs: PickListCardResponse, rhs: PickListCardResponse) -> Bool {
-        return lhs.placeId == rhs.placeId &&
-               lhs.placeName == rhs.placeName &&
-               lhs.placeAddress == rhs.placeAddress &&
-               lhs.postTitle == rhs.postTitle &&
-               lhs.photoUrl == rhs.photoUrl &&
-               lhs.latitude == rhs.latitude &&
-               lhs.longitude == rhs.longitude &&
-               lhs.categoryColorResponse == rhs.categoryColorResponse
+        return lhs.placeId == rhs.placeId 
     }
 }
 
