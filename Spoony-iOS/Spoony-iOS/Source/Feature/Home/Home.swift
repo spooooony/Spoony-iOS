@@ -118,15 +118,13 @@ struct FlexibleListBottomSheet: View {
                         ScrollView(showsIndicators: false) {
                             LazyVStack(spacing: 0) {
                                 ForEach(viewModel.pickList, id: \.placeId) { pickCard in
-                                    if currentStyle == .full || (currentStyle == .half && viewModel.pickList.firstIndex(where: { $0.placeId == pickCard.placeId })! < 2) {
-                                        BottomSheetListItem(pickCard: pickCard)
-                                            .onTapGesture {
-                                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                                    currentStyle = .full
-                                                }
-                                                viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
+                                    BottomSheetListItem(pickCard: pickCard)
+                                        .onTapGesture {
+                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                currentStyle = .full
                                             }
-                                    }
+                                            viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
+                                        }
                                 }
                                 
                                 if currentStyle == .full {
@@ -141,7 +139,6 @@ struct FlexibleListBottomSheet: View {
         }
     }
 }
-
 struct EmptyStateBottomSheet: View {
     @EnvironmentObject private var navigationManager: NavigationManager
     @State private var isDisabled = false
