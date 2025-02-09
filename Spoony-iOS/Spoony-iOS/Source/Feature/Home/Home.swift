@@ -80,7 +80,7 @@ struct Home: View {
 
 struct FlexibleListBottomSheet: View {
     @ObservedObject var viewModel: HomeViewModel
-    @State private var currentStyle: BottomSheetStyle = .full
+    @State private var currentStyle: BottomSheetStyle = .half
     @State private var scrollOffset: CGFloat = 0
     @State private var lastContentOffset: CGFloat = 0
     @State private var isAtTop: Bool = true
@@ -101,16 +101,11 @@ struct FlexibleListBottomSheet: View {
                             .padding(.top, 10)
                         
                         HStack(spacing: 4) {
-                            if !viewModel.focusedPlaces.isEmpty {
-                                Text("상세 정보")
-                                    .customFont(.body2b)
-                            } else {
-                                Text("양수정님의 찐맛집")
-                                    .customFont(.body2b)
-                                Text("\(viewModel.pickList.count)")
-                                    .customFont(.body2b)
-                                    .foregroundColor(.gray500)
-                            }
+                            Text("양수정님의 찐맛집")
+                                .customFont(.body2b)
+                            Text("\(viewModel.pickList.count)")
+                                .customFont(.body2b)
+                                .foregroundColor(.gray500)
                         }
                         .padding(.bottom, 8)
                     }
