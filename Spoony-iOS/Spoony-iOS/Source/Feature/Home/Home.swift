@@ -112,7 +112,7 @@ struct FlexibleListBottomSheet: View {
                     }
                     .frame(height: 60.adjustedH)
                     .frame(maxWidth: .infinity)
-                    .background(Color.white)
+                    .background(Color.green)
                     
                     if currentStyle != .minimal {
                         ScrollView(showsIndicators: false) {
@@ -120,7 +120,6 @@ struct FlexibleListBottomSheet: View {
                                 ForEach(viewModel.pickList, id: \.placeId) { pickCard in
                                     if currentStyle == .full || (currentStyle == .half && viewModel.pickList.firstIndex(where: { $0.placeId == pickCard.placeId })! < 2) {
                                         BottomSheetListItem(pickCard: pickCard)
-                                            .background(Color.white)
                                             .onTapGesture {
                                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                                     currentStyle = .full
@@ -135,7 +134,6 @@ struct FlexibleListBottomSheet: View {
                                 }
                             }
                         }
-                        .padding(.bottom, currentStyle == .half ? 80 : 0)
                     }
                 }
                 .background(Color.white)
