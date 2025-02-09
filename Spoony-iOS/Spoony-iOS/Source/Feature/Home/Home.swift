@@ -81,15 +81,19 @@ struct Home: View {
 struct FlexibleListBottomSheet: View {
     @ObservedObject var viewModel: HomeViewModel
     @State private var currentStyle: BottomSheetStyle = .full
+    @State private var scrollOffset: CGFloat = 0
+    @State private var lastContentOffset: CGFloat = 0
+    @State private var isAtTop: Bool = true
+    @GestureState private var isDragging: Bool = false
+    @State private var firstVisibleItemIndex: Int = 0
     
     var body: some View {
         GeometryReader { geo in
             FlexibleBottomSheet(
                 currentStyle: $currentStyle,
-                style: .interactiveFlex
+                style: .defaultFlex
             ) {
                 VStack(spacing: 0) {
-                    // 헤더 영역
                     VStack(spacing: 8) {
                         RoundedRectangle(cornerRadius: 3)
                             .fill(Color.gray200)
@@ -112,33 +116,62 @@ struct FlexibleListBottomSheet: View {
                     }
                     .frame(height: 60.adjustedH)
                     .frame(maxWidth: .infinity)
-                    .background(Color.green)
+                    .background(Color.white)
                     
-                    if currentStyle != .minimal {
-                        ScrollView(showsIndicators: false) {
-                            LazyVStack(spacing: 0) {
-                                ForEach(viewModel.pickList, id: \.placeId) { pickCard in
-                                    BottomSheetListItem(pickCard: pickCard)
-                                        .onTapGesture {
-                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                                currentStyle = .full
-                                            }
-                                            viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
+                    ScrollView(showsIndicators: false) {
+                        GeometryReader { geometry in
+                            Color.clear.preference(
+                                key: ScrollOffsetPreferenceKey.self,
+                                value: geometry.frame(in: .named("scroll")).minY
+                            )
+                        }
+                        .frame(height: 0)
+                        
+                        LazyVStack(spacing: 0) {
+                            ForEach(Array(viewModel.pickList.enumerated()), id: \.element.placeId) { index, pickCard in
+                                BottomSheetListItem(pickCard: pickCard)
+                                    .id(index)
+                                    .onAppear {
+                                        if index == 0 {
+                                            firstVisibleItemIndex = 0
                                         }
-                                }
-                                
-                                if currentStyle == .full {
-                                    Color.clear.frame(height: 90.adjusted)
-                                }
+                                    }
+                                    .onTapGesture {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                            currentStyle = .full
+                                        }
+                                        viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
+                                    }
+                            }
+                            
+                            if currentStyle == .full {
+                                Color.clear.frame(height: 90.adjusted)
                             }
                         }
                     }
+                    .coordinateSpace(name: "scroll")
+                    .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
+                        if isDragging {
+                            isAtTop = offset >= 0
+                            scrollOffset = offset
+                        }
+                    }
+                    .disabled(currentStyle == .half)
                 }
                 .background(Color.white)
             }
         }
     }
 }
+
+private struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
 struct EmptyStateBottomSheet: View {
     @EnvironmentObject private var navigationManager: NavigationManager
     @State private var isDisabled = false
