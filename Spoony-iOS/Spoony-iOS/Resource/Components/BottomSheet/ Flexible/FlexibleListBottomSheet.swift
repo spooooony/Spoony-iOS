@@ -42,7 +42,7 @@ struct FlexibleListBottomSheet: View {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0) {
                             //Lint 오류로 인해 100자가 넘어도 무시하고 넘겨주세요!
-                            ForEach(Array(viewModel.pickList.enumerated()), id: \.element.placeId) { index,pickCard in
+                            ForEach(Array(viewModel.pickList.enumerated()), id: \.element.placeId) { _, pickCard in
                                 BottomSheetListItem(pickCard: pickCard)
                                     .onTapGesture {
                                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {

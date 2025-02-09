@@ -78,10 +78,6 @@ struct Home: View {
     }
 }
 
-
-
-
-
 #Preview {
     Home().environmentObject(NavigationManager())
 }
