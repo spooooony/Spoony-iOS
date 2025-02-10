@@ -67,7 +67,6 @@ struct SearchLocation: View {
             }
         }
         .navigationBarHidden(true)
-        .navigationBarHidden(true)
         .task {
             isLoading = true
             await viewModel.fetchLocationList(locationId: locationId)
