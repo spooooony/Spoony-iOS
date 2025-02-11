@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+import FlexSheet
+
 struct Home: View {
     @EnvironmentObject var navigationManager: NavigationManager
     @StateObject private var viewModel = HomeViewModel(service: DefaultHomeService())
@@ -57,9 +59,9 @@ struct Home: View {
                     .transition(.move(edge: .bottom))
                 } else {
                     if !viewModel.pickList.isEmpty {
-                        BottomSheetListView(viewModel: viewModel)
+                        FlexibleListBottomSheet(viewModel: viewModel)
                     } else {
-                        FixedBottomSheetView()
+                        EmptyStateBottomSheet()
                     }
                 }
             }

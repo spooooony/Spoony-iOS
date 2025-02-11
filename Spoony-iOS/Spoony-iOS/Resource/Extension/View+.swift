@@ -28,7 +28,7 @@ extension View {
         }
     }
     
-    //홈 바텀시트 코너 radius
+    //홈 PlaceCard 코너 radius
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape(RoundedCorner(radius: radius, corners: corners))
     }
