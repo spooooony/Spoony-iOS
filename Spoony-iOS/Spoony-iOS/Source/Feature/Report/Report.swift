@@ -52,15 +52,15 @@ enum ReportType: String, CaseIterable, Encodable {
 
 struct Report: View {
     @EnvironmentObject private var navigationManager: NavigationManager
-    @StateObject private var store: ReportStore = ReportStore()
-    
-    @State private var text: String = ""
-    
-    @State private var isError: Bool = true
-    @State private var isDisabled: Bool = true
+    @StateObject var store: ReportStore
     
     let postId: Int
     
+    init(postId: Int) {
+        self._store = StateObject(wrappedValue: ReportStore(navigationManager: .init()))
+        self.postId = postId
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
@@ -79,17 +79,15 @@ struct Report: View {
                     style: .secondary,
                     size: .xlarge,
                     title: "신고하기",
-                    disabled: $isDisabled
+                    disabled: Binding(get: {
+                        store.state.isError
+                    }, set: { _ in
+                    })
                 ) {
                     hideKeyboard()
-                    Task {
-                        try await store.postReport(postId: postId, description: text)
-                        navigationManager.popup = .reportSuccess(action: {
-                            navigationManager.pop(2)
-                        })
-                    }
+                    store.dispatch(.reportPostButtonTapped(postId))
                 }
-                .padding(.top, !isError ? 12 : 20)
+                .padding(.top, !store.state.isError ? 12 : 20)
                 .padding(.bottom, 20)
             }
             .scrollIndicators(.hidden)
@@ -99,8 +97,8 @@ struct Report: View {
         .onTapGesture {
             hideKeyboard()
         }
-        .onChange(of: isError) {
-            isDisabled = isError
+        .onAppear {
+            store.dispatch(.onAppear(navigationManager))
         }
     }
 }
@@ -116,10 +114,10 @@ extension Report {
             ForEach(ReportType.allCases, id: \.self) { report in
                 radioButton(
                     report: report,
-                    isSelected: store.selectedReport == report
+                    isSelected: store.state.selectedReport == report
                 )
                 .onTapGesture {
-                    store.changeReportType(report: report)
+                    store.dispatch(.reportReasonButtonTapped(report))
                     hideKeyboard()
                 }
             }
@@ -136,10 +134,18 @@ extension Report {
                 .padding(.bottom, 12.adjustedH)
             
             SpoonyTextEditor(
-                text: $text,
+                text: Binding(get: {
+                    store.state.description
+                }, set: { newValue in
+                    store.dispatch(.descriptionChanged(newValue))
+                }),
                 style: .report,
                 placeholder: "내용을 자세히 적어주시면 신고에 도움이 돼요",
-                isError: $isError
+                isError: Binding(get: {
+                    store.state.isError
+                }, set: { newValue in
+                    store.dispatch(.isErrorChanged(newValue))
+                })
             )
             
             HStack(alignment: .top, spacing: 10) {
@@ -171,7 +177,3 @@ extension Report {
         .frame(height: 42.adjustedH)
     }
 }
-
-//#Preview {
-//    Report()
-//}

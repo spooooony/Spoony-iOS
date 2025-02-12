@@ -25,6 +25,5 @@ enum ExploreIntent {
     
     // Main
     case categoryTapped(CategoryChip)
-    case cellTapped(FeedEntity)
 
 }
