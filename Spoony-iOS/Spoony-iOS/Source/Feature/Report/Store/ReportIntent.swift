@@ -11,6 +11,7 @@ enum ReportIntent {
     case reportReasonButtonTapped(ReportType)
     case reportPostButtonTapped(Int)
     case backgroundTapped
+    case backButtonTapped
 
     case descriptionChanged(String)
     case isErrorChanged(Bool)

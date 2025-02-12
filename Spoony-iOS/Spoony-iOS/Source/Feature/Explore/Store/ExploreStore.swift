@@ -10,8 +10,13 @@ import SwiftUI
 final class ExploreStore: ObservableObject {
         private let network: ExploreProtocol = DefaultExploreService()
 //    private let network: ExploreProtocol = MockExploreService()
+    private var navigationManager: NavigationManager
 
     @Published private(set) var state: ExploreState = ExploreState()
+    
+    init(navigationManager: NavigationManager) {
+        self.navigationManager = navigationManager
+    }
     
     func dispatch(_ intent: ExploreIntent) {
         switch intent {
@@ -38,6 +43,10 @@ final class ExploreStore: ObservableObject {
             state.isPresentedLocation = newValue
         case .isPresentedFilterChanged(let newValue):
             state.isPresentedFilter = newValue
+        case .cellTapped(let feed):
+            navigationManager.push(.detailView(postId: feed.postId))
+        case .goRegisterButtonTapped:
+            navigationManager.selectedTab = .register
         }
     }
 }

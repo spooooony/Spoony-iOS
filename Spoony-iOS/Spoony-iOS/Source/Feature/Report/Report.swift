@@ -67,7 +67,7 @@ struct Report: View {
                 style: .detail,
                 title: "신고하기",
                 onBackTapped: {
-                    navigationManager.pop(1)
+                    store.dispatch(.backButtonTapped)
                 }
             )
             Divider()

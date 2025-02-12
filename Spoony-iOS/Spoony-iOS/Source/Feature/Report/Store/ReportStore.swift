@@ -23,6 +23,8 @@ final class ReportStore: ObservableObject {
             changeReportType(report: report)
         case .reportPostButtonTapped(let postId):
             sendReport(postId: postId, description: state.description)
+        case .backButtonTapped:
+            navigationManager.pop(1)
         case .descriptionChanged(let newValue):
             state.description = newValue
         case .backgroundTapped: break
