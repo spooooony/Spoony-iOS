@@ -280,12 +280,3 @@ public enum TextFieldErrorState {
         }
     }
 }
-
-extension String {
-    func removeEmogi() -> String {
-        let regexString = "[^가-힣\\u3131-\\u314E\\u314F-\\u3163a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':“”\"\\\\|,.<>/?£¥•~₩‘’\\s]+"
-        guard let regex = try? Regex(regexString) else { return self }
-        
-        return self.replacing(regex, with: "")
-    }
-}
