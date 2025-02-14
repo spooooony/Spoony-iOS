@@ -10,8 +10,8 @@ import UIKit
 
 final class DetailViewStore: ObservableObject {
     
-    
     // MARK: - State
+    
     struct DetailState {
         var isZzim: Bool = false
         var isScoop: Bool = false
@@ -32,6 +32,7 @@ final class DetailViewStore: ObservableObject {
     }
     
     // MARK: - 불변 데이터
+    
     struct DetailEntity {
         var postId: Int = 0
         var userName: String = ""
