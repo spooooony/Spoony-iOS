@@ -9,7 +9,55 @@ import Foundation
 import UIKit
 
 final class DetailViewStore: ObservableObject {
-    @Published private(set) var state: DetailState = DetailState()
+    
+    
+    // MARK: - State
+    struct DetailState {
+        var isZzim: Bool = false
+        var isScoop: Bool = false
+        var spoonCount: Int = 0
+        var zzimCount: Int = 0
+        var isLoading: Bool = false
+        var successService: Bool = true
+        var toast: Toast?
+    }
+    
+    // MARK: - Intent
+
+    enum DetailIntent {
+        case fetchInitialValue(userId: Int, postId: Int)
+        case scoopButtonDidTap
+        case scrapButtonDidTap(isScrap: Bool)
+        case pathInfoInNaverMaps
+    }
+    
+    // MARK: - 불변 데이터
+    struct DetailEntity {
+        var postId: Int = 0
+        var userName: String = ""
+        var photoUrlList: [String] = []
+        var title: String = ""
+        var date: String = ""
+        var menuList: [String] = []
+        var description: String = ""
+        var placeName: String = ""
+        var placeAddress: String = ""
+        var latitude: Double = 0.0
+        var longitude: Double = 0.0
+        var categoryName: String = ""
+        var iconUrl: String = ""
+        var iconTextColor: String = ""
+        var iconBackgroundColor: String = ""
+        var categoryColorResponse: DetailCategoryColorResponse = .init(categoryName: "", iconUrl: "", iconTextColor: "", iconBackgroundColor: "", categoryId: 0)
+        var isMine: Bool = false
+        var userImageUrl: String = ""
+        var regionName: String = ""
+    }
+    
+    @MainActor
+    @Published private(set) var state = DetailState()
+    
+    @Published private(set) var entity = DetailEntity()
     
     private let detailUseCase: DetailUseCaseProtocol
     
@@ -43,7 +91,6 @@ final class DetailViewStore: ObservableObject {
     
     // MARK: - Methods
     
-    // 초기 데이터 로드
     @MainActor
     private func fetchInitialData(userId: Int, postId: Int) async {
         state.isLoading = true
@@ -51,7 +98,7 @@ final class DetailViewStore: ObservableObject {
         
         do {
             let data = try await detailUseCase.fetchInitialDetail(userId: userId, postId: postId)
-            updateState(with: data)
+            updateEntity(with: data)
             state.successService = true
         } catch {
             state.toast = Toast(style: .gray, message: "데이터를 불러오는데 실패했습니다.", yOffset: 539.adjustedH)
@@ -59,31 +106,36 @@ final class DetailViewStore: ObservableObject {
         }
     }
     
-    // State 업데이트
-    private func updateState(with data: ReviewDetailModel) {
-        state = DetailState(
+    @MainActor
+    private func updateEntity(with data: ReviewDetailModel) {
+        entity = DetailEntity(
             postId: data.postId,
             userName: data.userName,
             photoUrlList: data.photoUrlList,
             title: data.title,
-            date: String(data.date.prefix(10)),
+            date: data.date.toFormattedDateString(),
             menuList: data.menuList,
             description: data.description,
             placeName: data.placeName,
             placeAddress: data.placeAddress,
             latitude: data.latitude,
             longitude: data.longitude,
-            zzimCount: data.zzimCount,
-            isZzim: data.isZzim,
-            isScoop: data.isScoop,
             categoryName: data.categoryColorResponse.categoryName,
             iconUrl: data.categoryColorResponse.iconUrl,
             categoryColorResponse: data.categoryColorResponse,
             isMine: data.isMine,
-            spoonCount: data.spoonCount,
-            successService: true,
             userImageUrl: data.userImageUrl,
             regionName: data.regionName
+        )
+        
+        state = DetailState(
+            isZzim: data.isZzim,
+            isScoop: data.isScoop,
+            spoonCount: data.spoonCount,
+            zzimCount: data.zzimCount,
+            isLoading: false,
+            successService: true,
+            toast: nil
         )
     }
     
@@ -95,7 +147,7 @@ final class DetailViewStore: ObservableObject {
         
         do {
             if isScrap {
-                try await detailUseCase.unScrapReview(userId: Config.userId, postId: state.postId)
+                try await detailUseCase.unScrapReview(userId: Config.userId, postId: entity.postId)
                 state.zzimCount -= 1
                 state.isZzim = false
                 state.toast = Toast(
@@ -104,7 +156,7 @@ final class DetailViewStore: ObservableObject {
                     yOffset: 539.adjustedH
                 )
             } else {
-                try await detailUseCase.scrapReview(userId: Config.userId, postId: state.postId)
+                try await detailUseCase.scrapReview(userId: Config.userId, postId: entity.postId)
                 state.zzimCount += 1
                 state.isZzim = true
                 state.toast = Toast(
@@ -129,7 +181,7 @@ final class DetailViewStore: ObservableObject {
         defer { state.isLoading = false }
         
         do {
-            let data = try await detailUseCase.scoopReview(userId: Config.userId, postId: state.postId)
+            let data = try await detailUseCase.scoopReview(userId: Config.userId, postId: entity.postId)
             
             if data {
                 state.isScoop.toggle()
@@ -148,7 +200,7 @@ final class DetailViewStore: ObservableObject {
     // 네이버 지도 열기
     private func openNaverMaps() {
         let appName: String = "Spoony"
-        guard let url = URL(string: "nmap://place?lat=\(state.latitude)&lng=\(state.longitude)&name=\(state.placeName)&appname=\(appName)") else { return }
+        guard let url = URL(string: "nmap://place?lat=\(entity.latitude)&lng=\(entity.longitude)&name=\(entity.placeName)&appname=\(appName)") else { return }
         let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
         
         if UIApplication.shared.canOpenURL(url) {
