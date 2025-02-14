@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FlexSheet
 
 struct SearchLocation: View {
     @EnvironmentObject var navigationManager: NavigationManager
@@ -32,7 +33,7 @@ struct SearchLocation: View {
             } else {
                 NMapView(viewModel: viewModel, selectedPlace: $selectedPlace)
                     .edgesIgnoringSafeArea(.all)
-                    .onChange(of: viewModel.focusedPlaces) { newPlaces in
+                    .onChange(of: viewModel.focusedPlaces) { _, newPlaces in
                         if !newPlaces.isEmpty {
                             selectedPlace = newPlaces[0]
                         }
@@ -58,6 +59,7 @@ struct SearchLocation: View {
                         )
                         .padding(.bottom, 12)
                         .transition(.move(edge: .bottom))
+                        
                     } else {
                         SearchLocationBottomSheetView(viewModel: viewModel)
                     }
@@ -67,13 +69,8 @@ struct SearchLocation: View {
         .navigationBarHidden(true)
         .task {
             isLoading = true
-            do {
-                await viewModel.fetchLocationList(locationId: locationId)
-                isLoading = false
-            } catch {
-                print("Failed to fetch data:", error)
-                isLoading = false
-            }
+            await viewModel.fetchLocationList(locationId: locationId)
+            isLoading = false
         }
     }
 }

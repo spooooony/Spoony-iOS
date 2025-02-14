@@ -84,7 +84,7 @@ extension SpoonyTextField {
             .foregroundStyle(.gray900)
             .onChange(of: text) { _, newValue in
                 if style != .icon {
-                    let removeText = newValue.removeCharacters()
+                    let removeText = newValue.removeEmogi()
                     
                     switch checkInputError(removeText) {
                     case .maximumInputError:
@@ -278,22 +278,5 @@ public enum TextFieldErrorState {
         case .noError, .initial:
             return nil
         }
-    }
-}
-
-
-extension String {
-    func removeCharacters() -> String {
-        return .init(
-            unicodeScalars.filter { scalar in
-                let isEmoji = scalar.properties.isEmoji || scalar.properties.isEmojiPresentation
-                let isControlCharacter = scalar.value == 8203 || scalar.value == 8204 || scalar.value == 8205 || scalar.value == 0x200B
-                let isSpecialCharacter = scalar == "*" || scalar == "#"
-                let isInvisibleSpace = scalar.value == 0x200B || scalar.value == 0x200C || scalar.value == 0x200D  // Invisible space characters
-                
-                return (!isEmoji && !isControlCharacter && !isInvisibleSpace) || scalar.properties.numericType == .decimal || isSpecialCharacter
-            }
-                .reduce(into: "") { $0 += String($1) }
-        )
     }
 }

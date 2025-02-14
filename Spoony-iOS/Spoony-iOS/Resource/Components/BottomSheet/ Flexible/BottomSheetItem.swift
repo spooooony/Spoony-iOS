@@ -19,9 +19,7 @@ struct BottomSheetListItem: View {
                         .lineLimit(1)
                         .truncationMode(.tail)
                     
-                    // 카테고리 칩
                     HStack(spacing: 4) {
-                        // 카테고리 아이콘
                         AsyncImage(url: URL(string: pickCard.categoryColorResponse.iconUrl)) { phase in
                             switch phase {
                             case .success(let image):
@@ -72,7 +70,6 @@ struct BottomSheetListItem: View {
                         y: 2
                     )
             }
-            // 이미지
             AsyncImage(url: URL(string: pickCard.photoUrl)) { phase in
                 switch phase {
                 case .success(let image):
