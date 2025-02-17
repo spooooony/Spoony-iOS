@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct DefaultDetailService: DetailServiceProtocol { }
+struct DefaultDetailService: DetailServiceProtocol { }
 
 struct DefaultDetailRepository {
     private let detailService: DetailServiceProtocol
