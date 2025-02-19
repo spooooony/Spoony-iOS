@@ -70,7 +70,6 @@ final class DetailViewStore: ObservableObject {
     
     // MARK: - Reducer
     
-    @MainActor
     func send(intent: DetailIntent) {
         switch intent {
         case .fetchInitialValue(_, let postId):
