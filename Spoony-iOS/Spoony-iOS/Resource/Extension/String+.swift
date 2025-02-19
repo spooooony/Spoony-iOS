@@ -18,4 +18,9 @@ extension String {
         
         return self.replacing(regex, with: "")
     }
+    
+    /// 날짜 문자열에서 yyyy-MM-dd 형식으로 변환하는 함수 (DataFormmatter 사용하는 것보다 효과적이라 적용함)
+    func toFormattedDateString() -> String {
+        return String(self.prefix(10))
+    }
 }

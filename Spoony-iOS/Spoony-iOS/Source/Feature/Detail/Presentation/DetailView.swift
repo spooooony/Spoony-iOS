@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-enum SNError: Error {
-    case networkFail
-    case decodeError
-    case etc
-}
-
 struct DetailView: View {
     
     // MARK: - Properties
@@ -22,6 +16,7 @@ struct DetailView: View {
     // ObservableObject 쓰면 안돼! 초기화가 되버림.
     // StateObeject 는 초기화가 안됌 상태가 유지가 됌
     @StateObject private var store: DetailViewStore = DetailViewStore()
+    
     let postId: Int
     
     init(postId: Int) {
@@ -37,47 +32,58 @@ struct DetailView: View {
     // MARK: - body
     
     var body: some View {
-        VStack(spacing: 0) {
-            CustomNavigationBar(
-                style: .detailWithChip,
-                spoonCount: store.state.spoonCount,
-                onBackTapped: {
-                    navigationManager.pop(1)
+        ZStack {
+            VStack(spacing: 0) {
+                CustomNavigationBar(
+                    style: .detailWithChip,
+                    spoonCount: store.state.spoonCount,
+                    onBackTapped: {
+                        navigationManager.pop(1)
+                    }
+                )
+                ScrollView(.vertical) {
+                    VStack(spacing: 0) {
+                        userProfileSection
+                        imageSection
+                        reviewSection
+                        placeInfoSection
+                    }
                 }
-            )
-            ScrollView(.vertical) {
-                VStack(spacing: 0) {
-                    userProfileSection
-                    imageSection
-                    reviewSection
-                    placeInfoSection
+                .simultaneousGesture(dragGesture)
+                .onTapGesture {
+                    dismissDropDown()
                 }
-            }
-            .simultaneousGesture(dragGesture)
-            .onTapGesture {
-                dismissDropDown()
-            }
-            .overlay(alignment: .topTrailing, content: {
-                dropDownView
-            })
-            .scrollIndicators(.hidden)
-            .toastView(toast: $toastMessage)
-            .onAppear {
-                store.send(intent: .getInitialValue(userId: Config.userId, postId: postId))
+                .overlay(alignment: .topTrailing, content: {
+                    dropDownView
+                })
+                .scrollIndicators(.hidden)
+                .toastView(toast: $toastMessage)
+                .onAppear {
+                    store.send(intent: .fetchInitialValue(userId: Config.userId, postId: postId))
+                    
+                    if !store.state.successService {
+                        navigationManager.pop(1)
+                    }
+                    
+                }
+                .onChange(of: store.state.toast) { _, newValue in
+                    toastMessage = newValue
+                }
                 
-                if !store.state.successService {
-                    navigationManager.pop(1)
-                }
-                
+                bottomView
+                    .frame(height: 80.adjustedH)
             }
-            .onChange(of: store.state.toast) { _, newValue in
-                toastMessage = newValue
-            }
+            .toolbar(.hidden, for: .tabBar)
             
-            bottomView
-                .frame(height: 80.adjustedH)
+            if store.state.isLoading {
+                ZStack {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                }
+                .transition(.opacity)
+                .animation(.easeInOut, value: store.state.isLoading)
+            }
         }
-        .toolbar(.hidden, for: .tabBar)
     }
 }
 
@@ -104,24 +110,24 @@ extension DetailView {
     private var userProfileSection: some View {
         HStack(alignment: .center, spacing: 14.adjustedH) {
             
-            RemoteImageView(urlString: store.state.userInfo.userImageUrl)
+            RemoteImageView(urlString: store.entity.userImageUrl)
                 .scaledToFit()
                 .clipShape(Circle())
                 .frame(width: 48.adjusted, height: 48.adjustedH)
             
             VStack(alignment: .leading, spacing: 4.adjustedH) {
-                Text(store.state.userInfo.userName)
+                Text(store.entity.userName)
                     .customFont(.body2b)
                     .foregroundStyle(.black)
                 
-                Text(store.state.userInfo.regionName)
+                Text(store.entity.regionName)
                     .customFont(.caption1m)
                     .foregroundStyle(.gray400)
             }
             
             Spacer()
             
-            if !store.state.isMine {
+            if !store.entity.isMine {
                 Image(.icMenu)
                     .onTapGesture {
                         isPresented.toggle()
@@ -133,40 +139,35 @@ extension DetailView {
         .padding(.bottom, 24.adjustedH)
     }
     
+    @ViewBuilder
     private var imageSection: some View {
-        let imageList: [String] = store.state.photoUrlList
+        let imageList: [String] = store.entity.photoUrlList
         
-        return Group {
-            if imageList.isEmpty {
-                // Placeholder 뷰를 사용해 레이아웃 유지
-                Rectangle()
-                    .foregroundStyle(.gray400)
-                    .frame(width: 335.adjusted)
-                    .frame(height: 335.adjustedH)
-                    .cornerRadius(11.16)
-                    .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
-            } else if imageList.count == 1 {
-                RemoteImageView(urlString: imageList[0])
-                    .scaledToFill()
-                    .frame(width: 335.adjusted)
-                    .frame(height: 335.adjustedH)
-                    .blur(radius: (store.state.isScoop || store.state.isMine) ? 0 : 12)
-                    .cornerRadius(11.16)
-                    .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 10.adjusted) {
-                        ForEach(imageList.indices, id: \.self) { index in
-                            RemoteImageView(urlString: imageList[index])
-                                .scaledToFill()
-                                .frame(width: 278.adjusted)
-                                .frame(height: 278.adjustedH)
-                                .blur(radius: (store.state.isScoop || store.state.isMine) ? 0 : 12)
-                                .cornerRadius(11.16)
-                        }
+        if imageList.isEmpty {
+            Rectangle()
+                .foregroundStyle(.gray400)
+                .frame(width: 335.adjusted, height: 335.adjustedH)
+                .cornerRadius(11.16)
+                .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
+        } else if imageList.count == 1 {
+            RemoteImageView(urlString: imageList[0])
+                .scaledToFill()
+                .frame(width: 335.adjusted, height: 335.adjustedH)
+                .blur(radius: (store.state.isScoop || store.entity.isMine) ? 0 : 12)
+                .cornerRadius(11.16)
+                .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
+        } else {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10.adjusted) {
+                    ForEach(imageList.indices, id: \.self) { index in
+                        RemoteImageView(urlString: imageList[index])
+                            .scaledToFill()
+                            .frame(width: 278.adjusted, height: 278.adjustedH)
+                            .blur(radius: (store.state.isScoop || store.entity.isMine) ? 0 : 12)
+                            .cornerRadius(11.16)
                     }
-                    .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
                 }
+                .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
             }
         }
     }
@@ -175,14 +176,14 @@ extension DetailView {
         VStack(alignment: .leading, spacing: 8.adjustedH) {
             
             IconChip(
-                chip: store.state.categoryColorResponse.toEntity()
+                chip: store.entity.categoryColorResponse.toEntity()
             )
             
-            Text(store.state.title)
+            Text(store.entity.title)
                 .customFont(.title1b)
                 .foregroundStyle(.black)
             
-            Text(store.state.date)
+            Text(store.entity.date)
                 .customFont(.caption1m)
                 .foregroundStyle(.gray400)
             
@@ -190,11 +191,11 @@ extension DetailView {
                 .frame(height: 16.adjustedH)
             
             Text(
-                (store.state.isScoop || store.state.isMine)
-                ? store.state.description.splitZeroWidthSpace()
-                : (store.state.description.count > 120
-                   ? "\(store.state.description.prefix(120))...".splitZeroWidthSpace()
-                   : store.state.description.splitZeroWidthSpace())
+                (store.state.isScoop || store.entity.isMine)
+                ? store.entity.description.splitZeroWidthSpace()
+                : (store.entity.description.count > 120
+                   ? "\(store.entity.description.prefix(120))...".splitZeroWidthSpace()
+                   : store.entity.description.splitZeroWidthSpace())
             )
             .customFont(.body2m)
             .frame(width: 335.adjusted)
@@ -236,7 +237,7 @@ extension DetailView {
             
         }
         .padding(.horizontal, 20.adjusted)
-        .blur(radius: (store.state.isScoop || store.state.isMine) ? 0 : 12)
+        .blur(radius: (store.state.isScoop || store.entity.isMine) ? 0 : 12)
     }
     
     private var menuInfo: some View {
@@ -244,7 +245,7 @@ extension DetailView {
             Text("Menu")
                 .customFont(.body1b)
                 .foregroundStyle(.spoonBlack)
-            menuList(menus: store.state.menuList)
+            menuList(menus: store.entity.menuList)
         }
         .padding(EdgeInsets(top: 20.adjustedH, leading: 16.adjusted, bottom: 28.adjustedH, trailing: 20.adjusted))
     }
@@ -256,7 +257,7 @@ extension DetailView {
                     .customFont(.body1b)
                     .foregroundStyle(.spoonBlack)
                 
-                Text(store.state.placeName)
+                Text(store.entity.placeName)
                     .customFont(.title2sb)
                     .foregroundStyle(.spoonBlack)
                 
@@ -266,7 +267,7 @@ extension DetailView {
                         .scaledToFit()
                         .frame(width: 20.adjusted, height: 20.adjustedH)
                     
-                    Text(store.state.placeAddress)
+                    Text(store.entity.placeAddress)
                         .customFont(.body2m)
                         .foregroundStyle(.spoonBlack)
                 }
@@ -281,12 +282,10 @@ extension DetailView {
             SpoonyButton(
                 style: .secondary,
                 size: (store.state.isScoop) ? .medium : .xlarge,
-                title: (store.state.isScoop || store.state.isMine) ? "길찾기" : "떠먹기",
-                isIcon: (store.state.isScoop || store.state.isMine) ? false : true,
+                title: (store.state.isScoop || store.entity.isMine) ? "길찾기" : "떠먹기",
+                isIcon: (store.state.isScoop || store.entity.isMine) ? false : true,
                 disabled: .constant(false)
             ) {
-                print("⭐️")
-                
                 if store.state.isScoop {
                     store.send(intent: .pathInfoInNaverMaps)
                 } else {
@@ -294,8 +293,6 @@ extension DetailView {
                         store.send(intent: .scoopButtonDidTap)
                     })
                 }
-                
-                print("⭐️")
             }
             
             if store.state.isScoop {
@@ -379,4 +376,9 @@ struct Line: Shape {
         path.addLine(to: CGPoint(x: rect.width, y: 0))
         return path
     }
+}
+
+#Preview {
+    DetailView(postId: 9)
+        .environmentObject(NavigationManager())
 }
