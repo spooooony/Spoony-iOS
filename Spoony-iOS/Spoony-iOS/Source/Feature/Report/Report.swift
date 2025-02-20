@@ -79,10 +79,7 @@ struct Report: View {
                     style: .secondary,
                     size: .xlarge,
                     title: "신고하기",
-                    disabled: Binding(get: {
-                        store.state.isError
-                    }, set: { _ in
-                    })
+                    disabled: .constant(store.state.isError)
                 ) {
                     hideKeyboard()
                     store.dispatch(.reportPostButtonTapped(postId))
@@ -104,6 +101,8 @@ struct Report: View {
 }
 
 extension Report {
+    
+    //MARK: - Views
     private var reportTitle: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("후기를 신고하는 이유가 무엇인가요?")
@@ -134,18 +133,10 @@ extension Report {
                 .padding(.bottom, 12.adjustedH)
             
             SpoonyTextEditor(
-                text: Binding(get: {
-                    store.state.description
-                }, set: { newValue in
-                    store.dispatch(.descriptionChanged(newValue))
-                }),
+                text: textBinding(),
                 style: .report,
                 placeholder: "내용을 자세히 적어주시면 신고에 도움이 돼요",
-                isError: Binding(get: {
-                    store.state.isError
-                }, set: { newValue in
-                    store.dispatch(.isErrorChanged(newValue))
-                })
+                isError: errorBinding()
             )
             
             HStack(alignment: .top, spacing: 10) {
@@ -175,5 +166,20 @@ extension Report {
             Spacer()
         }
         .frame(height: 42.adjustedH)
+    }
+    
+    //MARK: - Functions
+    private func textBinding() -> Binding<String> {
+        Binding(
+            get: { store.state.description },
+            set: { store.dispatch(.descriptionChanged($0)) }
+        )
+    }
+    
+    private func errorBinding() -> Binding<Bool> {
+        Binding(
+            get: { store.state.isError },
+            set: { store.dispatch(.isErrorChanged($0)) }
+        )
     }
 }
