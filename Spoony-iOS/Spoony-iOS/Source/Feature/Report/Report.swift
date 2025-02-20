@@ -52,22 +52,22 @@ enum ReportType: String, CaseIterable, Encodable {
 
 struct Report: View {
     @EnvironmentObject private var navigationManager: NavigationManager
-    @StateObject private var store: ReportStore = ReportStore()
-    
-    @State private var text: String = ""
-    
-    @State private var isError: Bool = true
-    @State private var isDisabled: Bool = true
+    @StateObject var store: ReportStore
     
     let postId: Int
     
+    init(postId: Int) {
+        self._store = StateObject(wrappedValue: ReportStore(navigationManager: .init()))
+        self.postId = postId
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             CustomNavigationBar(
                 style: .detail,
                 title: "신고하기",
                 onBackTapped: {
-                    navigationManager.pop(1)
+                    store.dispatch(.backButtonTapped)
                 }
             )
             Divider()
@@ -79,17 +79,12 @@ struct Report: View {
                     style: .secondary,
                     size: .xlarge,
                     title: "신고하기",
-                    disabled: $isDisabled
+                    disabled: .constant(store.state.isError)
                 ) {
                     hideKeyboard()
-                    Task {
-                        try await store.postReport(postId: postId, description: text)
-                        navigationManager.popup = .reportSuccess(action: {
-                            navigationManager.pop(2)
-                        })
-                    }
+                    store.dispatch(.reportPostButtonTapped(postId))
                 }
-                .padding(.top, !isError ? 12 : 20)
+                .padding(.top, !store.state.isError ? 12 : 20)
                 .padding(.bottom, 20)
             }
             .scrollIndicators(.hidden)
@@ -99,13 +94,15 @@ struct Report: View {
         .onTapGesture {
             hideKeyboard()
         }
-        .onChange(of: isError) {
-            isDisabled = isError
+        .onAppear {
+            store.dispatch(.onAppear(navigationManager))
         }
     }
 }
 
 extension Report {
+    
+    //MARK: - Views
     private var reportTitle: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("후기를 신고하는 이유가 무엇인가요?")
@@ -116,10 +113,10 @@ extension Report {
             ForEach(ReportType.allCases, id: \.self) { report in
                 radioButton(
                     report: report,
-                    isSelected: store.selectedReport == report
+                    isSelected: store.state.selectedReport == report
                 )
                 .onTapGesture {
-                    store.changeReportType(report: report)
+                    store.dispatch(.reportReasonButtonTapped(report))
                     hideKeyboard()
                 }
             }
@@ -136,10 +133,10 @@ extension Report {
                 .padding(.bottom, 12.adjustedH)
             
             SpoonyTextEditor(
-                text: $text,
+                text: textBinding(),
                 style: .report,
                 placeholder: "내용을 자세히 적어주시면 신고에 도움이 돼요",
-                isError: $isError
+                isError: errorBinding()
             )
             
             HStack(alignment: .top, spacing: 10) {
@@ -170,8 +167,19 @@ extension Report {
         }
         .frame(height: 42.adjustedH)
     }
+    
+    //MARK: - Functions
+    private func textBinding() -> Binding<String> {
+        Binding(
+            get: { store.state.description },
+            set: { store.dispatch(.descriptionChanged($0)) }
+        )
+    }
+    
+    private func errorBinding() -> Binding<Bool> {
+        Binding(
+            get: { store.state.isError },
+            set: { store.dispatch(.isErrorChanged($0)) }
+        )
+    }
 }
-
-//#Preview {
-//    Report()
-//}

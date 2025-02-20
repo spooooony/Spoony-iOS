@@ -31,7 +31,7 @@ struct SpoonyTabView: View {
                         }
                     case .explore:
                         NavigationStack(path: $navigationManager.explorePath) {
-                            Explore()
+                            Explore(store: .init(navigationManager: navigationManager))
                                 .navigationDestination(for: ViewType.self) { view in
                                     navigationManager.build(view)
                                         .navigationBarBackButtonHidden()

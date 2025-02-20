@@ -10,14 +10,13 @@ import SwiftUI
 final class ExploreStore: ObservableObject {
         private let network: ExploreProtocol = DefaultExploreService()
 //    private let network: ExploreProtocol = MockExploreService()
-    //TODO: navigation MVI 리팩토링은 나중에 할거다..
-//    let navigationManager: NavigationManager
-    
+    private var navigationManager: NavigationManager
+
     @Published private(set) var state: ExploreState = ExploreState()
     
-//    init(navigationManager: NavigationManager) {
-//        self.navigationManager = navigationManager
-//    }
+    init(navigationManager: NavigationManager) {
+        self.navigationManager = navigationManager
+    }
     
     func dispatch(_ intent: ExploreIntent) {
         switch intent {
@@ -40,13 +39,14 @@ final class ExploreStore: ObservableObject {
             state.isPresentedFilter = false
         case .categoryTapped(let category):
             changeCategory(category: category)
-        case .cellTapped(let feed): break
-            //추후 feed 정보 detialview에 전달
-//            navigationManager.push(.detailView)
         case .isPresentedLocationChanged(let newValue):
             state.isPresentedLocation = newValue
         case .isPresentedFilterChanged(let newValue):
             state.isPresentedFilter = newValue
+        case .cellTapped(let feed):
+            navigationManager.push(.detailView(postId: feed.postId))
+        case .goRegisterButtonTapped:
+            navigationManager.selectedTab = .register
         }
     }
 }
@@ -60,7 +60,6 @@ extension ExploreStore {
         getFeedList()
         state.tempLocation = nil
         state.isPresentedLocation = false
-//        state.isSelectLocationButtonDisabled = true
     }
     
     private func changeFilter(filter: FilterType) {
