@@ -1,14 +1,11 @@
 //
-//  ImageChaes.swift
+//  CachedImage.swift
 //  Spoony-iOS
 //
 //  Created by 이지훈 on 3/2/25.
 //
 
 import SwiftUI
-
-
-
 
 struct CachedImage<Placeholder: View>: View {
     @StateObject private var loader: CachedImageLoader
