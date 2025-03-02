@@ -11,7 +11,6 @@ import Moya
 
 protocol ExploreProtocol {
     func getUserFeed(
-        userId: Int,
         categoryId: Int,
         location: String,
         sort: FilterType
@@ -24,7 +23,6 @@ final class DefaultExploreService: ExploreProtocol {
     let provider = Providers.explorProvider
     
     func getUserFeed(
-        userId: Int,
         categoryId: Int,
         location: String,
         sort: FilterType
@@ -32,7 +30,6 @@ final class DefaultExploreService: ExploreProtocol {
         return try await withCheckedThrowingContinuation { continuation in
             provider.request(
                 .getUserFeeds(
-                    userId: userId,
                     categoryId: categoryId,
                     location: location,
                     sort: sort
@@ -78,7 +75,6 @@ final class DefaultExploreService: ExploreProtocol {
 
 final class MockExploreService: ExploreProtocol {
     func getUserFeed(
-        userId: Int,
         categoryId: Int,
         location: String,
         sort: FilterType

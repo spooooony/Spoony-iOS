@@ -9,12 +9,12 @@ import Foundation
 import Moya
 
 enum HomeTargetType {
-    case getSpoonCount(userId: Int)
-    case getMapList(userId: Int)
-    case getMapFocus(userId: Int, placeId: Int)
+    case getSpoonCount
+    case getMapList
+    case getMapFocus(placeId: Int)
     case getSearchResultList(query: String)
-    case getSearchResultLocation(userId: Int, locationId: Int)
-    case getLocationList(userId: Int, locationId: Int)
+    case getSearchResultLocation(locationId: Int)
+    case getLocationList(locationId: Int)
 }
 
 extension HomeTargetType: TargetType {
@@ -28,18 +28,18 @@ extension HomeTargetType: TargetType {
     
     var path: String {
         switch self {
-        case .getSpoonCount(let userId):
-            return "/spoon/\(userId)"
-        case .getMapList(let userId):
-            return "/post/zzim/\(userId)"
-        case .getMapFocus(let userId, let placeId):
-            return "/post/zzim/\(userId)/\(placeId)"
+        case .getSpoonCount:
+            return "/spoon"
+        case .getMapList:
+            return "/post/zzim"
+        case .getMapFocus(let placeId):
+            return "/post/zzim/place/\(placeId)"
         case .getSearchResultList:
             return "/location/search"
-        case .getSearchResultLocation(let userId, let locationId):
-            return "/post/zzim/\(userId)/\(locationId)"
-        case .getLocationList(let userId, let locationId):
-            return "/post/zzim/location/\(userId)/\(locationId)" 
+        case .getSearchResultLocation(let locationId):
+            return "/post/zzim/location/\(locationId)"
+        case .getLocationList(let locationId):
+            return "/post/zzim/location/\(locationId)"
         }
     }
     

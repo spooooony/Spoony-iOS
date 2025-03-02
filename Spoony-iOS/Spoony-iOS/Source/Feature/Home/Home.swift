@@ -68,13 +68,18 @@ struct Home: View {
         }
         .navigationBarHidden(true)
         .task {
+            print("Home.task started")
             isBottomSheetPresented = true
             do {
-                spoonCount = try await restaurantService.fetchSpoonCount(userId: Config.userId)
+                print("Fetching spoon count")
+                spoonCount = try await restaurantService.fetchSpoonCount()
+                print("Spoon count: \(spoonCount)")
+                print("Calling viewModel.fetchPickList()")
                 viewModel.fetchPickList()
             } catch {
                 print("Failed to fetch spoon count:", error)
             }
+            print("Home.task completed")
         }
     }
 }

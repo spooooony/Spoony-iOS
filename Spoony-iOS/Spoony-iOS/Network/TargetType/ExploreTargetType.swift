@@ -10,7 +10,6 @@ import Moya
 
 enum ExploreTargetType {
     case getUserFeeds(
-        userId: Int,
         categoryId: Int,
         location: String,
         sort: FilterType
@@ -30,8 +29,8 @@ extension ExploreTargetType: TargetType {
     
     var path: String {
         switch self {
-        case .getUserFeeds(let userId, let categoryId, _, _):
-            return "/feed/\(userId)/\(categoryId)"
+        case .getUserFeeds(let categoryId, _, _):
+            return "/feed/\(categoryId)"
         case .reportPost:
             return "/report"
         case .getCategories:
@@ -51,7 +50,7 @@ extension ExploreTargetType: TargetType {
     
     var task: Moya.Task {
         switch self {
-        case let .getUserFeeds(_, _, location, filter):
+        case let .getUserFeeds(_, location, filter):
             let params: [String: String] = [
                 "query": location,
                 "sortBy": filter.rawValue

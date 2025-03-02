@@ -19,29 +19,37 @@ struct BottomSheetListItem: View {
                         .lineLimit(1)
                         .truncationMode(.tail)
                     
-                    HStack(spacing: 4) {
-                        AsyncImage(url: URL(string: pickCard.categoryColorResponse.iconUrl)) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 16.adjusted, height: 16.adjustedH)
-                            default:
-                                Color.clear
-                                    .frame(width: 16.adjusted, height: 16.adjustedH)
+                    if let categoryName = pickCard.categoryColorResponse.categoryName {
+                        HStack(spacing: 4) {
+                            if let iconUrl = pickCard.categoryColorResponse.iconUrl, !iconUrl.isEmpty {
+                                AsyncImage(url: URL(string: iconUrl)) { phase in
+                                    switch phase {
+                                    case .success(let image):
+                                        image
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 16.adjusted, height: 16.adjustedH)
+                                    default:
+                                        Color.clear
+                                            .frame(width: 16.adjusted, height: 16.adjustedH)
+                                    }
+                                }
                             }
+                            
+                            Text(categoryName)
+                                .customFont(.caption1m)
+                                .lineLimit(1)
                         }
-                        
-                        Text(pickCard.categoryColorResponse.categoryName)
-                            .customFont(.caption1m)
-                            .lineLimit(1)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Color(hex: pickCard.categoryColorResponse.iconBackgroundColor ?? "#EEEEEE")
+                        )
+                        .foregroundColor(
+                            Color(hex: pickCard.categoryColorResponse.iconTextColor ?? "#000000")
+                        )
+                        .cornerRadius(12)
                     }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color(hex: pickCard.categoryColorResponse.iconBackgroundColor))
-                    .foregroundColor(Color(hex: pickCard.categoryColorResponse.iconTextColor))
-                    .cornerRadius(12)
                 }
                 
                 Text(pickCard.placeAddress)
@@ -70,6 +78,7 @@ struct BottomSheetListItem: View {
                         y: 2
                     )
             }
+            
             AsyncImage(url: URL(string: pickCard.photoUrl)) { phase in
                 switch phase {
                 case .success(let image):
