@@ -22,18 +22,10 @@ struct BottomSheetListItem: View {
                     if let categoryName = pickCard.categoryColorResponse.categoryName {
                         HStack(spacing: 4) {
                             if let iconUrl = pickCard.categoryColorResponse.iconUrl, !iconUrl.isEmpty {
-                                AsyncImage(url: URL(string: iconUrl)) { phase in
-                                    switch phase {
-                                    case .success(let image):
-                                        image
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 16.adjusted, height: 16.adjustedH)
-                                    default:
-                                        Color.clear
-                                            .frame(width: 16.adjusted, height: 16.adjustedH)
-                                    }
+                                CachedImage(url: iconUrl) {
+                                    Color.clear
                                 }
+                                .frame(width: 16.adjusted, height: 16.adjustedH)
                             }
                             
                             Text(categoryName)
@@ -79,19 +71,9 @@ struct BottomSheetListItem: View {
                     )
             }
             
-            AsyncImage(url: URL(string: pickCard.photoUrl)) { phase in
-                switch phase {
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                case .failure:
-                    defaultPlaceholder
-                case .empty:
-                    defaultPlaceholder
-                default:
-                    defaultPlaceholder
-                }
+            CachedImage(url: pickCard.photoUrl) {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.gray.opacity(0.1))
             }
             .frame(width: 98.adjusted, height: 98.adjusted)
             .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -99,10 +81,5 @@ struct BottomSheetListItem: View {
         }
         .padding(.horizontal, 16)
         .frame(height: 120.adjusted)
-    }
-    
-    private var defaultPlaceholder: some View {
-        RoundedRectangle(cornerRadius: 8)
-            .fill(Color.gray.opacity(0.1))
     }
 }
