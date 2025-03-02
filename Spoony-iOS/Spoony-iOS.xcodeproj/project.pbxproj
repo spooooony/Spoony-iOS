@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7156E2E12D74773300F0C5E7 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 7156E2E02D74773300F0C5E7 /* ComposableArchitecture */; };
 		71EDD4792D38EC8700D94926 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 71EDD4782D38EC8700D94926 /* Lottie */; };
 		71F8F73F2D230EFE00B822F3 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 71F8F73E2D230EF100B822F3 /* .swiftlint.yml */; };
 		787B5B042D32D9C50017A378 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B032D32D9C50017A378 /* Kingfisher */; };
@@ -38,6 +39,7 @@
 			files = (
 				787B5B072D32DA0F0017A378 /* Moya in Frameworks */,
 				787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */,
+				7156E2E12D74773300F0C5E7 /* ComposableArchitecture in Frameworks */,
 				78E985B42D564A9D00E02ABB /* FlexSheet in Frameworks */,
 				787B5B042D32D9C50017A378 /* Kingfisher in Frameworks */,
 				71EDD4792D38EC8700D94926 /* Lottie in Frameworks */,
@@ -92,6 +94,7 @@
 				787B5B092D32DA500017A378 /* NMapsMap */,
 				71EDD4782D38EC8700D94926 /* Lottie */,
 				78E985B32D564A9D00E02ABB /* FlexSheet */,
+				7156E2E02D74773300F0C5E7 /* ComposableArchitecture */,
 			);
 			productName = SpoonMe;
 			productReference = 78C002082D1D9FC400DA101C /* Spoony-iOS.app */;
@@ -127,6 +130,7 @@
 				787B5B082D32DA500017A378 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */,
 				71EDD4772D38EC8700D94926 /* XCRemoteSwiftPackageReference "lottie-spm" */,
 				78E985B22D564A9D00E02ABB /* XCRemoteSwiftPackageReference "FlexSheet" */,
+				7156E2DF2D74773300F0C5E7 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 78C002092D1D9FC400DA101C /* Products */;
@@ -411,6 +415,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		7156E2DF2D74773300F0C5E7 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.18.0;
+			};
+		};
 		71EDD4772D38EC8700D94926 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-spm";
@@ -454,6 +466,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		7156E2E02D74773300F0C5E7 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7156E2DF2D74773300F0C5E7 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
 		71EDD4782D38EC8700D94926 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 71EDD4772D38EC8700D94926 /* XCRemoteSwiftPackageReference "lottie-spm" */;
