@@ -25,7 +25,7 @@ final class DetailViewStore: ObservableObject {
     // MARK: - Intent
 
     enum DetailIntent {
-        case fetchInitialValue(userId: Int, postId: Int)
+        case fetchInitialValue(postId: Int)
         case scoopButtonDidTap
         case scrapButtonDidTap(isScrap: Bool)
         case pathInfoInNaverMaps
@@ -72,9 +72,9 @@ final class DetailViewStore: ObservableObject {
     
     func send(intent: DetailIntent) {
         switch intent {
-        case .fetchInitialValue(_, let postId):
+        case .fetchInitialValue(let postId):
             Task {
-                await fetchInitialData(userId: Config.userId, postId: postId)
+                await fetchInitialData(postId: postId)
             }
         case .scrapButtonDidTap(let isScrap):
             Task {
@@ -92,12 +92,12 @@ final class DetailViewStore: ObservableObject {
     // MARK: - Methods
     
     @MainActor
-    private func fetchInitialData(userId: Int, postId: Int) async {
+    private func fetchInitialData(postId: Int) async {
         state.isLoading = true
         defer { state.isLoading = false }
         
         do {
-            let data = try await detailUseCase.fetchInitialDetail(userId: userId, postId: postId)
+            let data = try await detailUseCase.fetchInitialDetail(postId: postId)
             updateEntity(with: data)
             state.successService = true
         } catch {
@@ -147,7 +147,7 @@ final class DetailViewStore: ObservableObject {
         
         do {
             if isScrap {
-                try await detailUseCase.unScrapReview(userId: Config.userId, postId: entity.postId)
+                try await detailUseCase.unScrapReview(postId: entity.postId)
                 state.zzimCount -= 1
                 state.isZzim = false
                 state.toast = Toast(
@@ -156,7 +156,7 @@ final class DetailViewStore: ObservableObject {
                     yOffset: 539.adjustedH
                 )
             } else {
-                try await detailUseCase.scrapReview(userId: Config.userId, postId: entity.postId)
+                try await detailUseCase.scrapReview(postId: entity.postId)
                 state.zzimCount += 1
                 state.isZzim = true
                 state.toast = Toast(
@@ -181,7 +181,7 @@ final class DetailViewStore: ObservableObject {
         defer { state.isLoading = false }
         
         do {
-            let data = try await detailUseCase.scoopReview(userId: Config.userId, postId: entity.postId)
+            let data = try await detailUseCase.scoopReview(postId: entity.postId)
             
             if data {
                 state.isScoop.toggle()
