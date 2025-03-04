@@ -29,7 +29,7 @@ struct DefaultDetailUseCase {
 
 extension DefaultDetailUseCase: DetailUseCaseProtocol {
     func fetchInitialDetail(userId: Int, postId: Int) async throws -> ReviewDetailModel {
-        let spoonCount = try await homeService.fetchSpoonCount(userId: userId)
+        let spoonCount = try await homeService.fetchSpoonCount()
         let reviewDetail = try await detailRepository.fetchReviewDetail(userId: userId, postId: postId)
         let userInfo = try await detailRepository.fetchUserInfo(userId: userId)
         

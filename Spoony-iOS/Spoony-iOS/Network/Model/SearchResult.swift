@@ -34,10 +34,10 @@ extension BottomSheetCategoryColorResponse {
     func toSearchCategoryColorResponse() -> SearchCategoryColorResponse {
         return SearchCategoryColorResponse(
             categoryId: self.categoryId,
-            categoryName: self.categoryName,
-            iconUrl: self.iconUrl,
-            iconTextColor: self.iconTextColor,
-            iconBackgroundColor: self.iconBackgroundColor
+            categoryName: self.categoryName ?? "",
+            iconUrl: self.iconUrl ?? "",
+            iconTextColor: self.iconTextColor ?? "",
+            iconBackgroundColor: self.iconBackgroundColor ?? ""
         )
     }
 }

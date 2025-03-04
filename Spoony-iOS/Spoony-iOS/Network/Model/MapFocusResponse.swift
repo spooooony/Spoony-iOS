@@ -25,10 +25,10 @@ struct FocusPlaceResponse: Codable {
 
 struct MapFocusCategoryColorResponse: Codable {
     let categoryId: Int
-    let categoryName: String
-    let iconUrl: String
-    let iconTextColor: String
-    let iconBackgroundColor: String
+    let categoryName: String?
+    let iconUrl: String?
+    let iconTextColor: String?
+    let iconBackgroundColor: String?
 }
 
 extension FocusPlaceResponse {
@@ -42,10 +42,10 @@ extension FocusPlaceResponse {
             images: photoUrlList,
             title: authorName,
             subTitle: postTitle,
-            description: categoryColorResponse.categoryName,
-            categoryColor: categoryColorResponse.iconBackgroundColor,
-            categoryTextColor: categoryColorResponse.iconTextColor,
-            categoryIcon: categoryColorResponse.iconUrl
+            description: categoryColorResponse.categoryName ?? "",
+            categoryColor: categoryColorResponse.iconBackgroundColor ?? "",
+            categoryTextColor: categoryColorResponse.iconTextColor ?? "",
+            categoryIcon: categoryColorResponse.iconUrl ?? ""
         )
     }
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 final class ExploreStore: ObservableObject {
-        private let network: ExploreProtocol = DefaultExploreService()
+    private let network: ExploreProtocol = DefaultExploreService()
 //    private let network: ExploreProtocol = MockExploreService()
     private var navigationManager: NavigationManager
 
@@ -101,7 +101,6 @@ extension ExploreStore {
         guard let category = state.selectedCategory else { return }
         
         state.exploreList = try await network.getUserFeed(
-            userId: Config.userId,
             categoryId: category.id,
             location: state.selectedLocation.rawValue,
             sort: state.selectedFilter
@@ -116,10 +115,9 @@ extension ExploreStore {
     
     @MainActor
     private func fetchSpoonCount() async throws {
-        //TODO: 추후 수정 예정
         Task {
             do {
-                state.spoonCount = try await DefaultHomeService().fetchSpoonCount(userId: Config.userId)
+                state.spoonCount = try await DefaultHomeService().fetchSpoonCount()
             } catch {
                 print("Failed to fetch spoon count:", error)
             }

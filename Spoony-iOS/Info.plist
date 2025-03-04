@@ -15,8 +15,8 @@
 	<string>Launch Screen.storyboard</string>
 	<key>BASE_URL</key>
 	<string>${INFOPLIST_KEY_BASE_URL}</string>
-	<key>ClientSectet</key>
-	<string>$(ClientSecret)</string>
+    <key>ClientSecret</key>
+    <string>$(ClientSecret)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
