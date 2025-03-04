@@ -32,15 +32,14 @@ class CachedImageLoader: ObservableObject {
         
         isLoading = true
         
-        task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+        task = URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
             defer {
                 DispatchQueue.main.async {
                     self?.isLoading = false
                 }
             }
             
-            guard let self = self,
-                  let data = data,
+            guard let data = data,
                   error == nil,
                   let image = UIImage(data: data) else {
                 return
@@ -49,7 +48,8 @@ class CachedImageLoader: ObservableObject {
             ImageCacheManager.shared.saveImageToMemory(image, for: url.absoluteString)
             ImageCacheManager.shared.saveImageToDisk(image, for: url.absoluteString)
             
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
                 self.image = image
             }
         }
