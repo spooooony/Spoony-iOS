@@ -36,7 +36,7 @@ extension DetailTargetType: TargetType {
         case .unScrapReview(let postId):
             return "/post/zzim/\(postId)"
         case .getUserInfo:
-            return "/user/"
+            return "/user"
         }
     }
     

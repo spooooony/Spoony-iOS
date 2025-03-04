@@ -49,7 +49,7 @@ final class DetailViewStore: ObservableObject {
         var iconUrl: String = ""
         var iconTextColor: String = ""
         var iconBackgroundColor: String = ""
-        var categoryColorResponse: DetailCategoryColorResponse = .init(categoryName: "", iconUrl: "", iconTextColor: "", iconBackgroundColor: "", categoryId: 0)
+        var categoryColorResponse: DetailCategoryColorResponse = .init(categoryId: 0, categoryName: "", iconUrl: "", iconTextColor: "", iconBackgroundColor: "")
         var isMine: Bool = false
         var userImageUrl: String = ""
         var regionName: String = ""
@@ -121,7 +121,7 @@ final class DetailViewStore: ObservableObject {
             latitude: data.latitude,
             longitude: data.longitude,
             categoryName: data.categoryColorResponse.categoryName,
-            iconUrl: data.categoryColorResponse.iconUrl,
+            iconUrl: data.categoryColorResponse.iconUrl ?? "",
             categoryColorResponse: data.categoryColorResponse,
             isMine: data.isMine,
             userImageUrl: data.userImageUrl,

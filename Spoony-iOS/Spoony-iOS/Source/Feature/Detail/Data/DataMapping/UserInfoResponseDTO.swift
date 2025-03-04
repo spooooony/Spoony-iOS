@@ -11,7 +11,8 @@ import Foundation
 
 struct UserInfoResponseDTO: Codable {
     let userId: Int
-    let userEmail: String
+    let platform: String
+    let platformId: String
     let userName: String
     let userImageUrl: String
     let regionName: String
