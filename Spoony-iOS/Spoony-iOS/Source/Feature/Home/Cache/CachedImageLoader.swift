@@ -10,7 +10,7 @@ import SwiftUI
 class CachedImageLoader: ObservableObject {
     @Published var image: UIImage?
     private var url: URL?
-    private var task: URLSessionDataTask?
+    private var task: Task<Void, Never>?
     private var isLoading = false
     
     init(url: URL?) {
@@ -20,45 +20,53 @@ class CachedImageLoader: ObservableObject {
     func load() {
         guard !isLoading, let url = url else { return }
         
-        if let cachedImage = ImageCacheManager.shared.getImageFromMemory(for: url.absoluteString) {
-            self.image = cachedImage
-            return
-        }
-        
-        if let diskCachedImage = ImageCacheManager.shared.getImageFromDisk(for: url.absoluteString) {
-            self.image = diskCachedImage
-            return
-        }
-        
         isLoading = true
         
-        task = URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
-            defer {
-                DispatchQueue.main.async {
-                    self?.isLoading = false
-                }
-            }
-            
-            guard let data = data,
-                  error == nil,
-                  let image = UIImage(data: data) else {
+        task = Task { @MainActor in
+            if let cachedImage = await ImageCacheManager.shared.getImageFromMemory(for: url.absoluteString) {
+                self.image = cachedImage
+                self.isLoading = false
                 return
             }
             
-            ImageCacheManager.shared.saveImageToMemory(image, for: url.absoluteString)
-            ImageCacheManager.shared.saveImageToDisk(image, for: url.absoluteString)
-            
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.image = image
+            if let diskCachedImage = await ImageCacheManager.shared.getImageFromDisk(for: url.absoluteString) {
+                self.image = diskCachedImage
+                self.isLoading = false
+                return
             }
+            
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                
+                guard !Task.isCancelled else {
+                    self.isLoading = false
+                    return
+                }
+                
+                if let downloadedImage = UIImage(data: data) {
+                    await ImageCacheManager.shared.saveImageToMemory(downloadedImage, for: url.absoluteString)
+                    await ImageCacheManager.shared.saveImageToDisk(downloadedImage, for: url.absoluteString)
+                    
+                    if !Task.isCancelled {
+                        self.image = downloadedImage
+                    }
+                }
+            } catch {
+                if (error as NSError).code != NSURLErrorCancelled {
+                    print("Error downloading image: \(error)")
+                }
+            }
+            
+            self.isLoading = false
         }
-        
-        task?.resume()
     }
     
     func cancel() {
         task?.cancel()
         isLoading = false
+    }
+    
+    deinit {
+        cancel()
     }
 }

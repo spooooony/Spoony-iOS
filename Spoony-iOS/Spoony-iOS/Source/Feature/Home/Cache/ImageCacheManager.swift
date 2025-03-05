@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-final class ImageCacheManager {
+actor ImageCacheManager {
     static let shared = ImageCacheManager()
     
     private let memoryCache = NSCache<NSString, UIImage>()
@@ -15,8 +15,6 @@ final class ImageCacheManager {
     private let cacheDirectory: URL
     
     private let cacheExpirationTime: TimeInterval = 7 * 24 * 60 * 60
-    
-    private let diskIOQueue = DispatchQueue(label: "com.spoony.imagecache.diskio", qos: .utility)
     
     private init() {
         memoryCache.countLimit = 100
@@ -27,7 +25,9 @@ final class ImageCacheManager {
         cacheDirectory = URL(fileURLWithPath: imageCachePath)
         
         createCacheDirectoryIfNeeded()
-        cleanExpiredCache()
+        Task {
+            await cleanExpiredCache()
+        }
     }
     
     private func createCacheDirectoryIfNeeded() {
@@ -75,18 +75,15 @@ final class ImageCacheManager {
         memoryCache.setObject(image, forKey: url as NSString, cost: cost)
     }
     
-    func saveImageToDisk(_ image: UIImage, for url: String) {
-        diskIOQueue.async { [weak self] in
-            guard let self = self,
-                  let data = image.jpegData(compressionQuality: 0.8) else { return }
-            
-            let fileURL = self.cacheFileURL(for: url)
-            
-            do {
-                try data.write(to: fileURL)
-            } catch {
-                print("Error saving image to disk: \(error)")
-            }
+    func saveImageToDisk(_ image: UIImage, for url: String) async {
+        guard let data = image.jpegData(compressionQuality: 0.8) else { return }
+        
+        let fileURL = cacheFileURL(for: url)
+        
+        do {
+            try data.write(to: fileURL)
+        } catch {
+            print("Error saving image to disk: \(error)")
         }
     }
     
@@ -100,48 +97,40 @@ final class ImageCacheManager {
         return cacheDirectory.appendingPathComponent(filename)
     }
     
-    func cleanExpiredCache() {
-        diskIOQueue.async { [weak self] in
-            guard let self = self else { return }
+    func cleanExpiredCache() async {
+        do {
+            let resourceKeys: [URLResourceKey] = [.contentModificationDateKey]
+            let fileURLs = try fileManager.contentsOfDirectory(at: cacheDirectory,
+                                                            includingPropertiesForKeys: resourceKeys)
             
-            do {
-                let resourceKeys: [URLResourceKey] = [.contentModificationDateKey]
-                let fileURLs = try self.fileManager.contentsOfDirectory(at: self.cacheDirectory,
-                                                                       includingPropertiesForKeys: resourceKeys)
-                
-                let now = Date()
-                
-                for fileURL in fileURLs {
-                    guard let resourceValues = try? fileURL.resourceValues(forKeys: Set(resourceKeys)),
-                          let modificationDate = resourceValues.contentModificationDate else {
-                        continue
-                    }
-                    
-                    if now.timeIntervalSince(modificationDate) > self.cacheExpirationTime {
-                        try? self.fileManager.removeItem(at: fileURL)
-                    }
+            let now = Date()
+            
+            for fileURL in fileURLs {
+                guard let resourceValues = try? fileURL.resourceValues(forKeys: Set(resourceKeys)),
+                      let modificationDate = resourceValues.contentModificationDate else {
+                    continue
                 }
-            } catch {
-                print("Error cleaning expired cache: \(error)")
+                
+                if now.timeIntervalSince(modificationDate) > cacheExpirationTime {
+                    try? fileManager.removeItem(at: fileURL)
+                }
             }
+        } catch {
+            print("Error cleaning expired cache: \(error)")
         }
     }
     
-    func clearAllCache() {
+    func clearAllCache() async {
         memoryCache.removeAllObjects()
         
-        diskIOQueue.async { [weak self] in
-            guard let self = self else { return }
-            
-            do {
-                let contents = try self.fileManager.contentsOfDirectory(at: self.cacheDirectory,
-                                                                       includingPropertiesForKeys: nil)
-                for fileURL in contents {
-                    try self.fileManager.removeItem(at: fileURL)
-                }
-            } catch {
-                print("Error clearing disk cache: \(error)")
+        do {
+            let contents = try fileManager.contentsOfDirectory(at: cacheDirectory,
+                                                           includingPropertiesForKeys: nil)
+            for fileURL in contents {
+                try fileManager.removeItem(at: fileURL)
             }
+        } catch {
+            print("Error clearing disk cache: \(error)")
         }
     }
 }
