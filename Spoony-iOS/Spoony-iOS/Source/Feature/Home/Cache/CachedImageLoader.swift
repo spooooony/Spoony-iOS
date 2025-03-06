@@ -7,10 +7,12 @@
 
 import SwiftUI
 
+@MainActor
 class CachedImageLoader: ObservableObject {
     @Published var image: UIImage?
     private var url: URL?
-    private var task: Task<Void, Never>?
+    private var loadTask: Task<Void, Never>?
+    
     @Published private(set) var isLoading = false
     @Published private(set) var loadError: Error?
     
@@ -18,40 +20,44 @@ class CachedImageLoader: ObservableObject {
         self.url = url
     }
     
-    func load() {
+    func load() async {
         guard !isLoading, let url = url else { return }
         
-        // 이전 작업 취소 - 중복 요청 방지
-        cancel()
+        loadTask?.cancel()
+        
         loadError = nil
         isLoading = true
         
-        task = Task { @MainActor in
+        loadTask = Task {
             do {
                 if let cachedImage = await ImageCacheManager.shared.getImageFromMemory(for: url.absoluteString) {
                     if !Task.isCancelled {
                         self.image = cachedImage
-                        self.isLoading = false
                     }
                     return
                 }
                 
-                if let diskCachedImage = await ImageCacheManager.shared.getImageFromDisk(for: url.absoluteString) {
+                if let diskCachedImage = try await withCheckedThrowingContinuation({ continuation in
+                    Task {
+                        let image = await ImageCacheManager.shared.getImageFromDisk(for: url.absoluteString)
+                        continuation.resume(returning: image)
+                    }
+                }) {
                     if !Task.isCancelled {
                         self.image = diskCachedImage
-                        self.isLoading = false
                     }
                     return
                 }
                 
-                let (data, _) = try await URLSession.shared.data(from: url)
-                
-                guard !Task.isCancelled else {
-                    self.isLoading = false
-                    return
+                let imageData = try await withTaskCancellationHandler {
+                    try await URLSession.shared.data(from: url).0
+                } onCancel: {
+                    // 취소 처리 - URLSession 태스크는 자동으로 취소
                 }
                 
-                if let downloadedImage = UIImage(data: data) {
+                guard !Task.isCancelled else { return }
+                
+                if let downloadedImage = UIImage(data: imageData) {
                     await ImageCacheManager.shared.saveImageToMemory(downloadedImage, for: url.absoluteString)
                     await ImageCacheManager.shared.saveImageToDisk(downloadedImage, for: url.absoluteString)
                     
@@ -59,11 +65,13 @@ class CachedImageLoader: ObservableObject {
                         self.image = downloadedImage
                     }
                 } else {
-                    throw NSError(domain: "CachedImageLoader", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid image data"])
+                    throw NSError(domain: "CachedImageLoader", code: -1,
+                                 userInfo: [NSLocalizedDescriptionKey: "Invalid image data"])
                 }
             } catch {
                 if !Task.isCancelled {
-                    if (error as NSError).code != NSURLErrorCancelled {
+                    if let urlError = error as? URLError, urlError.code == .cancelled {
+                    } else {
                         self.loadError = error
                         print("Error downloading image: \(error)")
                     }
@@ -76,13 +84,15 @@ class CachedImageLoader: ObservableObject {
         }
     }
     
-    func cancel() {
-        task?.cancel()
-        task = nil
-        isLoading = false
+    func cancelLoad() {
+        loadTask?.cancel()
+        loadTask = nil
+        if isLoading {
+            isLoading = false
+        }
     }
     
     deinit {
-        cancel()
+        cancelLoad()
     }
 }

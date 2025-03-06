@@ -14,22 +14,27 @@ actor ImageCacheManager {
     private let fileManager = FileManager.default
     private let cacheDirectory: URL
     
-    private let cacheExpirationTime: TimeInterval = 7 * 24 * 60 * 60
-            
-        private init() {
-            let fileManager = FileManager()
-            let cachePath = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
-            let imageCachePath = cachePath.appending("/ImageCache")
-            cacheDirectory = URL(fileURLWithPath: imageCachePath)
-            
-            if !fileManager.fileExists(atPath: cacheDirectory.path) {
-                try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
-            }
-            
-            Task.detached(priority: .background) {
-                await self.cleanExpiredCache()
-            }
+    private let cacheExpirationTime: TimeInterval = 7 * 24 * 60 * 60 // 1주일
+    private var cleanupTask: Task<Void, Never>?
+    
+    private init() {
+        let cachePath = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
+        let imageCachePath = cachePath.appending("/ImageCache")
+        cacheDirectory = URL(fileURLWithPath: imageCachePath)
+        createCacheDirectoryIfNeeded()
+        scheduleCleanup()
+    }
+    
+    deinit {
+        cleanupTask?.cancel()
+    }
+    
+    private func scheduleCleanup() {
+        cleanupTask?.cancel()
+        cleanupTask = Task.detached(priority: .background) {
+            await self.cleanExpiredCache()
         }
+    }
     
     private func createCacheDirectoryIfNeeded() {
         guard !fileManager.fileExists(atPath: cacheDirectory.path) else { return }
@@ -46,32 +51,31 @@ actor ImageCacheManager {
     }
     
     func getImageFromDisk(for url: String) async -> UIImage? {
-        return await Task.detached(priority: .background) {
-            let fileURL = await self.cacheFileURL(for: url)
-            let fileManager = FileManager()
-            
-            guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
+        let fileURL = cacheFileURL(for: url)
+        
+        guard fileManager.fileExists(atPath: fileURL.path) else {
+            return nil
+        }
 
-            do {
-                let attributes = try fileManager.attributesOfItem(atPath: fileURL.path)
-                if let modificationDate = attributes[.modificationDate] as? Date {
-                    if Date().timeIntervalSince(modificationDate) > self.cacheExpirationTime {
-                        try? fileManager.removeItem(at: fileURL)
-                        return nil
-                    }
+        do {
+            let attributes = try fileManager.attributesOfItem(atPath: fileURL.path)
+            if let modificationDate = attributes[.modificationDate] as? Date {
+                if Date().timeIntervalSince(modificationDate) > self.cacheExpirationTime {
+                    try? fileManager.removeItem(at: fileURL)
+                    return nil
                 }
-                
-                let data = try Data(contentsOf: fileURL)
-                if let image = UIImage(data: data) {
-                    await self.saveImageToMemory(image, for: url)
-                    return image
-                }
-            } catch {
-                print("Error reading image from disk: \(error)")
             }
             
-            return nil
-        }.value
+            let data = try Data(contentsOf: fileURL)
+            if let image = UIImage(data: data) {
+                saveImageToMemory(image, for: url)
+                return image
+            }
+        } catch {
+            print("Error reading image from disk: \(error)")
+        }
+        
+        return nil
     }
     
     func saveImageToMemory(_ image: UIImage, for url: String) {
@@ -80,20 +84,19 @@ actor ImageCacheManager {
     }
     
     func saveImageToDisk(_ image: UIImage, for url: String) async {
-        await Task.detached(priority: .background) {
-            guard let data = image.jpegData(compressionQuality: 0.8) else { return }
-            
-            let fileURL = await self.cacheFileURL(for: url)
-            
-            do {
-                try data.write(to: fileURL)
-            } catch {
-                print("Error saving image to disk: \(error)")
-            }
-        }.value
+        guard let data = image.jpegData(compressionQuality: 0.8) else { return }
+        
+        let fileURL = cacheFileURL(for: url)
+        
+        do {
+            try data.write(to: fileURL)
+        } catch {
+            print("Error saving image to disk: \(error)")
+        }
     }
     
     private func cacheFileURL(for url: String) -> URL {
+        // URL에 허용되지 않는 문자 대체
         let filename = url.replacingOccurrences(of: "/", with: "_")
                          .replacingOccurrences(of: ":", with: "_")
                          .replacingOccurrences(of: "?", with: "_")
@@ -104,46 +107,45 @@ actor ImageCacheManager {
     }
     
     func cleanExpiredCache() async {
-        await Task.detached(priority: .background) {
-            do {
-                let fileManager = FileManager()
-                let resourceKeys: [URLResourceKey] = [.contentModificationDateKey]
-                let fileURLs = try fileManager.contentsOfDirectory(at: self.cacheDirectory,
-                                                                includingPropertiesForKeys: resourceKeys)
+        do {
+            try Task.checkCancellation()
+            
+            let resourceKeys: [URLResourceKey] = [.contentModificationDateKey]
+            let fileURLs = try fileManager.contentsOfDirectory(at: cacheDirectory,
+                                                            includingPropertiesForKeys: resourceKeys)
+            
+            let now = Date()
+            
+            for fileURL in fileURLs {
+                try Task.checkCancellation()
                 
-                let now = Date()
-                
-                for fileURL in fileURLs {
-                    guard let resourceValues = try? fileURL.resourceValues(forKeys: Set(resourceKeys)),
-                          let modificationDate = resourceValues.contentModificationDate else {
-                        continue
-                    }
-                    
-                    if now.timeIntervalSince(modificationDate) > self.cacheExpirationTime {
-                        try? fileManager.removeItem(at: fileURL)
-                    }
+                guard let resourceValues = try? fileURL.resourceValues(forKeys: Set(resourceKeys)),
+                      let modificationDate = resourceValues.contentModificationDate else {
+                    continue
                 }
-            } catch {
-                print("Error cleaning expired cache: \(error)")
+                
+                if now.timeIntervalSince(modificationDate) > self.cacheExpirationTime {
+                    try? fileManager.removeItem(at: fileURL)
+                }
             }
-        }.value
+        } catch is CancellationError {
+            return
+        } catch {
+            print("Error cleaning expired cache: \(error)")
+        }
     }
     
     func clearAllCache() async {
         memoryCache.removeAllObjects()
         
-        await Task.detached(priority: .background) {
-            do {
-                let fileManager = FileManager()
-
-                let contents = try fileManager.contentsOfDirectory(at: self.cacheDirectory,
-                                                               includingPropertiesForKeys: nil)
-                for fileURL in contents {
-                    try fileManager.removeItem(at: fileURL)
-                }
-            } catch {
-                print("Error clearing disk cache: \(error)")
+        do {
+            let contents = try fileManager.contentsOfDirectory(at: cacheDirectory,
+                                                           includingPropertiesForKeys: nil)
+            for fileURL in contents {
+                try? fileManager.removeItem(at: fileURL)
             }
-        }.value
+        } catch {
+            print("Error clearing disk cache: \(error)")
+        }
     }
 }

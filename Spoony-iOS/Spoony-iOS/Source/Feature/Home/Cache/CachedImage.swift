@@ -17,10 +17,11 @@ struct CachedImage<Placeholder: View>: View {
     }
     
     var body: some View {
-        content
-            .onAppear(perform: loader.load)
-            .onDisappear(perform: loader.cancel)
-    }
+            content
+                .task {
+                    await loader.load()
+                }
+        }
     
     private var content: some View {
         Group {
