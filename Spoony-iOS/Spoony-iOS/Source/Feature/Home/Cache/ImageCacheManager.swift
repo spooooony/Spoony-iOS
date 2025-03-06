@@ -15,21 +15,21 @@ actor ImageCacheManager {
     private let cacheDirectory: URL
     
     private let cacheExpirationTime: TimeInterval = 7 * 24 * 60 * 60
-    
-    private init() {
-        memoryCache.countLimit = 100
-        memoryCache.totalCostLimit = 50 * 1024 * 1024
-        
-        let cachePath = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
-        let imageCachePath = cachePath.appending("/ImageCache")
-        cacheDirectory = URL(fileURLWithPath: imageCachePath)
-        
-        createCacheDirectoryIfNeeded()
-        
-        Task.detached(priority: .background) {
-            await self.cleanExpiredCache()
+            
+        private init() {
+            let fileManager = FileManager()
+            let cachePath = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
+            let imageCachePath = cachePath.appending("/ImageCache")
+            cacheDirectory = URL(fileURLWithPath: imageCachePath)
+            
+            if !fileManager.fileExists(atPath: cacheDirectory.path) {
+                try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
+            }
+            
+            Task.detached(priority: .background) {
+                await self.cleanExpiredCache()
+            }
         }
-    }
     
     private func createCacheDirectoryIfNeeded() {
         guard !fileManager.fileExists(atPath: cacheDirectory.path) else { return }
@@ -48,14 +48,15 @@ actor ImageCacheManager {
     func getImageFromDisk(for url: String) async -> UIImage? {
         return await Task.detached(priority: .background) {
             let fileURL = await self.cacheFileURL(for: url)
+            let fileManager = FileManager()
             
-            guard self.fileManager.fileExists(atPath: fileURL.path) else { return nil }
-            
+            guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
+
             do {
-                let attributes = try self.fileManager.attributesOfItem(atPath: fileURL.path)
+                let attributes = try fileManager.attributesOfItem(atPath: fileURL.path)
                 if let modificationDate = attributes[.modificationDate] as? Date {
                     if Date().timeIntervalSince(modificationDate) > self.cacheExpirationTime {
-                        try? self.fileManager.removeItem(at: fileURL)
+                        try? fileManager.removeItem(at: fileURL)
                         return nil
                     }
                 }
@@ -105,8 +106,9 @@ actor ImageCacheManager {
     func cleanExpiredCache() async {
         await Task.detached(priority: .background) {
             do {
+                let fileManager = FileManager()
                 let resourceKeys: [URLResourceKey] = [.contentModificationDateKey]
-                let fileURLs = try await self.fileManager.contentsOfDirectory(at: self.cacheDirectory,
+                let fileURLs = try fileManager.contentsOfDirectory(at: self.cacheDirectory,
                                                                 includingPropertiesForKeys: resourceKeys)
                 
                 let now = Date()
@@ -118,7 +120,7 @@ actor ImageCacheManager {
                     }
                     
                     if now.timeIntervalSince(modificationDate) > self.cacheExpirationTime {
-                        try? await self.fileManager.removeItem(at: fileURL)
+                        try? fileManager.removeItem(at: fileURL)
                     }
                 }
             } catch {
@@ -132,10 +134,12 @@ actor ImageCacheManager {
         
         await Task.detached(priority: .background) {
             do {
-                let contents = try await self.fileManager.contentsOfDirectory(at: self.cacheDirectory,
+                let fileManager = FileManager()
+
+                let contents = try fileManager.contentsOfDirectory(at: self.cacheDirectory,
                                                                includingPropertiesForKeys: nil)
                 for fileURL in contents {
-                    try await self.fileManager.removeItem(at: fileURL)
+                    try fileManager.removeItem(at: fileURL)
                 }
             } catch {
                 print("Error clearing disk cache: \(error)")
