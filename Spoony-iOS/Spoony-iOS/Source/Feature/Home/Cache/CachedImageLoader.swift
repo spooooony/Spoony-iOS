@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@MainActor
 class CachedImageLoader: ObservableObject {
     @Published var image: UIImage?
     private var url: URL?
