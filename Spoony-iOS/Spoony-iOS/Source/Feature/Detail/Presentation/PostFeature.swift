@@ -105,10 +105,7 @@ struct PostFeature {
                 return .none
                 
             case .scoopButtonTapped:
-                let postId = state.postId
-                
-                return .run { send in
-                    
+                return .run { [postId = state.postId] send in
                     do {
                         let data = try await detailUseCase.scoopReview(postId: postId)
                         await send(.scoopButtonTappedResponse(isSuccess: data))
@@ -118,8 +115,7 @@ struct PostFeature {
                 }
                 
             case .zzimButtonTapped(let isZzim):
-                let postId = state.postId
-                return .run { send in
+                return .run { [postId = state.postId, isZzim] send in
                     do {
                         if isZzim {
                             try await detailUseCase.unScrapReview(postId: postId)
