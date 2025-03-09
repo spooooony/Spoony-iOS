@@ -72,13 +72,13 @@ struct PostView: View {
             }
             .toolbar(.hidden, for: .tabBar)
             
-            if store.state.isLoading {
+            if store.isLoading {
                 ZStack {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
                 }
                 .transition(.opacity)
-                .animation(.easeInOut, value: store.state.isLoading)
+                .animation(.easeInOut, value: store.isLoading)
             }
         }
     }
@@ -188,7 +188,7 @@ extension PostView {
                 .frame(height: 16.adjustedH)
             
             Text(
-                (store.state.isScoop || store.isMine)
+                (store.isScoop || store.isMine)
                 ? store.description.splitZeroWidthSpace()
                 : (store.description.count > 120
                    ? "\(store.description.prefix(120))...".splitZeroWidthSpace()
@@ -283,7 +283,7 @@ extension PostView {
                 isIcon: (store.isScoop || store.isMine) ? false : true,
                 disabled: .constant(false)
             ) {
-                if store.state.isScoop {
+                if store.isScoop {
                     print("🔥네이버 지도로 이동")
                     //                    store.send(.pushNaverMaps)
                 } else {
@@ -293,7 +293,7 @@ extension PostView {
                 }
             }
             
-            if store.state.isScoop {
+            if store.isScoop {
                 Spacer()
                 
                 PostScrapButton(store: store)
