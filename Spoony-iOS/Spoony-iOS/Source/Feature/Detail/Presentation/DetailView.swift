@@ -59,7 +59,7 @@ struct DetailView: View {
                 .scrollIndicators(.hidden)
                 .toastView(toast: $toastMessage)
                 .onAppear {
-                    store.send(intent: .fetchInitialValue(userId: Config.userId, postId: postId))
+                    store.send(intent: .fetchInitialValue(postId: postId))
                     
                     if !store.state.successService {
                         navigationManager.pop(1)
@@ -198,7 +198,7 @@ extension DetailView {
                    : store.entity.description.splitZeroWidthSpace())
             )
             .customFont(.body2m)
-            .frame(width: 335.adjusted)
+            .frame(width: 335.adjusted, alignment: .leading)
             .foregroundStyle(.black)
             
         }
@@ -379,6 +379,6 @@ struct Line: Shape {
 }
 
 #Preview {
-    DetailView(postId: 9)
+    DetailView(postId: 20)
         .environmentObject(NavigationManager())
 }

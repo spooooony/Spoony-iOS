@@ -68,6 +68,10 @@ final class DetailViewStore: ObservableObject {
         self.detailUseCase = detailUseCase
     }
     
+//    init(detailUseCase: DetailUseCaseProtocol = MockDetailUseCase()) {
+//        self.detailUseCase = detailUseCase
+//    }
+    
     // MARK: - Reducer
     
     func send(intent: DetailIntent) {
