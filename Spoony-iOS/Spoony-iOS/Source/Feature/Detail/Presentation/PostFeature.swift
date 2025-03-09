@@ -6,7 +6,23 @@
 //
 
 import ComposableArchitecture
-import Foundation
+
+enum PostError: Error {
+    case noData
+    case zzimError
+    case spoonError
+    
+    var description: String {
+        switch self {
+        case .noData:
+            return "네트워크 요청에 실패했습니다."
+        case .zzimError:
+            return "스크랩에 실패했습니다."
+        case .spoonError:
+            return "떠먹기에 실패 했습니다."
+        }
+    }
+}
 
 @Reducer
 struct PostFeature {
@@ -44,7 +60,7 @@ struct PostFeature {
     
     enum Action {
         case viewAppear(postId: Int)
-        case fetchInitialResponse(Result<ReviewDetailModel, APIError>)
+        case fetchInitialResponse(Result<ReviewDetailModel, PostError>)
         
         case scoopButtonTapped
         case scoopButtonTappedResponse(isSuccess: Bool)
@@ -52,7 +68,7 @@ struct PostFeature {
         case zzimButtonTapped(isZzim: Bool)
         case zzimButtonResponse(isScrap: Bool)
         
-        case error
+        case error(PostError)
     }
     
     @Dependency(\.detailUseCase) var detailUseCase: DetailUseCaseProtocol
@@ -97,7 +113,7 @@ struct PostFeature {
                         let data = try await detailUseCase.scoopReview(postId: postId)
                         await send(.scoopButtonTappedResponse(isSuccess: data))
                     } catch {
-                        await send(.error)
+                        await send(.error(.spoonError))
                     }
                 }
                 
@@ -113,7 +129,7 @@ struct PostFeature {
                             await send(.zzimButtonResponse(isScrap: true))
                         }
                     } catch {
-                        await send(.error)
+                        await send(.error(.zzimError))
                     }
                 }
                 
@@ -149,10 +165,10 @@ struct PostFeature {
                     )
                 }
                 return .none
-            case .error:
+            case .error(let error):
                 state.toast = Toast(
                     style: .gray,
-                    message: "네트워크 에러입니다. 다시 시도해주세요",
+                    message: error.description,
                     yOffset: 539.adjustedH
                 )
                 return .none
