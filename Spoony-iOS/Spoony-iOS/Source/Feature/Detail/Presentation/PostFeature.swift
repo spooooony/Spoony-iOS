@@ -19,7 +19,6 @@ struct PostFeature {
         var zzimCount: Int = 0
         var isLoading: Bool = false
         var successService: Bool = true
-        var isDropDownPresent: Bool = false
         var toast: Toast?
         
         var postId: Int = 0
@@ -46,12 +45,14 @@ struct PostFeature {
     enum Action {
         case viewAppear(postId: Int)
         case fetchInitialResponse(Result<ReviewDetailModel, APIError>)
+        
         case scoopButtonTapped
+        case scoopButtonTappedResponse(isSuccess: Bool)
+        
         case zzimButtonTapped(isZzim: Bool)
-        case showToast(Toast)
-        case showDropDown
-        case hideDropDown
-        case pushNaverMaps
+        case zzimButtonResponse(isScrap: Bool)
+        
+        case error
     }
     
     @Dependency(\.detailUseCase) var detailUseCase: DetailUseCaseProtocol
@@ -76,7 +77,6 @@ struct PostFeature {
                 switch result {
                 case .success(let data):
                     state.successService = true
-                    // 상태 업데이트 로직을 별도 함수로 분리
                     updateState(&state, with: data)
                 case .failure:
                     state.successService = false
@@ -89,31 +89,72 @@ struct PostFeature {
                 return .none
                 
             case .scoopButtonTapped:
-                return .none
+                let postId = state.postId
                 
-            case .zzimButtonTapped(let isZzim):
-                if isZzim {
-                    state.zzimCount -= 1
-                } else {
-                    state.zzimCount += 1
+                return .run { send in
+                    
+                    do {
+                        let data = try await detailUseCase.scoopReview(postId: postId)
+                        await send(.scoopButtonTappedResponse(isSuccess: data))
+                    } catch {
+                        await send(.error)
+                    }
                 }
                 
-                state.isZzim.toggle()
+            case .zzimButtonTapped(let isZzim):
+                let postId = state.postId
+                return .run { send in
+                    do {
+                        if isZzim {
+                            try await detailUseCase.unScrapReview(postId: postId)
+                            await send(.zzimButtonResponse(isScrap: false))
+                        } else {
+                            try await detailUseCase.scrapReview(postId: postId)
+                            await send(.zzimButtonResponse(isScrap: true))
+                        }
+                    } catch {
+                        await send(.error)
+                    }
+                }
+                
+            case .zzimButtonResponse(let isScrap):
+                if isScrap {
+                    state.zzimCount += 1
+                    state.isZzim = true
+                    state.toast = Toast(
+                        style: .gray,
+                        message: "내 지도에 추가되었어요.",
+                        yOffset: 539.adjustedH
+                    )
+                } else {
+                    state.zzimCount -= 1
+                    state.isZzim = false
+                    state.toast = Toast(
+                        style: .gray,
+                        message: "내 지도에서 삭제되었어요.",
+                        yOffset: 539.adjustedH
+                    )
+                }
                 return .none
                 
-            case .showToast(let toast):
-                state.toast = toast
+            case .scoopButtonTappedResponse(let isSuccess):
+                if isSuccess {
+                    state.isScoop.toggle()
+                    state.spoonCount -= 1
+                } else {
+                    state.toast = Toast(
+                        style: .gray,
+                        message: "떠먹기 실패했습니다.",
+                        yOffset: 539.adjustedH
+                    )
+                }
                 return .none
-                
-            case .showDropDown:
-                state.isDropDownPresent.toggle()
-                return .none
-                
-            case .hideDropDown:
-                state.isDropDownPresent = false
-                return .none
-                
-            case .pushNaverMaps:
+            case .error:
+                state.toast = Toast(
+                    style: .gray,
+                    message: "네트워크 에러입니다. 다시 시도해주세요",
+                    yOffset: 539.adjustedH
+                )
                 return .none
             }
         }
