@@ -25,16 +25,19 @@ class CachedImageLoader: ObservableObject {
         loadTask?.cancel()
         
         await MainActor.run {
-            loadError = nil
-            isLoading = true
+            self.loadError = nil
+            self.isLoading = true
         }
         
-        loadTask = Task {
+        loadTask = Task { [weak self] in
+            guard let self = self else { return }
+            
             do {
                 if let cachedImage = await ImageCacheManager.shared.getImageFromMemory(for: url.absoluteString) {
                     if !Task.isCancelled {
                         await MainActor.run {
                             self.image = cachedImage
+                            self.isLoading = false
                         }
                     }
                     return
@@ -49,16 +52,13 @@ class CachedImageLoader: ObservableObject {
                     if !Task.isCancelled {
                         await MainActor.run {
                             self.image = diskCachedImage
+                            self.isLoading = false
                         }
                     }
                     return
                 }
                 
-                let imageData = try await withTaskCancellationHandler {
-                    try await URLSession.shared.data(from: url).0
-                } onCancel: {
-                    // 취소 처리 - URLSession 태스크는 자동으로 취소
-                }
+                let imageData = try await URLSession.shared.data(from: url).0
                 
                 guard !Task.isCancelled else { return }
                 
@@ -69,28 +69,27 @@ class CachedImageLoader: ObservableObject {
                     if !Task.isCancelled {
                         await MainActor.run {
                             self.image = downloadedImage
+                            self.isLoading = false
                         }
                     }
                 } else {
-                    throw NSError(domain: "CachedImageLoader", code: -1,
-                                 userInfo: [NSLocalizedDescriptionKey: "Invalid image data"])
+                    if !Task.isCancelled {
+                        await MainActor.run {
+                            self.loadError = APIError.decodingError
+                            self.isLoading = false
+                        }
+                    }
                 }
             } catch {
                 if !Task.isCancelled {
                     if let urlError = error as? URLError, urlError.code == .cancelled {
-                        // Cancelled, no need to update error
                     } else {
                         await MainActor.run {
                             self.loadError = error
+                            self.isLoading = false
                         }
                         print("Error downloading image: \(error)")
                     }
-                }
-            }
-            
-            if !Task.isCancelled {
-                await MainActor.run {
-                    self.isLoading = false
                 }
             }
         }
@@ -99,9 +98,10 @@ class CachedImageLoader: ObservableObject {
     func cancelLoad() {
         loadTask?.cancel()
         loadTask = nil
+        
         if isLoading {
-            Task { @MainActor in
-                self.isLoading = false
+            Task { @MainActor [weak self] in
+                self?.isLoading = false
             }
         }
     }
