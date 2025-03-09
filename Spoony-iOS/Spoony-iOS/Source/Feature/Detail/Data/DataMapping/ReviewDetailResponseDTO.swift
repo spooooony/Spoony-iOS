@@ -29,7 +29,7 @@ struct ReviewDetailResponseDTO: Codable {
 }
 
 // MARK: - DetailCategoryColorResponse
-struct DetailCategoryColorResponse: Codable {
+struct DetailCategoryColorResponse: Codable, Equatable {
     let categoryId: Int
     let categoryName: String
     let iconUrl: String?
