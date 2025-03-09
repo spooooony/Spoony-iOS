@@ -24,14 +24,18 @@ class CachedImageLoader: ObservableObject {
         
         loadTask?.cancel()
         
-        loadError = nil
-        isLoading = true
+        await MainActor.run {
+            loadError = nil
+            isLoading = true
+        }
         
         loadTask = Task {
             do {
                 if let cachedImage = await ImageCacheManager.shared.getImageFromMemory(for: url.absoluteString) {
                     if !Task.isCancelled {
-                        self.image = cachedImage
+                        await MainActor.run {
+                            self.image = cachedImage
+                        }
                     }
                     return
                 }
@@ -43,7 +47,9 @@ class CachedImageLoader: ObservableObject {
                     }
                 }) {
                     if !Task.isCancelled {
-                        self.image = diskCachedImage
+                        await MainActor.run {
+                            self.image = diskCachedImage
+                        }
                     }
                     return
                 }
@@ -61,7 +67,9 @@ class CachedImageLoader: ObservableObject {
                     await ImageCacheManager.shared.saveImageToDisk(downloadedImage, for: url.absoluteString)
                     
                     if !Task.isCancelled {
-                        self.image = downloadedImage
+                        await MainActor.run {
+                            self.image = downloadedImage
+                        }
                     }
                 } else {
                     throw NSError(domain: "CachedImageLoader", code: -1,
@@ -70,15 +78,20 @@ class CachedImageLoader: ObservableObject {
             } catch {
                 if !Task.isCancelled {
                     if let urlError = error as? URLError, urlError.code == .cancelled {
+                        // Cancelled, no need to update error
                     } else {
-                        self.loadError = error
+                        await MainActor.run {
+                            self.loadError = error
+                        }
                         print("Error downloading image: \(error)")
                     }
                 }
             }
             
             if !Task.isCancelled {
-                self.isLoading = false
+                await MainActor.run {
+                    self.isLoading = false
+                }
             }
         }
     }
@@ -87,7 +100,9 @@ class CachedImageLoader: ObservableObject {
         loadTask?.cancel()
         loadTask = nil
         if isLoading {
-            isLoading = false
+            Task { @MainActor in
+                self.isLoading = false
+            }
         }
     }
     
