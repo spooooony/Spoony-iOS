@@ -10,55 +10,103 @@ import SwiftUI
 class CachedImageLoader: ObservableObject {
     @Published var image: UIImage?
     private var url: URL?
-    private var task: URLSessionDataTask?
-    private var isLoading = false
+    private var loadTask: Task<Void, Never>?
+    
+    @Published private(set) var isLoading = false
+    @Published private(set) var loadError: Error?
     
     init(url: URL?) {
         self.url = url
     }
     
-    func load() {
+    func load() async {
         guard !isLoading, let url = url else { return }
         
-        if let cachedImage = ImageCacheManager.shared.getImageFromMemory(for: url.absoluteString) {
-            self.image = cachedImage
-            return
+        loadTask?.cancel()
+        
+        await MainActor.run {
+            self.loadError = nil
+            self.isLoading = true
         }
         
-        if let diskCachedImage = ImageCacheManager.shared.getImageFromDisk(for: url.absoluteString) {
-            self.image = diskCachedImage
-            return
-        }
-        
-        isLoading = true
-        
-        task = URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
-            defer {
-                DispatchQueue.main.async {
-                    self?.isLoading = false
+        loadTask = Task { [weak self] in
+            guard let self = self else { return }
+            
+            do {
+                if let cachedImage = await ImageCacheManager.shared.getImageFromMemory(for: url.absoluteString) {
+                    if !Task.isCancelled {
+                        await MainActor.run {
+                            self.image = cachedImage
+                            self.isLoading = false
+                        }
+                    }
+                    return
+                }
+                
+                if let diskCachedImage = try await withCheckedThrowingContinuation({ continuation in
+                    Task {
+                        let image = await ImageCacheManager.shared.getImageFromDisk(for: url.absoluteString)
+                        continuation.resume(returning: image)
+                    }
+                }) {
+                    if !Task.isCancelled {
+                        await MainActor.run {
+                            self.image = diskCachedImage
+                            self.isLoading = false
+                        }
+                    }
+                    return
+                }
+                
+                let imageData = try await URLSession.shared.data(from: url).0
+                
+                guard !Task.isCancelled else { return }
+                
+                if let downloadedImage = UIImage(data: imageData) {
+                    await ImageCacheManager.shared.saveImageToMemory(downloadedImage, for: url.absoluteString)
+                    await ImageCacheManager.shared.saveImageToDisk(downloadedImage, for: url.absoluteString)
+                    
+                    if !Task.isCancelled {
+                        await MainActor.run {
+                            self.image = downloadedImage
+                            self.isLoading = false
+                        }
+                    }
+                } else {
+                    if !Task.isCancelled {
+                        await MainActor.run {
+                            self.loadError = APIError.decodingError
+                            self.isLoading = false
+                        }
+                    }
+                }
+            } catch {
+                if !Task.isCancelled {
+                    if let urlError = error as? URLError, urlError.code == .cancelled {
+                    } else {
+                        await MainActor.run {
+                            self.loadError = error
+                            self.isLoading = false
+                        }
+                        print("Error downloading image: \(error)")
+                    }
                 }
             }
-            
-            guard let data = data,
-                  error == nil,
-                  let image = UIImage(data: data) else {
-                return
-            }
-            
-            ImageCacheManager.shared.saveImageToMemory(image, for: url.absoluteString)
-            ImageCacheManager.shared.saveImageToDisk(image, for: url.absoluteString)
-            
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.image = image
-            }
         }
-        
-        task?.resume()
     }
     
-    func cancel() {
-        task?.cancel()
-        isLoading = false
+    func cancelLoad() {
+        loadTask?.cancel()
+        loadTask = nil
+        
+        if isLoading {
+            Task { @MainActor [weak self] in
+                self?.isLoading = false
+            }
+        }
+    }
+    
+    deinit {
+        cancelLoad()
     }
 }
