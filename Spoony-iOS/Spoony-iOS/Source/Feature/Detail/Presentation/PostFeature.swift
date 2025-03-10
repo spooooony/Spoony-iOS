@@ -68,6 +68,9 @@ struct PostFeature {
         case zzimButtonTapped(isZzim: Bool)
         case zzimButtonResponse(isScrap: Bool)
         
+        case showToast(String)
+        case dismissToast
+        
         case error(PostError)
     }
     
@@ -96,11 +99,7 @@ struct PostFeature {
                     updateState(&state, with: data)
                 case .failure:
                     state.successService = false
-                    state.toast = Toast(
-                        style: .gray,
-                        message: "데이터를 불러오는데 실패했습니다.",
-                        yOffset: 539
-                    )
+                    return .send(.showToast("데이터를 불러오는데 실패했습니다."))
                 }
                 return .none
                 
@@ -132,42 +131,36 @@ struct PostFeature {
             case .zzimButtonResponse(let isScrap):
                 if isScrap {
                     state.zzimCount += 1
-                    state.isZzim = true
-                    state.toast = Toast(
-                        style: .gray,
-                        message: "내 지도에 추가되었어요.",
-                        yOffset: 539.adjustedH
-                    )
+                    state.isZzim.toggle()
+                    return .send(.showToast("내 지도에 추가되었어요."))
                 } else {
                     state.zzimCount -= 1
-                    state.isZzim = false
-                    state.toast = Toast(
-                        style: .gray,
-                        message: "내 지도에서 삭제되었어요.",
-                        yOffset: 539.adjustedH
-                    )
+                    state.isZzim.toggle()
+                    return .send(.showToast("내 지도에서 삭제되었어요."))
                 }
-                return .none
                 
             case .scoopButtonTappedResponse(let isSuccess):
                 if isSuccess {
                     state.isScoop.toggle()
                     state.spoonCount -= 1
                 } else {
-                    state.toast = Toast(
-                        style: .gray,
-                        message: "떠먹기 실패했습니다.",
-                        yOffset: 539.adjustedH
-                    )
+                    return .send(.showToast("떠먹기 실패했습니다."))
                 }
                 return .none
-            case .error(let error):
+                
+            case .showToast(let message):
                 state.toast = Toast(
                     style: .gray,
-                    message: error.description,
+                    message: message,
                     yOffset: 539.adjustedH
                 )
+                
                 return .none
+            case .dismissToast:
+                state.toast = nil
+                return .none
+            case .error(let error):
+                return .send(.showToast(error.description))
             }
         }
     }

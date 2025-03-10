@@ -27,7 +27,6 @@ struct PostView: View {
     
     @State private var isPresented: Bool = false
     @State private var popUpIsPresented: Bool = false
-    @State private var toastMessage: Toast?
     
     // MARK: - body
     
@@ -57,14 +56,16 @@ struct PostView: View {
                     dropDownView
                 })
                 .scrollIndicators(.hidden)
-                .toastView(toast: $toastMessage)
+                .toastView(toast: Binding(
+                    get: { store.toast },
+                    set: { newValue in
+                        if newValue == nil {
+                            store.send(.dismissToast)
+                        }
+                    }
+                ))
                 .onAppear {
-                    
                     store.send(.viewAppear(postId: postId))
-                    
-                }
-                .onChange(of: store.toast) { _, newValue in
-                    toastMessage = newValue
                 }
                 
                 bottomView
