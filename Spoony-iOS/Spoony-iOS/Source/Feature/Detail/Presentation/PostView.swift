@@ -348,7 +348,13 @@ struct PostScrapButton: View {
 }
 
 #Preview {
-    PostView(postId: 20, store: Store(initialState: PostFeature.State(), reducer: {
-        PostFeature()
-    }))
+    @Previewable @StateObject var navigationManager = NavigationManager()
+    
+    PostView(
+        postId: 20, store: StoreOf<PostFeature>(initialState: PostFeature.State(), reducer: {
+            PostFeature()
+        })
+    )
+    .environmentObject(navigationManager)
+    .popup(popup: $navigationManager.popup)
 }
