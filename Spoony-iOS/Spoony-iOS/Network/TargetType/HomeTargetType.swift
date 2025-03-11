@@ -33,7 +33,7 @@ extension HomeTargetType: TargetType {
         case .getMapList:
             return "/post/zzim"
         case .getMapFocus(let placeId):
-            return "/post/zzim/place/\(placeId)"
+            return "/post/zzim/\(placeId)"
         case .getSearchResultList:
             return "/location/search"
         case .getSearchResultLocation(let locationId):

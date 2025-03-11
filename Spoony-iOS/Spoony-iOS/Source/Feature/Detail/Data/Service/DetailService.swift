@@ -6,17 +6,17 @@
 //
 
 protocol DetailServiceProtocol {
-    func getReviewDetail(userId: Int, postId: Int) async throws -> ReviewDetailResponseDTO
-    func scrapReview(userId: Int, postId: Int) async throws
-    func unScrapReview(userId: Int, postId: Int) async throws
-    func scoopReview(userId: Int, postId: Int) async throws -> Bool
-    func getUserInfo(userId: Int) async throws -> UserInfoResponseDTO
+    func getReviewDetail(postId: Int) async throws -> ReviewDetailResponseDTO
+    func scrapReview(postId: Int) async throws
+    func unScrapReview(postId: Int) async throws
+    func scoopReview(postId: Int) async throws -> Bool
+    func getUserInfo() async throws -> UserInfoResponseDTO
 }
 
 extension DetailServiceProtocol {
-    func getReviewDetail(userId: Int, postId: Int) async throws -> ReviewDetailResponseDTO {
+    func getReviewDetail(postId: Int) async throws -> ReviewDetailResponseDTO {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.detailProvider.request(.getDetailReview(userId: userId, postId: postId)) { result in
+            Providers.detailProvider.request(.getDetailReview(postId: postId)) { result in
                 switch result {
                 case .success(let response):
                     do {
@@ -36,17 +36,17 @@ extension DetailServiceProtocol {
         }
     }
     
-    func scrapReview(userId: Int, postId: Int) async throws {
-        try await requestReviewAction(targetType: .scrapReview(userId: userId, postId: postId))
+    func scrapReview(postId: Int) async throws {
+        try await requestReviewAction(targetType: .scrapReview(postId: postId))
     }
     
-    func unScrapReview(userId: Int, postId: Int) async throws {
-        try await requestReviewAction(targetType: .unScrapReview(userId: userId, postId: postId))
+    func unScrapReview(postId: Int) async throws {
+        try await requestReviewAction(targetType: .unScrapReview(postId: postId))
     }
     
-    func scoopReview(userId: Int, postId: Int) async throws -> Bool {
+    func scoopReview(postId: Int) async throws -> Bool {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.detailProvider.request(.scoopReview(userId: userId, postId: postId)) { result in
+            Providers.detailProvider.request(.scoopReview(postId: postId)) { result in
                 switch result {
                 case .success(let response):
                     do {
@@ -62,9 +62,9 @@ extension DetailServiceProtocol {
         }
     }
     
-    func getUserInfo(userId: Int) async throws -> UserInfoResponseDTO {
+    func getUserInfo() async throws -> UserInfoResponseDTO {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.detailProvider.request(.getUserInfo(userId: userId)) { result in
+            Providers.detailProvider.request(.getUserInfo) { result in
                 switch result {
                 case .success(let response):
                     do {

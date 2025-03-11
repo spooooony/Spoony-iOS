@@ -9,11 +9,11 @@ import Foundation
 import Moya
 
 enum DetailTargetType {
-    case getDetailReview(userId: Int, postId: Int)
-    case scoopReview(userId: Int, postId: Int)
-    case scrapReview(userId: Int, postId: Int)
-    case unScrapReview(userId: Int, postId: Int)
-    case getUserInfo(userId: Int)
+    case getDetailReview(postId: Int)
+    case scoopReview(postId: Int)
+    case scrapReview(postId: Int)
+    case unScrapReview(postId: Int)
+    case getUserInfo
 }
 
 extension DetailTargetType: TargetType {
@@ -27,16 +27,16 @@ extension DetailTargetType: TargetType {
     
     var path: String {
         switch self {
-        case .getDetailReview(let userId, let postId):
-            return "/post/\(userId)/\(postId)"
+        case .getDetailReview(let postId):
+            return "/post/\(postId)"
         case .scoopReview:
             return "/post/scoop"
         case .scrapReview:
             return "/post/zzim"
-        case .unScrapReview(let userId, let postId):
-            return "/post/zzim/\(userId)/\(postId)"
-        case .getUserInfo(let userId):
-            return "/user/\(userId)"
+        case .unScrapReview(let postId):
+            return "/post/zzim/\(postId)"
+        case .getUserInfo:
+            return "/user"
         }
     }
     
@@ -44,8 +44,7 @@ extension DetailTargetType: TargetType {
         switch self {
         case .getDetailReview, .getUserInfo:
             return .get
-        case .scoopReview,
-                .scrapReview:
+        case .scoopReview, .scrapReview:
             return .post
         case .unScrapReview:
             return .delete
@@ -56,11 +55,10 @@ extension DetailTargetType: TargetType {
         switch self {
         case .getDetailReview, .getUserInfo:
             return .requestPlain
-        case .scoopReview(let userId, let postId), .scrapReview(let userId, let postId):
+        case .scoopReview(let postId), .scrapReview(let postId):
             return .requestParameters(
                 parameters: [
-                    "postId": postId,
-                    "userId": userId
+                    "postId": postId
                 ],
                 encoding: JSONEncoding.default
             )

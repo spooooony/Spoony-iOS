@@ -6,11 +6,11 @@
 //
 
 protocol DetailUseCaseProtocol {
-    func fetchInitialDetail(userId: Int, postId: Int) async throws -> ReviewDetailModel
-    func scrapReview(userId: Int, postId: Int) async throws
-    func unScrapReview(userId: Int, postId: Int) async throws
-    func scoopReview(userId: Int, postId: Int) async throws -> Bool
-    func getUserInfo(userId: Int) async throws -> UserInfoResponseDTO
+    func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel
+    func scrapReview(postId: Int) async throws
+    func unScrapReview(postId: Int) async throws
+    func scoopReview(postId: Int) async throws -> Bool
+    func getUserInfo() async throws -> UserInfoResponseDTO
 }
 
 struct DefaultDetailUseCase {
@@ -28,27 +28,28 @@ struct DefaultDetailUseCase {
 }
 
 extension DefaultDetailUseCase: DetailUseCaseProtocol {
-    func fetchInitialDetail(userId: Int, postId: Int) async throws -> ReviewDetailModel {
+    
+    func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel {
         let spoonCount = try await homeService.fetchSpoonCount()
-        let reviewDetail = try await detailRepository.fetchReviewDetail(userId: userId, postId: postId)
-        let userInfo = try await detailRepository.fetchUserInfo(userId: userId)
+        let reviewDetail = try await detailRepository.fetchReviewDetail(postId: postId)
+        let userInfo = try await detailRepository.fetchUserInfo()
         
         return ReviewDetailModel(reviewDetail: reviewDetail, userInfo: userInfo, spoonCount: spoonCount)
     }
     
-    func scrapReview(userId: Int, postId: Int) async throws {
-        try await detailRepository.scrapReview(userId: userId, postId: postId)
+    func scrapReview(postId: Int) async throws {
+        try await detailRepository.scrapReview(postId: postId)
     }
     
-    func unScrapReview(userId: Int, postId: Int) async throws {
-        try await detailRepository.unScrapReview(userId: userId, postId: postId)
+    func unScrapReview(postId: Int) async throws {
+        try await detailRepository.unScrapReview(postId: postId)
     }
     
-    func scoopReview(userId: Int, postId: Int) async throws -> Bool {
-        return try await detailRepository.scoopReview(userId: userId, postId: postId)
+    func scoopReview(postId: Int) async throws -> Bool {
+        return try await detailRepository.scoopReview(postId: postId)
     }
     
-    func getUserInfo(userId: Int) async throws -> UserInfoResponseDTO {
-        return try await detailRepository.fetchUserInfo(userId: userId)
+    func getUserInfo() async throws -> UserInfoResponseDTO {
+        return try await detailRepository.fetchUserInfo()
     }
 }

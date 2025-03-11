@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 final class NavigationManager: ObservableObject {
     @Published var selectedTab: TabType = .map
@@ -24,7 +25,9 @@ final class NavigationManager: ObservableObject {
         case .locationView:
             Home()
         case .detailView(let postId):
-            DetailView(postId: postId)
+            PostView(postId: postId, store: Store(initialState: PostFeature.State(), reducer: {
+                PostFeature()
+            }))
         case .report(let postId):
             Report(postId: postId)
         case .searchLocationView(locationId: let locationId, locationTitle: let locationTitle):
