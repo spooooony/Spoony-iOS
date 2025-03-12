@@ -5,6 +5,7 @@
 //  Created by 최주리 on 3/12/25.
 //
 
+import AuthenticationServices
 import Foundation
 
 import KakaoSDKUser
@@ -12,10 +13,11 @@ import KakaoSDKAuth
 
 protocol LoginServiceProtocol {
     func kakaoLogin() async throws -> String
-    func appleLogin()
+    func appleLogin() async throws -> String
 }
 
-final class DefaultLoginService: LoginServiceProtocol {
+final class DefaultLoginService: NSObject, LoginServiceProtocol {
+    private var appleLoginContinuation: CheckedContinuation<String, Error>?
 
     func kakaoLogin() async throws -> String {
         return try await withCheckedThrowingContinuation { continuation in
@@ -38,7 +40,62 @@ final class DefaultLoginService: LoginServiceProtocol {
         }
     }
     
-    func appleLogin() {
-        print("apple login")
+    func appleLogin() async throws -> String {
+        return try await withCheckedThrowingContinuation { continuation in
+            appleLoginContinuation = continuation
+            
+            let request = ASAuthorizationAppleIDProvider().createRequest()
+            
+            let controller = ASAuthorizationController(authorizationRequests: [request])
+            controller.delegate = self
+            controller.presentationContextProvider = self
+            controller.performRequests()
+        }
+    }
+}
+
+extension DefaultLoginService: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+    // apple 로그인 UI를 어느 뷰에 표시할지 지정
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first
+        else {
+            fatalError("No window found")
+        }
+        return window
+    }
+    
+    // apple id 연동 성공 시
+    func authorizationController(
+        controller: ASAuthorizationController,
+        didCompleteWithAuthorization authorization: ASAuthorization
+    ) {
+        guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential else { return }
+
+        let name = appleIDCredential.fullName
+        let code = String(data: appleIDCredential.authorizationCode!, encoding: .utf8)
+        let token = String(data: appleIDCredential.identityToken!, encoding: .utf8)
+        
+        #if DEBUG
+        print("token \(String(describing: token))")
+        print("code \(String(describing: code))")
+        #endif
+        
+        if let continuation = appleLoginContinuation,
+           let token {
+            continuation.resume(returning: token)
+        } else {
+            appleLoginContinuation?.resume(throwing: LoginError.appleTokenError)
+        }
+    }
+    
+    // apple id 연동 실패 시
+    func authorizationController(
+        controller: ASAuthorizationController,
+        didCompleteWithError error: Error
+    ) {
+        if let continuation = appleLoginContinuation {
+            continuation.resume(throwing: error)
+        }
     }
 }

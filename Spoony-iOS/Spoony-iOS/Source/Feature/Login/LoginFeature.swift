@@ -21,7 +21,6 @@ enum LoginError: Error {
 
 @Reducer
 struct LoginFeature {
-    
     @ObservableState
     struct State {
         var socialType: SocialType = .KAKAO
@@ -54,7 +53,12 @@ struct LoginFeature {
                 }
             case .appleLoginButtonTapped:
                 return .run { send in
-                    loginService.appleLogin()
+                    do {
+                        let result = try await loginService.appleLogin()
+                        await send(.setToken(.APPLE, result))
+                    } catch {
+                        await send(.error(LoginError.appleTokenError))
+                    }
                 }
             case .setToken(let type, let token):
                 state.socialType = type
