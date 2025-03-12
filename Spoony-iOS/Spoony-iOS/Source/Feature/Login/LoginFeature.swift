@@ -9,18 +9,31 @@ import Foundation
 
 import ComposableArchitecture
 
+enum SocialType {
+    case KAKAO
+    case APPLE
+}
+
+enum LoginError: Error {
+    case kakaoTokenError
+    case appleTokenError
+}
+
 @Reducer
 struct LoginFeature {
     
     @ObservableState
     struct State {
-        
+        var socialType: SocialType = .KAKAO
+        var token: String = ""
     }
     
     enum Action {
         case onAppear
         case kakaoLoginButtonTapped
         case appleLoginButtonTapped
+        case setToken(SocialType, String)
+        case error(Error)
     }
     
     @Dependency(\.loginService) var loginService: LoginServiceProtocol
@@ -32,12 +45,24 @@ struct LoginFeature {
                 return .none
             case .kakaoLoginButtonTapped:
                 return .run { send in
-                    loginService.kakaoLogin()
+                    do {
+                        let result = try await loginService.kakaoLogin()
+                        await send(.setToken(.KAKAO, result))
+                    } catch {
+                        await send(.error(LoginError.kakaoTokenError))
+                    }
                 }
             case .appleLoginButtonTapped:
                 return .run { send in
                     loginService.appleLogin()
                 }
+            case .setToken(let type, let token):
+                state.socialType = type
+                state.token = token
+                return .none
+            case .error(let error):
+                print(error.localizedDescription)
+                return .none
             }
         }
     }

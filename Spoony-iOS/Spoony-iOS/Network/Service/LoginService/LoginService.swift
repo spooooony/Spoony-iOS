@@ -8,40 +8,32 @@
 import Foundation
 
 import KakaoSDKUser
+import KakaoSDKAuth
 
 protocol LoginServiceProtocol {
-    func kakaoLogin()
+    func kakaoLogin() async throws -> String
     func appleLogin()
 }
 
 final class DefaultLoginService: LoginServiceProtocol {
-    func kakaoLogin() {
-        // 카카오톡 실행 가능 여부 확인
-        if (UserApi.isKakaoTalkLoginAvailable()) {
-            UserApi.shared.loginWithKakaoTalk {(oauthToken, error) in
-                if let error = error {
-                    print(error)
-                }
-                else {
-                    print("loginWithKakaoTalk() success.")
 
-                    // 성공 시 동작 구현
-                    _ = oauthToken
-                    print(oauthToken?.accessToken)
+    func kakaoLogin() async throws -> String {
+        return try await withCheckedThrowingContinuation { continuation in
+            let resultHandler: (OAuthToken?, Error?) -> Void = { oauthToken, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let oauthToken = oauthToken,
+                    let token = oauthToken.idToken {
+                    continuation.resume(returning: token)
                 }
             }
-        } else {
-            UserApi.shared.loginWithKakaoAccount {(oauthToken, error) in
-                if let error = error {
-                    print(error)
-                }
-                else {
-                    print("loginWithKakaoAccount() success.")
-                    
-                    // 성공 시 동작 구현
-                    _ = oauthToken
-                    print(oauthToken?.accessToken)
-                }
+            
+            // 앱으로 로그인
+            if UserApi.isKakaoTalkLoginAvailable() {
+                UserApi.shared.loginWithKakaoTalk(completion: resultHandler)
+            } else {
+                // 웹으로 로그인
+                UserApi.shared.loginWithKakaoAccount(completion: resultHandler)
             }
         }
     }
