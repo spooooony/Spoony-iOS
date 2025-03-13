@@ -26,7 +26,10 @@ final class DefaultLoginService: NSObject, LoginServiceProtocol {
                     continuation.resume(throwing: error)
                 } else if let oauthToken = oauthToken,
                     let token = oauthToken.idToken {
+                    #if DEBUG
                     print("kakao token: \(token)")
+                    #endif
+                    
                     continuation.resume(returning: token)
                 }
             }
