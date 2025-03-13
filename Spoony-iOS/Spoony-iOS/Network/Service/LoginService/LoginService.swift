@@ -26,16 +26,18 @@ final class DefaultLoginService: NSObject, LoginServiceProtocol {
                     continuation.resume(throwing: error)
                 } else if let oauthToken = oauthToken,
                     let token = oauthToken.idToken {
+                    print("kakao token: \(token)")
                     continuation.resume(returning: token)
                 }
             }
-            
-            // 앱으로 로그인
-            if UserApi.isKakaoTalkLoginAvailable() {
-                UserApi.shared.loginWithKakaoTalk(completion: resultHandler)
-            } else {
-                // 웹으로 로그인
-                UserApi.shared.loginWithKakaoAccount(completion: resultHandler)
+            Task { @MainActor in
+                // 앱으로 로그인
+                if UserApi.isKakaoTalkLoginAvailable() {
+                    UserApi.shared.loginWithKakaoTalk(completion: resultHandler)
+                } else {
+                    // 웹으로 로그인
+                    UserApi.shared.loginWithKakaoAccount(completion: resultHandler)
+                }
             }
         }
     }
@@ -56,6 +58,7 @@ final class DefaultLoginService: NSObject, LoginServiceProtocol {
 
 extension DefaultLoginService: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     // apple 로그인 UI를 어느 뷰에 표시할지 지정
+    @MainActor
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first
@@ -72,7 +75,6 @@ extension DefaultLoginService: ASAuthorizationControllerDelegate, ASAuthorizatio
     ) {
         guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential else { return }
 
-        let name = appleIDCredential.fullName
         let code = String(data: appleIDCredential.authorizationCode!, encoding: .utf8)
         let token = String(data: appleIDCredential.identityToken!, encoding: .utf8)
         
