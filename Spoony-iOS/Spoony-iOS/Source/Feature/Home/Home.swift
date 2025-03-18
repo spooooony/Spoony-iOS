@@ -33,6 +33,8 @@ struct Home: View {
                 .onChange(of: viewModel.focusedPlaces) { _, newPlaces in
                     if !newPlaces.isEmpty {
                         selectedPlace = newPlaces[0]
+                    } else {
+                        selectedPlace = nil
                     }
                 }
             

@@ -67,14 +67,10 @@ struct NMapView: UIViewRepresentable {
     }
     
     func updateUIView(_ mapView: NMFMapView, context: Context) {
-        // 마커 관리를 위한 Coordinator 설정
         mapView.touchDelegate = context.coordinator
-        
-        // 마커 업데이트 작업을 수행합니다.
         context.coordinator.updateMarkers(mapView: mapView, pickList: viewModel.pickList, selectedPlaceId: selectedPlace?.placeId)
         
-        // 선택된 장소가 있으면 해당 위치로 카메라 이동
-        if let location = viewModel.selectedLocation {
+        if let location = viewModel.selectedLocation, !viewModel.focusedPlaces.isEmpty {
             let coord = NMGLatLng(lat: location.latitude, lng: location.longitude)
             let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
             cameraUpdate.animation = .easeIn
@@ -82,7 +78,6 @@ struct NMapView: UIViewRepresentable {
             mapView.moveCamera(cameraUpdate)
         }
         
-        // 처음 지도가 로드될 때만 모든 마커가 보이도록 카메라 이동
         if context.coordinator.isInitialLoad && !viewModel.pickList.isEmpty {
             let bounds = NMGLatLngBounds(latLngs: viewModel.pickList.map {
                 NMGLatLng(lat: $0.latitude, lng: $0.longitude)
@@ -102,7 +97,6 @@ struct NMapView: UIViewRepresentable {
         mapView.logoInteractionEnabled = true
         mapView.logoMargin = UIEdgeInsets(top: 60, left: 0, bottom: 0, right: 12)
         
-        // 지도 터치 이벤트 설정
         let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleMapTap(_:)))
         tapGesture.delegate = context.coordinator
         mapView.addGestureRecognizer(tapGesture)
@@ -113,8 +107,11 @@ struct NMapView: UIViewRepresentable {
 
 final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerDelegate {
     @Binding var selectedPlace: CardPlace?
-    var markers: [Int: NMFMarker] = [:] // placeId를 키로 사용하는 딕셔너리로 변경
+    var markers: [Int: NMFMarker] = [:]
     var isInitialLoad: Bool = true
+    
+    private var isProcessingMarkerTouch = false
+    private var lastMarkerTouchTime: TimeInterval = 0
     
     private let defaultMarkerImage: NMFOverlayImage
     private let selectedMarkerImage: NMFOverlayImage
@@ -131,15 +128,15 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
         super.init()
     }
     
-    // 제스처 인식기 처리
     @objc func handleMapTap(_ gesture: UITapGestureRecognizer) {
-        print("지도 터치 감지됨")
+        let currentTime = Date().timeIntervalSince1970
+        if currentTime - lastMarkerTouchTime < 0.5 { return }
         
-        // UI 업데이트는 메인 스레드에서 수행
+        if selectedPlace == nil { return }
+        
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
-            // 모든 마커 초기화
             for (_, marker) in self.markers {
                 if let placeName = marker.userInfo["placeName"] as? String {
                     marker.iconImage = self.defaultMarkerImage
@@ -147,44 +144,43 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
                 }
             }
             
-            // 선택된 장소 초기화
             self.selectedPlace = nil
-            
-            // ViewModel 메서드 호출을 메인 스레드에서 수행
-            if !self.viewModel.focusedPlaces.isEmpty {
-                self.viewModel.clearFocusedPlaces()
-            }
+            self.viewModel.clearFocusedPlaces()
         }
     }
     
-    // UIGestureRecognizerDelegate
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        let touchPoint = touch.location(in: gestureRecognizer.view)
+        if let view = gestureRecognizer.view?.hitTest(touchPoint, with: nil) {
+            let className = NSStringFromClass(type(of: view))
+            if className.contains("Marker") || className.contains("NMF") {
+                return false
+            }
+        }
+        return true
+    }
+    
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
     
-    // 성능 최적화: 마커 업데이트 로직
     func updateMarkers(mapView: NMFMapView, pickList: [PickListCardResponse], selectedPlaceId: Int?) {
-        // 현재 표시된 마커들의 ID 집합
         var currentMarkerIds = Set(markers.keys)
         
-        // 새로운 마커 추가 또는 기존 마커 업데이트
         for pickCard in pickList {
             let placeId = pickCard.placeId
             let isSelected = placeId == selectedPlaceId
             
             if let existingMarker = markers[placeId] {
-                // 기존 마커 업데이트
                 updateMarker(existingMarker, with: pickCard, isSelected: isSelected)
                 currentMarkerIds.remove(placeId)
             } else {
-                // 새 마커 생성
                 let newMarker = createMarker(for: pickCard, isSelected: isSelected, mapView: mapView)
                 newMarker.mapView = mapView
                 markers[placeId] = newMarker
             }
         }
         
-        // 제거해야 할 마커들 처리
         for idToRemove in currentMarkerIds {
             if let markerToRemove = markers[idToRemove] {
                 markerToRemove.mapView = nil
@@ -219,33 +215,55 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
         marker.height = CGFloat(NMF_MARKER_SIZE_AUTO)
         marker.iconImage = isSelected ? selectedMarkerImage : defaultMarkerImage
         
-        // 마커에 장소 ID 정보 저장
         marker.userInfo = ["placeId": pickCard.placeId, "placeName": pickCard.placeName]
         
         configureMarkerCaption(marker, with: pickCard.placeName, isSelected: isSelected)
         
-        // 마커 터치 이벤트 설정
-        marker.touchHandler = { [weak self, unowned mapView] _ -> Bool in
+        marker.touchHandler = { [weak self] _ -> Bool in
             guard let self = self else { return false }
-            guard let placeId = marker.userInfo["placeId"] as? Int,
-                  let placeName = marker.userInfo["placeName"] as? String else { return false }
             
-            // 현재 선택 상태 확인
+            if self.isProcessingMarkerTouch { return true }
+            
+            self.isProcessingMarkerTouch = true
+            self.lastMarkerTouchTime = Date().timeIntervalSince1970
+            
+            guard let placeId = marker.userInfo["placeId"] as? Int,
+                  let placeName = marker.userInfo["placeName"] as? String else {
+                self.isProcessingMarkerTouch = false
+                return false
+            }
+            
             let isCurrentlySelected = (self.selectedPlace?.placeId == placeId)
             
-            // UI 업데이트는 메인 스레드에서 수행
             DispatchQueue.main.async {
                 if !isCurrentlySelected {
-                    // 새로운 마커 선택
+                    for (_, m) in self.markers {
+                        if let pName = m.userInfo["placeName"] as? String, m !== marker {
+                            m.iconImage = self.defaultMarkerImage
+                            self.configureMarkerCaption(m, with: pName, isSelected: false)
+                        }
+                    }
+                    
                     marker.iconImage = self.selectedMarkerImage
                     self.configureMarkerCaption(marker, with: placeName, isSelected: true)
                     self.viewModel.fetchFocusedPlace(placeId: placeId)
                 } else {
-                    // 선택 해제
-                    marker.iconImage = self.defaultMarkerImage
-                    self.configureMarkerCaption(marker, with: placeName, isSelected: false)
-                    self.selectedPlace = nil
                     self.viewModel.clearFocusedPlaces()
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        self.selectedPlace = nil
+                        
+                        marker.iconImage = self.defaultMarkerImage
+                        self.configureMarkerCaption(marker, with: placeName, isSelected: false)
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            self.isProcessingMarkerTouch = false
+                        }
+                    }
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    self.isProcessingMarkerTouch = false
                 }
             }
             
@@ -255,9 +273,7 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
         return marker
     }
     
-    // NMFMapViewTouchDelegate
     func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng) -> Bool {
-        // 기본 터치 이벤트는 UITapGestureRecognizer에서 처리
         return false
     }
 }
