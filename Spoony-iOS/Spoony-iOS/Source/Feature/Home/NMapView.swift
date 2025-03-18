@@ -67,8 +67,11 @@ struct NMapView: UIViewRepresentable {
     }
     
     func updateUIView(_ mapView: NMFMapView, context: Context) {
+        // 마커 관리를 위한 Coordinator 설정
         mapView.touchDelegate = context.coordinator
-        updateMarkers(mapView: mapView, context: context)
+        
+        // 마커 업데이트 작업을 수행합니다.
+        context.coordinator.updateMarkers(mapView: mapView, pickList: viewModel.pickList, selectedPlaceId: selectedPlace?.placeId)
         
         // 선택된 장소가 있으면 해당 위치로 카메라 이동
         if let location = viewModel.selectedLocation {
@@ -90,32 +93,6 @@ struct NMapView: UIViewRepresentable {
         }
     }
     
-    private func updateMarkers(mapView: NMFMapView, context: Context) {
-        context.coordinator.clearAllMarkers()
-        
-        let newMarkers = viewModel.pickList.map { pickCard in
-            let marker = createMarker(for: pickCard, coordinator: context.coordinator)
-            marker.mapView = mapView
-            return marker
-        }
-        
-        context.coordinator.markers = newMarkers
-        
-        // 선택된 장소가 있으면 해당 마커 선택 상태로 변경
-        if let selected = selectedPlace {
-            if let markerToUpdate = context.coordinator.markers.first(where: { marker in
-                guard let userData = marker.userInfo["placeId"] as? Int else { return false }
-                return userData == selected.placeId
-            }) {
-                markerToUpdate.iconImage = selectedMarker
-                markerToUpdate.zIndex = 2
-                markerToUpdate.captionMinZoom = 0
-                
-                context.coordinator.lastSelectedMarker = markerToUpdate
-            }
-        }
-    }
-    
     private func configureMapView(context: Context) -> NMFMapView {
         let mapView = NMFMapView()
         mapView.positionMode = .disabled
@@ -125,72 +102,23 @@ struct NMapView: UIViewRepresentable {
         mapView.logoInteractionEnabled = true
         mapView.logoMargin = UIEdgeInsets(top: 60, left: 0, bottom: 0, right: 12)
         
+        // 지도 터치 이벤트 설정
         let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleMapTap(_:)))
         tapGesture.delegate = context.coordinator
         mapView.addGestureRecognizer(tapGesture)
         
         return mapView
     }
-    
-    private func createMarker(for pickCard: PickListCardResponse, coordinator: Coordinator) -> NMFMarker {
-        let marker = NMFMarker()
-        marker.position = NMGLatLng(lat: pickCard.latitude, lng: pickCard.longitude)
-        marker.width = CGFloat(NMF_MARKER_SIZE_AUTO)
-        marker.height = CGFloat(NMF_MARKER_SIZE_AUTO)
-        marker.iconImage = defaultMarker
-        marker.zIndex = 1
-        
-        marker.userInfo = ["placeId": pickCard.placeId, "placeName": pickCard.placeName]
-        
-        marker.captionText = pickCard.placeName
-        marker.captionTextSize = 14
-        marker.captionColor = .black
-        marker.captionMinZoom = 10
-        marker.captionMaxZoom = 20
-        marker.captionOffset = -12
-        marker.captionAligns = [.bottom]
-        
-        marker.touchHandler = { [weak coordinator] _ -> Bool in
-            guard let coordinator = coordinator else { return false }
-            coordinator.isMarkerTouched = true
-            
-            let isAlreadySelected = coordinator.lastSelectedMarker === marker
-            coordinator.resetAllMarkers()
-            
-            if isAlreadySelected {
-                coordinator.lastSelectedMarker = nil
-                
-                DispatchQueue.main.async {
-                    coordinator.selectedPlace = nil
-                    coordinator.viewModel.clearFocusedPlaces()
-                }
-            } else {
-                marker.iconImage = coordinator.selectedMarkerImage
-                marker.zIndex = 2
-                marker.captionMinZoom = 0
-                
-                coordinator.lastSelectedMarker = marker
-
-                coordinator.viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
-            }
-            
-            return true
-        }
-        
-        return marker
-    }
 }
 
 final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerDelegate {
     @Binding var selectedPlace: CardPlace?
-    var markers: [NMFMarker] = []
+    var markers: [Int: NMFMarker] = [:] // placeId를 키로 사용하는 딕셔너리로 변경
     var isInitialLoad: Bool = true
-    var isMarkerTouched: Bool = false // 마커 터치 여부 플래그
-    var lastSelectedMarker: NMFMarker? // 마지막으로 선택된 마커
     
-    let defaultMarkerImage: NMFOverlayImage
-    let selectedMarkerImage: NMFOverlayImage
-    let viewModel: HomeViewModel
+    private let defaultMarkerImage: NMFOverlayImage
+    private let selectedMarkerImage: NMFOverlayImage
+    private let viewModel: HomeViewModel
     
     init(selectedPlace: Binding<CardPlace?>,
          defaultMarkerImage: NMFOverlayImage,
@@ -203,48 +131,133 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
         super.init()
     }
     
+    // 제스처 인식기 처리
     @objc func handleMapTap(_ gesture: UITapGestureRecognizer) {
-        // 마커 터치 이벤트가 발생한 경우 플래그 체크 후 리셋
-        if isMarkerTouched {
-            isMarkerTouched = false
-            return
-        }
+        print("지도 터치 감지됨")
         
-        print("지도 터치 감지됨 (UITapGestureRecognizer)")
-        
-        // 선택된 장소 초기화
+        // UI 업데이트는 메인 스레드에서 수행
         DispatchQueue.main.async { [weak self] in
-            self?.selectedPlace = nil
-            self?.viewModel.clearFocusedPlaces()
-            self?.resetAllMarkers()
-            self?.lastSelectedMarker = nil
+            guard let self = self else { return }
+            
+            // 모든 마커 초기화
+            for (_, marker) in self.markers {
+                if let placeName = marker.userInfo["placeName"] as? String {
+                    marker.iconImage = self.defaultMarkerImage
+                    self.configureMarkerCaption(marker, with: placeName, isSelected: false)
+                }
+            }
+            
+            // 선택된 장소 초기화
+            self.selectedPlace = nil
+            
+            // ViewModel 메서드 호출을 메인 스레드에서 수행
+            if !self.viewModel.focusedPlaces.isEmpty {
+                self.viewModel.clearFocusedPlaces()
+            }
         }
     }
     
-    // UIGestureRecognizerDelegate -> 다른 터치 이벤트와 동시에 처리 허용
+    // UIGestureRecognizerDelegate
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
     
-    // NMapsMap 터치 이벤트 (NMFMapViewTouchDelegate)
+    // 성능 최적화: 마커 업데이트 로직
+    func updateMarkers(mapView: NMFMapView, pickList: [PickListCardResponse], selectedPlaceId: Int?) {
+        // 현재 표시된 마커들의 ID 집합
+        var currentMarkerIds = Set(markers.keys)
+        
+        // 새로운 마커 추가 또는 기존 마커 업데이트
+        for pickCard in pickList {
+            let placeId = pickCard.placeId
+            let isSelected = placeId == selectedPlaceId
+            
+            if let existingMarker = markers[placeId] {
+                // 기존 마커 업데이트
+                updateMarker(existingMarker, with: pickCard, isSelected: isSelected)
+                currentMarkerIds.remove(placeId)
+            } else {
+                // 새 마커 생성
+                let newMarker = createMarker(for: pickCard, isSelected: isSelected, mapView: mapView)
+                newMarker.mapView = mapView
+                markers[placeId] = newMarker
+            }
+        }
+        
+        // 제거해야 할 마커들 처리
+        for idToRemove in currentMarkerIds {
+            if let markerToRemove = markers[idToRemove] {
+                markerToRemove.mapView = nil
+                markers.removeValue(forKey: idToRemove)
+            }
+        }
+    }
+    
+    private func configureMarkerCaption(_ marker: NMFMarker, with placeName: String, isSelected: Bool) {
+        marker.captionText = placeName
+        marker.captionColor = .black
+        marker.captionTextSize = 14
+        
+        marker.captionMinZoom = isSelected ? 0 : 10
+        marker.captionMaxZoom = 20
+        
+        marker.anchor = CGPoint(x: 0.5, y: 1.0)
+        marker.captionOffset = -12
+        marker.captionAligns = [.bottom]
+    }
+    
+    private func updateMarker(_ marker: NMFMarker, with pickCard: PickListCardResponse, isSelected: Bool) {
+        marker.position = NMGLatLng(lat: pickCard.latitude, lng: pickCard.longitude)
+        marker.iconImage = isSelected ? selectedMarkerImage : defaultMarkerImage
+        configureMarkerCaption(marker, with: pickCard.placeName, isSelected: isSelected)
+    }
+    
+    private func createMarker(for pickCard: PickListCardResponse, isSelected: Bool, mapView: NMFMapView) -> NMFMarker {
+        let marker = NMFMarker()
+        marker.position = NMGLatLng(lat: pickCard.latitude, lng: pickCard.longitude)
+        marker.width = CGFloat(NMF_MARKER_SIZE_AUTO)
+        marker.height = CGFloat(NMF_MARKER_SIZE_AUTO)
+        marker.iconImage = isSelected ? selectedMarkerImage : defaultMarkerImage
+        
+        // 마커에 장소 ID 정보 저장
+        marker.userInfo = ["placeId": pickCard.placeId, "placeName": pickCard.placeName]
+        
+        configureMarkerCaption(marker, with: pickCard.placeName, isSelected: isSelected)
+        
+        // 마커 터치 이벤트 설정
+        marker.touchHandler = { [weak self, unowned mapView] _ -> Bool in
+            guard let self = self else { return false }
+            guard let placeId = marker.userInfo["placeId"] as? Int,
+                  let placeName = marker.userInfo["placeName"] as? String else { return false }
+            
+            // 현재 선택 상태 확인
+            let isCurrentlySelected = (self.selectedPlace?.placeId == placeId)
+            
+            // UI 업데이트는 메인 스레드에서 수행
+            DispatchQueue.main.async {
+                if !isCurrentlySelected {
+                    // 새로운 마커 선택
+                    marker.iconImage = self.selectedMarkerImage
+                    self.configureMarkerCaption(marker, with: placeName, isSelected: true)
+                    self.viewModel.fetchFocusedPlace(placeId: placeId)
+                } else {
+                    // 선택 해제
+                    marker.iconImage = self.defaultMarkerImage
+                    self.configureMarkerCaption(marker, with: placeName, isSelected: false)
+                    self.selectedPlace = nil
+                    self.viewModel.clearFocusedPlaces()
+                }
+            }
+            
+            return true
+        }
+        
+        return marker
+    }
+    
+    // NMFMapViewTouchDelegate
     func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng) -> Bool {
-        // NMapsMap의 didTapMap은 마커를 터치하지 않은 경우에만 호출됨 -> handleMapTap에서 처리하도록 false 반환
-
+        // 기본 터치 이벤트는 UITapGestureRecognizer에서 처리
         return false
-    }
-    
-    func clearAllMarkers() {
-        markers.forEach { marker in
-            marker.mapView = nil
-        }
-        markers.removeAll()
-    }
-    
-    func resetAllMarkers() {
-        markers.forEach { marker in
-            marker.iconImage = defaultMarkerImage
-            marker.zIndex = 1
-            marker.captionMinZoom = 10
-        }
     }
 }
