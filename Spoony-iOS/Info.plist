@@ -2,10 +2,27 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+			<array>
+	</dict>
+    <string>주변 맛집 정보를 불러오기 위해 위치 정보를 사용하도록 허용합니다.</string>
+	<key>KAKAO_APP_KEY</key>
+	<string>$(KAKAO_APP_KEY)</string>
+	<key>CFBundleURLTypes</key>
+    <key>NSLocationWhenInUseUsageDescription</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+				<string>kakao$(KAKAO_APP_KEY)</string>
+			</array>
+		</dict>
+	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>kakaokompassauth</string>
 		<string>nmap</string>
 	</array>
 	<key>NSAppTransportSecurity</key>
@@ -13,8 +30,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-	<key>UIAppFonts</key>
 	<array>
+	<key>UIAppFonts</key>
 		<string>Pretendard-Medium.otf</string>
 		<string>Pretendard-Bold.otf</string>
 		<string>Pretendard-SemiBold.otf</string>
@@ -23,8 +40,8 @@
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<true/>
-		<key>UISceneConfigurations</key>
 		<dict>
+		<key>UISceneConfigurations</key>
 			<key>UIWindowSceneSessionRoleApplication</key>
 			<array>
 				<dict>
@@ -37,9 +54,8 @@
 		</dict>
 	</dict>
 	<key>UILaunchScreen</key>
-	<dict>
 		<key>UIImageName</key>
 		<string>spoonyLogo</string>
-	</dict>
+	<dict>
 </dict>
 </plist>

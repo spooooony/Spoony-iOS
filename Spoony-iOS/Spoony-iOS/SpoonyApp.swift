@@ -8,6 +8,8 @@
 import SwiftUI
 
 import NMapsMap
+import KakaoSDKAuth
+import KakaoSDKCommon
 
 @main
 struct SpoonyApp: App {
@@ -15,6 +17,7 @@ struct SpoonyApp: App {
     
     init() {
         NMFAuthManager.shared().clientId = Config.naverMapsClientId
+        KakaoSDK.initSDK(appKey: Config.kakaoAppKey)
     }
     
     var body: some Scene {
@@ -22,6 +25,11 @@ struct SpoonyApp: App {
             SpoonyTabView()
                 .environmentObject(navigationManager)
                 .popup(popup: $navigationManager.popup)
+                .onOpenURL(perform: { url in
+                    if AuthApi.isKakaoTalkLoginUrl(url) {
+                        _ = AuthController.handleOpenUrl(url: url)
+                    }
+                })
         }
     }
 }
