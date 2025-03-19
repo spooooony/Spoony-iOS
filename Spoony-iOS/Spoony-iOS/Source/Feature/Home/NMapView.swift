@@ -129,9 +129,6 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
     }
     
     @objc func handleMapTap(_ gesture: UITapGestureRecognizer) {
-        let currentTime = Date().timeIntervalSince1970
-        if currentTime - lastMarkerTouchTime < 0.5 { return }
-        
         if selectedPlace == nil { return }
         
         DispatchQueue.main.async { [weak self] in
@@ -262,7 +259,7 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
                     }
                 }
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     self.isProcessingMarkerTouch = false
                 }
             }
