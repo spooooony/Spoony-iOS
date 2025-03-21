@@ -93,7 +93,7 @@ struct ReviewStepFeature {
                 state.pickerItems = []
                 return .send(.validateNextButton)
             case .validateNextButton:
-                let imageError = state.uploadImageErrorState == .error
+                let imageError = [.error, .initial].contains(state.uploadImageErrorState)
                 state.isDisableNextButton = imageError || state.isSimpleTextError || state.isDetailTextError
                 return .none
             default: return .none
