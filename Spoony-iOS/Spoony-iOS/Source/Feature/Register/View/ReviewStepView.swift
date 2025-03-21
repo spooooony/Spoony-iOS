@@ -8,10 +8,12 @@
 import SwiftUI
 import PhotosUI
 
+import ComposableArchitecture
+
 struct ReviewStepView: View {
-    @ObservedObject private var store: RegisterStore
+    @Bindable private var store: StoreOf<ReviewStepFeature>
     
-    init(store: RegisterStore) {
+    init(store: StoreOf<ReviewStepFeature>) {
         self.store = store
     }
     
@@ -26,15 +28,9 @@ struct ReviewStepView: View {
                 style: .primary,
                 size: .xlarge,
                 title: "다음",
-                disabled: Binding(
-                    get: {
-                        store.state.isDisableMiddleButton
-                    }, set: { newValue in
-                        store.dispatch(.updateButtonState(newValue, .middle))
-                    }
-                )
+                disabled: $store.isDisableNextButton
             ) {
-                store.dispatch(.didTapNextButton(.middle))
+                store.send(.didTapNextButton)
             }
             .padding(.bottom, 20)
         }
@@ -45,10 +41,10 @@ struct ReviewStepView: View {
         .gesture(DragGesture(minimumDistance: 30)
             .onChanged { value in
                 if value.translation.width > 150 {
-                    store.dispatch(.movePreviousView)
+                    store.send(.movePreviousView)
                 }
             }
-        )        
+        )
     }
 }
 
@@ -69,22 +65,10 @@ extension ReviewStepView {
                 .foregroundStyle(.spoonBlack)
             
             SpoonyTextField(
-                text: Binding(
-                    get: {
-                        store.state.simpleText
-                    }, set: { newValue in
-                        store.dispatch(.updateText(newValue, .simple))
-                    }
-                ),
+                text: $store.simpleText,
                 style: .helper,
                 placeholder: "장소명 언급은 피해주세요. 우리만의 비밀!",
-                isError: Binding(
-                    get: {
-                        store.state.isSimpleTextError
-                    }, set: { newValue in
-                        store.dispatch(.updateTextError(newValue, .simple))
-                    }
-                )
+                isError: $store.isSimpleTextError
             )
         }
         .padding(.horizontal, 20)
@@ -110,22 +94,10 @@ extension ReviewStepView {
             }
             
             SpoonyTextEditor(
-                text: Binding(
-                    get: {
-                        store.state.detailText
-                    }, set: { newValue in
-                        store.dispatch(.updateText(newValue, .detail))
-                    }
-                ),
+                text: $store.detailText,
                 style: .review,
                 placeholder: "장소명 언급은 피해주세요. 우리만의 비밀!",
-                isError: Binding(
-                    get: {
-                        store.state.isDetailTextError
-                    }, set: { newValue in
-                        store.dispatch(.updateTextError(newValue, .detail))
-                    }
-                )
+                isError: $store.isDetailTextError
             )
         }
         .padding(.horizontal, 20)
@@ -169,13 +141,7 @@ extension ReviewStepView {
     
     private var plusButton: some View {
         PhotosPicker(
-            selection: Binding(
-                get: {
-                    store.state.pickerItems
-                }, set: { newValue in
-                    store.dispatch(.updatePickerItems(newValue))
-                }
-            ),
+            selection: $store.pickerItems,
             maxSelectionCount: store.state.selectableCount,
             matching: .images
         ) {
@@ -194,9 +160,6 @@ extension ReviewStepView {
                     .strokeBorder(.gray100)
             }
         }
-        .onChange(of: store.state.pickerItems, { _, newValue in
-            store.dispatch(.didTapPhoto(newValue))
-        })
         .simultaneousGesture(
             TapGesture().onEnded {
                 hideKeyboard()
@@ -213,7 +176,7 @@ extension ReviewStepView {
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(alignment: .topTrailing) {
                 Button {
-                    store.dispatch(.deleteImage(image))
+                    store.send(.didTapPhotoDeleteIcon(image))
                 } label: {
                     Image(.icDeleteFillGray400)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -226,5 +189,8 @@ extension ReviewStepView {
 }
 
 #Preview {
-    ReviewStepView(store: .init(navigationManager: .init()))
+    ReviewStepView(store: Store(initialState: .initialState, reducer: {
+        ReviewStepFeature()
+            ._printChanges()
+    }))
 }
