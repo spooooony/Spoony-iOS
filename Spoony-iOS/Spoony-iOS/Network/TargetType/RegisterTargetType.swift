@@ -71,7 +71,10 @@ extension RegisterTargetType: TargetType {
         case .searchPlace, .getRegisterCategories, .validatePlace:
             return Config.defaultHeader
         case .registerPost:
-            return ["Content-Type": "multipart/form-data"]
+            return [
+                "Content-Type": "multipart/form-data",
+                "Authorization": "Bearer \(Config.fixedAccessToken)"
+            ]
         }
     }
 }
