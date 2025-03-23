@@ -40,6 +40,9 @@ struct Register: View {
                     }
             )
         }
+        .onDisappear {
+            store.send(.onDisappear)
+        }
         .toastView(toast: $store.toast)
         .overlay {
             if store.state.isLoading {
@@ -86,7 +89,7 @@ extension Register {
 
 #Preview {
     Register(store: Store(initialState: .initialState, reducer: {
-        RegisterFeature()
+        RegisterFeature(navigationManager: .init())
             ._printChanges()
     }))
 }
