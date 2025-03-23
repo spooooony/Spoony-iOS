@@ -18,7 +18,7 @@ struct RegisterFeature {
         
         var currentStep: RegisterStep = .start
         var isLoading: Bool = false
-        
+        var isRegistrationSuccess: Bool = false
         var infoStepState: InfoStepFeature.State
         var reviewStepState: ReviewStepFeature.State
         var toast: Toast?
@@ -32,8 +32,11 @@ struct RegisterFeature {
         case reviewStepAction(ReviewStepFeature.Action)
         case updateToast(message: String)
         case resetState
+        case registrationSuccessful
+        case onDisappear
     }
     
+    let navigationManager: NavigationManager
     @Dependency(\.registerService) var network: RegisterServiceType
     
     var body: some Reducer<State, Action> {
@@ -95,7 +98,7 @@ struct RegisterFeature {
                     await send(.updateIsLoading(false))
                     
                     if success {
-                        await send(.resetState)
+                        await send(.registrationSuccessful)
                     } else {
                         await send(.updateToast(message: "네트워크 오류!"))
                     }
@@ -107,10 +110,27 @@ struct RegisterFeature {
                 state.toast = .init(style: .gray, message: message, yOffset: 558.adjustedH)
                 return .none
             case .resetState:
-                var newState = State.initialState
-                newState.infoStepState.isToolTipPresented = false
-                state = newState
+                state.currentStep = .start
+                state.isRegistrationSuccess = false
+                var infoStepNewState: InfoStepFeature.State = .initialState
+                infoStepNewState.isToolTipPresented = false
+                state.infoStepState = infoStepNewState
+                state.reviewStepState = .initialState
                 return .none
+            case .registrationSuccessful:
+                state.currentStep = .end
+                state.isRegistrationSuccess = true
+                navigationManager.popup = .registerSuccess(action: {
+                    self.navigationManager.selectedTab = .explore
+                })
+                return .none
+                
+            case .onDisappear:
+                if state.isRegistrationSuccess {
+                    return .send(.resetState)
+                } else {
+                    return .none
+                }
                 
             default: return .none
             }
