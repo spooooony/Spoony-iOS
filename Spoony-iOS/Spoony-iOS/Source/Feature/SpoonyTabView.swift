@@ -85,7 +85,7 @@ extension SpoonyTabView {
 
 #Preview {
     SpoonyTabView(store: Store(initialState: .initialState, reducer: {
-        RegisterFeature()
+        RegisterFeature(navigationManager: .init())
     }))
         .environmentObject(NavigationManager())
 }

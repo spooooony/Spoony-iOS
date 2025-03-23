@@ -14,15 +14,22 @@ import ComposableArchitecture
 
 @main
 struct SpoonyApp: App {
-    @StateObject private var navigationManager = NavigationManager()
+    @StateObject private var navigationManager: NavigationManager
     
-    private let registerStore: StoreOf<RegisterFeature> = .init(initialState: .initialState) {
-        RegisterFeature()
-    }
+    private let registerStore: StoreOf<RegisterFeature>
     
     init() {
         NMFAuthManager.shared().clientId = Config.naverMapsClientId
         KakaoSDK.initSDK(appKey: Config.kakaoAppKey)
+        
+        let navigationManager = NavigationManager()
+        self._navigationManager = StateObject(wrappedValue: navigationManager)
+        
+        self.registerStore = StoreOf<RegisterFeature>(
+            initialState: .initialState
+        ) {
+            RegisterFeature(navigationManager: navigationManager)
+        }
     }
     
     var body: some Scene {
