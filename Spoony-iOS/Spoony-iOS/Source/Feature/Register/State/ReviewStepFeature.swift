@@ -14,21 +14,19 @@ struct ReviewStepFeature {
     @ObservableState
     struct State: Equatable {
         static let initialState = State()
-        
+        // MARK: - 리뷰 관련 property
         var simpleText: String = ""
         var detailText: String = ""
-        
-        var selectableCount = 5
-        
-        var pickerItems: [PhotoPickerType] = []
-        var uploadImages: [UploadImage] = []
-        
-        var isDisableNextButton: Bool = true
-        
         var isSimpleTextError: Bool = true
         var isDetailTextError: Bool = true
         
+        // MARK: - 이미지 업로드 관련 property
+        var selectableCount = 5
+        var pickerItems: [PhotoPickerType] = []
+        var uploadImages: [UploadImage] = []
         var uploadImageErrorState: UploadImageErrorState = .initial
+        
+        var isDisableNextButton: Bool = true                
     }
     
     enum Action: BindableAction, Equatable {

@@ -13,21 +13,24 @@ struct InfoStepFeature {
     struct State: Equatable {
         static let initialState = State()
         
+        // MARK: - 카테고리 관련 property
+        var selectedCategory: [CategoryChip] = []
+        var categories: [CategoryChip] = []
+
+        // MARK: - 검색 관련 property
         var placeText: String = ""
         var searchedPlaces: [PlaceInfo] = []
-        var keyboardHeight: SizeValueType = 0
         var selectedPlace: PlaceInfo?
+        var isDropDownPresented: Bool = false
+        
+        // MARK: - 추천 메뉴 관련 property
+        var recommendTexts: [RecommendText] = [.init()]
+        var isDisablePlusButton: Bool = false
         
         var toast: Toast?
-        var recommendTexts: [RecommendText] = [.init()]
-        var categorys: [CategoryChip] = []
-        var selectedCategory: [CategoryChip] = []
-        
-        var isDropDownPresented: Bool = false
+        var keyboardHeight: SizeValueType = 0
         var isToolTipPresented: Bool = true
-        
         var isDisableNextButton: Bool = true
-        var isDisablePlusButton: Bool = false
     }
     
     enum Action: BindableAction, Equatable {
@@ -81,7 +84,7 @@ struct InfoStepFeature {
                 return .send(.validateNextButton)
             case .binding: return .none
             case .categoryResponse(let value):
-                state.categorys = value
+                state.categories = value
                 return .none
             case .didTapSearchDeleteIcon:
                 state.placeText = ""
@@ -93,19 +96,15 @@ struct InfoStepFeature {
                     do {
                         let places = try await network.searchPlace(query: searchText).toModel()
                         
-                        if places.isEmpty {
-                            await send(.updateToast(message: "검색 결과가 없습니다"))
-                        } else {
-                            await send(.searchPlaceResponse(places))
-                        }
+                        await send(.searchPlaceResponse(places))
                     } catch {
                         await send(.updateToast(message: "네트워크 에러!"))
                     }
                 }
-            case .searchPlaceResponse(let value):
-                state.isDropDownPresented = true
-                state.searchedPlaces = value
-                return .none
+            case .searchPlaceResponse(let places):
+                state.isDropDownPresented = !places.isEmpty
+                state.searchedPlaces = places
+                return places.isEmpty ? .send(.updateToast(message: "검색 결과가 없습니다.")) : .none
             case .didTapPlaceInfoCell(let place):
                 let request = ValidatePlaceRequest(
                     userId: Config.userId,

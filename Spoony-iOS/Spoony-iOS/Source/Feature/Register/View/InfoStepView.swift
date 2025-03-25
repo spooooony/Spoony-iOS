@@ -103,13 +103,13 @@ extension InfoStepView {
                     .foregroundStyle(.spoonBlack)
                 Spacer()
             }
-            if store.state.categorys.isEmpty {
+            if store.state.categories.isEmpty {
                 CategoryChipsView(category: CategoryChip.placeholder)
                     .redacted(reason: .placeholder)
             } else {
                 ChipsContainerView(
                     selectedItem: $store.selectedCategory,
-                    items: store.state.categorys
+                    items: store.state.categories
                 )
             }
         }

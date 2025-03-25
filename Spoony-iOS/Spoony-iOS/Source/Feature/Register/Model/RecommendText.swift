@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RecommendText: Equatable {
+struct RecommendText: Equatable, Identifiable {
     let id = UUID()
     var text = ""
 }

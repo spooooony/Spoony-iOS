@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PlaceInfo: Equatable {
+struct PlaceInfo: Equatable, Identifiable {
     let id = UUID()
     let placeName: String
     let placeAddress: String
