@@ -16,6 +16,7 @@ public struct SpoonyTextField: View {
     
     // MARK: - Properties
     @State private var errorState: TextFieldErrorState = .initial
+    @State private var disabled: Bool = false
     @FocusState private var isFocused
     @Binding var text: String
     @Binding var isError: Bool
@@ -119,6 +120,11 @@ extension SpoonyTextField {
                     Button {
                         if let action = action {
                             action()
+                            disabled = true
+                            Task { @MainActor in
+                                try? await Task.sleep(for: .seconds(0.5))
+                                disabled = false
+                            }
                         }
                     } label: {
                         if let icon = style.trailingIcon,
@@ -128,6 +134,7 @@ extension SpoonyTextField {
                                 .frame(width: size, height: size)
                         }
                     }
+                    .disabled(disabled)
                 case .icon:
                     if !text.isEmpty {
                         Button {
