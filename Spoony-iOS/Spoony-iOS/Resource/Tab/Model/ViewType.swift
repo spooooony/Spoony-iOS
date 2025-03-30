@@ -15,3 +15,9 @@ enum ViewType: Hashable {
     case searchLocationView(locationId: Int, locationTitle: String)
     case report(postId: Int)
 }
+
+enum AuthViewType: Hashable {
+    case agreeView      // 약관 동의 화면
+    case onboardingView // 온보딩 화면
+    case completeOnboardingView // 온보딩 완료 화면
+}

@@ -10,6 +10,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct LoginView: View {
+    @EnvironmentObject private var navigationManager: AuthNavigationManager
     let store: StoreOf<LoginFeature>
     
     var body: some View {
@@ -22,7 +23,7 @@ struct LoginView: View {
                 Image(.spoonyEnglishLogo)
                     .padding(.bottom, 330)
                     .padding(.top, 200)
-                    
+                
                 Image(.imageKakaoLogin)
                     .onTapGesture {
                         store.send(.kakaoLoginButtonTapped)
@@ -34,6 +35,13 @@ struct LoginView: View {
                         store.send(.appleLoginButtonTapped)
                     }
                     .padding(.bottom, 70)
+            }
+            
+            if store.state.isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .transition(.opacity)
+                    .animation(.easeInOut, value: store.state.isLoading)
             }
         }
         .ignoresSafeArea()
