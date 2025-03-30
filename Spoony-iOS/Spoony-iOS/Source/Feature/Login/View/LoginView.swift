@@ -13,21 +13,35 @@ struct LoginView: View {
     let store: StoreOf<LoginFeature>
     
     var body: some View {
-        VStack {
-            Text("카카오로그인")
-                .onTapGesture {
-                    store.send(.kakaoLoginButtonTapped)
-                }
-            Text("애플로그인")
-                .onTapGesture {
-                    store.send(.appleLoginButtonTapped)
-                }
+        ZStack {
+            Image(.imageLoginBg)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+            
+            VStack(spacing: 0) {
+                Image(.spoonyEnglishLogo)
+                    .padding(.bottom, 330)
+                    .padding(.top, 200)
+                    
+                Image(.imageKakaoLogin)
+                    .onTapGesture {
+                        store.send(.kakaoLoginButtonTapped)
+                    }
+                    .padding(.bottom, 16)
+                
+                Image(.imageAppleLogin)
+                    .onTapGesture {
+                        store.send(.appleLoginButtonTapped)
+                    }
+                    .padding(.bottom, 70)
+            }
         }
+        .ignoresSafeArea()
     }
 }
 
 #Preview {
     LoginView(store: Store(initialState: LoginFeature.State(), reducer: {
-        LoginFeature()
+        LoginFeature(navigationManager: AuthNavigationManager())
     }))
 }
