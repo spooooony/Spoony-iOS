@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AgreeType: String, CaseIterable {
+enum AgreeType: CaseIterable {
     case age
     case termsOfUse
     case privacyPolicy
@@ -28,8 +28,7 @@ enum AgreeType: String, CaseIterable {
     
     var url: String? {
         switch self {
-        case .age:
-            nil
+        case .age: nil
         case .termsOfUse: ""
         case .privacyPolicy: ""
         case .locationPolicy: ""

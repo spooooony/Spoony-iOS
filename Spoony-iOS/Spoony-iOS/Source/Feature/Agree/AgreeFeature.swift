@@ -46,9 +46,11 @@ struct AgreeFeature {
                 print(url)
                 return .none
             case .selectedAgreeTapped(let agree):
-                let index = state.selectedAgrees.firstIndex(of: agree)!
-                state.selectedAgrees.remove(at: index)
-                return .send(.selectedAgreesChanged)
+                if let index = state.selectedAgrees.firstIndex(of: agree) {
+                    state.selectedAgrees.remove(at: index)
+                    return .send(.selectedAgreesChanged)
+                }
+                return .none
             case .unSelectedAgreeTapped(let agree):
                 state.selectedAgrees.append(agree)
                 return .send(.selectedAgreesChanged)
