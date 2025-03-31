@@ -20,12 +20,12 @@ struct AgreeFeature {
     }
     
     enum Action: BindableAction {
-    case binding(BindingAction<State>)
-    case allAgreeTapped
-    case agreeURLTapped(AgreeType)
-    case selectedAgreeTapped(AgreeType)
-    case unSelectedAgreeTapped(AgreeType)
-    case selectedAgreesChanged
+        case binding(BindingAction<State>)
+        case allAgreeTapped
+        case agreeURLTapped(AgreeType)
+        case selectedAgreeTapped(AgreeType)
+        case unSelectedAgreeTapped(AgreeType)
+        case selectedAgreesChanged
     }
     
     var body: some ReducerOf<Self> {
