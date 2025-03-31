@@ -25,7 +25,7 @@ struct AgreeFeature {
     case agreeURLTapped(AgreeType)
     case selectedAgreeTapped(AgreeType)
     case unSelectedAgreeTapped(AgreeType)
-    case selectedAgreesChanged([AgreeType])
+    case selectedAgreesChanged
     }
     
     var body: some ReducerOf<Self> {
@@ -39,7 +39,7 @@ struct AgreeFeature {
                 } else {
                     state.selectedAgrees = AgreeType.allCases
                 }
-                return .none
+                return .send(.selectedAgreesChanged)
             case .agreeURLTapped(let agree):
                 // url 연결하기
                 guard let url = agree.url else { return .none }
@@ -48,12 +48,12 @@ struct AgreeFeature {
             case .selectedAgreeTapped(let agree):
                 let index = state.selectedAgrees.firstIndex(of: agree)!
                 state.selectedAgrees.remove(at: index)
-                return .none
+                return .send(.selectedAgreesChanged)
             case .unSelectedAgreeTapped(let agree):
                 state.selectedAgrees.append(agree)
-                return .none
-            case .selectedAgreesChanged(let agrees):
-                state.allCheckboxFilled = agrees.count == AgreeType.allCases.count
+                return .send(.selectedAgreesChanged)
+            case .selectedAgreesChanged:
+                state.allCheckboxFilled = state.selectedAgrees.count == AgreeType.allCases.count
                 state.isDisableButton = !state.allCheckboxFilled
                 return .none
             case .binding:

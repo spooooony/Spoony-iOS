@@ -53,9 +53,6 @@ struct AgreeView: View {
             .padding(.bottom, 20)
         }
         .padding(.horizontal, 20)
-        .onChange(of: store.state.selectedAgrees) { _, newValue in
-            store.send(.selectedAgreesChanged(newValue))
-        }
     }
 }
 
