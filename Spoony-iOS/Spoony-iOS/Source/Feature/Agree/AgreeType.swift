@@ -26,16 +26,13 @@ enum AgreeType: String, CaseIterable {
         }
     }
     
-    var url: URL? {
+    var url: String? {
         switch self {
         case .age:
             nil
-        case .termsOfUse:
-            URL(string: "")
-        case .privacyPolicy:
-            URL(string: "")
-        case .locationPolicy:
-            URL(string: "")
+        case .termsOfUse: ""
+        case .privacyPolicy: ""
+        case .locationPolicy: ""
         }
     }
 }

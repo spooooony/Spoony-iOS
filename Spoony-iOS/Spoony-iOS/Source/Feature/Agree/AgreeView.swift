@@ -10,6 +10,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AgreeView: View {
+    @EnvironmentObject private var navigationManager: AuthNavigationManager
     @Bindable private var store: StoreOf<AgreeFeature>
     
     init(store: StoreOf<AgreeFeature>) {
@@ -34,11 +35,9 @@ struct AgreeView: View {
             .padding(.top, 53)
             
             VStack(alignment: .leading, spacing: 16) {
-                
                 ForEach(AgreeType.allCases, id: \.self) { type in
                     AgreeSelectView(store: store, type: type)
                 }
-                
             }
             .padding(.top, 34)
             Spacer()
@@ -49,7 +48,7 @@ struct AgreeView: View {
                 isIcon: false,
                 disabled: $store.isDisableButton
             ) {
-                
+                navigationManager.push(.onboardingView)
             }
             .padding(.bottom, 20)
         }
@@ -63,7 +62,7 @@ struct AgreeView: View {
 struct AgreeSelectView: View {
     @Bindable private var store: StoreOf<AgreeFeature>
     let type: AgreeType
-    var isSelected: Bool {
+    private var isSelected: Bool {
         return store.state.selectedAgrees.contains(type)
     }
     
@@ -76,28 +75,38 @@ struct AgreeSelectView: View {
     }
     
     var body: some View {
-        HStack {
-            HStack {
-                Text(type.title)
-                    .underline()
-                    .customFont(.body2m)
-                    .foregroundStyle(.gray600)
-                    .onTapGesture {
-                        store.send(.agreeURLTapped(type))
-                    }
-                Spacer()
-                Image(isSelected ? .icCheckboxfilledMain : .icCheckboxemptyGray400)
-                    .onTapGesture {
-                        if isSelected {
-                            store.send(.selectedAgreeTapped(type))
-                        } else {
-                            store.send(.unSelectedAgreeTapped(type))
-                        }
-                    }
+        HStack(spacing: 0) {
+            Group {
+                if type.url != nil {
+                    Text(type.title)
+                        .underline()
+                } else {
+                    Text(type.title)
+                        
+                }
             }
-            .padding(.horizontal, 15)
-            .padding(.vertical, 3)
+            .customFont(.body2m)
+            .foregroundStyle(.gray600)
+            .onTapGesture {
+                store.send(.agreeURLTapped(type))
+            }
+            Text(" (필수)")
+                .customFont(.body2m)
+                .foregroundStyle(.gray600)
+            
+            Spacer()
+            
+            Image(isSelected ? .icCheckboxfilledMain : .icCheckboxemptyGray400)
+                .onTapGesture {
+                    if isSelected {
+                        store.send(.selectedAgreeTapped(type))
+                    } else {
+                        store.send(.unSelectedAgreeTapped(type))
+                    }
+                }
         }
+        .padding(.horizontal, 15)
+        .padding(.vertical, 3)
     }
     
 }
