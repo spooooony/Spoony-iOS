@@ -1,5 +1,5 @@
 //
-//  AuthenticationFeature.swift
+//  AuthenticationManager.swift
 //  Spoony-iOS
 //
 //  Created by 최주리 on 3/25/25.
