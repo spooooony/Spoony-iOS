@@ -5,6 +5,8 @@
 //  Created by 최주리 on 3/25/25.
 //
 
+import Foundation
+
 import ComposableArchitecture
 
 enum AuthenticationState {
@@ -12,38 +14,21 @@ enum AuthenticationState {
     case unAuthenticated
 }
 
-@Reducer
-struct AuthenticationFeature {
+final class AuthenticationManager {
+    static let shared = AuthenticationManager()
     
-    @ObservableState
-    struct State {
-        var loginState: LoginFeature.State
-        
-        var authenticationState: AuthenticationState = .unAuthenticated
-        var kakaoToken: String?
-        var appleToken: String?
+    private init() { }
+    
+    @Published private(set) var authenticationState: AuthenticationState = .unAuthenticated
+    private(set) var socialToken: String?
+    private(set) var socialType: SocialType = .KAKAO
+    
+    func setToken(_ type: SocialType, _ token: String) {
+        self.socialType = type
+        self.socialToken = token
     }
     
-    enum Action {
-        case viewAppear
-//        case loginAction(LoginFeature.Action)
-    }
-    
-    var body: some ReducerOf<Self> {
-        Reduce { state, action in
-            switch action {
-            case .viewAppear:
-                checkAuthentication()
-                return .none
-//            case .loginAction(.kakaoLoginButtonTapped):
-//                state.kakaoToken = state.loginState.token
-//            case .loginAction:
-//                return .none
-            }
-        }
-    }
-    
-    private func checkAuthentication() {
+    func checkAuthentication() {
         // 자동로그인 여부 확인
     }
 }

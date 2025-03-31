@@ -11,13 +11,12 @@ import ComposableArchitecture
 
 struct AuthenticationCheckView: View {
     //    @EnvironmentObject private var authNavigationManager: AuthNavigationManager
-    
+    private let authenticationManager = AuthenticationManager.shared
     @StateObject private var authNavigationManager: AuthNavigationManager = AuthNavigationManager()
-    let store: StoreOf<AuthenticationFeature>
     
     var body: some View {
         VStack {
-            switch store.authenticationState {
+            switch authenticationManager.authenticationState {
             case .authenticated:
                 //                SpoonyTabView()
                 //                    .environmentObject(navigationManager)
@@ -42,7 +41,5 @@ struct AuthenticationCheckView: View {
 }
 
 #Preview {
-    AuthenticationCheckView(store: StoreOf<AuthenticationFeature>(initialState: AuthenticationFeature.State(loginState: LoginFeature.State()), reducer: {
-        AuthenticationFeature()
-    }))
+    AuthenticationCheckView()
 }

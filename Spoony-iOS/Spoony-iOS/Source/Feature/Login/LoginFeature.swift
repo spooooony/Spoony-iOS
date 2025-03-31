@@ -37,6 +37,7 @@ struct LoginFeature {
     }
     
     let navigationManager: AuthNavigationManager
+    private let authenticationManager = AuthenticationManager.shared
     @Dependency(\.loginService) var loginService: LoginServiceProtocol
     
     var body: some ReducerOf<Self> {
@@ -50,7 +51,6 @@ struct LoginFeature {
                 return .run { send in
                     do {
                         let result = try await loginService.kakaoLogin()
-                        print("result: \(result)")
                         await send(.setToken(.KAKAO, result))
                     } catch {
                         await send(.error(LoginError.kakaoTokenError))
@@ -65,12 +65,10 @@ struct LoginFeature {
                         await send(.setToken(.APPLE, result))
                     } catch {
                         await send(.error(LoginError.appleTokenError))
-                        
                     }
                 }
             case .setToken(let type, let token):
-                state.socialType = type
-                state.token = token
+                authenticationManager.setToken(type, token)
                 state.isLoading = false
                 navigationManager.push(.agreeView)
                 return .none
