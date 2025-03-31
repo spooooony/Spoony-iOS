@@ -13,18 +13,6 @@ struct CategoryChip: Equatable, Identifiable {
     let title: String
     let id: Int
     
-    init(
-        image: String,
-        selectedImage: String,
-        title: String,
-        id: Int
-    ) {
-        self.image = image
-        self.selectedImage = selectedImage
-        self.title = title
-        self.id = id
-    }
-    
     static func == (lhs: CategoryChip, rhs: CategoryChip) -> Bool {
         lhs.id == rhs.id
     }
@@ -34,7 +22,7 @@ extension CategoryChip {
     static let placeholder: CategoryChip = .init(
         image: "",
         selectedImage: "",
-        title: "",
+        title: "중식",
         id: 0
     )
 }
