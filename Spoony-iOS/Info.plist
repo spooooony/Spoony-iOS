@@ -9,12 +9,12 @@
 	<key>KAKAO_APP_KEY</key>
 	<string>$(KAKAO_APP_KEY)</string>
 	<key>CFBundleURLTypes</key>
+    <key>NSLocationWhenInUseUsageDescription</key>
 	<array>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
-			<array>
 				<string>kakao$(KAKAO_APP_KEY)</string>
 			</array>
 		</dict>
@@ -31,8 +31,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-	<key>UIAppFonts</key>
 	<array>
+	<key>UIAppFonts</key>
 		<string>Pretendard-Medium.otf</string>
 		<string>Pretendard-Bold.otf</string>
 		<string>Pretendard-SemiBold.otf</string>
@@ -41,8 +41,8 @@
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<true/>
-		<key>UISceneConfigurations</key>
 		<dict>
+		<key>UISceneConfigurations</key>
 			<key>UIWindowSceneSessionRoleApplication</key>
 			<array>
 				<dict>
@@ -55,9 +55,8 @@
 		</dict>
 	</dict>
 	<key>UILaunchScreen</key>
-	<dict>
 		<key>UIImageName</key>
 		<string>spoonyLogo</string>
-	</dict>
+	<dict>
 </dict>
 </plist>
