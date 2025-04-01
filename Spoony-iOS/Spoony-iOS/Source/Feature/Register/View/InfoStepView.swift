@@ -7,11 +7,13 @@
 
 import SwiftUI
 
+import ComposableArchitecture
+
 struct InfoStepView: View {
-    @ObservedObject private var store: RegisterStore
+    @Bindable private var store: StoreOf<InfoStepFeature>
     @FocusState private var isPlaceTextFieldFocused: Bool
     
-    init(store: RegisterStore) {
+    init(store: StoreOf<InfoStepFeature>) {
         self.store = store
     }
     
@@ -23,19 +25,15 @@ struct InfoStepView: View {
             
             nextButton
         }
+        .animation(.easeIn, value: store.recommendTexts.count)
         .background(.white)
         .onTapGesture {
-            store.dispatch(.didTapBackground(.start))
+            store.send(.didTapBackground)
             hideKeyboard()
         }
-        .toastView(toast: Binding(
-            get: { store.state.toast },
-            set: { newValue in
-                store.dispatch(.updateToast(newValue))
-            }
-        ))
+        .toastView(toast: $store.toast)
         .task {
-            store.dispatch(.getCategories)
+            store.send(.onAppear)
         }
     }
 }
@@ -75,26 +73,21 @@ extension InfoStepView {
             
             if store.state.selectedPlace == nil {
                 SpoonyTextField(
-                    text: Binding(
-                        get: { store.state.placeText },
-                        set: { newValue in
-                            store.dispatch(.updateText(newValue, .place))
-                        }
-                    ),
+                    text: $store.placeText,
                     style: .icon,
                     placeholder: "어떤 장소를 한 입 줄까요?",
                     isError: .constant(false)
                 ) {
-                    store.dispatch(.didTapButtonIcon(.place))
+                    store.send(.didTapSearchDeleteIcon)
                 }
                 .focused($isPlaceTextFieldFocused)
                 .onSubmit {
-                    store.dispatch(.didTapkeyboardEnter)
+                    store.send(.didTapKeyboardEnter)
                 }
             } else {
                 if let place = store.state.selectedPlace {
                     PlaceInfoCell(placeInfo: place, placeInfoType: .selectedCell) {
-                        store.dispatch(.didTapPlaceInfoCellIcon)
+                        store.send(.didTapPlaceInfoCellIcon)
                     }
                 }
             }
@@ -110,17 +103,13 @@ extension InfoStepView {
                     .foregroundStyle(.spoonBlack)
                 Spacer()
             }
-            if store.state.categorys.isEmpty {
+            if store.state.categories.isEmpty {
                 CategoryChipsView(category: CategoryChip.placeholder)
                     .redacted(reason: .placeholder)
             } else {
                 ChipsContainerView(
-                    selectedItem: Binding(get: {
-                        store.state.selectedCategory
-                    }, set: { newValue in
-                        store.dispatch(.updateSelectedCategoryChip(newValue))
-                    }),
-                    items: store.state.categorys
+                    selectedItem: $store.selectedCategory,
+                    items: store.state.categories
                 )
             }
         }
@@ -135,20 +124,17 @@ extension InfoStepView {
                 .padding(.bottom, 12)
             
             VStack(spacing: 8) {
-                ForEach(store.state.recommendTexts, id: \.id) { text in
+                ForEach($store.recommendTexts, id: \.id) { $text in
                     SpoonyTextField(
-                        text: Binding(get: {
-                            text.text
-                        }, set: { newValue in
-                            store.dispatch(.updateTextList(newValue, text.id))
-                        }),
+                        text: $text.text,
                         style: .normal(isIcon: store.state.recommendTexts.count > 1),
                         placeholder: "메뉴 이름",
                         isError: .constant(false)
                     ) {
-                        store.dispatch(.deleteTextList(text))
+                        store.send(.didTapRecommendDeleteButton(text))
                     }
                 }
+                
                 if store.state.recommendTexts.count < 3 {
                     plusButton
                 }
@@ -161,7 +147,7 @@ extension InfoStepView {
             ForEach(store.state.searchedPlaces, id: \.id) { place in
                 PlaceInfoCell(placeInfo: place, placeInfoType: .listCell)
                     .onTapGesture {
-                        store.dispatch(.didTapPlaceInfoCell(place))
+                        store.send(.didTapPlaceInfoCell(place))
                     }
                     .overlay(alignment: .bottom) {
                         Rectangle()
@@ -183,7 +169,7 @@ extension InfoStepView {
     
     private var plusButton: some View {
         return Button {
-            store.dispatch(.didTapRecommendPlusButton)
+            store.send(.didTapRecommendPlusButton)
         } label: {
             Image(.icPlusGray400)
                 .resizable()
@@ -206,15 +192,9 @@ extension InfoStepView {
                     style: .primary,
                     size: .xlarge,
                     title: "다음",
-                    disabled: Binding(
-                        get: {
-                            store.state.isDisableStartButton
-                        }, set: { newValue in
-                            store.dispatch(.updateButtonState(newValue, .start))
-                        }
-                    )
+                    disabled: $store.isDisableNextButton
                 ) {
-                    store.dispatch(.didTapNextButton(.start))
+                    store.send(.didTapNextButton)
                 }
                 .padding(.bottom, 20)
                 .padding(.top, 61)
@@ -228,7 +208,7 @@ extension InfoStepView {
                     if let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
                         withAnimation(.smooth) {
                             if !isPlaceTextFieldFocused {
-                                store.dispatch(.updateKeyboardHeight(frame.height))
+                                store.send(.updateKeyboardHeight(frame.height))
                             }
                         }
                     }
@@ -239,9 +219,7 @@ extension InfoStepView {
                     object: nil,
                     queue: .main
                 ) { _ in
-                    withAnimation(.smooth) {
-                        store.dispatch(.updateKeyboardHeight(0))
-                    }
+                    store.send(.updateKeyboardHeight(0))
                 }
             }
             .id("nextButton")
@@ -263,7 +241,7 @@ extension InfoStepView {
                     .task {
                         do {
                             try await Task.sleep(for: .seconds(3))
-                            store.dispatch(.updateToolTipState)
+                            store.send(.updateToolTipState)
                         } catch {
                             
                         }
@@ -274,5 +252,8 @@ extension InfoStepView {
 }
 
 #Preview {
-    InfoStepView(store: .init(navigationManager: .init()))
+    InfoStepView(store: Store(initialState: .initialState, reducer: {
+        InfoStepFeature()
+            ._printChanges()
+    }))
 }

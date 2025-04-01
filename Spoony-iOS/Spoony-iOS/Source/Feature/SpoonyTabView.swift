@@ -7,11 +7,16 @@
 
 import SwiftUI
 
+import ComposableArchitecture
+
 struct SpoonyTabView: View {
     
     @EnvironmentObject var navigationManager: NavigationManager
     
-    init() {
+    private let registerStore: StoreOf<RegisterFeature>
+    
+    init(store: StoreOf<RegisterFeature>) {
+        self.registerStore = store
         setTabBarAppearance()
     }
     
@@ -39,13 +44,11 @@ struct SpoonyTabView: View {
                         }
                     case .register:
                         NavigationStack(path: $navigationManager.registerPath) {
-                            Register(
-                                store: .init(navigationManager: navigationManager)
-                            )
-                            .navigationDestination(for: ViewType.self) { view in
-                                navigationManager.build(view)
-                                    .navigationBarBackButtonHidden()
-                            }
+                            Register(store: registerStore)
+                                .navigationDestination(for: ViewType.self) { view in
+                                    navigationManager.build(view)
+                                        .navigationBarBackButtonHidden()
+                                }
                         }
                     }
                 }
@@ -81,6 +84,8 @@ extension SpoonyTabView {
 }
 
 #Preview {
-    SpoonyTabView()
+    SpoonyTabView(store: Store(initialState: .initialState, reducer: {
+        RegisterFeature(navigationManager: .init())
+    }))
         .environmentObject(NavigationManager())
 }
