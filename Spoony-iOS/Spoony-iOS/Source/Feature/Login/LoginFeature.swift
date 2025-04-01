@@ -25,6 +25,7 @@ struct LoginFeature {
     struct State {
         var socialType: SocialType = .KAKAO
         var token: String = ""
+        var isLoading: Bool = false
     }
     
     enum Action {
@@ -35,6 +36,8 @@ struct LoginFeature {
         case error(Error)
     }
     
+    let navigationManager: AuthNavigationManager
+    private let authenticationManager = AuthenticationManager.shared
     @Dependency(\.loginService) var loginService: LoginServiceProtocol
     
     var body: some ReducerOf<Self> {
@@ -43,6 +46,8 @@ struct LoginFeature {
             case .onAppear:
                 return .none
             case .kakaoLoginButtonTapped:
+                state.isLoading = true
+                
                 return .run { send in
                     do {
                         let result = try await loginService.kakaoLogin()
@@ -52,6 +57,8 @@ struct LoginFeature {
                     }
                 }
             case .appleLoginButtonTapped:
+                state.isLoading = true
+                
                 return .run { send in
                     do {
                         let result = try await loginService.appleLogin()
@@ -61,11 +68,13 @@ struct LoginFeature {
                     }
                 }
             case .setToken(let type, let token):
-                state.socialType = type
-                state.token = token
+                authenticationManager.setToken(type, token)
+                state.isLoading = false
+                navigationManager.push(.agreeView)
                 return .none
             case .error(let error):
                 print(error.localizedDescription)
+                state.isLoading = false
                 return .none
             }
         }
