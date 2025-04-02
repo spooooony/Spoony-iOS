@@ -180,7 +180,7 @@ extension DetailView {
             )
             
             Text(store.entity.title)
-                .customFont(.title1b)
+                .customFont(.title2)
                 .foregroundStyle(.black)
             
             Text(store.entity.date)
@@ -258,7 +258,7 @@ extension DetailView {
                     .foregroundStyle(.spoonBlack)
                 
                 Text(store.entity.placeName)
-                    .customFont(.title2sb)
+                    .customFont(.title3sb)
                     .foregroundStyle(.spoonBlack)
                 
                 HStack(spacing: 4.adjusted) {

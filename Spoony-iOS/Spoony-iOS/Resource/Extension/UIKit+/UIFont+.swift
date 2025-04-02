@@ -8,15 +8,19 @@
 import UIKit
 
 public extension UIFont {
-    @nonobjc class var title1b: UIFont {
+    @nonobjc class var title1: UIFont {
         return UIFont.font(.pretendardBold, ofSize: 20.adjusted)
     }
     
-    @nonobjc class var title2b: UIFont {
+    @nonobjc class var title2: UIFont {
+        return UIFont.font(.pretendardBold, ofSize: 20.adjusted)
+    }
+    
+    @nonobjc class var title3b: UIFont {
         return UIFont.font(.pretendardBold, ofSize: 18.adjusted)
     }
     
-    @nonobjc class var title2sb: UIFont {
+    @nonobjc class var title3sb: UIFont {
         return UIFont.font(.pretendardSemiBold, ofSize: 18.adjusted)
     }
     

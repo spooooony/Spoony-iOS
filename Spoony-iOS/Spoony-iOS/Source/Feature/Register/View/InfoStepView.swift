@@ -58,7 +58,7 @@ extension InfoStepView {
     
     private var titleView: some View {
         Text("나의 찐맛집을 등록해볼까요?")
-            .customFont(.title2b)
+            .customFont(.title3b)
             .foregroundStyle(.spoonBlack)
             .padding(.vertical, 32)
             .frame(maxWidth: .infinity, alignment: .leading)

@@ -8,15 +8,19 @@
 import SwiftUI
 
 public extension Font {
-    static var title1b: Font {
+    static var title1: Font {
+        return font(.pretendardBold, ofSize: 24.adjusted)
+    }
+    
+    static var title2: Font {
         return font(.pretendardBold, ofSize: 20.adjusted)
     }
     
-    static var title2b: Font {
+    static var title3b: Font {
         return font(.pretendardBold, ofSize: 18.adjusted)
     }
     
-    static var title2sb: Font {
+    static var title3sb: Font {
         return font(.pretendardSemiBold, ofSize: 18.adjusted)
     }
     
