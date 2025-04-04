@@ -13,6 +13,9 @@
 		787B5B042D32D9C50017A378 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B032D32D9C50017A378 /* Kingfisher */; };
 		787B5B072D32DA0F0017A378 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B062D32DA0F0017A378 /* Moya */; };
 		787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B092D32DA500017A378 /* NMapsMap */; };
+		787DDEF72D9FA3490070386C /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 787DDEF62D9FA3490070386C /* OpenAPIURLSession */; };
+		787DDEFA2D9FA34F0070386C /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 787DDEF92D9FA34F0070386C /* OpenAPIRuntime */; };
+		787DDEFD2D9FA35D0070386C /* _OpenAPIGeneratorCore in Frameworks */ = {isa = PBXBuildFile; productRef = 787DDEFC2D9FA35D0070386C /* _OpenAPIGeneratorCore */; };
 		78AD4F082D4299110090E9E3 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */; };
 		78E985B42D564A9D00E02ABB /* FlexSheet in Frameworks */ = {isa = PBXBuildFile; productRef = 78E985B32D564A9D00E02ABB /* FlexSheet */; };
 		CB6B894C2D8149F400DF264B /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = CB6B894B2D8149F400DF264B /* KakaoSDK */; };
@@ -43,9 +46,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				CB6B89502D8149F400DF264B /* KakaoSDKCert in Frameworks */,
+				787DDEFA2D9FA34F0070386C /* OpenAPIRuntime in Frameworks */,
 				CB6B89542D8149F400DF264B /* KakaoSDKCommon in Frameworks */,
 				787B5B072D32DA0F0017A378 /* Moya in Frameworks */,
+				787DDEFD2D9FA35D0070386C /* _OpenAPIGeneratorCore in Frameworks */,
 				CB6B89522D8149F400DF264B /* KakaoSDKCertCore in Frameworks */,
+				787DDEF72D9FA3490070386C /* OpenAPIURLSession in Frameworks */,
 				787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */,
 				7156E2E12D74773300F0C5E7 /* ComposableArchitecture in Frameworks */,
 				78E985B42D564A9D00E02ABB /* FlexSheet in Frameworks */,
@@ -110,6 +116,9 @@
 				CB6B894F2D8149F400DF264B /* KakaoSDKCert */,
 				CB6B89512D8149F400DF264B /* KakaoSDKCertCore */,
 				CB6B89532D8149F400DF264B /* KakaoSDKCommon */,
+				787DDEF62D9FA3490070386C /* OpenAPIURLSession */,
+				787DDEF92D9FA34F0070386C /* OpenAPIRuntime */,
+				787DDEFC2D9FA35D0070386C /* _OpenAPIGeneratorCore */,
 			);
 			productName = SpoonMe;
 			productReference = 78C002082D1D9FC400DA101C /* Spoony-iOS.app */;
@@ -147,6 +156,9 @@
 				78E985B22D564A9D00E02ABB /* XCRemoteSwiftPackageReference "FlexSheet" */,
 				7156E2DF2D74773300F0C5E7 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				CB6B894A2D8149F400DF264B /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+				787DDEF52D9FA3490070386C /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */,
+				787DDEF82D9FA34F0070386C /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */,
+				787DDEFB2D9FA35D0070386C /* XCRemoteSwiftPackageReference "swift-openapi-generator" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 78C002092D1D9FC400DA101C /* Products */;
@@ -479,6 +491,30 @@
 				minimumVersion = 3.20.0;
 			};
 		};
+		787DDEF52D9FA3490070386C /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-openapi-urlsession";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.2;
+			};
+		};
+		787DDEF82D9FA34F0070386C /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-openapi-runtime";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.8.2;
+			};
+		};
+		787DDEFB2D9FA35D0070386C /* XCRemoteSwiftPackageReference "swift-openapi-generator" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-openapi-generator";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.7.1;
+			};
+		};
 		78E985B22D564A9D00E02ABB /* XCRemoteSwiftPackageReference "FlexSheet" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hooni0918/FlexSheet.git";
@@ -522,6 +558,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 787B5B082D32DA500017A378 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */;
 			productName = NMapsMap;
+		};
+		787DDEF62D9FA3490070386C /* OpenAPIURLSession */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 787DDEF52D9FA3490070386C /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */;
+			productName = OpenAPIURLSession;
+		};
+		787DDEF92D9FA34F0070386C /* OpenAPIRuntime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 787DDEF82D9FA34F0070386C /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */;
+			productName = OpenAPIRuntime;
+		};
+		787DDEFC2D9FA35D0070386C /* _OpenAPIGeneratorCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 787DDEFB2D9FA35D0070386C /* XCRemoteSwiftPackageReference "swift-openapi-generator" */;
+			productName = _OpenAPIGeneratorCore;
 		};
 		78E985B32D564A9D00E02ABB /* FlexSheet */ = {
 			isa = XCSwiftPackageProductDependency;
