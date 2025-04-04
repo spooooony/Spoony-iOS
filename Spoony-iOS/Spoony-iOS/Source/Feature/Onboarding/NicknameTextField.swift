@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct NicknameTextField: View {
-    @State private var errorState: NicknameTextFieldErrorState = .initial
+    @State private var errorState: NicknameTextFieldErrorState = .noError
     @Binding var text: String
     @Binding var isError: Bool
     @FocusState private var isFocused: Bool
@@ -63,7 +63,7 @@ struct NicknameTextField: View {
                 case .emojiError:
                     errorState = .emojiError
                     text = newValue.removeSpecialCharacter()
-                case .initial, .noError:
+                case .noError:
                     errorState = .noError
                 default:
                     break
@@ -77,7 +77,7 @@ struct NicknameTextField: View {
             }
             .onChange(of: errorState) {
                 switch errorState {
-                case .initial, .noError:
+                case .noError:
                     isError = false
                 default:
                     isError = true
@@ -134,7 +134,6 @@ enum NicknameTextFieldErrorState {
     case emojiError
     case avaliableNickname
     case noError
-    case initial
     
     var errorMessage: String? {
         switch self {
@@ -148,7 +147,7 @@ enum NicknameTextFieldErrorState {
             return "닉네임은 한글, 영문, 숫자만 사용할 수 있어요"
         case .avaliableNickname:
             return "사용 가능한 닉네임이에요"
-        case .noError, .initial:
+        case .noError:
             return nil
         }
     }
@@ -157,7 +156,7 @@ enum NicknameTextFieldErrorState {
         switch self {
         case .avaliableNickname:
                 .green400
-        case .noError, .initial:
+        case .noError:
                 .gray100
         default:
                 .error400
@@ -168,7 +167,7 @@ enum NicknameTextFieldErrorState {
         switch self {
         case .avaliableNickname:
             Image(.icCheckGreen)
-        case .noError, .initial:
+        case .noError:
             nil
         default:
             Image(.icErrorRed)
