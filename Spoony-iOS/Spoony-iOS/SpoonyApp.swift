@@ -14,29 +14,21 @@ import ComposableArchitecture
 
 @main
 struct SpoonyApp: App {
-    @StateObject private var navigationManager: NavigationManager
-    
-    private let registerStore: StoreOf<RegisterFeature>
+    @StateObject private var navigationManager = NavigationManager()
+    private let store: StoreOf<AppCoordinator> = .init(initialState: .initialState) {
+        AppCoordinator()
+    }
     
     init() {
         NMFAuthManager.shared().clientId = Config.naverMapsClientId
         KakaoSDK.initSDK(appKey: Config.kakaoAppKey)
-        
-        let navigationManager = NavigationManager()
-        self._navigationManager = StateObject(wrappedValue: navigationManager)
-        
-        self.registerStore = StoreOf<RegisterFeature>(
-            initialState: .initialState
-        ) {
-            RegisterFeature(navigationManager: navigationManager)
-        }
     }
     
     var body: some Scene {
         WindowGroup {
-            SpoonyTabView(store: registerStore)
+//            SpoonyTabView(store: registerStore)
+            AppCoordinatorView(store: store)
                 .environmentObject(navigationManager)
-                .popup(popup: $navigationManager.popup)
                 .onOpenURL(perform: { url in
                     if AuthApi.isKakaoTalkLoginUrl(url) {
                         _ = AuthController.handleOpenUrl(url: url)
