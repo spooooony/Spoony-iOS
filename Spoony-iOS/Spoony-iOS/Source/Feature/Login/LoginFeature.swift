@@ -22,7 +22,9 @@ enum LoginError: Error {
 @Reducer
 struct LoginFeature {
     @ObservableState
-    struct State {
+    struct State: Equatable {
+        static let initialState = State()
+        
         var socialType: SocialType = .KAKAO
         var token: String = ""
         var isLoading: Bool = false
@@ -34,9 +36,13 @@ struct LoginFeature {
         case appleLoginButtonTapped
         case setToken(SocialType, String)
         case error(Error)
+        
+        // MAKR: Navigation Action
+        case routToTermsOfServiceScreen
+        case routToOnboardingScreen
+        case routToTabCoordinatorScreen
     }
-    
-    let navigationManager: AuthNavigationManager
+        
     private let authenticationManager = AuthenticationManager.shared
     @Dependency(\.loginService) var loginService: LoginServiceProtocol
     
@@ -70,11 +76,20 @@ struct LoginFeature {
             case .setToken(let type, let token):
                 authenticationManager.setToken(type, token)
                 state.isLoading = false
-                navigationManager.push(.agreeView)
-                return .none
+                return .send(.routToTermsOfServiceScreen)
             case .error(let error):
                 print(error.localizedDescription)
                 state.isLoading = false
+                return .none
+                
+            // 로그인 성공시(약관 동의 안한 경우)
+            case .routToTermsOfServiceScreen:
+                return .none
+            // 로그인 완료시(앱 삭제 후 다시 로그인한 경우? 삭제하면 어차피 약관 동의도 다시 하지 않나 필요없을지도)
+            case .routToOnboardingScreen:
+                return .none
+            // 로그인 성공시
+            case .routToTabCoordinatorScreen:
                 return .none
             }
         }
