@@ -15,7 +15,8 @@
 		787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B092D32DA500017A378 /* NMapsMap */; };
 		787DDEF72D9FA3490070386C /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 787DDEF62D9FA3490070386C /* OpenAPIURLSession */; };
 		787DDEFA2D9FA34F0070386C /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 787DDEF92D9FA34F0070386C /* OpenAPIRuntime */; };
-		787DDEFD2D9FA35D0070386C /* _OpenAPIGeneratorCore in Frameworks */ = {isa = PBXBuildFile; productRef = 787DDEFC2D9FA35D0070386C /* _OpenAPIGeneratorCore */; };
+		787DDEFF2D9FA3FC0070386C /* openapi.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 787DDEFE2D9FA3FC0070386C /* openapi.yaml */; };
+		787DDF012D9FA4530070386C /* openapi-generator-config.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 787DDF002D9FA4530070386C /* openapi-generator-config.yaml */; };
 		78AD4F082D4299110090E9E3 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */; };
 		78E985B42D564A9D00E02ABB /* FlexSheet in Frameworks */ = {isa = PBXBuildFile; productRef = 78E985B32D564A9D00E02ABB /* FlexSheet */; };
 		CB6B894C2D8149F400DF264B /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = CB6B894B2D8149F400DF264B /* KakaoSDK */; };
@@ -28,6 +29,8 @@
 /* Begin PBXFileReference section */
 		71F8F73E2D230EF100B822F3 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		71F8F8B72D27EE0700B822F3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		787DDEFE2D9FA3FC0070386C /* openapi.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = openapi.yaml; sourceTree = "<group>"; };
+		787DDF002D9FA4530070386C /* openapi-generator-config.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "openapi-generator-config.yaml"; sourceTree = "<group>"; };
 		78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		78C002082D1D9FC400DA101C /* Spoony-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Spoony-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -49,7 +52,6 @@
 				787DDEFA2D9FA34F0070386C /* OpenAPIRuntime in Frameworks */,
 				CB6B89542D8149F400DF264B /* KakaoSDKCommon in Frameworks */,
 				787B5B072D32DA0F0017A378 /* Moya in Frameworks */,
-				787DDEFD2D9FA35D0070386C /* _OpenAPIGeneratorCore in Frameworks */,
 				CB6B89522D8149F400DF264B /* KakaoSDKCertCore in Frameworks */,
 				787DDEF72D9FA3490070386C /* OpenAPIURLSession in Frameworks */,
 				787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */,
@@ -73,6 +75,8 @@
 				78C0020A2D1D9FC400DA101C /* Spoony-iOS */,
 				71F8F8B72D27EE0700B822F3 /* Info.plist */,
 				78C002092D1D9FC400DA101C /* Products */,
+				787DDEFE2D9FA3FC0070386C /* openapi.yaml */,
+				787DDF002D9FA4530070386C /* openapi-generator-config.yaml */,
 			);
 			sourceTree = "<group>";
 		};
@@ -99,6 +103,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				787DDF082D9FB13B0070386C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				78C0020A2D1D9FC400DA101C /* Spoony-iOS */,
@@ -118,7 +123,6 @@
 				CB6B89532D8149F400DF264B /* KakaoSDKCommon */,
 				787DDEF62D9FA3490070386C /* OpenAPIURLSession */,
 				787DDEF92D9FA34F0070386C /* OpenAPIRuntime */,
-				787DDEFC2D9FA35D0070386C /* _OpenAPIGeneratorCore */,
 			);
 			productName = SpoonMe;
 			productReference = 78C002082D1D9FC400DA101C /* Spoony-iOS.app */;
@@ -158,7 +162,7 @@
 				CB6B894A2D8149F400DF264B /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
 				787DDEF52D9FA3490070386C /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */,
 				787DDEF82D9FA34F0070386C /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */,
-				787DDEFB2D9FA35D0070386C /* XCRemoteSwiftPackageReference "swift-openapi-generator" */,
+				787DDF062D9FAD380070386C /* XCRemoteSwiftPackageReference "swift-openapi-generator" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 78C002092D1D9FC400DA101C /* Products */;
@@ -177,6 +181,8 @@
 			files = (
 				78AD4F082D4299110090E9E3 /* Launch Screen.storyboard in Resources */,
 				71F8F73F2D230EFE00B822F3 /* .swiftlint.yml in Resources */,
+				787DDF012D9FA4530070386C /* openapi-generator-config.yaml in Resources */,
+				787DDEFF2D9FA3FC0070386C /* openapi.yaml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -212,6 +218,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		787DDF082D9FB13B0070386C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 787DDF072D9FB13B0070386C /* OpenAPIGenerator */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		78C002142D1D9FC500DA101C /* Debug */ = {
@@ -507,7 +520,7 @@
 				minimumVersion = 1.8.2;
 			};
 		};
-		787DDEFB2D9FA35D0070386C /* XCRemoteSwiftPackageReference "swift-openapi-generator" */ = {
+		787DDF062D9FAD380070386C /* XCRemoteSwiftPackageReference "swift-openapi-generator" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-openapi-generator";
 			requirement = {
@@ -569,10 +582,10 @@
 			package = 787DDEF82D9FA34F0070386C /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */;
 			productName = OpenAPIRuntime;
 		};
-		787DDEFC2D9FA35D0070386C /* _OpenAPIGeneratorCore */ = {
+		787DDF072D9FB13B0070386C /* OpenAPIGenerator */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 787DDEFB2D9FA35D0070386C /* XCRemoteSwiftPackageReference "swift-openapi-generator" */;
-			productName = _OpenAPIGeneratorCore;
+			package = 787DDF062D9FAD380070386C /* XCRemoteSwiftPackageReference "swift-openapi-generator" */;
+			productName = "plugin:OpenAPIGenerator";
 		};
 		78E985B32D564A9D00E02ABB /* FlexSheet */ = {
 			isa = XCSwiftPackageProductDependency;
