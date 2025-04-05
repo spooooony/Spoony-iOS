@@ -10,7 +10,6 @@ import SwiftUI
 import ComposableArchitecture
 
 struct LoginView: View {
-    @EnvironmentObject private var navigationManager: AuthNavigationManager
     let store: StoreOf<LoginFeature>
     
     var body: some View {
@@ -18,7 +17,7 @@ struct LoginView: View {
             Image(.imageLoginBg)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-            
+                .ignoresSafeArea()
             VStack(spacing: 0) {
                 Image(.spoonyEnglishLogo)
                     .padding(.bottom, 330)
@@ -44,12 +43,11 @@ struct LoginView: View {
                     .animation(.easeInOut, value: store.state.isLoading)
             }
         }
-        .ignoresSafeArea()
     }
 }
 
 #Preview {
     LoginView(store: Store(initialState: LoginFeature.State(), reducer: {
-        LoginFeature(navigationManager: AuthNavigationManager())
+        LoginFeature()
     }))
 }
