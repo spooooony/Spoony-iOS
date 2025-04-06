@@ -70,13 +70,17 @@ struct InfoStepFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                return .run { send in
-                    do {
-                        let categorys = try await network.getRegisterCategories().toModel()
-                        
-                        await send(.categoryResponse(categorys))
-                    } catch {
-                        await send(.presentToast(message: "네트워크 에러!"))
+                if !state.categories.isEmpty {
+                    return .none
+                } else {
+                    return .run { send in
+                        do {
+                            let categories = try await network.getRegisterCategories().toModel()
+                            
+                            await send(.categoryResponse(categories))
+                        } catch {
+                            await send(.presentToast(message: "네트워크 에러!"))
+                        }
                     }
                 }
             case .binding(\.recommendTexts):
