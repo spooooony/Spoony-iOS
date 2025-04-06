@@ -11,7 +11,7 @@ import ComposableArchitecture
 
 struct TabCoordinatorView: View {
     @Bindable private var store: StoreOf<TabCoordinator>
-        
+    
     init(store: StoreOf<TabCoordinator>) {
         self.store = store
         setTabBarAppearance()
@@ -23,7 +23,7 @@ struct TabCoordinatorView: View {
                 Group {
                     switch tab {
                     case .map:
-                        MapView(store: store.scope(state: \.map, action: \.map))
+                        MapCoordinatorView(store: store.scope(state: \.map, action: \.map))
                     case .explore:
                         ExploreView(store: store.scope(state: \.explore, action: \.explore))
                     case .register:
@@ -39,7 +39,7 @@ struct TabCoordinatorView: View {
                     )
                 }
                 .tag(tab)
-            }
+            }            
         }
         .toastView(toast: $store.toast)
         .popup(popup: $store.popup) { popup in
