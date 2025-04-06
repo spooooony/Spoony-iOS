@@ -43,6 +43,9 @@ struct LoginView: View {
                     .animation(.easeInOut, value: store.state.isLoading)
             }
         }
+        .onAppear {
+            store.send(.onAppear)
+        }
     }
 }
 

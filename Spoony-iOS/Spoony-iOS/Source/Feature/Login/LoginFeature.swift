@@ -50,7 +50,9 @@ struct LoginFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                return .none
+                //자동 로그인시
+                return .send(.routToTabCoordinatorScreen)
+//                return .none
             case .kakaoLoginButtonTapped:
                 state.isLoading = true
                 
