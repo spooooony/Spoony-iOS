@@ -7,16 +7,30 @@
 
 import SwiftUI
 
+import ComposableArchitecture
+
+@Reducer
+struct SearchFeature {
+    @ObservableState
+    struct State: Equatable {
+        static let initialState = State()
+    }
+    
+    enum Action: Equatable {
+        case routeToPreviousScreen
+    }
+}
+
 @MainActor
 final class SearchStore: ObservableObject {
     @Published private(set) var state: SearchState = .empty
     @Published private(set) var model: SearchModel
     
-    private var navigationManager: NavigationManager
+//    private var navigationManager: NavigationManager
     private let searchService = SearchService()
     
-    init(navigationManager: NavigationManager) {
-        self.navigationManager = navigationManager
+    init(/*navigationManager: NavigationManager*/) {
+//        self.navigationManager = navigationManager
         self.model = SearchModel()
     }
     
@@ -81,10 +95,10 @@ final class SearchStore: ObservableObject {
     private func handleLocationSelection(_ result: SearchResult) {
         state = .loading
         
-        navigationManager.navigateToSearchLocation(
-            locationId: result.locationId,
-            locationTitle: result.title
-        )
+//        navigationManager.navigateToSearchLocation(
+//            locationId: result.locationId,
+//            locationTitle: result.title
+//        )
         
         state = .empty
     }
@@ -128,9 +142,9 @@ final class SearchStore: ObservableObject {
         }
     }
     
-    func updateNavigationManager(_ manager: NavigationManager) {
-        self.navigationManager = manager
-    }
+//    func updateNavigationManager(_ manager: NavigationManager) {
+//        self.navigationManager = manager
+//    }
     
     private func saveRecentSearches() {
         UserManager.shared.recentSearches = model.recentSearches
