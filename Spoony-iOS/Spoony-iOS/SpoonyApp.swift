@@ -15,9 +15,6 @@ import ComposableArchitecture
 @main
 struct SpoonyApp: App {
     @StateObject private var navigationManager = NavigationManager()
-    private let store: StoreOf<AppCoordinator> = .init(initialState: .initialState) {
-        AppCoordinator()
-    }
     
     init() {
         NMFAuthManager.shared().clientId = Config.naverMapsClientId
@@ -26,14 +23,17 @@ struct SpoonyApp: App {
     
     var body: some Scene {
         WindowGroup {
-//            SpoonyTabView(store: registerStore)
-            AppCoordinatorView(store: store)
-                .environmentObject(navigationManager)
-                .onOpenURL(perform: { url in
-                    if AuthApi.isKakaoTalkLoginUrl(url) {
-                        _ = AuthController.handleOpenUrl(url: url)
-                    }
-                })
+            AppCoordinatorView(
+                store: Store(initialState: .initialState) {
+                    AppCoordinator()
+                }
+            )
+            .environmentObject(navigationManager)
+            .onOpenURL(perform: { url in
+                if AuthApi.isKakaoTalkLoginUrl(url) {
+                    _ = AuthController.handleOpenUrl(url: url)
+                }
+            })
         }
     }
 }
