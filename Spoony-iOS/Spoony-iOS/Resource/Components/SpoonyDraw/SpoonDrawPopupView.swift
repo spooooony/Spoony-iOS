@@ -33,13 +33,11 @@ struct SpoonDrawPopupView: View {
                     }
                 }
                 
-                // 제목
                 Text("오늘의 스푼 뽑기")
                 //TODO: 폰트 나중에 주리꺼로~
                     .font(.title1b)
                     .padding(.top, 0)
                 
-                // 설명 텍스트
                 Text("'스푼 뽑기' 버튼을 누르면\n오늘의 스폰을 획득할 수 있어요.")
                     .font(.body2sb)
                     .multilineTextAlignment(.center)
@@ -52,16 +50,13 @@ struct SpoonDrawPopupView: View {
                     .padding(.horizontal, 36)
                     .padding(.vertical, 20)
             
-                Button(action: {
-               //TODO: 스폰 뽑기 버튼 액션 추가
-                }) {
-                    Text("스푼 뽑기")
-                        .font(.body2b)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(.main400)
-                        .cornerRadius(10)
+                SpoonyButton(
+                    style: .primary,
+                    size: .medium,
+                    title: "스푼 뽑기",
+                    disabled: .constant(true)
+                ) {
+                    //TODO: 스폰 뽑기 버튼 액션 추가
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
@@ -69,7 +64,6 @@ struct SpoonDrawPopupView: View {
             .background(Color.white)
             .cornerRadius(16)
             .padding(.horizontal, 36)
-
         }
     }
 }
