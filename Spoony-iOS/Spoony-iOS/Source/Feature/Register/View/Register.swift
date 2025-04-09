@@ -42,8 +42,7 @@ struct Register: View {
         }
         .onDisappear {
             store.send(.onDisappear)
-        }
-        .toastView(toast: $store.toast)
+        }        
         .overlay {
             if store.state.isLoading {
                 ProgressView()
@@ -89,7 +88,7 @@ extension Register {
 
 #Preview {
     Register(store: Store(initialState: .initialState, reducer: {
-        RegisterFeature(navigationManager: .init())
+        RegisterFeature()
             ._printChanges()
     }))
 }

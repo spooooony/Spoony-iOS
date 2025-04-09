@@ -27,7 +27,6 @@ struct InfoStepFeature {
         var recommendTexts: [RecommendText] = [.init()]
         var isDisablePlusButton: Bool = false
         
-        var toast: Toast?
         var keyboardHeight: SizeValueType = 0
         var isToolTipPresented: Bool = true
         var isDisableNextButton: Bool = true
@@ -57,8 +56,10 @@ struct InfoStepFeature {
         case validateNextButton
         case didTapBackground
         case updateKeyboardHeight(SizeValueType)
-        case updateToast(message: String)
         case updateToolTipState
+        
+        // MARK: - TabCoordinator Action
+        case presentToast(message: String)
     }
     
     @Dependency(\.registerService) var network: RegisterServiceType
@@ -69,13 +70,17 @@ struct InfoStepFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                return .run { send in
-                    do {
-                        let categorys = try await network.getRegisterCategories().toModel()
-                        
-                        await send(.categoryResponse(categorys))
-                    } catch {
-                        await send(.updateToast(message: "네트워크 에러!"))
+                if !state.categories.isEmpty {
+                    return .none
+                } else {
+                    return .run { send in
+                        do {
+                            let categories = try await network.getRegisterCategories().toModel()
+                            
+                            await send(.categoryResponse(categories))
+                        } catch {
+                            await send(.presentToast(message: "네트워크 에러!"))
+                        }
                     }
                 }
             case .binding(\.recommendTexts):
@@ -98,13 +103,13 @@ struct InfoStepFeature {
                         
                         await send(.searchPlaceResponse(places))
                     } catch {
-                        await send(.updateToast(message: "네트워크 에러!"))
+                        await send(.presentToast(message: "네트워크 에러!"))
                     }
                 }
             case .searchPlaceResponse(let places):
                 state.isDropDownPresented = !places.isEmpty
                 state.searchedPlaces = places
-                return places.isEmpty ? .send(.updateToast(message: "검색 결과가 없습니다.")) : .none
+                return places.isEmpty ? .send(.presentToast(message: "검색 결과가 없습니다.")) : .none
             case .didTapPlaceInfoCell(let place):
                 let request = ValidatePlaceRequest(
                     userId: Config.userId,
@@ -118,7 +123,7 @@ struct InfoStepFeature {
                         
                         if isDuplicate {
                             await send(.updatePlace(nil))
-                            await send(.updateToast(message: "앗! 이미 등록한 맛집이에요"))
+                            await send(.presentToast(message: "앗! 이미 등록한 맛집이에요"))
                         } else {
                             await send(.updatePlace(place))
                         }
@@ -149,7 +154,7 @@ struct InfoStepFeature {
                         
                         await send(.updatePlusButtonState)
                     } catch {
-                        await send(.updateToast(message: "뭐지"))
+                        await send(.presentToast(message: "뭐지"))
                     }
                 }
             case .didTapRecommendDeleteButton(let text):
@@ -177,11 +182,10 @@ struct InfoStepFeature {
             case .updateKeyboardHeight(let height):
                 state.keyboardHeight = height
                 return .none
-            case .updateToast(let message):
-                state.toast = .init(style: .gray, message: message, yOffset: 558.adjustedH)
-                return .none
             case .updateToolTipState:
                 state.isToolTipPresented = false
+                return .none
+            default:
                 return .none
             }
         }

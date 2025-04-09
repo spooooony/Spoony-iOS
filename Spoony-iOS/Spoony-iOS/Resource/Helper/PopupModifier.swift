@@ -11,28 +11,32 @@ import Lottie
 
 struct PopupModifier: ViewModifier {
     @Binding var popup: PopupType?
+    let confirmAction: (PopupType) -> Void
     
     func body(content: Content) -> some View {
         ZStack {
             content
-            if popup != nil {
+            if let popup = popup {
                 Color.black.opacity(0.6)
                     .ignoresSafeArea(.all)
                 
-                PopupView(popup: $popup)
+                PopupView(popup: $popup) {
+                    confirmAction(popup)
+                }
             }
         }
     }
 }
 
-enum PopupType {
-    case useSpoon(action: (() -> Void))
-    case reportSuccess(action: (() -> Void))
-    case registerSuccess(action: (() -> Void))
+enum PopupType: Equatable {
+    case useSpoon
+    case reportSuccess
+    case registerSuccess
 }
 
 struct PopupView: View {
     @Binding var popup: PopupType?
+    let confirmAction: () -> Void
     
     var body: some View {
         VStack(spacing: 20) {
@@ -138,19 +142,6 @@ extension PopupView {
             0
         case .reportSuccess:
             12
-        }
-    }
-    
-    private var confirmAction: () -> Void {
-        switch popup {
-        case .registerSuccess(let action):
-            return action
-        case .reportSuccess(let action):
-            return action
-        case .useSpoon(let action):
-            return action
-        case .none:
-            return {}
         }
     }
     

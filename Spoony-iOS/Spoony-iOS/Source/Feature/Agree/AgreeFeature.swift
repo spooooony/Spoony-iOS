@@ -13,7 +13,9 @@ import ComposableArchitecture
 struct AgreeFeature {
     
     @ObservableState
-    struct State {
+    struct State: Equatable {
+        static let initialState = State()
+        
         var allCheckboxFilled: Bool = false
         var isDisableButton: Bool = true
         var selectedAgrees: [AgreeType] = []
@@ -26,6 +28,10 @@ struct AgreeFeature {
         case selectedAgreeTapped(AgreeType)
         case unSelectedAgreeTapped(AgreeType)
         case selectedAgreesChanged
+        
+        // MARK: Navigation Action
+        case routToOnboardingScreen
+        case routToTabCoordinatorScreen
     }
     
     var body: some ReducerOf<Self> {
@@ -59,6 +65,10 @@ struct AgreeFeature {
                 state.isDisableButton = !state.allCheckboxFilled
                 return .none
             case .binding:
+                return .none
+            case .routToOnboardingScreen:
+                return .none
+            case .routToTabCoordinatorScreen:
                 return .none
             }
             

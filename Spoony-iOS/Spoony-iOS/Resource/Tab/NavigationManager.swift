@@ -20,10 +20,12 @@ final class NavigationManager: ObservableObject {
     @ViewBuilder
     func build(_ view: ViewType) -> some View {
         switch view {
-        case .searchView:
-            SearchView()
+//        case .searchView:
+//            SearchView()
         case .locationView:
-            Home()
+            Home(store: Store(initialState: .initialState, reducer: {
+                MapFeature()
+            }))
         case .detailView(let postId):
             PostView(postId: postId, store: Store(initialState: PostFeature.State(), reducer: {
                 PostFeature()
@@ -43,6 +45,7 @@ final class NavigationManager: ObservableObject {
             explorePath.append(view)
         case .register:
             registerPath.append(view)
+        default: return
         }
     }
 
@@ -61,6 +64,7 @@ final class NavigationManager: ObservableObject {
             explorePath.removeLast(depth)
         case .register:
             registerPath.removeLast(depth)
+        default: return
         }
     }
     
@@ -72,19 +76,20 @@ final class NavigationManager: ObservableObject {
             explorePath = []
         case .register:
             registerPath = []
+        default: return
         }
     }
     
-    func navigateToSearchLocation(locationId: Int, locationTitle: String) {
-        if let lastView = mapPath.last,
-           case .searchView = lastView {
-            pop(1)
-        }
-        
-        push(.searchLocationView(
-            locationId: locationId,
-            locationTitle: locationTitle
-        ))
-    }
+//    func navigateToSearchLocation(locationId: Int, locationTitle: String) {
+//        if let lastView = mapPath.last,
+//           case .searchView = lastView {
+//            pop(1)
+//        }
+//        
+//        push(.searchLocationView(
+//            locationId: locationId,
+//            locationTitle: locationTitle
+//        ))
+//    }
     
 }

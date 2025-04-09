@@ -289,9 +289,9 @@ extension DetailView {
                 if store.state.isScoop {
                     store.send(intent: .pathInfoInNaverMaps)
                 } else {
-                    navigationManager.popup = .useSpoon(action: {
-                        store.send(intent: .scoopButtonDidTap)
-                    })
+//                    navigationManager.popup = .useSpoon(action: {
+//                        store.send(intent: .scoopButtonDidTap)
+//                    })
                 }
             }
             
