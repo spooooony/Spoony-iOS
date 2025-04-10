@@ -50,7 +50,7 @@ struct BottomSheetListItem: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
                 
-                Text(pickCard.postTitle)
+                Text(pickCard.postTitle ?? "")
                     .customFont(.caption1m)
                     .foregroundColor(.spoonBlack)
                     .lineLimit(1)
