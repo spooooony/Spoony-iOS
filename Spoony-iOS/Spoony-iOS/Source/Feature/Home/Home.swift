@@ -18,11 +18,17 @@ struct Home: View {
     @State private var selectedPlace: CardPlace?
     @State private var currentPage = 0
     @State private var spoonCount: Int = 0
+    @State private var selectedCategories: [CategoryChip] = []
+    @State private var categories: [CategoryChip] = []
     private let restaurantService: HomeServiceType
+    private let registerService: RegisterServiceType
     private let store: StoreOf<MapFeature>
     
-    init(restaurantService: HomeServiceType = DefaultHomeService(), store: StoreOf<MapFeature>) {
+    init(restaurantService: HomeServiceType = DefaultHomeService(),
+         registerService: RegisterServiceType = RegisterService(),
+         store: StoreOf<MapFeature>) {
         self.restaurantService = restaurantService
+        self.registerService = registerService
         self.store = store
     }
     
@@ -52,6 +58,33 @@ struct Home: View {
                     }
                 )
                 .frame(height: 56.adjusted)
+                
+                HStack(spacing: 8) {
+                    if categories.isEmpty {
+                        ForEach(0..<4, id: \.self) { _ in
+                            CategoryChipsView(category: CategoryChip.placeholder)
+                                .redacted(reason: .placeholder)
+                        }
+                    } else {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(categories, id: \.id) { category in
+                                    CategoryChipsView(
+                                        category: category,
+                                        isSelected: selectedCategories.contains { $0.id == category.id }
+                                    )
+                                    .onTapGesture {
+                                        handleCategorySelection(category)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                        }
+                    }
+                }
+                .padding(.vertical, 8)
+                .background(Color.white)
+                
                 Spacer()
             }
             
@@ -78,9 +111,31 @@ struct Home: View {
             do {
                 spoonCount = try await restaurantService.fetchSpoonCount()
                 viewModel.fetchPickList()
+                
+                let categoryResponse = try await registerService.getRegisterCategories()
+                categories = try await categoryResponse.toModel()
             } catch {
-                print("Failed to fetch spoon count:", error)
+                print("Failed to fetch data:", error)
             }
+        }
+    }
+    
+    // 카테고리 선택 처리
+    private func handleCategorySelection(_ category: CategoryChip) {
+        if selectedCategories.contains(where: { $0.id == category.id }) {
+            selectedCategories.removeAll { $0.id == category.id }
+        } else {
+            selectedCategories = [category]
+        }
+        
+        //TODO: 필터링 로직 구현
+        if !selectedCategories.isEmpty {
+            let categoryId = selectedCategories[0].id
+            print("Selected category: \(categoryId)")
+            // viewModel.filterByCategory(categoryId: categoryId)
+        } else {
+            // 선택 해제 시 모든 항목 표시
+            // viewModel.resetFilters()
         }
     }
 }
