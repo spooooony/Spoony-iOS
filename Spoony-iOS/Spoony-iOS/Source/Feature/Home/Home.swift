@@ -57,10 +57,8 @@ struct Home: View {
                 )
                 .frame(height: 56.adjusted)
                 
-                // 카테고리 버튼 영역 (일자로 배치)
                 HStack(spacing: 8) {
                     if categories.isEmpty {
-                        // 로딩 중일 때 플레이스홀더 표시
                         ForEach(0..<4, id: \.self) { _ in
                             CategoryChipsView(category: CategoryChip.placeholder)
                                 .redacted(reason: .placeholder)
@@ -79,7 +77,6 @@ struct Home: View {
                                     isSelected: selectedCategories.isEmpty || selectedCategories.contains { $0.id == 0 }
                                 )
                                 .onTapGesture {
-                                    // 전체를 선택하면 다른 선택을 모두 해제
                                     selectedCategories = []
                                 }
                                 
@@ -148,10 +145,8 @@ struct Home: View {
         if !selectedCategories.isEmpty {
             let categoryId = selectedCategories[0].id
             print("Selected category: \(categoryId)")
-            // viewModel.filterByCategory(categoryId: categoryId)
         } else {
-            // 선택 해제 시 모든 항목 표시
-            // viewModel.resetFilters()
+            
         }
     }
 }
