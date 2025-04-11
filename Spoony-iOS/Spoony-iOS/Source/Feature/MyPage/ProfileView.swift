@@ -28,13 +28,15 @@ struct ProfileFeature {
         case routeToFollowingScreen
         case routeToFollowerScreen
         case routeToEditProfileScreen
+        case routeToSettingsScreen
     }
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .routeToReviewsScreen, .routeToFollowingScreen,
-                 .routeToFollowerScreen, .routeToEditProfileScreen:
+                 .routeToFollowerScreen, .routeToEditProfileScreen,
+                 .routeToSettingsScreen:
                 return .none
             }
         }
@@ -51,17 +53,13 @@ struct ProfileView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // 상단 네비게이션 영역
-            HStack {
-                Text("마이페이지")
-                    .customFont(.title2b)
-                    .foregroundStyle(.spoonBlack)
-                Spacer()
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 12)
-            .padding(.bottom, 16)
-            
+            CustomNavigationBar(
+                style: .settingContent,
+                spoonCount: store.spoonCount,
+                tappedAction: {
+                    store.send(.routeToSettingsScreen)
+                }
+            )
             
             // 프로필 정보 영역
             VStack(spacing: 24) {
