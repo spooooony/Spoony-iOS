@@ -5,30 +5,39 @@
 //  Created by 최안용 on 4/4/25.
 //
 
+import Foundation
 import ComposableArchitecture
-import SwiftUI
+import TCACoordinators
 
-// MARK: - MyPageCoordinator
+
 @Reducer
 struct MyPageCoordinator {
     @ObservableState
     struct State: Equatable {
-        static let initialState = State()
+        static let initialState = State(routes: [.root(.profile(.initialState), embedInNavigationView: true)])
+        
+        var routes: [Route<MyPageScreen.State>]
     }
     
-    enum Action {}
+    enum Action {
+        case router(IndexedRouterActionOf<MyPageScreen>)
+    }
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
-            return .none
+            switch action {
+            case .router(.routeAction(id: _, action: .profile(.routeToReviewsScreen))):
+                state.routes.push(.reviews(.initialState))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .reviews(.routeToPreviousScreen))):
+                state.routes.goBack()
+                return .none
+                
+            default:
+                return .none
+            }
         }
-    }
-}
-
-struct MyPageView: View {
-    let store: StoreOf<MyPageCoordinator>
-    
-    var body: some View {
-        Text("My Page View")
+        .forEachRoute(\.routes, action: \.router)
     }
 }
