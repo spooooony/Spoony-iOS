@@ -56,6 +56,8 @@ struct CustomNavigationBar: View {
                 searchBar
             case .searchBar:
                 searchBar
+            case .onboarding:
+                onboarding
             }
         }
         .frame(height: 56.adjusted)
@@ -204,6 +206,18 @@ struct CustomNavigationBar: View {
         }
         .padding(.horizontal, 16)
     }
+    
+    private var onboarding: some View {
+        HStack {
+            Spacer()
+            
+            Text("건너뛰기")
+                .underline()
+                .customFont(.body2m)
+                .foregroundStyle(.gray400)
+                .padding(.trailing, 21)
+        }
+    }
 }
 
 struct CustomNavigationBar_Previews: PreviewProvider {
@@ -246,6 +260,12 @@ struct CustomNavigationBar_Previews: PreviewProvider {
             CustomNavigationBar(
                 style: .searchBar,
                 searchText: .constant(""),
+                onBackTapped: {}
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .onboarding,
                 onBackTapped: {}
             )
             .border(.gray)

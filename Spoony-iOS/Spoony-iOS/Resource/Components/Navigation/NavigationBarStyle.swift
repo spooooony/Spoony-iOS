@@ -22,6 +22,9 @@ enum NavigationBarStyle {
     case detail         // < + 가운데 타이틀 사용 (신고하기)
     case detailWithChip    // < + 오른쪽 칩 (가운데 타이틀 없음)
     
+    // 온보딩 관련
+    case onboarding     // < + 오른쪽 건너뛰기 버튼
+    
     // 백 버튼 표시 여부
     var showsBackButton: Bool {
         switch self {
