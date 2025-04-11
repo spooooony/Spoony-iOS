@@ -35,9 +35,11 @@ struct MapCoordinator {
             case .router(.routeAction(id: _, action: .map(.routToSearchScreen))):
                 state.routes.push(.search(.initialState))
                 return .none
+                
             case .router(.routeAction(id: _, action: .search(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
+                
             default:
                 return .none
             }

@@ -6,13 +6,12 @@
 //
 
 import SwiftUI
-
 import ComposableArchitecture
-import FlexSheet
 
 struct Home: View {
 //    @EnvironmentObject var navigationManager: NavigationManager
     @StateObject private var viewModel = HomeViewModel(service: DefaultHomeService())
+    private let store: StoreOf<MapFeature>
     @State private var isBottomSheetPresented = true
     @State private var searchText = ""
     @State private var selectedPlace: CardPlace?
@@ -22,14 +21,13 @@ struct Home: View {
     @State private var categories: [CategoryChip] = []
     private let restaurantService: HomeServiceType
     private let registerService: RegisterServiceType
-    private let store: StoreOf<MapFeature>
     
-    init(restaurantService: HomeServiceType = DefaultHomeService(),
-         registerService: RegisterServiceType = RegisterService(),
-         store: StoreOf<MapFeature>) {
+    init(store: StoreOf<MapFeature>,
+         restaurantService: HomeServiceType = DefaultHomeService(),
+         registerService: RegisterServiceType = RegisterService()) {
+        self.store = store
         self.restaurantService = restaurantService
         self.registerService = registerService
-        self.store = store
     }
     
     var body: some View {
@@ -115,9 +113,9 @@ struct Home: View {
                     .transition(.move(edge: .bottom))
                 } else {
                     if !viewModel.pickList.isEmpty {
-                        FlexibleListBottomSheet(viewModel: viewModel)
+                        BottomSheetListView(viewModel: viewModel, store: store)
                     } else {
-                        EmptyStateBottomSheet()
+                        FixedBottomSheetView(store: store)
                     }
                 }
             }

@@ -33,7 +33,13 @@ final class NavigationManager: ObservableObject {
         case .report(let postId):
             Report(postId: postId)
         case .searchLocationView(locationId: let locationId, locationTitle: let locationTitle):
-            SearchLocation(locationId: locationId, locationTitle: locationTitle)
+            SearchLocation(
+                locationId: locationId,
+                locationTitle: locationTitle,
+                store: Store(initialState: .initialState, reducer: {
+                    MapFeature()
+                })
+            )
         }
     }
     
@@ -85,11 +91,10 @@ final class NavigationManager: ObservableObject {
 //           case .searchView = lastView {
 //            pop(1)
 //        }
-//        
+//
 //        push(.searchLocationView(
 //            locationId: locationId,
 //            locationTitle: locationTitle
 //        ))
 //    }
-    
 }
