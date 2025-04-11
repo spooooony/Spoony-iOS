@@ -85,7 +85,7 @@ extension UserInfoStepView {
             
             HStack(spacing: 22) {
                 Text("나는")
-                placeholderWithImageView("서울 종로구")
+                placeholderWithImageView("서울 마포구")
                 Text("스푼")
             }
             .frame(maxWidth: .infinity)

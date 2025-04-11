@@ -34,8 +34,7 @@ struct SpoonDrawPopupView: View {
                 }
                 
                 Text("오늘의 스푼 뽑기")
-                //TODO: 폰트 나중에 주리꺼로~
-                    .font(.title1b)
+                    .font(.title1)
                     .padding(.top, 0)
                 
                 Text("'스푼 뽑기' 버튼을 누르면\n오늘의 스폰을 획득할 수 있어요.")
