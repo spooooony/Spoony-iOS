@@ -46,9 +46,9 @@ extension ReportStore {
             do {
                 try await postReport(postId: postId, description: description)
                 await MainActor.run {
-                    navigationManager.popup = .reportSuccess(action: { [weak self] in
-                        self?.navigationManager.pop(2)
-                    })
+//                    navigationManager.popup = .reportSuccess(action: { [weak self] in
+//                        self?.navigationManager.pop(2)
+//                    })
                 }
             } catch {
                 print("report post failed!")

@@ -21,22 +21,25 @@ struct RegisterFeature {
         var isRegistrationSuccess: Bool = false
         var infoStepState: InfoStepFeature.State
         var reviewStepState: ReviewStepFeature.State
-        var toast: Toast?
     }
     
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case updateIsLoading(Bool)
         case updateStep(RegisterStep)
-        case infoStepAction(InfoStepFeature.Action)
-        case reviewStepAction(ReviewStepFeature.Action)
-        case updateToast(message: String)
         case resetState
         case registrationSuccessful
         case onDisappear
+        
+        // MARK: - Child Action
+        case infoStepAction(InfoStepFeature.Action)
+        case reviewStepAction(ReviewStepFeature.Action)
+        
+        // MARK: - TabCoordinator Action
+        case presentPopup
+        case presentToast(message: String)
     }
-    
-    let navigationManager: NavigationManager
+        
     @Dependency(\.registerService) var network: RegisterServiceType
     
     var body: some Reducer<State, Action> {
@@ -61,6 +64,8 @@ struct RegisterFeature {
             case .infoStepAction(.didTapNextButton):
                 state.currentStep = .middle
                 return .none
+            case let .infoStepAction(.presentToast(message)):
+                return .send(.presentToast(message: message))
             case .reviewStepAction(.didTapNextButton):
                 state.currentStep = .end
                 
@@ -100,14 +105,11 @@ struct RegisterFeature {
                     if success {
                         await send(.registrationSuccessful)
                     } else {
-                        await send(.updateToast(message: "네트워크 오류!"))
+                        await send(.presentToast(message: "네트워크 오류!"))
                     }
                 }
             case .reviewStepAction(.movePreviousView):
                 state.currentStep = .start
-                return .none
-            case .updateToast(let message):
-                state.toast = .init(style: .gray, message: message, yOffset: 558.adjustedH)
                 return .none
             case .resetState:
                 state.currentStep = .start
@@ -120,18 +122,13 @@ struct RegisterFeature {
             case .registrationSuccessful:
                 state.currentStep = .end
                 state.isRegistrationSuccess = true
-                navigationManager.popup = .registerSuccess(action: {
-                    self.navigationManager.selectedTab = .explore
-                })
-                return .none
-                
+                return .send(.presentPopup)
             case .onDisappear:
                 if state.isRegistrationSuccess {
                     return .send(.resetState)
                 } else {
                     return .none
                 }
-                
             default: return .none
             }
         }

@@ -10,7 +10,6 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AgreeView: View {
-    @EnvironmentObject private var navigationManager: AuthNavigationManager
     @Bindable private var store: StoreOf<AgreeFeature>
     
     init(store: StoreOf<AgreeFeature>) {
@@ -48,7 +47,8 @@ struct AgreeView: View {
                 isIcon: false,
                 disabled: $store.isDisableButton
             ) {
-                navigationManager.push(.onboardingView)
+                
+                store.send(.routToOnboardingScreen)
             }
             .padding(.bottom, 20)
         }

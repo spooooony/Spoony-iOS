@@ -31,7 +31,6 @@ struct InfoStepView: View {
             store.send(.didTapBackground)
             hideKeyboard()
         }
-        .toastView(toast: $store.toast)
         .task {
             store.send(.onAppear)
         }

@@ -7,14 +7,21 @@
 
 import SwiftUI
 
+import ComposableArchitecture
+
 struct SearchView: View {
-    @EnvironmentObject private var navigationManager: NavigationManager
-    @StateObject private var store: SearchStore
+//    @EnvironmentObject private var navigationManager: NavigationManager
+    @StateObject private var store: SearchStore = SearchStore()
     @FocusState private var isSearchFocused: Bool
+    private let testStore: StoreOf<SearchFeature>
     
-    init() {
-        _store = StateObject(wrappedValue: SearchStore(navigationManager: NavigationManager()))
+    init(testStore: StoreOf<SearchFeature>) {
+        self.testStore = testStore
     }
+    
+//    init() {
+//        _store = StateObject(wrappedValue: SearchStore(navigationManager: NavigationManager()))
+//    }
     
     var body: some View {
         ZStack {
@@ -27,7 +34,7 @@ struct SearchView: View {
                     ),
                     onBackTapped: {
                         store.dispatch(.clearSearch)
-                        navigationManager.pop(1)
+                        testStore.send(.routeToPreviousScreen)
                     },
                     tappedAction: {
                         store.dispatch(.search)
@@ -45,7 +52,7 @@ struct SearchView: View {
         }
         .navigationBarHidden(true)
         .onAppear {
-            store.updateNavigationManager(navigationManager)
+//            store.updateNavigationManager(navigationManager)
             if store.model.isFirstAppear {
                 isSearchFocused = true
                 store.dispatch(.setFirstAppear(false))

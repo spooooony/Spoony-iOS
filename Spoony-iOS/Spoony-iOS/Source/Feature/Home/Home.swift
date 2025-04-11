@@ -7,10 +7,11 @@
 
 import SwiftUI
 
+import ComposableArchitecture
 import FlexSheet
 
 struct Home: View {
-    @EnvironmentObject var navigationManager: NavigationManager
+//    @EnvironmentObject var navigationManager: NavigationManager
     @StateObject private var viewModel = HomeViewModel(service: DefaultHomeService())
     @State private var isBottomSheetPresented = true
     @State private var searchText = ""
@@ -18,9 +19,11 @@ struct Home: View {
     @State private var currentPage = 0
     @State private var spoonCount: Int = 0
     private let restaurantService: HomeServiceType
+    private let store: StoreOf<MapFeature>
     
-    init(restaurantService: HomeServiceType = DefaultHomeService()) {
+    init(restaurantService: HomeServiceType = DefaultHomeService(), store: StoreOf<MapFeature>) {
         self.restaurantService = restaurantService
+        self.store = store
     }
     
     var body: some View {
@@ -33,6 +36,8 @@ struct Home: View {
                 .onChange(of: viewModel.focusedPlaces) { _, newPlaces in
                     if !newPlaces.isEmpty {
                         selectedPlace = newPlaces[0]
+                    } else {
+                        selectedPlace = nil
                     }
                 }
             
@@ -42,7 +47,8 @@ struct Home: View {
                     searchText: $searchText,
                     spoonCount: spoonCount,
                     tappedAction: {
-                        navigationManager.push(.searchView)
+                        store.send(.routToSearchScreen)
+//                        navigationManager.push(.searchView)
                     }
                 )
                 .frame(height: 56.adjusted)
@@ -80,5 +86,7 @@ struct Home: View {
 }
 
 #Preview {
-    Home().environmentObject(NavigationManager())
+    Home(store: Store(initialState: .initialState) {
+        MapFeature()
+    }).environmentObject(NavigationManager())
 }

@@ -18,7 +18,6 @@ struct NMapView: UIViewRepresentable {
     @ObservedObject var viewModel: HomeViewModel
     @Binding var selectedPlace: CardPlace?
     
-    private var mapView: NMFMapView
     let onMoveCamera: ((Double, Double) -> Void)?
     
     init(viewModel: HomeViewModel,
@@ -28,7 +27,6 @@ struct NMapView: UIViewRepresentable {
         self.viewModel = viewModel
         self._selectedPlace = selectedPlace
         self.onMoveCamera = onMoveCamera
-        self.mapView = NMFMapView()
     }
     
     func makeUIView(context: Context) -> NMFMapView {
@@ -63,23 +61,23 @@ struct NMapView: UIViewRepresentable {
         Coordinator(
             selectedPlace: $selectedPlace,
             defaultMarkerImage: defaultMarker,
+            selectedMarkerImage: selectedMarker,
             viewModel: viewModel
         )
     }
     
     func updateUIView(_ mapView: NMFMapView, context: Context) {
-        context.coordinator.markers.forEach { marker in
-            marker.mapView = nil
-        }
-        context.coordinator.markers.removeAll()
+        mapView.touchDelegate = context.coordinator
+        context.coordinator.updateMarkers(mapView: mapView, pickList: viewModel.pickList, selectedPlaceId: selectedPlace?.placeId)
         
-        let newMarkers = viewModel.pickList.map { pickCard in
-            let marker = createMarker(for: pickCard)
-            marker.mapView = mapView
-            return marker
+        if let location = viewModel.selectedLocation, !viewModel.focusedPlaces.isEmpty {
+            let coord = NMGLatLng(lat: location.latitude, lng: location.longitude)
+            let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
+            cameraUpdate.animation = .easeIn
+            cameraUpdate.animationDuration = 0.2
+            mapView.moveCamera(cameraUpdate)
         }
         
-        // 처음 지도가 로드될 때만 모든 마커가 보이도록 카메라 이동
         if context.coordinator.isInitialLoad && !viewModel.pickList.isEmpty {
             let bounds = NMGLatLngBounds(latLngs: viewModel.pickList.map {
                 NMGLatLng(lat: $0.latitude, lng: $0.longitude)
@@ -88,17 +86,6 @@ struct NMapView: UIViewRepresentable {
             mapView.moveCamera(cameraUpdate)
             context.coordinator.isInitialLoad = false
         }
-        
-        // 마커가 선택됐을 때만 해당 위치로 카메라 이동
-        if let location = viewModel.selectedLocation {
-            let coord = NMGLatLng(lat: location.latitude, lng: location.longitude)
-            let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
-            cameraUpdate.animation = .easeIn
-            cameraUpdate.animationDuration = 0.2
-            mapView.moveCamera(cameraUpdate)
-        }
-        
-        context.coordinator.markers = newMarkers
     }
     
     private func configureMapView(context: Context) -> NMFMapView {
@@ -109,7 +96,94 @@ struct NMapView: UIViewRepresentable {
         mapView.logoAlign = .rightTop
         mapView.logoInteractionEnabled = true
         mapView.logoMargin = UIEdgeInsets(top: 60, left: 0, bottom: 0, right: 12)
+        
+        let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleMapTap(_:)))
+        tapGesture.delegate = context.coordinator
+        mapView.addGestureRecognizer(tapGesture)
+        
         return mapView
+    }
+}
+
+final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerDelegate {
+    @Binding var selectedPlace: CardPlace?
+    var markers: [Int: NMFMarker] = [:]
+    var isInitialLoad: Bool = true
+    
+    private var isProcessingMarkerTouch = false
+    private var lastMarkerTouchTime: TimeInterval = 0
+    
+    private let defaultMarkerImage: NMFOverlayImage
+    private let selectedMarkerImage: NMFOverlayImage
+    private let viewModel: HomeViewModel
+    
+    init(selectedPlace: Binding<CardPlace?>,
+         defaultMarkerImage: NMFOverlayImage,
+         selectedMarkerImage: NMFOverlayImage,
+         viewModel: HomeViewModel) {
+        self._selectedPlace = selectedPlace
+        self.defaultMarkerImage = defaultMarkerImage
+        self.selectedMarkerImage = selectedMarkerImage
+        self.viewModel = viewModel
+        super.init()
+    }
+    
+    @objc func handleMapTap(_ gesture: UITapGestureRecognizer) {
+        if selectedPlace == nil { return }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            for (_, marker) in self.markers {
+                if let placeName = marker.userInfo["placeName"] as? String {
+                    marker.iconImage = self.defaultMarkerImage
+                    self.configureMarkerCaption(marker, with: placeName, isSelected: false)
+                }
+            }
+            
+            self.selectedPlace = nil
+            self.viewModel.clearFocusedPlaces()
+        }
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        let touchPoint = touch.location(in: gestureRecognizer.view)
+        if let view = gestureRecognizer.view?.hitTest(touchPoint, with: nil) {
+            let className = NSStringFromClass(type(of: view))
+            if className.contains("Marker") || className.contains("NMF") {
+                return false
+            }
+        }
+        return true
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+    
+    func updateMarkers(mapView: NMFMapView, pickList: [PickListCardResponse], selectedPlaceId: Int?) {
+        var currentMarkerIds = Set(markers.keys)
+        
+        for pickCard in pickList {
+            let placeId = pickCard.placeId
+            let isSelected = placeId == selectedPlaceId
+            
+            if let existingMarker = markers[placeId] {
+                updateMarker(existingMarker, with: pickCard, isSelected: isSelected)
+                currentMarkerIds.remove(placeId)
+            } else {
+                let newMarker = createMarker(for: pickCard, isSelected: isSelected, mapView: mapView)
+                newMarker.mapView = mapView
+                markers[placeId] = newMarker
+            }
+        }
+        
+        for idToRemove in currentMarkerIds {
+            if let markerToRemove = markers[idToRemove] {
+                markerToRemove.mapView = nil
+                markers.removeValue(forKey: idToRemove)
+            }
+        }
     }
     
     private func configureMarkerCaption(_ marker: NMFMarker, with placeName: String, isSelected: Bool) {
@@ -125,81 +199,78 @@ struct NMapView: UIViewRepresentable {
         marker.captionAligns = [.bottom]
     }
     
-    private func resetMarker(_ marker: NMFMarker) {
-        marker.mapView = nil
-        marker.iconImage = defaultMarker
-        configureMarkerCaption(marker, with: marker.captionText, isSelected: false)
-        marker.anchor = CGPoint(x: 0.5, y: 1.0)
+    private func updateMarker(_ marker: NMFMarker, with pickCard: PickListCardResponse, isSelected: Bool) {
+        marker.position = NMGLatLng(lat: pickCard.latitude, lng: pickCard.longitude)
+        marker.iconImage = isSelected ? selectedMarkerImage : defaultMarkerImage
+        configureMarkerCaption(marker, with: pickCard.placeName, isSelected: isSelected)
     }
     
-    private func createMarker(for pickCard: PickListCardResponse) -> NMFMarker {
+    private func createMarker(for pickCard: PickListCardResponse, isSelected: Bool, mapView: NMFMapView) -> NMFMarker {
         let marker = NMFMarker()
         marker.position = NMGLatLng(lat: pickCard.latitude, lng: pickCard.longitude)
         marker.width = CGFloat(NMF_MARKER_SIZE_AUTO)
         marker.height = CGFloat(NMF_MARKER_SIZE_AUTO)
+        marker.iconImage = isSelected ? selectedMarkerImage : defaultMarkerImage
         
-        let isSelected = selectedPlace?.placeId == pickCard.placeId
-        
-        if isSelected {
-            marker.iconImage = selectedMarker
-        } else {
-            marker.iconImage = defaultMarker
-        }
+        marker.userInfo = ["placeId": pickCard.placeId, "placeName": pickCard.placeName]
         
         configureMarkerCaption(marker, with: pickCard.placeName, isSelected: isSelected)
         
-        marker.touchHandler = { [weak viewModel, weak marker] (_) -> Bool in
-            guard let marker = marker else { return false }
+        marker.touchHandler = { [weak self] _ -> Bool in
+            guard let self = self else { return false }
             
-            let isCurrentlySelected = (marker.iconImage == selectedMarker)
+            if self.isProcessingMarkerTouch { return true }
             
-            if !isCurrentlySelected {
-                marker.iconImage = selectedMarker
-                configureMarkerCaption(marker, with: pickCard.placeName, isSelected: true)
-                viewModel?.fetchFocusedPlace(placeId: pickCard.placeId)
-            } else {
-                resetMarker(marker)
-                marker.mapView = mapView
-                selectedPlace = nil
-                viewModel?.clearFocusedPlaces()
+            self.isProcessingMarkerTouch = true
+            self.lastMarkerTouchTime = Date().timeIntervalSince1970
+            
+            guard let placeId = marker.userInfo["placeId"] as? Int,
+                  let placeName = marker.userInfo["placeName"] as? String else {
+                self.isProcessingMarkerTouch = false
+                return false
+            }
+            
+            let isCurrentlySelected = (self.selectedPlace?.placeId == placeId)
+            
+            DispatchQueue.main.async {
+                if !isCurrentlySelected {
+                    for (_, m) in self.markers {
+                        if let pName = m.userInfo["placeName"] as? String, m !== marker {
+                            m.iconImage = self.defaultMarkerImage
+                            self.configureMarkerCaption(m, with: pName, isSelected: false)
+                        }
+                    }
+                    
+                    marker.iconImage = self.selectedMarkerImage
+                    self.configureMarkerCaption(marker, with: placeName, isSelected: true)
+                    self.viewModel.fetchFocusedPlace(placeId: placeId)
+                } else {
+                    self.viewModel.clearFocusedPlaces()
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        self.selectedPlace = nil
+                        
+                        marker.iconImage = self.defaultMarkerImage
+                        self.configureMarkerCaption(marker, with: placeName, isSelected: false)
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            self.isProcessingMarkerTouch = false
+                        }
+                    }
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    self.isProcessingMarkerTouch = false
+                }
             }
             
             return true
         }
         
-        return marker  // 마커 반환 추가
-    }
-}
-
-final class Coordinator: NSObject, NMFMapViewTouchDelegate {
-    @Binding var selectedPlace: CardPlace?
-    var markers: [NMFMarker] = []
-    var isInitialLoad: Bool = true
-    private let defaultMarkerImage: NMFOverlayImage
-    private let viewModel: HomeViewModel
-    
-    init(selectedPlace: Binding<CardPlace?>,
-         defaultMarkerImage: NMFOverlayImage,
-         viewModel: HomeViewModel) {
-        self._selectedPlace = selectedPlace
-        self.defaultMarkerImage = defaultMarkerImage
-        self.viewModel = viewModel
+        return marker
     }
     
-    @MainActor func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng) -> Bool {
-        selectedPlace = nil
-        
-        markers.forEach { marker in
-            marker.iconImage = defaultMarkerImage
-            marker.captionMinZoom = 10
-        }
-        
-        if !viewModel.focusedPlaces.isEmpty {
-            DispatchQueue.main.async {
-                self.viewModel.clearFocusedPlaces()
-            }
-        }
-        
-        return true
+    func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng) -> Bool {
+        return false
     }
 }

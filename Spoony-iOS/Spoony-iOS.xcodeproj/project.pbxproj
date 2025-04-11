@@ -15,6 +15,7 @@
 		787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B092D32DA500017A378 /* NMapsMap */; };
 		78AD4F082D4299110090E9E3 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */; };
 		78E985B42D564A9D00E02ABB /* FlexSheet in Frameworks */ = {isa = PBXBuildFile; productRef = 78E985B32D564A9D00E02ABB /* FlexSheet */; };
+		ADCF6DE12D9C03D1002F15E8 /* TCACoordinators in Frameworks */ = {isa = PBXBuildFile; productRef = ADCF6DE02D9C03D1002F15E8 /* TCACoordinators */; };
 		CB6B894C2D8149F400DF264B /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = CB6B894B2D8149F400DF264B /* KakaoSDK */; };
 		CB6B894E2D8149F400DF264B /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CB6B894D2D8149F400DF264B /* KakaoSDKAuth */; };
 		CB6B89502D8149F400DF264B /* KakaoSDKCert in Frameworks */ = {isa = PBXBuildFile; productRef = CB6B894F2D8149F400DF264B /* KakaoSDKCert */; };
@@ -52,6 +53,7 @@
 				787B5B042D32D9C50017A378 /* Kingfisher in Frameworks */,
 				71EDD4792D38EC8700D94926 /* Lottie in Frameworks */,
 				CB6B894C2D8149F400DF264B /* KakaoSDK in Frameworks */,
+				ADCF6DE12D9C03D1002F15E8 /* TCACoordinators in Frameworks */,
 				CB6B894E2D8149F400DF264B /* KakaoSDKAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -110,6 +112,7 @@
 				CB6B894F2D8149F400DF264B /* KakaoSDKCert */,
 				CB6B89512D8149F400DF264B /* KakaoSDKCertCore */,
 				CB6B89532D8149F400DF264B /* KakaoSDKCommon */,
+				ADCF6DE02D9C03D1002F15E8 /* TCACoordinators */,
 			);
 			productName = SpoonMe;
 			productReference = 78C002082D1D9FC400DA101C /* Spoony-iOS.app */;
@@ -147,6 +150,7 @@
 				78E985B22D564A9D00E02ABB /* XCRemoteSwiftPackageReference "FlexSheet" */,
 				7156E2DF2D74773300F0C5E7 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				CB6B894A2D8149F400DF264B /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+				ADCF6DDF2D9C03D1002F15E8 /* XCRemoteSwiftPackageReference "TCACoordinators" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 78C002092D1D9FC400DA101C /* Products */;
@@ -487,6 +491,14 @@
 				minimumVersion = 1.0.4;
 			};
 		};
+		ADCF6DDF2D9C03D1002F15E8 /* XCRemoteSwiftPackageReference "TCACoordinators" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/johnpatrickmorgan/TCACoordinators.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.11.0;
+			};
+		};
 		CB6B894A2D8149F400DF264B /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
@@ -527,6 +539,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 78E985B22D564A9D00E02ABB /* XCRemoteSwiftPackageReference "FlexSheet" */;
 			productName = FlexSheet;
+		};
+		ADCF6DE02D9C03D1002F15E8 /* TCACoordinators */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ADCF6DDF2D9C03D1002F15E8 /* XCRemoteSwiftPackageReference "TCACoordinators" */;
+			productName = TCACoordinators;
 		};
 		CB6B894B2D8149F400DF264B /* KakaoSDK */ = {
 			isa = XCSwiftPackageProductDependency;

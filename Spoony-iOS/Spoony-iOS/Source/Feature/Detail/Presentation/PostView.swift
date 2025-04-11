@@ -288,9 +288,9 @@ extension PostView {
                     print("🔥네이버 지도로 이동")
                     //                    store.send(.pushNaverMaps)
                 } else {
-                    navigationManager.popup = .useSpoon(action: {
-                        store.send(.scoopButtonTapped)
-                    })
+//                    navigationManager.popup = .useSpoon(action: {
+//                        store.send(.scoopButtonTapped)
+//                    })
                 }
             }
             
@@ -356,5 +356,5 @@ struct PostScrapButton: View {
         })
     )
     .environmentObject(navigationManager)
-    .popup(popup: $navigationManager.popup)
+//    .popup(popup: $navigationManager.popup)
 }
