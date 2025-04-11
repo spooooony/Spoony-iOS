@@ -16,7 +16,7 @@ struct CustomNavigationBar: View {
     private let onClearTapped: (() -> Void)?
     private var spoonCount: Int = 0
     private var onBackTapped: (() -> Void)?
-
+    
     init(
         style: NavigationBarStyle,
         title: String? = nil,
@@ -42,6 +42,8 @@ struct CustomNavigationBar: View {
             }
             
             switch style {
+            case .settingContent:
+                settingContent
             case .searchContent:
                 searchContent
             case .locationDetail:
@@ -77,6 +79,20 @@ struct CustomNavigationBar: View {
         .padding(.horizontal, 16)
     }
     
+    private var settingContent: some View {
+        HStack(spacing: 12) {
+            LogoChip(type: .small, count: spoonCount)
+            
+            Spacer()
+            
+            Image(.icNavTopPrimaryTwoNone)
+                .onTapGesture {
+                    tappedAction?()
+                }
+        }
+        .padding(.horizontal, 16)
+    }
+    
     private var searchContent: some View {
         HStack(spacing: 12) {
             LogoChip(type: .small, count: spoonCount)
@@ -88,7 +104,7 @@ struct CustomNavigationBar: View {
                     .foregroundStyle(.gray500)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .customFont(.body2m)
-
+                
             }
             .padding(.horizontal, 12)
             .frame(height: 44.adjusted)
@@ -209,6 +225,12 @@ struct CustomNavigationBar: View {
 struct CustomNavigationBar_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 20) {
+            
+            CustomNavigationBar(
+                style: .settingContent,
+                onBackTapped: {}
+            )
+            .border(.gray)
             CustomNavigationBar(
                 style: .searchContent,
                 searchText: .constant("검색어"),
