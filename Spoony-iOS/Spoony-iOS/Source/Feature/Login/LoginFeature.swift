@@ -37,7 +37,7 @@ struct LoginFeature {
         case setToken(SocialType, String)
         case error(Error)
         
-        // MAKR: Navigation Action
+        // MARK: Navigation Action
         case routToTermsOfServiceScreen
         case routToOnboardingScreen
         case routToTabCoordinatorScreen
@@ -51,8 +51,8 @@ struct LoginFeature {
             switch action {
             case .onAppear:
                 //자동 로그인시
-                return .send(.routToTabCoordinatorScreen)
-//                return .none
+//                return .send(.routToTabCoordinatorScreen)
+                return .none
             case .kakaoLoginButtonTapped:
                 state.isLoading = true
                 

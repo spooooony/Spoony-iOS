@@ -6,58 +6,44 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct NicknameStepView: View {
-    @State private var text: String = ""
-    @State private var error: Bool = true
+    @Bindable private var store: StoreOf<OnboardingFeature>
     @FocusState private var isFocused: Bool
     
-    let step: Int = 1
-    
-    var body: some View {
-        GeometryReader { _ in
-            VStack(alignment: .leading, spacing: 0) {
-                progressBar
-                    .padding(.top, 56)
-                
-                Text("닉네임을 입력해 주세요")
-                    .customFont(.title3b)
-                    .padding(.top, 32)
-                
-                NicknameTextField(text: $text, isError: $error)
-                    .padding(.top, 28)
-                    .focused($isFocused)
-                    .onSubmit {
-                        //TODO: 검색 API
-                        hideKeyboard()
-                    }
-                
-                Spacer()
-                
-                SpoonyButton(style: .primary, size: .xlarge, title: "다음", disabled: $error) {
-                    // 네비게이션
-                }
-                .padding(.top, 443)
-                .padding(.bottom, 20)
-            }
-            .padding(.horizontal, 20)
-            .background(.white)
-            .onTapGesture {
-                //TODO: 검색 API
-                hideKeyboard()
-            }
-        }
+    init(store: StoreOf<OnboardingFeature>) {
+        self.store = store
     }
     
-    private var progressBar: some View {
-        ProgressView(value: 1.0/3 * Double(step))
-            .frame(height: 4.adjustedH)
-            .progressViewStyle(.linear)
-            .tint(.main400)
-            .animation(.easeInOut, value: step)
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("닉네임을 입력해 주세요")
+                .customFont(.title3b)
+                .padding(.top, 32)
+            
+            NicknameTextField(errorState: $store.nicknameErrorState,
+                              text: $store.nicknameText,
+                              isError: $store.nicknameError)
+            .padding(.top, 28)
+            .focused($isFocused)
+            .onSubmit {
+                hideKeyboard()
+            }
+            
+            Spacer()
+            
+            SpoonyButton(style: .primary, size: .xlarge, title: "다음", disabled: $store.nicknameError) {
+                store.send(.tappedNextButton)
+            }
+            .padding(.bottom, 20)
+        }
+        
     }
 }
 
 #Preview {
-    NicknameStepView()
+    NicknameStepView(store: StoreOf<OnboardingFeature>(initialState: OnboardingFeature.State(), reducer: {
+        OnboardingFeature()
+    }) )
 }

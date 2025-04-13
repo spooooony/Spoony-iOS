@@ -216,6 +216,9 @@ struct CustomNavigationBar: View {
                 .customFont(.body2m)
                 .foregroundStyle(.gray400)
                 .padding(.trailing, 21)
+                .onTapGesture {
+                    tappedAction?()
+                }
         }
     }
 }

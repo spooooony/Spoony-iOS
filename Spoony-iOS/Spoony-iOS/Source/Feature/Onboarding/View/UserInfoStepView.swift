@@ -6,50 +6,40 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct UserInfoStepView: View {
-    let step: Int = 2
-    @State private var isDisabled: Bool = true
+    @Bindable private var store: StoreOf<OnboardingFeature>
     
     private var isDateSelected: Bool = true
     private var isRegionSelected: Bool = true
     
+    init(store: StoreOf<OnboardingFeature>) {
+        self.store = store
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            CustomNavigationBar(style: .onboarding)
-                .padding(.horizontal, -20)
-            
-            progressBar
-            
             birthView
-            
-            locationView
+                .onTapGesture {
+                    store.send(.tappedBirthButton)
+                }
+            regionView
+                .onTapGesture {
+                    store.send(.tappedRegionButton)
+                }
             
             Spacer()
-            
-            SpoonyButton(style: .primary, size: .xlarge, title: "다음", disabled: $isDisabled) {
-                // 네비게이션
+    
+            SpoonyButton(style: .primary, size: .xlarge, title: "다음", disabled: $store.state.infoError) {
+                store.send(.tappedNextButton)
             }
-            .padding(.top, 443)
             .padding(.bottom, 20)
-        }
-        .padding(.horizontal, 20)
-        .background(.white)
-        .onTapGesture {
-            //TODO: 검색 API
-            hideKeyboard()
         }
     }
 }
 
 extension UserInfoStepView {
-    private var progressBar: some View {
-        ProgressView(value: 1.0/3 * Double(step))
-            .frame(height: 4.adjustedH)
-            .progressViewStyle(.linear)
-            .tint(.main400)
-            .animation(.easeInOut, value: step)
-    }
     
     private var birthView: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -77,7 +67,7 @@ extension UserInfoStepView {
         }
     }
     
-    private var locationView: some View {
+    private var regionView: some View {
         VStack(alignment: .leading, spacing: 28) {
             Text("주로 활동하는 지역을 설정해 주세요")
                 .customFont(.title3b)
@@ -127,5 +117,7 @@ extension UserInfoStepView {
 }
 
 #Preview {
-    UserInfoStepView()
+    UserInfoStepView(store: StoreOf<OnboardingFeature>(initialState: OnboardingFeature.State(), reducer: {
+        OnboardingFeature()
+    }) )
 }

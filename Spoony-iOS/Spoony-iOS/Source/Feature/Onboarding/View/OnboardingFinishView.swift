@@ -6,8 +6,15 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct OnboardingFinishView: View {
+    @Bindable private var store: StoreOf<OnboardingFeature>
+    
+    init(store: StoreOf<OnboardingFeature>) {
+        self.store = store
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 6) {
@@ -35,7 +42,7 @@ struct OnboardingFinishView: View {
                     .foregroundStyle(.gray400)
                 
                 SpoonyButton(style: .primary, size: .xlarge, title: "스푸니 시작하기 ", disabled: .constant(false)) {
-                    // TODO: 네비게이션
+                    store.send(.tappedNextButton)
                 }
             }
             .padding(.bottom, 20)
@@ -44,5 +51,7 @@ struct OnboardingFinishView: View {
 }
 
 #Preview {
-    OnboardingFinishView()
+    OnboardingFinishView(store: StoreOf<OnboardingFeature>(initialState: OnboardingFeature.State(), reducer: {
+        OnboardingFeature()
+    }) )
 }

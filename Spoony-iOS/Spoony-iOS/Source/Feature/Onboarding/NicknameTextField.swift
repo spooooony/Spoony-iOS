@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct NicknameTextField: View {
-    @State private var errorState: NicknameTextFieldErrorState = .noError
+    @Binding var errorState: NicknameTextFieldErrorState
     @Binding var text: String
     @Binding var isError: Bool
     @FocusState private var isFocused: Bool
@@ -53,7 +53,8 @@ struct NicknameTextField: View {
                 if oldValue.removeSpecialCharacter() != oldValue {
                     return
                 }
-
+                
+                // TODO: 중복 검사 한 후에 버튼 활성화 하는 로직 추가
                 switch checkInputError(newValue) {
                 case .maximumInputError:
                     errorState = .maximumInputError
@@ -77,7 +78,7 @@ struct NicknameTextField: View {
             }
             .onChange(of: errorState) {
                 switch errorState {
-                case .noError:
+                case .avaliableNickname:
                     isError = false
                 default:
                     isError = true
@@ -134,6 +135,7 @@ enum NicknameTextFieldErrorState {
     case emojiError
     case avaliableNickname
     case noError
+    case initial
     
     var errorMessage: String? {
         switch self {
@@ -147,7 +149,7 @@ enum NicknameTextFieldErrorState {
             return "닉네임은 한글, 영문, 숫자만 사용할 수 있어요"
         case .avaliableNickname:
             return "사용 가능한 닉네임이에요"
-        case .noError:
+        case .noError, .initial:
             return nil
         }
     }
@@ -156,7 +158,7 @@ enum NicknameTextFieldErrorState {
         switch self {
         case .avaliableNickname:
                 .green400
-        case .noError:
+        case .noError, .initial:
                 .gray100
         default:
                 .error400
@@ -167,7 +169,7 @@ enum NicknameTextFieldErrorState {
         switch self {
         case .avaliableNickname:
             Image(.icCheckGreen)
-        case .noError:
+        case .noError, .initial:
             nil
         default:
             Image(.icErrorRed)
@@ -176,5 +178,5 @@ enum NicknameTextFieldErrorState {
 }
 
 #Preview {
-    NicknameTextField(text: .constant(""), isError: .constant(.random()))
+    NicknameTextField(errorState: .constant(.initial), text: .constant(""), isError: .constant(.random()))
 }
