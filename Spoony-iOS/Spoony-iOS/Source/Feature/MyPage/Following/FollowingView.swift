@@ -35,6 +35,7 @@ struct FollowingView: View {
             
             Spacer()
         }
+        .navigationBarHidden(true)
     }
 }
 
@@ -64,5 +65,6 @@ struct FollowerView: View {
             
             Spacer()
         }
+        .navigationBarHidden(true)
     }
 }

@@ -34,5 +34,6 @@ struct EditProfileView: View {
             
             Spacer()
         }
+        .navigationBarHidden(true)
     }
 }

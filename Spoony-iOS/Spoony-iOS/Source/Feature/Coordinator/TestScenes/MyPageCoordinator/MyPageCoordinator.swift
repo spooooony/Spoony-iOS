@@ -13,7 +13,7 @@ import TCACoordinators
 struct MyPageCoordinator {
     @ObservableState
     struct State: Equatable {
-        static let initialState = State(routes: [.root(.profile(.initialState), embedInNavigationView: true)])
+        static let initialState = State(routes: [.root(.profile(.initialState), embedInNavigationView: false)])
         
         var routes: [Route<MyPageScreen.State>]
     }

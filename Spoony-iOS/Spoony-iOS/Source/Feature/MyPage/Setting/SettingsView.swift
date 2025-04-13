@@ -34,5 +34,6 @@ struct SettingsView: View {
             
             Spacer()
         }
+        .navigationBarHidden(true)
     }
 }

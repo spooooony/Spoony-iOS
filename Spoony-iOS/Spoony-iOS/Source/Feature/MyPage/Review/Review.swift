@@ -34,5 +34,6 @@ struct ReviewsView: View {
             
             Spacer()
         }
+        .navigationBarHidden(true)
     }
 }

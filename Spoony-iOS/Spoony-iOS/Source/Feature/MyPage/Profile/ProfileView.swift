@@ -19,6 +19,7 @@ struct ProfileView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
+            Color.white.edgesIgnoringSafeArea(.all)
             VStack(spacing: 0) {
                 navigationBar
                 profileSection
