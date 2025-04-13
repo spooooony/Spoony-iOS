@@ -51,8 +51,8 @@ struct LoginFeature {
             switch action {
             case .onAppear:
                 //자동 로그인시
-//                return .send(.routToTabCoordinatorScreen)
-                return .none
+                return .send(.routToTabCoordinatorScreen)
+//                return .none
             case .kakaoLoginButtonTapped:
                 state.isLoading = true
                 
