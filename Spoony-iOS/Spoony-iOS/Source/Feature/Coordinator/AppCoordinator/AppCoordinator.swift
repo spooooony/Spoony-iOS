@@ -14,7 +14,7 @@ import TCACoordinators
 enum AppScreen {
     case auth(LoginFeature)
     case termsOfService(AgreeFeature)
-    case onboarding(Onboarding)
+    case onboarding(OnboardingFeature)
     case tabCoordinator(TabCoordinator)
 }
 
@@ -48,10 +48,6 @@ struct AppCoordinator {
                 
             case .router(.routeAction(id: _, action: .termsOfService(.routToOnboardingScreen))):
                 state.routes = [.root(.onboarding(.initialState), embedInNavigationView: false)]
-                return .none
-                
-            case .router(.routeAction(id: _, action: .termsOfService(.routToTabCoordinatorScreen))):
-                state.routes = [.root(.tabCoordinator(.initialState), embedInNavigationView: true)]
                 return .none
                 
             case .router(.routeAction(id: _, action: .onboarding(.routToTabCoordinatorScreen))):
