@@ -50,65 +50,65 @@ struct ProfileView: View {
         self.store = store
     }
     
-       var body: some View {
-           VStack(spacing: 0) {
-               CustomNavigationBar(
-                   style: .settingContent,
-                   spoonCount: store.spoonCount,
-                   tappedAction: {
-                       store.send(.routeToSettingsScreen)
-                   }
-               )
-               .padding(.bottom, 24)
-               
-               VStack(alignment: .leading, spacing: 0) {
-                   HStack(alignment: .center, spacing: 24) {
-                       // 프로필 사진 대체예정
-                       Circle()
-                           .fill(Color.gray200)
-                           .frame(width: 85.adjusted, height: 85.adjustedH)
-                       Spacer()
-                       
-                       HStack(spacing: 54) {
-                           VStack(spacing: 8) {
-                               Text("리뷰")
-                               .customFont(.caption1b)
-                                   .foregroundStyle(.gray400)
-                               Text("\(store.reviewCount)")
-                                   .customFont(.body1sb)
-                                   .foregroundStyle(.spoonBlack)
-                           }
-                           .onTapGesture {
-                               store.send(.routeToReviewsScreen)
-                           }
-                           
-                           VStack(spacing: 8) {
-                               Text("팔로워")
-                                   .customFont(.caption1b)
-                                   .foregroundStyle(.gray400)
-                               Text("\(store.followerCount)")
-                                   .customFont(.body1sb)
-                                   .foregroundStyle(.spoonBlack)
-                           }
-                           .onTapGesture {
-                               store.send(.routeToFollowerScreen)
-                           }
-                           
-                           VStack(spacing: 8) {
-                               Text("팔로잉")
-                                   .customFont(.caption1b)
-                                   .foregroundStyle(.gray400)
-                               Text("\(store.followerCount)")
-                                   .customFont(.body1sb)
-                                   .foregroundStyle(.spoonBlack)
-                           }
-                           .onTapGesture {
-                               store.send(.routeToFollowingScreen)
-                           }
-                       }
-                   }
-                   .padding(.horizontal, 20)
-                   .padding(.bottom, 24)
+    var body: some View {
+        VStack(spacing: 0) {
+            CustomNavigationBar(
+                style: .settingContent,
+                spoonCount: store.spoonCount,
+                tappedAction: {
+                    store.send(.routeToSettingsScreen)
+                }
+            )
+            .padding(.bottom, 24)
+            
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .center, spacing: 24) {
+                    // 프로필 사진 대체예정
+                    Circle()
+                        .fill(Color.gray200)
+                        .frame(width: 85.adjusted, height: 85.adjustedH)
+                    Spacer()
+                    
+                    HStack(spacing: 54) {
+                        VStack(spacing: 8) {
+                            Text("리뷰")
+                                .customFont(.caption1b)
+                                .foregroundStyle(.gray400)
+                            Text("\(store.reviewCount)")
+                                .customFont(.body1sb)
+                                .foregroundStyle(.spoonBlack)
+                        }
+                        .onTapGesture {
+                            store.send(.routeToReviewsScreen)
+                        }
+                        
+                        VStack(spacing: 8) {
+                            Text("팔로워")
+                                .customFont(.caption1b)
+                                .foregroundStyle(.gray400)
+                            Text("\(store.followerCount)")
+                                .customFont(.body1sb)
+                                .foregroundStyle(.spoonBlack)
+                        }
+                        .onTapGesture {
+                            store.send(.routeToFollowerScreen)
+                        }
+                        
+                        VStack(spacing: 8) {
+                            Text("팔로잉")
+                                .customFont(.caption1b)
+                                .foregroundStyle(.gray400)
+                            Text("\(store.followerCount)")
+                                .customFont(.body1sb)
+                                .foregroundStyle(.spoonBlack)
+                        }
+                        .onTapGesture {
+                            store.send(.routeToFollowingScreen)
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 24)
                 
                 // 사용자 정보 영역
                 HStack(alignment: .center, spacing: 0) {
@@ -149,7 +149,11 @@ struct ProfileView: View {
                 .padding(.bottom, 27)
             }
             
-            Spacer()
+            Divider()
+                .frame(height: 2)
+                .background(Color.gray0)
+                .padding(0)
+            
         }
     }
 }
