@@ -114,9 +114,11 @@ extension SpoonyTextEditor {
     // MARK: - errorMessageView
     private func errorMessageView(_ message: String) -> some View {
         HStack(spacing: 6) {
-            Image(.icErrorRed)
-                .resizable()
-                .frame(width: 16.adjusted, height: 16.adjusted)
+            if !message.isEmpty {
+                Image(.icErrorRed)
+                    .resizable()
+                    .frame(width: 16.adjusted, height: 16.adjusted)
+            }
             
             Text("\(message)")
                 .customFont(.caption1m)
@@ -148,6 +150,7 @@ extension SpoonyTextEditor {
 public enum SpoonyTextEditorStyle {
     case review
     case report
+    case onboarding
     
     var maximumInput: Int {
         switch self {
@@ -155,6 +158,8 @@ public enum SpoonyTextEditorStyle {
             return 500
         case .report:
             return 300
+        case .onboarding:
+            return 50
         }
     }
     
@@ -162,7 +167,7 @@ public enum SpoonyTextEditorStyle {
         switch self {
         case .review:
             return 50
-        case .report:
+        case .report, .onboarding:
             return 1
         }
     }
@@ -185,6 +190,8 @@ public enum TextEditorErrorState: Equatable {
                 return "자세한 후기는 필수예요"
             case .report:
                 return "내용 작성은 필수예요"
+            case .onboarding:
+                return ""
             }
         case .noError, .initial:
             return nil
