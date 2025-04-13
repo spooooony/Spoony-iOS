@@ -6,24 +6,28 @@
 //
 
 import SwiftUI
-
 import ComposableArchitecture
-import FlexSheet
 
 struct Home: View {
 //    @EnvironmentObject var navigationManager: NavigationManager
     @StateObject private var viewModel = HomeViewModel(service: DefaultHomeService())
+    private let store: StoreOf<MapFeature>
     @State private var isBottomSheetPresented = true
     @State private var searchText = ""
     @State private var selectedPlace: CardPlace?
     @State private var currentPage = 0
     @State private var spoonCount: Int = 0
+    @State private var selectedCategories: [CategoryChip] = []
+    @State private var categories: [CategoryChip] = []
     private let restaurantService: HomeServiceType
-    private let store: StoreOf<MapFeature>
+    private let registerService: RegisterServiceType
     
-    init(restaurantService: HomeServiceType = DefaultHomeService(), store: StoreOf<MapFeature>) {
-        self.restaurantService = restaurantService
+    init(store: StoreOf<MapFeature>,
+         restaurantService: HomeServiceType = DefaultHomeService(),
+         registerService: RegisterServiceType = RegisterService()) {
         self.store = store
+        self.restaurantService = restaurantService
+        self.registerService = registerService
     }
     
     var body: some View {
@@ -52,6 +56,47 @@ struct Home: View {
                     }
                 )
                 .frame(height: 56.adjusted)
+                
+                HStack(spacing: 8) {
+                    if categories.isEmpty {
+                        ForEach(0..<4, id: \.self) { _ in
+                            CategoryChipsView(category: CategoryChip.placeholder)
+                                .redacted(reason: .placeholder)
+                        }
+                    } else {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                // 일단 하드코딩 박기ㅋㅋ
+                                CategoryChipsView(
+                                    category: CategoryChip(
+                                        image: "https://spoony-storage.s3.ap-northeast-2.amazonaws.com/category/icons/all_color.png",
+                                        selectedImage: "https://spoony-storage.s3.ap-northeast-2.amazonaws.com/category/icons/all_white.png",
+                                        title: "전체",
+                                        id: 0
+                                    ),
+                                    isSelected: selectedCategories.isEmpty || selectedCategories.contains { $0.id == 0 }
+                                )
+                                .onTapGesture {
+                                    selectedCategories = []
+                                }
+                                
+                                ForEach(categories, id: \.id) { category in
+                                    CategoryChipsView(
+                                        category: category,
+                                        isSelected: selectedCategories.contains { $0.id == category.id }
+                                    )
+                                    .onTapGesture {
+                                        handleCategorySelection(category)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                        }
+                    }
+                }
+                .padding(.vertical, 8)
+                .background(Color.white)
+                
                 Spacer()
             }
             
@@ -65,9 +110,9 @@ struct Home: View {
                     .transition(.move(edge: .bottom))
                 } else {
                     if !viewModel.pickList.isEmpty {
-                        FlexibleListBottomSheet(viewModel: viewModel)
+                        BottomSheetListView(viewModel: viewModel, store: store)
                     } else {
-                        EmptyStateBottomSheet()
+                        FixedBottomSheetView(store: store)
                     }
                 }
             }
@@ -78,9 +123,30 @@ struct Home: View {
             do {
                 spoonCount = try await restaurantService.fetchSpoonCount()
                 viewModel.fetchPickList()
+                
+                let categoryResponse = try await registerService.getRegisterCategories()
+                categories = try await categoryResponse.toModel()
+                
+               
             } catch {
-                print("Failed to fetch spoon count:", error)
+                print("Failed to fetch data:", error)
             }
+        }
+    }
+    
+    // 카테고리 선택 처리 메서드
+    private func handleCategorySelection(_ category: CategoryChip) {
+        if selectedCategories.contains(where: { $0.id == category.id }) {
+            selectedCategories.removeAll { $0.id == category.id }
+        } else {
+            selectedCategories = [category]
+        }
+        
+        if !selectedCategories.isEmpty {
+            let categoryId = selectedCategories[0].id
+            print("Selected category: \(categoryId)")
+        } else {
+            
         }
     }
 }

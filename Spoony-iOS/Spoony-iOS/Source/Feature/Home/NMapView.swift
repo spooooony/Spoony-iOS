@@ -90,7 +90,7 @@ struct NMapView: UIViewRepresentable {
     
     private func configureMapView(context: Context) -> NMFMapView {
         let mapView = NMFMapView()
-        mapView.positionMode = .disabled
+        mapView.positionMode = .normal
         mapView.zoomLevel = defaultZoomLevel
         mapView.touchDelegate = context.coordinator
         mapView.logoAlign = .rightTop

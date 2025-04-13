@@ -1,15 +1,15 @@
 //
-//  FlexibleListBottomSheet.swift
+//  BottomSheetListView.swift
 //  Spoony-iOS
 //
-//  Created by 이지훈 on 2/10/25.
+//  Created by 이지훈 on 4/11/25.
 //
 
 import SwiftUI
 
 import ComposableArchitecture
 
-struct FlexibleListBottomSheet: View {
+struct BottomSheetListView: View {
     @ObservedObject var viewModel: HomeViewModel
     private let store: StoreOf<MapFeature>
     @State private var currentStyle: BottomSheetStyle = .half
@@ -22,9 +22,23 @@ struct FlexibleListBottomSheet: View {
         self.store = store
     }
     
+    private func getClosestSnapPoint(to offset: CGFloat) -> BottomSheetStyle {
+        let screenHeight = UIScreen.main.bounds.height
+        let currentHeight = screenHeight - offset
+        
+        let distances = [
+            (abs(currentHeight - BottomSheetStyle.minimal.height), BottomSheetStyle.minimal),
+            (abs(currentHeight - BottomSheetStyle.half.height), BottomSheetStyle.half),
+            (abs(currentHeight - BottomSheetStyle.full.height), BottomSheetStyle.full)
+        ]
+        
+        return distances.min(by: { $0.0 < $1.0 })?.1 ?? .half
+    }
+    
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             VStack(spacing: 0) {
+                // 핸들바 영역
                 VStack(spacing: 8) {
                     RoundedRectangle(cornerRadius: 3)
                         .fill(Color.gray200)
@@ -41,14 +55,13 @@ struct FlexibleListBottomSheet: View {
                     .padding(.bottom, 8)
                 }
                 .frame(height: 60.adjustedH)
-                .frame(maxWidth: .infinity)
                 .background(Color.white)
                 
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0) {
-                        // Lint 오류로 인해 100자가 넘어도 무시하고 넘겨주세요!
-                        ForEach(Array(viewModel.pickList.enumerated()), id: \.element.placeId) { _, pickCard in
+                        ForEach(viewModel.pickList, id: \.placeId) { pickCard in
                             BottomSheetListItem(pickCard: pickCard)
+                                .background(Color.white)
                                 .onTapGesture {
                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                         currentStyle = .full
@@ -68,7 +81,7 @@ struct FlexibleListBottomSheet: View {
             .frame(maxHeight: .infinity)
             .background(Color.white)
             .cornerRadius(10, corners: [.topLeft, .topRight])
-            .offset(y: geometry.size.height - currentStyle.height + offset)
+            .offset(y: UIScreen.main.bounds.height - currentStyle.height + offset)
             .gesture(
                 DragGesture()
                     .updating($isDragging) { _, state, _ in
@@ -91,13 +104,11 @@ struct FlexibleListBottomSheet: View {
                             if velocity > 0 {
                                 switch currentStyle {
                                 case .full:
-                                    currentStyle = .full
+                                    currentStyle = .half
                                     isScrollEnabled = false
                                 case .half:
-                                    currentStyle = .half
-                                case .minimal:
                                     currentStyle = .minimal
-                                    
+                                case .minimal: break
                                 }
                             } else {
                                 switch currentStyle {
@@ -110,10 +121,11 @@ struct FlexibleListBottomSheet: View {
                                 }
                             }
                         } else {
-                            let screenHeight = geometry.size.height
+                            let screenHeight = UIScreen.main.bounds.height
                             let currentOffset = screenHeight - currentStyle.height + translation
-                            currentStyle = getClosestSnapPoint(to: currentOffset, in: geometry)
-                            isScrollEnabled = (currentStyle == .full)
+                            let newStyle = getClosestSnapPoint(to: currentOffset)
+                            currentStyle = newStyle
+                            isScrollEnabled = (newStyle == .full)
                         }
                         
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -122,21 +134,10 @@ struct FlexibleListBottomSheet: View {
                     }
             )
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentStyle)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: offset)
+            .onChange(of: currentStyle) { _, newStyle in
+                isScrollEnabled = (newStyle == .full)
+            }
         }
         .ignoresSafeArea()
-    }
-    
-    private func getClosestSnapPoint(to offset: CGFloat, in geometry: GeometryProxy) -> BottomSheetStyle {
-        let screenHeight = geometry.size.height
-        let currentHeight = screenHeight - offset
-        
-        let distances = [
-            (abs(currentHeight - BottomSheetStyle.minimal.height), BottomSheetStyle.minimal),
-            (abs(currentHeight - BottomSheetStyle.half.height), BottomSheetStyle.half),
-            (abs(currentHeight - BottomSheetStyle.full.height), BottomSheetStyle.full)
-        ]
-        
-        return distances.min(by: { $0.0 < $1.0 })?.1 ?? .half
     }
 }

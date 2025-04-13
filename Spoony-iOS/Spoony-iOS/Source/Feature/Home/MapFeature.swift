@@ -18,11 +18,15 @@ struct MapFeature {
     
     enum Action {
         case routToSearchScreen
+        case routToExploreTab
     }
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
-                .none
+            switch action {
+            case .routToSearchScreen, .routToExploreTab:
+                return .none
+            }
         }
     }
 }
