@@ -10,7 +10,6 @@ import SwiftUI
 import ComposableArchitecture
 import TCACoordinators
 
-
 @Reducer(state: .equatable)
 enum MyPageScreen {
     case profile(ProfileFeature)

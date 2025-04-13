@@ -17,16 +17,18 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            navigationBar
-            profileSection
-            
-            Divider()
-                .frame(height: 2)
-                .background(Color.gray0)
-                .padding(0)
-           
-            reviewsSection
+        ZStack(alignment: .top) {
+            VStack(spacing: 0) {
+                navigationBar
+                profileSection
+                
+                Divider()
+                    .frame(height: 2)
+                    .background(Color.gray0)
+                    .padding(0)
+                
+                reviewsSection
+            }
         }
     }
     
