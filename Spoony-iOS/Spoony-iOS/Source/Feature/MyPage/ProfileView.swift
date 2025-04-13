@@ -157,7 +157,9 @@ struct ProfileView: View {
             Text("리뷰")
                 .customFont(.title2b)
                 .foregroundStyle(.spoonBlack)
-            Spacer()
+            Text("0개")
+                .customFont(.body2m)
+                .foregroundStyle(.gray400)
         }
         .padding(.horizontal, 20)
         .padding(.top, 24)
