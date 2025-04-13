@@ -16,6 +16,7 @@ struct CustomNavigationBar: View {
     private let onClearTapped: (() -> Void)?
     private var spoonCount: Int = 0
     private var onBackTapped: (() -> Void)?
+    private var spoonTapped: (() -> Void)?
     
     init(
         style: NavigationBarStyle,
@@ -23,6 +24,7 @@ struct CustomNavigationBar: View {
         searchText: Binding<String> = .constant(""),
         spoonCount: Int = 0,
         onBackTapped: (() -> Void)? = nil,
+        spoonTapped: (() -> Void)? = nil,
         tappedAction: (() -> Void)? = nil,
         onClearTapped: (() -> Void)? = nil
     ) {
@@ -31,6 +33,7 @@ struct CustomNavigationBar: View {
         self._searchText = searchText
         self.spoonCount = spoonCount
         self.onBackTapped = onBackTapped
+        self.spoonTapped = spoonTapped
         self.tappedAction = tappedAction
         self.onClearTapped = onClearTapped
     }
@@ -82,6 +85,9 @@ struct CustomNavigationBar: View {
     private var settingContent: some View {
         HStack(spacing: 12) {
             LogoChip(type: .small, count: spoonCount)
+                .onTapGesture {
+                    spoonTapped?()
+                }
             
             Spacer()
             
