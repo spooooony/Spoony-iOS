@@ -170,5 +170,5 @@ extension CustomUIPickerView {
 }
 
 #Preview {
-    DatePickerBottomSheet(isPresented: .constant(false))
+    DatePickerBottomSheet(isPresented: .constant(false), selectedDate: .constant(["", "", ""]))
 }
