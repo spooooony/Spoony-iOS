@@ -153,11 +153,53 @@ struct ProfileView: View {
                 .frame(height: 2)
                 .background(Color.gray0)
                 .padding(0)
-            
+           
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Text("리뷰")
+                        .customFont(.title2b)
+                        .foregroundStyle(.spoonBlack)
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 24)
+                
+                if store.reviewCount == 0 {
+                    VStack(spacing: 16) {
+                        Image(.imageGoToList)
+                            .resizable()
+                            .frame(width: 100, height: 100)
+                            .padding(.top, 30)
+                        
+                        Text("아직 등록한 리뷰가 없어요.\n나만의 찐맛집을 공유해 보세요!")
+                            .customFont(.body1m)
+                            .foregroundStyle(.gray500)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity, alignment: .center)
+
+                        SpoonyButton(
+                            style: .primary,
+                            size: .xsmall,
+                            title: "등록하러가기",
+                            isIcon: false,
+                            disabled: .constant(false)
+                        ) {
+                            //TODO: 등록 탭으로 이동 로직
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 20)
+                } else {
+                    // 리뷰가 있는 경우 리뷰 목록 표시
+                }
+            }
+            .padding(.bottom, 40)
+            .padding(.bottom, 40)
         }
     }
-}
 
+}
 #Preview {
     ProfileView(
         store: Store(initialState: ProfileFeature.State()) {
