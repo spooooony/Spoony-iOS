@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+
 import ComposableArchitecture
 import TCACoordinators
 
@@ -32,12 +33,13 @@ struct ProfileView: View {
         }
     }
     
-    // MARK: - UI Components
-    
     private var navigationBar: some View {
         CustomNavigationBar(
             style: .settingContent,
             spoonCount: store.spoonCount,
+            spoonTapped: {
+                store.send(.routeToAttendanceScreen)
+            },
             tappedAction: {
                 store.send(.routeToSettingsScreen)
             }
@@ -179,7 +181,7 @@ struct ProfileView: View {
                 .foregroundStyle(.gray500)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, alignment: .center)
-
+            
             SpoonyButton(
                 style: .primary,
                 size: .xsmall,

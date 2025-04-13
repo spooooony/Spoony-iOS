@@ -29,6 +29,7 @@ struct ProfileFeature {
         case routeToFollowerScreen
         case routeToEditProfileScreen
         case routeToSettingsScreen
+        case routeToAttendanceScreen
     }
     
     var body: some ReducerOf<Self> {
@@ -36,7 +37,7 @@ struct ProfileFeature {
             switch action {
             case .routeToReviewsScreen, .routeToFollowingScreen,
                     .routeToFollowerScreen, .routeToEditProfileScreen,
-                    .routeToSettingsScreen:
+                    .routeToSettingsScreen, .routeToAttendanceScreen:
                 return .none
             }
         }
