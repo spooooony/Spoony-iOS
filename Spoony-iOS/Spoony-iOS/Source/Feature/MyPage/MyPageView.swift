@@ -47,6 +47,5 @@ struct MyPageView: View {
                     AttendanceView(store: store)
                 }
             }
-            .toolbar(.visible, for: .tabBar)
         }
     }
