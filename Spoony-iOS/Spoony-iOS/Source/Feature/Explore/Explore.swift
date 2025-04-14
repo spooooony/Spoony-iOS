@@ -138,6 +138,57 @@ struct Explore: View {
         )
     ]
     
+    let follwingList: [FeedEntity] = [
+        .init(
+            id: UUID(),
+            postId: 0,
+            userName: "thingjin",
+            userRegion: "서울 성북구",
+            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
+            categorColorResponse: .init(
+                categoryName: "양식",
+                iconUrl: "",
+                iconTextColor: "",
+                iconBackgroundColor: ""
+            ),
+            zzimCount: 17,
+            photoURLList: [""],
+            createAt: "2025-04-14T12:21:49.524Z"
+        ),
+        .init(
+            id: UUID(),
+            postId: 0,
+            userName: "thingjin",
+            userRegion: "서울 성북구",
+            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
+            categorColorResponse: .init(
+                categoryName: "양식",
+                iconUrl: "",
+                iconTextColor: "",
+                iconBackgroundColor: ""
+            ),
+            zzimCount: 17,
+            photoURLList: ["", ""],
+            createAt: "2025-04-14T12:21:49.524Z"
+        ),
+        .init(
+            id: UUID(),
+            postId: 0,
+            userName: "thingjin",
+            userRegion: "서울 성북구",
+            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
+            categorColorResponse: .init(
+                categoryName: "양식",
+                iconUrl: "",
+                iconTextColor: "",
+                iconBackgroundColor: ""
+            ),
+            zzimCount: 17,
+            photoURLList: ["", "", ""],
+            createAt: "2025-04-14T12:21:49.524Z"
+        )
+    ]
+    
     var body: some View {
         VStack(spacing: 0) {
             customNavigationBar
@@ -150,7 +201,12 @@ struct Explore: View {
                     if list.isEmpty {
                         emptyView
                     } else {
-                        listView
+                        switch viewType {
+                        case .all:
+                            listView(list)
+                        case .following:
+                            listView(follwingList)
+                        }
                     }
                 }
             }
@@ -166,8 +222,14 @@ extension Explore {
         HStack {
             Text("전체")
                 .foregroundStyle(viewType == .all ? .main400 : .gray300)
+                .onTapGesture {
+                    viewType = .all
+                }
             Text("팔로잉")
                 .foregroundStyle(viewType == .following ? .main400 : .gray300)
+                .onTapGesture {
+                    viewType = .following
+                }
             Spacer()
             Image(.icSearchGray600)
                 .resizable()
@@ -232,7 +294,7 @@ extension Explore {
         }
     }
     
-    private var listView: some View {
+    private func listView(_ list: [FeedEntity]) -> some View {
         ForEach(list) { list in
             ExploreCell(feed: list)
         }
