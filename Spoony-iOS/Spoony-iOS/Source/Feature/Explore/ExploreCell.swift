@@ -69,7 +69,6 @@ extension ExploreCell {
                         .scaledToFit()
                 } placeholder: {
                     RoundedRectangle(cornerRadius: 6)
-                        .redacted(reason: .placeholder)
                         .foregroundStyle(.gray200)
                 }
                 .frame(height: 311.adjustedH)
@@ -83,7 +82,6 @@ extension ExploreCell {
                             .scaledToFit()
                     } placeholder: {
                         RoundedRectangle(cornerRadius: 6)
-                            .redacted(reason: .placeholder)
                             .foregroundStyle(.gray200)
                     }
                 }
@@ -99,7 +97,6 @@ extension ExploreCell {
                             .scaledToFit()
                     } placeholder: {
                         RoundedRectangle(cornerRadius: 6)
-                            .redacted(reason: .placeholder)
                             .foregroundStyle(.gray200)
                     }
                 }
