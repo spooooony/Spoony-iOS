@@ -224,6 +224,7 @@ extension Explore {
             Text("전체")
                 .foregroundStyle(viewType == .all ? .main400 : .gray300)
                 .onTapGesture {
+                    // TODO: 탭 바뀌었을 때 스크롤 상단으로 올려야하나 ?
                     viewType = .all
                 }
             Text("팔로잉")
