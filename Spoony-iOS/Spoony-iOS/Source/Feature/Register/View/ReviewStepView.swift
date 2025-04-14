@@ -51,7 +51,7 @@ struct ReviewStepView: View {
 extension ReviewStepView {
     private var titleView: some View {
         Text("거의 다 왔어요!")
-            .customFont(.title2b)
+            .customFont(.title3b)
             .foregroundStyle(.spoonBlack)
             .padding(.vertical, 32)
             .frame(maxWidth: .infinity, alignment: .leading)

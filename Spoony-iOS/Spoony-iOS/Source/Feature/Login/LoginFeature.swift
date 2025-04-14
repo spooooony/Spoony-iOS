@@ -37,7 +37,7 @@ struct LoginFeature {
         case setToken(SocialType, String)
         case error(Error)
         
-        // MAKR: Navigation Action
+        // MARK: Navigation Action
         case routToTermsOfServiceScreen
         case routToOnboardingScreen
         case routToTabCoordinatorScreen

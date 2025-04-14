@@ -56,6 +56,8 @@ struct CustomNavigationBar: View {
                 searchBar
             case .searchBar:
                 searchBar
+            case .onboarding:
+                onboarding
             }
         }
         .frame(height: 56.adjusted)
@@ -112,7 +114,7 @@ struct CustomNavigationBar: View {
             Button(action: { tappedAction?() }) {
                 HStack(spacing: 4) {
                     Text(title ?? "홍대입구역")
-                        .customFont(.title2sb)
+                        .customFont(.title3sb)
                         .foregroundStyle(.spoonBlack)
                     Image(.icArrowRightGray700)
                 }
@@ -130,7 +132,7 @@ struct CustomNavigationBar: View {
         HStack {
             let title = title ?? ""
             Text(title.isEmpty ? "홍대입구역" : title)
-                .customFont(.title2b)
+                .customFont(.title3b)
                 .foregroundStyle(.spoonBlack)
             Spacer()
             Image(.icCloseGray400)
@@ -148,7 +150,7 @@ struct CustomNavigationBar: View {
         HStack {
             Spacer()
             Text(title ?? "홍대")
-                .customFont(.title2b)
+                .customFont(.title3b)
                 .multilineTextAlignment(.center)
                 .lineLimit(1)
             Spacer()
@@ -204,6 +206,21 @@ struct CustomNavigationBar: View {
         }
         .padding(.horizontal, 16)
     }
+    
+    private var onboarding: some View {
+        HStack {
+            Spacer()
+            
+            Text("건너뛰기")
+                .underline()
+                .customFont(.body2m)
+                .foregroundStyle(.gray400)
+                .padding(.trailing, 21)
+                .onTapGesture {
+                    tappedAction?()
+                }
+        }
+    }
 }
 
 struct CustomNavigationBar_Previews: PreviewProvider {
@@ -246,6 +263,12 @@ struct CustomNavigationBar_Previews: PreviewProvider {
             CustomNavigationBar(
                 style: .searchBar,
                 searchText: .constant(""),
+                onBackTapped: {}
+            )
+            .border(.gray)
+            
+            CustomNavigationBar(
+                style: .onboarding,
                 onBackTapped: {}
             )
             .border(.gray)

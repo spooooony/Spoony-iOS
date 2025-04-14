@@ -31,7 +31,6 @@ struct AgreeFeature {
         
         // MARK: Navigation Action
         case routToOnboardingScreen
-        case routToTabCoordinatorScreen
     }
     
     var body: some ReducerOf<Self> {
@@ -67,8 +66,6 @@ struct AgreeFeature {
             case .binding:
                 return .none
             case .routToOnboardingScreen:
-                return .none
-            case .routToTabCoordinatorScreen:
                 return .none
             }
             
