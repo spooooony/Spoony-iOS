@@ -6,3 +6,12 @@
 //
 
 import Foundation
+
+extension Date {
+    var relativeTimeNamed: String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateTimeStyle = .named
+        return formatter.localizedString(for: self, relativeTo: Date())
+    }
+}

@@ -118,11 +118,24 @@ extension ExploreCell {
                 .customFont(.caption2m)
                 .foregroundStyle(.main400)
             Spacer()
-            // TODO: 시간 계산
-            Text("\(feed.createAt)")
+
+            Text(relativeDate)
                 .customFont(.caption2m)
                 .foregroundStyle(.gray400)
         }
+    }
+}
+
+extension ExploreCell {
+    private var relativeDate: String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        guard let date = formatter.date(from: feed.createAt) else {
+            return "시간 오류"
+        }
+        
+        return date.relativeTimeNamed
     }
 }
 
@@ -141,8 +154,8 @@ extension ExploreCell {
                 iconBackgroundColor: ""
             ),
             zzimCount: 17,
-            photoURLList: ["", ""],
-            createAt: "2025-04-14T12:21:49.524Z"
+            photoURLList: ["", "", ""],
+            createAt: "2025-04-14T14:51:35.369Z"
         )
     )
 }
