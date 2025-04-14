@@ -32,7 +32,6 @@ struct ProfileView: View {
         }
     }
     
-    
     private var navigationBar: some View {
         CustomNavigationBar(
             style: .settingContent,

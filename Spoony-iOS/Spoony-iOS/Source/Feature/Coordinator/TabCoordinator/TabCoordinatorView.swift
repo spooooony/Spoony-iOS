@@ -49,7 +49,7 @@ struct TabCoordinatorView: View {
 }
 
 extension TabCoordinatorView {
-    private func setTabBarAppearance() {
+    func setTabBarAppearance() {
         let tabBarAppearance = UITabBarAppearance()
         
         tabBarAppearance.backgroundColor = .white

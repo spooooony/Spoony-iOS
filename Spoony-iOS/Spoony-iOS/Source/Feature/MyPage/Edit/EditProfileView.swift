@@ -15,6 +15,8 @@ struct EditProfileView: View {
     
     init(store: StoreOf<EditProfileFeature>) {
         self.store = store
+        setTabBarAppearance()
+
     }
     
     var body: some View {
@@ -35,5 +37,24 @@ struct EditProfileView: View {
             Spacer()
         }
         .navigationBarHidden(true)
+    }
+}
+
+extension EditProfileView {
+    func setTabBarAppearance() {
+        let tabBarAppearance = UITabBarAppearance()
+        
+        tabBarAppearance.backgroundColor = .white
+        tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+            .foregroundColor: UIColor.main400,
+            .font: UIFont.caption2b
+        ]
+        tabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+            .foregroundColor: UIColor.gray400,
+            .font: UIFont.caption2b
+        ]
+        
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
     }
 }
