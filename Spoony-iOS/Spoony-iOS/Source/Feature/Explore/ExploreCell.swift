@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct ExploreCell: View {
-    private let feed: FeedEntity_2
+    private let feed: FeedEntity
     
-    init(feed: FeedEntity_2) {
+    init(feed: FeedEntity) {
         self.feed = feed
     }
     
