@@ -41,4 +41,14 @@ extension View {
     func customFont(_ font: Font) -> some View {
         self.modifier(CustomFontModifier(font: font))
     }
+    
+    // 조건부로 hidden()을 사용하기 위한 extension
+    @ViewBuilder
+    func isHidden(_ hidden: Bool) -> some View {
+        if hidden {
+            self.hidden()
+        } else {
+            self
+        }
+    }
 }

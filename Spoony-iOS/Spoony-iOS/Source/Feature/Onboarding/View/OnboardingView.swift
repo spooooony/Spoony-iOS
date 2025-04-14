@@ -60,7 +60,7 @@ extension OnboardingView {
                 }, tappedAction: {
                     store.send(.tappedSkipButton)
                 })
-            .opacity(store.state.currentStep == .nickname ? 0 : 1)
+            .isHidden(store.state.currentStep == .nickname)
             .padding(.horizontal, -20)
             
             progressBar

@@ -25,6 +25,7 @@ struct OnboardingFinishView: View {
             }
             .customFont(.title2)
             .padding(.top, 62)
+            
             Text("이제 스푸니를 시작해 볼까요?")
                 .customFont(.title2)
                 .padding(.top, 4)

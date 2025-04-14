@@ -33,7 +33,12 @@ struct NicknameStepView: View {
             
             Spacer()
             
-            SpoonyButton(style: .primary, size: .xlarge, title: "다음", disabled: $store.nicknameError) {
+            SpoonyButton(
+                style: .primary,
+                size: .xlarge,
+                title: "다음",
+                disabled: $store.nicknameError
+            ) {
                 store.send(.tappedNextButton)
             }
             .padding(.bottom, 20)

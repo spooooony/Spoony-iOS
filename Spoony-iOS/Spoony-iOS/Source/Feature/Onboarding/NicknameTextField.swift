@@ -30,7 +30,6 @@ struct NicknameTextField: View {
                         .foregroundStyle(.gray400)
                 }
                     .autocapitalization(.none)
-                    .autocorrectionDisabled()
                     .focused($isFocused)
                     .customFont(.body2m)
                     .lineLimit(1)
