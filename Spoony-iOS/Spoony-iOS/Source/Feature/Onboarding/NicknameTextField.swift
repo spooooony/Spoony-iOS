@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// TODO: SpoonyTextField에 합치기
 struct NicknameTextField: View {
     @Binding var errorState: NicknameTextFieldErrorState
     @Binding var text: String
