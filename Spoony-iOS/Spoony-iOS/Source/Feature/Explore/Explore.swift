@@ -86,6 +86,7 @@ enum FilterButtonType: CaseIterable {
 }
 
 struct Explore: View {
+    // 임시 변수 -> 추후 수정 예정
     @State private var viewType: ExploreViewType = .all
     let list: [FeedEntity] = [
         .init(
