@@ -10,6 +10,7 @@ import SwiftUI
 struct SpoonySlider: View {
     @Binding var sliderValue: Double
     private var isDisabled: Bool
+    private let thumbSize = 22
     
     init(_ sliderValue: Binding<Double>, isDisabled: Bool = false) {
         self._sliderValue = sliderValue
@@ -37,18 +38,26 @@ struct SpoonySlider: View {
 }
 
 extension SpoonySlider {
+    private func updateSliderValue(_ inputX: CGFloat, _ totalWidth: CGFloat) {
+        let x = inputX - thumbSize.adjusted / 2
+        let clampedX = min(max(0, x), totalWidth)
+        sliderValue = round((clampedX / totalWidth) * 100.0)
+    }
+    
     private var sliderView: some View {
-        GeometryReader { geo in
-            let totalWidth = geo.size.width - 22.adjusted
+        let sliderHeight = 11.adjustedH
+        
+        return GeometryReader { geo in
+            let totalWidth = geo.size.width - thumbSize.adjusted
             
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 40)
                     .fill(.gray100)
-                    .frame(height: 11.adjustedH)
+                    .frame(height: sliderHeight)
                 
                 Rectangle()
                     .fill(.clear)
-                    .frame(height: 11.adjustedH)
+                    .frame(height: sliderHeight)
                     .background(
                         LinearGradient(
                             gradient: .init(colors: [.main100, .main400, .main400]),
@@ -57,27 +66,26 @@ extension SpoonySlider {
                         ),
                         in: RoundedRectangle(cornerRadius: 40)
                     )
-                    .frame(width: (sliderValue / 100) * totalWidth + 11.adjusted, height: 11.adjustedH)
+                    .frame(
+                        width: (sliderValue / 100) * totalWidth + thumbSize.adjusted / 2,
+                        height: sliderHeight
+                    )
                 
                 Image(.icSlider)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 22.adjusted, height: 22.adjustedH)
+                    .frame(width: thumbSize.adjusted, height: thumbSize.adjustedH)
                     .shadow(color: .gray300, radius: 16)
                     .offset(x: (sliderValue / 100) * totalWidth)
                     .gesture(
                         DragGesture()
                             .onChanged { value in
-                                let x = value.location.x - 11.adjusted
-                                let clampedX = min(max(0, x), totalWidth)
-                                sliderValue = round((clampedX / totalWidth) * 100.0)
+                                updateSliderValue(value.location.x, totalWidth)
                             }
                     )
             }
             .onTapGesture(coordinateSpace: .local) { location in
-                let x = location.x - 11.adjusted
-                let clampedX = min(max(0, x), totalWidth)
-                sliderValue = round((clampedX / totalWidth) * 100.0)
+                updateSliderValue(location.x, totalWidth)
             }
             .animation(.smooth, value: sliderValue)
         }
