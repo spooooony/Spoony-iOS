@@ -22,21 +22,21 @@ struct SpoonAttendanceView: View {
                         RoundedRectangle(cornerRadius: 24)
                             .strokeBorder(isSelected ? .main300 : .gray200, lineWidth: 8)
                     )
-                    .frame(width: 105, height: 105)
+                    .frame(width: 105.adjusted, height: 105.adjustedH)
                 
                 Image(isSelected ? "spoonyAttendance" : "unselectedAttendance")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 80, height: 80)
+                    .frame(width: 80.adjusted, height: 80.adjustedH)
                 
                 Text(day)
                     .font(.title3b)
                     .foregroundColor(isSelected ? .main300 : .gray400)
-                    .frame(width: 90, height: 90, alignment: .topLeading)
+                    .frame(width: 90.adjusted, height: 90.adjustedH, alignment: .topLeading)
                     .padding(.top, 12)
                     .padding(.leading, 16)
             }
-            .frame(width: 105, height: 105)
+            .frame(width: 105.adjusted, height: 105.adjustedH)
         }
     }
 }
