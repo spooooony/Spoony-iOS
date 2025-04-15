@@ -21,11 +21,14 @@ struct SpoonySlider: View {
             sliderView
                 .frame(height: 22.adjustedH)
                 .disabled(isDisabled)
-            HStack(spacing: 114.adjusted) {
+            HStack(spacing: 0) {
                 Text("아쉬움")
+                Spacer()
                 Text("적당함")
+                Spacer()
                 Text("훌륭함")
             }
+            .lineLimit(1)
             .font(.body2m)
             .foregroundStyle(.spoonBlack)
         }
