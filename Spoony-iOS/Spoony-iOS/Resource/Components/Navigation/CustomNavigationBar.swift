@@ -52,6 +52,10 @@ struct CustomNavigationBar: View {
                 detail
             case .detailWithChip:
                 detailWithChip
+            case .backOnly:
+                EmptyView()
+            case .attendanceCheck:
+                attendanceCheck
             case .search:
                 searchBar
             case .searchBar:
@@ -166,6 +170,25 @@ struct CustomNavigationBar: View {
         }
     }
     
+    private var attendanceCheck: some View {
+        HStack {
+            HStack(spacing: 8) {
+                backButtonView
+                
+                Text("출석체크")
+                    .customFont(.title3b)
+                    .foregroundStyle(.spoonBlack)
+                    .lineLimit(1)
+            }
+            .padding(.leading, 16)
+            
+            Spacer()
+            
+            LogoChip(type: .small, count: spoonCount)
+                .padding(.trailing, 20)
+        }
+    }
+    
     private var searchBar: some View {
         HStack(spacing: 12) {
             if style.showsBackButton {
@@ -256,6 +279,21 @@ struct CustomNavigationBar_Previews: PreviewProvider {
             
             CustomNavigationBar(
                 style: .detailWithChip,
+                onBackTapped: {}
+            )
+            .border(.gray)
+            
+            // 새로 추가한 뒤로가기만 있는 스타일
+            CustomNavigationBar(
+                style: .backOnly,
+                onBackTapped: {}
+            )
+            .border(.gray)
+            
+            // 수정된 출석체크 스타일
+            CustomNavigationBar(
+                style: .attendanceCheck,
+                spoonCount: 11,
                 onBackTapped: {}
             )
             .border(.gray)
