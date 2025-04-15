@@ -49,9 +49,9 @@ struct Explore: View {
         }, set: { newValue in
             store.dispatch(.isPresentedLocationChanged(newValue))
         })) {
-            LocationPickerBottomSheet(store: store)
-            .presentationDetents([.height(542.adjustedH)])
-            .presentationCornerRadius(16)
+//            LocationPickerBottomSheet(store: store)
+//            .presentationDetents([.height(542.adjustedH)])
+//            .presentationCornerRadius(16)
         }
         .task {
             store.dispatch(.onAppear)

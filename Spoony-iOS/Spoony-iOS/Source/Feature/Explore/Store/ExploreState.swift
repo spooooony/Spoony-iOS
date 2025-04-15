@@ -12,8 +12,8 @@ struct ExploreState {
     var spoonCount: Int = 0
     
     //TODO: 현재 위치 받아와서 바꾸기
-    var selectedLocation: SeoulType = .mapo
-    var tempLocation: SeoulType?
+    var selectedLocation: LocationType = .busan
+    var tempLocation: LocationType?
     
     var selectedFilter: FilterType = .latest
     

@@ -12,7 +12,7 @@ enum ExploreIntent {
     
     // Location Bottom Sheet
     case navigationLocationTapped
-    case locationTapped(SeoulType)
+    case locationTapped(LocationType)
     case selectLocationTapped
     case closeLocationTapped
     case isPresentedLocationChanged(Bool)
