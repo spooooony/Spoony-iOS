@@ -14,101 +14,81 @@ struct MealTrackerView: View {
     let weekdays = ["월", "화", "수", "목", "금", "토", "일"]
     
     var body: some View {
-        VStack(spacing: 0) {
-            // 커스텀 네비게이션 바
-            HStack {
-                Button(action: {
-                    presentationMode.wrappedValue.dismiss()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(.black)
-                }
-                
-                Spacer()
-                
-                Text("출석체크")
-                    .font(.headline)
-                    .foregroundColor(.black)
-                
-                Spacer()
-                
-                HStack(spacing: 4) {
-                    Text("11")
-                        .font(.system(size: 16, weight: .bold))
-                    
-                    Image(systemName: "spoon")
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.gray.opacity(0.15))
-                .cornerRadius(16)
-            }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
+        ZStack(alignment: .top) {
+            // 기본 배경색
+            Color.white.ignoresSafeArea()
             
-            VStack(alignment: .leading, spacing: 20) {
-                Text("매일 출석하고\n오늘의 스푼을 획득하세요")
-                    .font(.title1)
-                    .lineLimit(2)
-                
-                // 날짜 정보
-                HStack {
-                    Text(dateRange)
-                        .font(.body2m)
-                        .foregroundColor(.gray)
-                    
-                    Image(systemName: "info.circle")
-                        .foregroundColor(.gray)
-                }
-                .padding(.top, -8)
-                
-                let columns = [
-                    GridItem(.flexible()),
-                    GridItem(.flexible()),
-                    GridItem(.flexible())
-                ]
-
-                LazyVGrid(columns: columns, spacing: 24) {
-                    ForEach(weekdays, id: \.self) { day in
-                        SpoonAttendanceView(
-                            day: day,
-                            isSelected: selectedDays.contains(day),
-                            action: { toggleDay(day) }
-                        )
-                    }
-                }
-
+            // 유의사항 배경색 - 화면 하단부
+            VStack {
                 Spacer()
-                
-                // 유의사항
-                Text("유의사항")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.gray)
-                    .padding(.top, 20)
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    BulletPointText(text: "출석체크는 매일 자정에 리셋 되어요")
-                    BulletPointText(text: "1일 1회 무료로 참여 가능해요")
-                    BulletPointText(text: "신규 가입 시 5개의 스푼을 적립해 드려요")
-                }
-                .padding(.top, 4)
-                
-                Spacer()
-                
-                // 하단 인디케이터
-                Rectangle()
-                    .fill(Color.black)
-                    .frame(width: 50, height: 4)
-                    .cornerRadius(2)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.bottom, 8)
+                Color.gray.opacity(0.1)
+                    .ignoresSafeArea()
+                    .frame(height: 200) // 높이 조정 필요
             }
-            .padding(.horizontal, 20)
+            .ignoresSafeArea()
+            
+            // 메인 콘텐츠
+            VStack(spacing: 0) {
+                CustomNavigationBar(style: .attendanceCheck,
+                                   title: "출석체크")
+                
+                VStack(alignment: .leading, spacing: 20) {
+                    // 제목 텍스트
+                    Text("매일 출석하고\n오늘의 스푼을 획득하세요")
+                        .font(.title1)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 8)
+                    
+                    // 날짜 정보
+                    HStack {
+                        Text(dateRange)
+                            .font(.body2m)
+                            .foregroundColor(.gray)
+                        
+                        Image(systemName: "info.circle")
+                            .foregroundColor(.gray)
+                    }
+                    
+                    // 요일 그리드
+                    let columns = [
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                        GridItem(.flexible())
+                    ]
+
+                    LazyVGrid(columns: columns, spacing: 24) {
+                        ForEach(weekdays, id: \.self) { day in
+                            SpoonAttendanceView(
+                                day: day,
+                                isSelected: selectedDays.contains(day),
+                                action: { toggleDay(day) }
+                            )
+                        }
+                    }
+                    .padding(.vertical, 4)
+                    
+                    Spacer().frame(height: 36) // 유의사항과의 간격
+                    
+                    // 유의사항 섹션 (패딩 없음)
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("유의사항")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.gray)
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            BulletPointText(text: "출석체크는 매일 자정에 리셋 되어요")
+                            BulletPointText(text: "1일 1회 무료로 참여 가능해요")
+                            BulletPointText(text: "신규 가입 시 5개의 스푼을 적립해 드려요")
+                        }
+                    }
+                    .padding(.top, 16)
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+            }
         }
-        .navigationBarHidden(true)
-        .background(Color(UIColor.systemBackground))
-        .edgesIgnoringSafeArea(.top)
     }
     
     // 요일 토글 함수
