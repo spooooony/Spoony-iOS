@@ -11,45 +11,77 @@ struct MealTrackerView: View {
     @State private var selectedDays = Set<String>(["월", "화"])
     @Environment(\.presentationMode) var presentationMode
     let dateRange = "2025. 03. 24 (월) ~ 2025. 03. 30 (일)"
+    let weekdays = ["월", "화", "수", "목", "금", "토", "일"]
     
     var body: some View {
         VStack(spacing: 0) {
-            CustomNavigationBar(
-                style: .attendanceCheck,
-                spoonCount: 11,
-                onBackTapped: {
+            // 커스텀 네비게이션 바
+            HStack {
+                Button(action: {
                     presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.black)
                 }
-            )
+                
+                Spacer()
+                
+                Text("출석체크")
+                    .font(.headline)
+                    .foregroundColor(.black)
+                
+                Spacer()
+                
+                HStack(spacing: 4) {
+                    Text("11")
+                        .font(.system(size: 16, weight: .bold))
+                    
+                    Image(systemName: "spoon")
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.gray.opacity(0.15))
+                .cornerRadius(16)
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
             
             VStack(alignment: .leading, spacing: 20) {
                 Text("매일 출석하고\n오늘의 스푼을 획득하세요")
                     .font(.title1)
                     .lineLimit(2)
-                    .padding(.top, 20)
-              
-                Text(dateRange)
-                    .font(.body2m)
-                    .foregroundColor(.gray)
-                    .padding(.top, -8)
                 
-                
-                // 획득 개수 메시지 추가
-                if !selectedDays.isEmpty {
-                    Text("오늘 \(selectedDays.count)개 획득")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 12)
-                        .background(Color.black)
-                        .cornerRadius(20)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.top, 10)
+                // 날짜 정보
+                HStack {
+                    Text(dateRange)
+                        .font(.body2m)
+                        .foregroundColor(.gray)
+                    
+                    Image(systemName: "info.circle")
+                        .foregroundColor(.gray)
                 }
+                .padding(.top, -8)
                 
+                let columns = [
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                    GridItem(.flexible())
+                ]
+
+                LazyVGrid(columns: columns, spacing: 24) {
+                    ForEach(weekdays, id: \.self) { day in
+                        SpoonAttendanceView(
+                            day: day,
+                            isSelected: selectedDays.contains(day),
+                            action: { toggleDay(day) }
+                        )
+                    }
+                }
+
                 Spacer()
                 
-                // Info section
+                // 유의사항
                 Text("유의사항")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.gray)
@@ -64,7 +96,7 @@ struct MealTrackerView: View {
                 
                 Spacer()
                 
-                // 하단 인디케이터 추가
+                // 하단 인디케이터
                 Rectangle()
                     .fill(Color.black)
                     .frame(width: 50, height: 4)
@@ -79,7 +111,7 @@ struct MealTrackerView: View {
         .edgesIgnoringSafeArea(.top)
     }
     
-    // 요일 토글 함수 추가
+    // 요일 토글 함수
     private func toggleDay(_ day: String) {
         if selectedDays.contains(day) {
             selectedDays.remove(day)
@@ -89,7 +121,7 @@ struct MealTrackerView: View {
     }
 }
 
-// Bullet point text component
+// 불릿 포인트 텍스트 컴포넌트
 struct BulletPointText: View {
     let text: String
     
@@ -108,5 +140,4 @@ struct BulletPointText: View {
 
 #Preview {
     MealTrackerView()
-
 }
