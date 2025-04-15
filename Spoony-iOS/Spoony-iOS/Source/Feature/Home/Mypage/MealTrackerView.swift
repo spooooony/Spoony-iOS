@@ -15,15 +15,13 @@ struct MealTrackerView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            // 기본 배경색
             Color.white.ignoresSafeArea()
             
-            // 유의사항 배경색 - 화면 하단부
             VStack {
                 Spacer()
-                Color.gray.opacity(0.1)
+                Color.gray0
                     .ignoresSafeArea()
-                    .frame(height: 200) // 높이 조정 필요
+                    .frame(height: 168.adjustedH)
             }
             .ignoresSafeArea()
             
@@ -33,24 +31,22 @@ struct MealTrackerView: View {
                                    title: "출석체크")
                 
                 VStack(alignment: .leading, spacing: 20) {
-                    // 제목 텍스트
-                    Text("매일 출석하고\n오늘의 스푼을 획득하세요")
-                        .font(.title1)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, 8)
-                    
-                    // 날짜 정보
                     HStack {
+                        Text("매일 출석하고\n오늘의 스푼을 획득하세요")
+                            .font(.title1)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.top, 8)
+                        
+                        Image(systemName: "info.circle")
+                            
+                            .foregroundColor(.gray)
+                        
+                    }
                         Text(dateRange)
                             .font(.body2m)
                             .foregroundColor(.gray)
-                        
-                        Image(systemName: "info.circle")
-                            .foregroundColor(.gray)
-                    }
                     
-                    // 요일 그리드
                     let columns = [
                         GridItem(.flexible()),
                         GridItem(.flexible()),
@@ -68,12 +64,11 @@ struct MealTrackerView: View {
                     }
                     .padding(.vertical, 4)
                     
-                    Spacer().frame(height: 36) // 유의사항과의 간격
+                    Spacer().frame(height: 36)
                     
-                    // 유의사항 섹션 (패딩 없음)
                     VStack(alignment: .leading, spacing: 12) {
                         Text("유의사항")
-                            .font(.system(size: 16, weight: .medium))
+                            .font(.body2b)
                             .foregroundColor(.gray)
                         
                         VStack(alignment: .leading, spacing: 8) {
@@ -108,12 +103,12 @@ struct BulletPointText: View {
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             Text("•")
-                .font(.system(size: 16))
-                .foregroundColor(.gray)
+                .font(.body2sb)
+                .foregroundColor(.gray400)
             
             Text(text)
-                .font(.system(size: 16))
-                .foregroundColor(.gray)
+                .font(.body2sb)
+                .foregroundColor(.gray400)
         }
     }
 }
