@@ -45,13 +45,7 @@ extension SpoonyLocationPicker {
                 "마포구"
             }
         }
-        var isSelected: Bool {
-            if subLocation != nil {
-                true
-            } else {
-                false
-            }
-        }
+        let isSelected = subLocation != nil
         
         return HStack(spacing: 8) {
             Image(.icSpoonGray600)
