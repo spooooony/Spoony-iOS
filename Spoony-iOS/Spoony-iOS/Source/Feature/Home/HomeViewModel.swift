@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 @MainActor
 final class HomeViewModel: ObservableObject {
@@ -15,6 +16,8 @@ final class HomeViewModel: ObservableObject {
     @Published var focusedPlaces: [CardPlace] = []
     @Published var selectedLocation: (latitude: Double, longitude: Double)?
     @Published var error: Error?
+    @Published var isLocationFocused: Bool = false
+    @Published var userLocation: CLLocation?
     
     init(service: HomeServiceType = DefaultHomeService()) {
         self.service = service
@@ -47,6 +50,8 @@ final class HomeViewModel: ObservableObject {
                 
                 let response = try await service.fetchFocusedPlace(placeId: placeId)
                 self.focusedPlaces = response.zzimFocusResponseList.map { $0.toCardPlace() }
+                
+                self.isLocationFocused = false
             } catch {
                 self.error = error
             }
@@ -66,6 +71,8 @@ final class HomeViewModel: ObservableObject {
             if let firstPlace = response.zzimCardResponses.first {
                 self.selectedLocation = (firstPlace.latitude, firstPlace.longitude)
             }
+            
+            self.isLocationFocused = false
         } catch {
             self.error = error
             print("Error in fetchLocationList:", error)
@@ -75,6 +82,34 @@ final class HomeViewModel: ObservableObject {
     
     func clearFocusedPlaces() {
         focusedPlaces = []
-        selectedLocation = nil 
+        selectedLocation = nil
+    }
+    
+    func moveToUserLocation() {
+        guard let userLocation = userLocation else {
+            requestLocationAccess()
+            return
+        }
+        selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
+        isLocationFocused = true
+        clearFocusedPlaces()
+    }
+    
+    private func requestLocationAccess() {
+        let locationManager = CLLocationManager()
+        switch locationManager.authorizationStatus {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .denied, .restricted:
+            print("Location access denied")
+        default:
+            break
+        }
+    }
+    
+    func updateUserLocation(_ location: CLLocation) {
+        Task { @MainActor in
+            userLocation = location
+        }
     }
 }
