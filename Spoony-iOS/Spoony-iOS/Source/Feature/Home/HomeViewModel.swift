@@ -90,9 +90,13 @@ final class HomeViewModel: ObservableObject {
             requestLocationAccess()
             return
         }
-        selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
-        isLocationFocused = true
-        clearFocusedPlaces()
+        
+        isLocationFocused.toggle()
+        
+        if isLocationFocused {
+            selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
+            clearFocusedPlaces()
+        }
     }
     
     private func requestLocationAccess() {

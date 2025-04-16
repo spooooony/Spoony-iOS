@@ -113,7 +113,7 @@ struct Home: View {
                             Circle()
                                 .fill(Color.white)
                                 .frame(width: 44.adjusted, height: 44.adjusted)
-                                .shadow(color: Color.gray300, radius: 16, x: 1, y: 1)//만들어놓은게 있나?
+                                .shadow(color: Color.gray300, radius: 16, x: 1, y: 1)
                             
                             Image(viewModel.isLocationFocused ? "ic_gps_main" : "ic_gps_gray500")
                                 .resizable()
