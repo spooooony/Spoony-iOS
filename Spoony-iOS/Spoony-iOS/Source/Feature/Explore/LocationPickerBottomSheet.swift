@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-enum RegionType: String, CaseIterable {
+// TODO: 서버 드리븐으로 바꾸기
+enum LocationType: String, CaseIterable {
     case seoul = "서울"
     case gyeonggi = "경기"
     case busan = "부산"
@@ -17,9 +18,11 @@ enum RegionType: String, CaseIterable {
     case daejeon = "대전"
     case ulsan = "울산"
     case sejong = "세종"
+    case jeonbuk = "전북"
+    case jeonnam = "전남"
 }
 
-enum SeoulType: String, CaseIterable {
+enum SubLocationType: String, CaseIterable {
     case gangnam = "강남구"
     case gangdong = "강동구"
     case gangbuk = "강북구"
@@ -48,83 +51,133 @@ enum SeoulType: String, CaseIterable {
 }
 
 struct LocationPickerBottomSheet: View {
-    @ObservedObject var store: ExploreStore
+    @Binding var isPresented: Bool
+    @Binding var selectedLocation: LocationType
+    @Binding var selectedSubLocation: SubLocationType?
+    
+    @State private var tempLocation: LocationType = .seoul
+    @State private var tempSubLocation: SubLocationType?
+    
+    @State private var isDisabled: Bool = true
     
     var body: some View {
         VStack(spacing: 0) {
-            ZStack {
-                Text("지역 선택")
-                    .customFont(.body1b)
-                
-                HStack {
-                    Spacer()
-                    
-                    Image(.icCloseGray400)
-                        .onTapGesture {
-                            store.dispatch(.closeLocationTapped)
-                        }
-                }
-                .padding(.trailing, 20)
-            }
-            .frame(height: 32.adjustedH)
-            .padding(.vertical, 12)
+            titleView
             
             HStack(alignment: .top, spacing: 0) {
-                VStack(spacing: 0) {
-                    ForEach(RegionType.allCases, id: \.self) { region in
-                        Text(region.rawValue)
-                            .customFont(.body2m)
-                            .foregroundStyle(
-                                region.rawValue == "서울" ? .spoonBlack : .gray400
-                            )
-                            .frame(width: 135.adjusted, height: 44.adjustedH)
-                            .background(
-                                region.rawValue == "서울" ? .clear : .gray0
-                            )
-                            .overlay(
-                                Rectangle()
-                                    .stroke(.gray0)
-                            )
-                    }
-                }
+                locationView
                 
-                ScrollView {
-                    VStack(spacing: 0) {
-                        ForEach(SeoulType.allCases, id: \.self) { type in
-                            
-                            Text(type.rawValue)
-                                .customFont(.body2m)
-                                .foregroundStyle(
-                                    store.state.tempLocation?.rawValue != type.rawValue ? .gray400 : .spoonBlack
-                                )
-                                .frame(width: 240.adjusted, height: 44.adjustedH)
-                                .background(
-                                    Rectangle()
-                                        .stroke(Color.gray0, lineWidth: 1)
-                                )
-                                .onTapGesture {
-                                    store.dispatch(.locationTapped(type))
-                                }
-                        }
-                    }
+                if tempLocation == .seoul {
+                    subLocationView
+                } else {
+                    emptyView
                 }
-                .scrollIndicators(.hidden)
-                
             }
             
             SpoonyButton(
                 style: .secondary,
                 size: .xlarge,
                 title: "선택하기",
-                disabled: Binding(get: {
-                    return store.state.tempLocation == nil
-                }, set: { _ in
-                })
+                disabled: $isDisabled
             ) {
-                store.dispatch(.selectLocationTapped)
+                selectedLocation = tempLocation
+                selectedSubLocation = tempSubLocation
+                isPresented = false
             }
             .padding(.top, 12)
             .padding(.bottom, 22)
         }
+        .onChange(of: tempSubLocation) { _, newValue in
+            if newValue != nil {
+                isDisabled = false
+            }
+        }
+        .onChange(of: tempLocation) { _, _ in
+            tempSubLocation = nil
+            isDisabled = true
+        }
     }
+}
+
+extension LocationPickerBottomSheet {
+    private var titleView: some View {
+        ZStack {
+            Text("지역 선택")
+                .customFont(.body1b)
+            
+            HStack {
+                Spacer()
+                
+                Image(.icCloseGray400)
+                    .onTapGesture {
+                        isPresented = false
+                    }
+            }
+            .padding(.trailing, 20)
+        }
+        .frame(height: 32.adjustedH)
+        .padding(.vertical, 12)
+    }
+    
+    private var locationView: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                ForEach(LocationType.allCases, id: \.self) { location in
+                    Text(location.rawValue)
+                        .customFont(.body2m)
+                        .foregroundStyle(tempLocation == location ? .spoonBlack : .gray400)
+                        .frame(width: 135.adjusted, height: 44.adjustedH)
+                        .background(tempLocation == location ? .clear : .gray0)
+                        .overlay(
+                            Rectangle()
+                                .stroke(.gray0)
+                        )
+                        .onTapGesture {
+                            tempLocation = location
+                        }
+                }
+            }
+        }
+        .scrollIndicators(.hidden)
+    }
+    
+    private var subLocationView: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                ForEach(SubLocationType.allCases, id: \.self) { type in
+                    
+                    Text(type.rawValue)
+                        .customFont(.body2m)
+                        .foregroundStyle(tempSubLocation == type ? .spoonBlack : .gray400)
+                        .frame(width: 240.adjusted, height: 44.adjustedH)
+                        .background(
+                            Rectangle()
+                                .stroke(Color.gray0, lineWidth: 1)
+                        )
+                        .onTapGesture {
+                            tempSubLocation = type
+                        }
+                }
+            }
+        }
+        .scrollIndicators(.hidden)
+    }
+    
+    private var emptyView: some View {
+        VStack {
+            Spacer()
+            Text("지금은 서울만 가능해요!\n다른 지역은 열심히 준비 중이에요.")
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .customFont(.body2m)
+                .foregroundStyle(.gray400)
+            
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+#Preview {
+    LocationPickerBottomSheet(isPresented: .constant(true), selectedLocation: .constant(.gwangju), selectedSubLocation: .constant(nil))
 }

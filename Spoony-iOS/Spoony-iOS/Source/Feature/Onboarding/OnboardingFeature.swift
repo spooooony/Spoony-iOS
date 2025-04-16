@@ -26,9 +26,9 @@ struct OnboardingFeature {
         var nicknameError: Bool = true
         var nicknameErrorState: NicknameTextFieldErrorState = .initial
         
-        // 임시
-        var birth: String = ""
-        var region: String = ""
+        var birth: [String] = ["", "", ""]
+        var region: LocationType = .seoul
+        var subRegion: SubLocationType?
         var infoError: Bool = true
         
         var introduceText: String = ""
@@ -42,12 +42,6 @@ struct OnboardingFeature {
         case tappedSkipButton
             
         case checkNickname
-        
-        case tappedBirthButton
-        case tappedRegionButton
-        
-        case selectBirth
-        case selectRegion
         
         // MARK: - Navigation
         case routToTabCoordinatorScreen
@@ -74,21 +68,26 @@ struct OnboardingFeature {
                 
             case .tappedBackButton:
                 switch state.currentStep {
-                case .nickname:
+                case .nickname, .finish:
                     break
                 case .information:
                     state.currentStep = .nickname
                 case .introduce:
                     state.currentStep = .information
-                case .finish:
-                    break
                 }
-                print("\(state.currentStep)")
                 return .none
                 
             case .tappedSkipButton:
-                state.currentStep = .finish
-                print("\(state.currentStep)")
+                switch state.currentStep {
+                case .nickname:
+                    break
+                case .information:
+                    state.currentStep = .introduce
+                case .introduce:
+                    state.currentStep = .finish
+                case .finish:
+                    break
+                }
                 return .none
             case .checkNickname:
                 if state.nicknameErrorState == .noError {
@@ -100,18 +99,19 @@ struct OnboardingFeature {
                     state.nicknameError = false
                 }
                 return .none
-            case .tappedBirthButton:
-                return .none
-            case .tappedRegionButton:
-                // 임시
-                state.infoError = false
-                return .none
-            case .selectBirth:
-                return .none
-            case .selectRegion:
-                return .none
-                
             case .routToTabCoordinatorScreen:
+                return .none
+            case .binding(\.subRegion):
+                if state.subRegion != nil {
+                    state.infoError = false
+                }
+                return .none
+            case .binding(\.birth):
+                guard let year = state.birth.first else { return .none }
+                
+                if !year.isEmpty {
+                    state.infoError = false
+                }
                 return .none
             case .binding:
                 return .none

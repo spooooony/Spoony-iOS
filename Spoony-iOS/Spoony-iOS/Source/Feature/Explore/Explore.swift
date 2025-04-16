@@ -29,6 +29,7 @@ enum ExploreViewType {
         case .following:
             "검색하러 가기"
         }
+
     }
     
     var lottieImage: String {

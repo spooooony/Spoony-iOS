@@ -33,13 +33,4 @@ enum DateType: Int, CaseIterable {
             "01"
         }
     }
-    
-    var width: CGFloat {
-        switch self {
-        case .year:
-            87.adjusted
-        case .month, .day:
-            65.adjusted
-        }
-    }
 }

@@ -58,7 +58,7 @@ extension ExploreStore {
         
         state.selectedLocation = location
         getFeedList()
-        state.tempLocation = nil
+//        state.tempLocation = nil
         state.isPresentedLocation = false
     }
     
