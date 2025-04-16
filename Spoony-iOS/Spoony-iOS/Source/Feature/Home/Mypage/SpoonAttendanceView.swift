@@ -7,11 +7,16 @@
 
 import SwiftUI
 
-
 struct SpoonAttendanceView: View {
     let day: String
     let isSelected: Bool
-    var action: () -> Void
+    private let action: () -> Void
+    
+    init(day: String, isSelected: Bool, action: @escaping () -> Void) {
+        self.day = day
+        self.isSelected = isSelected
+        self.action = action
+    }
     
     var body: some View {
         Button(action: action) {
@@ -40,5 +45,3 @@ struct SpoonAttendanceView: View {
         }
     }
 }
-
-

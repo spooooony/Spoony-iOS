@@ -30,17 +30,14 @@ struct MealTrackerView: View {
     }
     
     private var backgroundView: some View {
-        ZStack(alignment: .bottom) {
-            Color.white.ignoresSafeArea()
-            
-            VStack {
-                Spacer()
-                Color.gray0
-                    .ignoresSafeArea()
-                    .frame(height: 168.adjustedH)
-            }
-            .ignoresSafeArea()
+        VStack {
+            Spacer()
+            Color.gray0
+                .ignoresSafeArea()
+                .frame(height: 168.adjustedH)
         }
+        .background(.white)
+        .ignoresSafeArea()
     }
     
     private var mainContentView: some View {
