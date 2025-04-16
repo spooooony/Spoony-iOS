@@ -9,99 +9,272 @@ import SwiftUI
 
 import Lottie
 
-struct Explore: View {
-    @StateObject var store: ExploreStore
+enum ExploreViewType {
+    case all
+    case following
     
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-            CustomNavigationBar(
-                style: .locationDetail,
-                title: "서울특별시 \(store.state.selectedLocation.rawValue)",
-                spoonCount: store.state.spoonCount,
-                tappedAction: {
-                    store.dispatch(.navigationLocationTapped)
-                })
-            
-            categoryList
-        
-            if store.state.exploreList.isEmpty {
-                emptyView
-            } else {
-                filterButton
-                    .onTapGesture {
-                        store.dispatch(.filterButtontapped)
-                    }
-                listView
-            }
+    var emptyDescription: String {
+        switch self {
+        case .all:
+            "아직 발견된 장소가 없어요.\n나만의 리스트를 공유해 볼까요?"
+        case .following:
+            "아직 팔로우 한 유저가 없어요.\n관심 있는 유저들을 팔로우해보세요."
         }
-        .sheet(isPresented: Binding(get: {
-            store.state.isPresentedFilter
-        }, set: { newValue in
-            store.dispatch(.isPresentedFilterChanged(newValue))
-        })) {
-            FilterBottomSheet(store: store)
-            .presentationDetents([.height(250.adjustedH)])
-            .presentationCornerRadius(16)
+    }
+    
+    var buttonTitle: String {
+        switch self {
+        case .all:
+            "등록하러 가기"
+        case .following:
+            "검색하러 가기"
         }
-        .sheet(isPresented: Binding(get: {
-            store.state.isPresentedLocation
-        }, set: { newValue in
-            store.dispatch(.isPresentedLocationChanged(newValue))
-        })) {
-            LocationPickerBottomSheet(store: store)
-            .presentationDetents([.height(542.adjustedH)])
-            .presentationCornerRadius(16)
-        }
-        .task {
-            store.dispatch(.onAppear)
+    }
+    
+    var lottieImage: String {
+        switch self {
+        case .all:
+            "lottie_empty_explore"
+        case .following:
+            "lottie_empty_explore"
         }
     }
 }
 
-extension Explore {
-    private var categoryList: some View {
-        ScrollView(.horizontal) {
-            HStack {
-                Spacer()
-                    .frame(width: 20.adjusted)
-                ForEach(store.state.categoryList) { item in
-                    ExploreCategoryChip(category: item, selected: item == store.state.selectedCategory)
-                    .onTapGesture {
-                        store.dispatch(.categoryTapped(item))
+enum FilterButtonType: CaseIterable {
+    case filter
+    case local
+    case sort
+    case category
+    case location
+    case age
+    
+    var title: String {
+        switch self {
+        case .filter:
+            "필터"
+        case .local:
+            "로컬 리뷰"
+        case .sort:
+            "최신순"
+        case .category:
+            "카테고리"
+        case .location:
+            "지역"
+        case .age:
+            "연령대"
+        }
+    }
+    
+    var isLeadingIcon: Bool {
+        switch self {
+        case .filter:
+            true
+        default:
+            false
+        }
+    }
+    
+    var isTrailingIcon: Bool {
+        switch self {
+        case .filter, .local:
+            false
+        default:
+            true
+        }
+    }
+}
+
+struct Explore: View {
+    // 임시 변수 -> 추후 수정 예정
+    @State private var viewType: ExploreViewType = .all
+    @State private var selectedFilter: [FilterButtonType] = [.filter, .sort]
+    let list: [FeedEntity] = [
+        .init(
+            id: UUID(),
+            postId: 0,
+            userName: "gambasgirl",
+            userRegion: "서울 성북구",
+            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
+            categorColorResponse: .init(
+                categoryName: "양식",
+                iconUrl: "",
+                iconTextColor: "",
+                iconBackgroundColor: ""
+            ),
+            zzimCount: 17,
+            photoURLList: [""],
+            createAt: "2025-04-14T12:21:49.524Z"
+        ),
+        .init(
+            id: UUID(),
+            postId: 0,
+            userName: "gambasgirl",
+            userRegion: "서울 성북구",
+            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
+            categorColorResponse: .init(
+                categoryName: "양식",
+                iconUrl: "",
+                iconTextColor: "",
+                iconBackgroundColor: ""
+            ),
+            zzimCount: 17,
+            photoURLList: ["", ""],
+            createAt: "2025-04-14T12:21:49.524Z"
+        ),
+        .init(
+            id: UUID(),
+            postId: 0,
+            userName: "gambasgirl",
+            userRegion: "서울 성북구",
+            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
+            categorColorResponse: .init(
+                categoryName: "양식",
+                iconUrl: "",
+                iconTextColor: "",
+                iconBackgroundColor: ""
+            ),
+            zzimCount: 17,
+            photoURLList: ["", "", ""],
+            createAt: "2025-04-14T12:21:49.524Z"
+        )
+    ]
+    
+    let follwingList: [FeedEntity] = [
+        .init(
+            id: UUID(),
+            postId: 0,
+            userName: "thingjin",
+            userRegion: "서울 성북구",
+            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
+            categorColorResponse: .init(
+                categoryName: "양식",
+                iconUrl: "",
+                iconTextColor: "",
+                iconBackgroundColor: ""
+            ),
+            zzimCount: 17,
+            photoURLList: [""],
+            createAt: "2025-04-14T12:21:49.524Z"
+        ),
+        .init(
+            id: UUID(),
+            postId: 0,
+            userName: "thingjin",
+            userRegion: "서울 성북구",
+            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
+            categorColorResponse: .init(
+                categoryName: "양식",
+                iconUrl: "",
+                iconTextColor: "",
+                iconBackgroundColor: ""
+            ),
+            zzimCount: 17,
+            photoURLList: ["", ""],
+            createAt: "2025-04-14T12:21:49.524Z"
+        ),
+        .init(
+            id: UUID(),
+            postId: 0,
+            userName: "thingjin",
+            userRegion: "서울 성북구",
+            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
+            categorColorResponse: .init(
+                categoryName: "양식",
+                iconUrl: "",
+                iconTextColor: "",
+                iconBackgroundColor: ""
+            ),
+            zzimCount: 17,
+            photoURLList: ["", "", ""],
+            createAt: "2025-04-14T12:21:49.524Z"
+        )
+    ]
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            customNavigationBar
+                .padding(.bottom, 20)
+            
+            ScrollView {
+                VStack(spacing: 18) {
+                    filterView
+                    
+                    if list.isEmpty {
+                        emptyView
+                    } else {
+                        switch viewType {
+                        case .all:
+                            listView(list)
+                        case .following:
+                            listView(follwingList)
+                        }
                     }
                 }
-                Spacer()
-                    .frame(width: 20.adjusted)
+            }
+            .scrollIndicators(.hidden)
+        }
+        .padding(.horizontal, 20)
+    }
+}
+
+extension Explore {
+    private var customNavigationBar: some View {
+        // TODO: 명진샘 애니메이션 훔치기
+        HStack {
+            Text("전체")
+                .foregroundStyle(viewType == .all ? .main400 : .gray300)
+                .onTapGesture {
+                    // TODO: 탭 바뀌었을 때 스크롤 상단으로 올려야하나 ?
+                    viewType = .all
+                }
+            Text("팔로잉")
+                .foregroundStyle(viewType == .following ? .main400 : .gray300)
+                .onTapGesture {
+                    viewType = .following
+                }
+            Spacer()
+            Image(.icSearchGray600)
+                .resizable()
+                .frame(width: 19.adjusted, height: 19.adjusted)
+        }
+        .customFont(.title3sb)
+        .padding(.top, 12)
+    }
+    
+    private var filterView: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 8) {
+                Rectangle()
+                    .fill(.clear)
+                    .frame(width: 12.adjusted, height: 0)
+                
+                ForEach(FilterButtonType.allCases, id: \.self) { type in
+                    FilterCell(type: type, selectedFilter: $selectedFilter)
+                    .onTapGesture {
+                        // 필터 바텀시트 올리기
+                    }
+                }
+                
+                Rectangle()
+                    .fill(.clear)
+                    .frame(width: 12.adjusted, height: 0)
             }
         }
         .scrollIndicators(.hidden)
-    }
-    
-    private var filterButton: some View {
-        HStack(spacing: 2) {
-            Spacer()
-            Text(store.state.selectedFilter.title)
-                .customFont(.caption1m)
-                .foregroundStyle(.gray700)
-            Image(.icFilterGray700)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 16.adjusted, height: 16.adjustedH)
-        }
-        .padding(.top, 16)
-        .padding(.trailing, 20)
+        .padding(.horizontal, -20)
     }
     
     private var emptyView: some View {
+        
         VStack(spacing: 0) {
             
-            LottieView(animation: .named("lottie_empty_explore"))
+            LottieView(animation: .named(viewType.lottieImage))
                 .looping()
                 .frame(width: 220.adjusted, height: 220.adjustedH)
                 .padding(.top, 98)
             
-            Text("아직 발견된 장소가 없어요.\n나만의 리스트를 공유해 볼까요?")
+            Text(viewType.emptyDescription)
                 .multilineTextAlignment(.center)
                 .customFont(.body2m)
                 .foregroundStyle(.gray500)
@@ -110,10 +283,9 @@ extension Explore {
             SpoonyButton(
                 style: .secondary,
                 size: .xsmall,
-                title: "등록하러 가기",
+                title: viewType.buttonTitle,
                 disabled: .constant(false)
             ) {
-                store.dispatch(.goRegisterButtonTapped)
             }
             .padding(.top, 18)
             
@@ -121,20 +293,13 @@ extension Explore {
         }
     }
     
-    private var listView: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                ForEach(store.state.exploreList) { list in
-                    ExploreCell(feed: list)
-                        .padding(.bottom, 12)
-                        .padding(.horizontal, 20)
-                        .onTapGesture {
-                            store.dispatch(.cellTapped(list))
-                        }
-                }
-            }
+    private func listView(_ list: [FeedEntity]) -> some View {
+        ForEach(list) { list in
+            ExploreCell(feed: list)
         }
-        .scrollIndicators(.hidden)
-        .padding(.top, 16)
     }
+}
+
+#Preview {
+    Explore()
 }
