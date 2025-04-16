@@ -121,7 +121,7 @@ struct Home: View {
                                 .frame(width: 24.adjusted, height: 24.adjusted)
                         }
                     }
-                    .padding(.bottom, bottomSheetHeight - 16)
+                    .padding(.bottom, bottomSheetHeight - 68 )
                     .padding(.trailing, 20)
                 }
                 
