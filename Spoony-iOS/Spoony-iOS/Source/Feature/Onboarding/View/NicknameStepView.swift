@@ -28,6 +28,7 @@ struct NicknameStepView: View {
             .padding(.top, 28)
             .focused($isFocused)
             .onSubmit {
+                store.send(.checkNickname)
                 hideKeyboard()
             }
             

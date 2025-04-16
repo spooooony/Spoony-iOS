@@ -54,7 +54,6 @@ struct NicknameTextField: View {
                     return
                 }
                 
-                // TODO: 중복 검사 한 후에 버튼 활성화 하는 로직 추가
                 switch checkInputError(newValue) {
                 case .maximumInputError:
                     errorState = .maximumInputError
