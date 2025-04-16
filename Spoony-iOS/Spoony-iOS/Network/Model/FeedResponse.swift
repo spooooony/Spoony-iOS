@@ -32,15 +32,17 @@ struct CategoryColorResponse: Codable, Hashable {
 extension FeedListResponse {
     func toEntity() -> [FeedEntity] {
         feedResponseList.map { feed in
-            .init(
-                id: UUID(),
-                postId: feed.postId,
-                userName: feed.userName,
-                userRegion: feed.userRegion,
-                title: feed.title,
-                categorColorResponse: feed.categoryColorResponse,
-                zzimCount: feed.zzimCount
-            )
+                .init(
+                    id: UUID(),
+                    postId: feed.postId,
+                    userName: feed.userName,
+                    userRegion: feed.userRegion,
+                    description: feed.title,
+                    categorColorResponse: feed.categoryColorResponse,
+                    zzimCount: feed.zzimCount,
+                    photoURLList: [],
+                    createAt: feed.createdAt
+                )
         }
     }
     

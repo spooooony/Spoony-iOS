@@ -8,7 +8,6 @@
 import Foundation
 
 struct FeedEntity: Identifiable, Hashable {
-    
     static func == (lhs: FeedEntity, rhs: FeedEntity) -> Bool {
         lhs.id == rhs.id
     }
@@ -17,9 +16,11 @@ struct FeedEntity: Identifiable, Hashable {
     let postId: Int
     let userName: String
     let userRegion: String
-    let title: String
+    let description: String
     let categorColorResponse: CategoryColorResponse
     let zzimCount: Int
+    let photoURLList: [String]
+    let createAt: String
 }
 
 

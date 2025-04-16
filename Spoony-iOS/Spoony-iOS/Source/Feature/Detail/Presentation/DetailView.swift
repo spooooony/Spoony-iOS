@@ -23,7 +23,7 @@ struct DetailView: View {
         self.postId = postId
     }
     
-    private let userImage = Image(.icCafeBlue)
+    private let userImage = Image(.icGpsMain)
     
     @State private var isPresented: Bool = false
     @State private var popUpIsPresented: Bool = false
