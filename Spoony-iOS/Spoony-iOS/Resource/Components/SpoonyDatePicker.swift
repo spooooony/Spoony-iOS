@@ -35,8 +35,8 @@ extension SpoonyDatePicker {
         Text("\(selectedDate[type.rawValue].isEmpty ? type.placeHolder : selectedDate[type.rawValue])")
             .font(.body1m)
             .foregroundStyle(selectedDate[type.rawValue].isEmpty ? .gray500 : .spoonBlack)
-            .frame(width: type.width, height: 44.adjustedH)
-        
+            .padding(.horizontal, 24)
+            .frame(height: 44.adjustedH)
             .background {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(.clear)
@@ -49,5 +49,5 @@ extension SpoonyDatePicker {
 }
 
 #Preview {
-    SpoonyDatePicker(selectedDate: .constant(["","",""]))
+    SpoonyDatePicker(selectedDate: .constant(["", "", ""]))
 }
