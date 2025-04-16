@@ -10,6 +10,7 @@ import NMapsMap
 
 struct NMapView: UIViewRepresentable {
     private let defaultZoomLevel: Double = 11.5
+    private let userLocationZoomLevel: Double = 15.0
     private let defaultMarker = NMFOverlayImage(name: "ic_unselected_marker")
     private let selectedMarker = NMFOverlayImage(name: "ic_selected_marker")
     private let defaultLatitude: Double = 37.5666103
@@ -32,6 +33,11 @@ struct NMapView: UIViewRepresentable {
     func makeUIView(context: Context) -> NMFMapView {
         let mapView = configureMapView(context: context)
         checkLocationPermission(mapView)
+        
+        locationManager.delegate = context.coordinator
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.startUpdatingLocation()
+        
         return mapView
     }
     
@@ -39,8 +45,11 @@ struct NMapView: UIViewRepresentable {
         switch locationManager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
             if let location = locationManager.location {
-                moveCamera(mapView, to: NMGLatLng(lat: location.coordinate.latitude,
-                                                  lng: location.coordinate.longitude))
+                viewModel.updateUserLocation(location)
+                if viewModel.selectedLocation == nil {
+                    moveCamera(mapView, to: NMGLatLng(lat: location.coordinate.latitude,
+                                                    lng: location.coordinate.longitude))
+                }
             }
         case .denied, .restricted:
             moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
@@ -70,7 +79,17 @@ struct NMapView: UIViewRepresentable {
         mapView.touchDelegate = context.coordinator
         context.coordinator.updateMarkers(mapView: mapView, pickList: viewModel.pickList, selectedPlaceId: selectedPlace?.placeId)
         
-        if let location = viewModel.selectedLocation, !viewModel.focusedPlaces.isEmpty {
+        if viewModel.isLocationFocused, let userLocation = viewModel.userLocation {
+            let coord = NMGLatLng(lat: userLocation.coordinate.latitude, lng: userLocation.coordinate.longitude)
+            let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: userLocationZoomLevel)
+            cameraUpdate.animation = .easeIn
+            cameraUpdate.animationDuration = 0.5
+            mapView.moveCamera(cameraUpdate)
+            
+            context.coordinator.updateUserLocationMarker(mapView: mapView, location: userLocation)
+        }
+
+        else if let location = viewModel.selectedLocation, !viewModel.focusedPlaces.isEmpty {
             let coord = NMGLatLng(lat: location.latitude, lng: location.longitude)
             let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
             cameraUpdate.animation = .easeIn
@@ -105,10 +124,11 @@ struct NMapView: UIViewRepresentable {
     }
 }
 
-final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerDelegate {
+final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerDelegate, CLLocationManagerDelegate {
     @Binding var selectedPlace: CardPlace?
     var markers: [Int: NMFMarker] = [:]
     var isInitialLoad: Bool = true
+    var userLocationMarker: NMFMarker?
     
     private var isProcessingMarkerTouch = false
     private var lastMarkerTouchTime: TimeInterval = 0
@@ -128,6 +148,37 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
         super.init()
     }
     
+    // CLLocationManagerDelegate method
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        viewModel.updateUserLocation(location)
+        
+        // If we're focusing on user location, update the camera
+        if viewModel.isLocationFocused {
+            // The map view will handle this in updateUIView
+        }
+    }
+    
+    // Handle authorization changes
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        if status == .authorizedWhenInUse || status == .authorizedAlways {
+            manager.startUpdatingLocation()
+        }
+    }
+    
+    // Update or create user location marker
+    func updateUserLocationMarker(mapView: NMFMapView, location: CLLocation) {
+        if userLocationMarker == nil {
+            userLocationMarker = NMFMarker()
+            userLocationMarker?.iconImage = NMFOverlayImage(name: "ic_my_location")
+            userLocationMarker?.width = CGFloat(NMF_MARKER_SIZE_AUTO)
+            userLocationMarker?.height = CGFloat(NMF_MARKER_SIZE_AUTO)
+            userLocationMarker?.mapView = mapView
+        }
+        
+        userLocationMarker?.position = NMGLatLng(lat: location.coordinate.latitude, lng: location.coordinate.longitude)
+    }
+    
     @objc func handleMapTap(_ gesture: UITapGestureRecognizer) {
         if selectedPlace == nil { return }
         
@@ -143,6 +194,9 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
             
             self.selectedPlace = nil
             self.viewModel.clearFocusedPlaces()
+            
+            // When tapping on the map, we're no longer focused on user location
+            self.viewModel.isLocationFocused = false
         }
     }
     
@@ -233,6 +287,9 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
             let isCurrentlySelected = (self.selectedPlace?.placeId == placeId)
             
             DispatchQueue.main.async {
+                // When selecting a marker, we're no longer focused on user location
+                self.viewModel.isLocationFocused = false
+                
                 if !isCurrentlySelected {
                     for (_, m) in self.markers {
                         if let pName = m.userInfo["placeName"] as? String, m !== marker {
@@ -274,3 +331,4 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
         return false
     }
 }
+
