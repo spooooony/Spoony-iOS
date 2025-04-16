@@ -88,6 +88,7 @@ enum FilterButtonType: CaseIterable {
 struct Explore: View {
     // 임시 변수 -> 추후 수정 예정
     @State private var viewType: ExploreViewType = .all
+    @State private var selectedFilter: [FilterButtonType] = [.filter, .sort]
     let list: [FeedEntity] = [
         .init(
             id: UUID(),
@@ -249,11 +250,7 @@ extension Explore {
                     .frame(width: 12.adjusted, height: 0)
                 
                 ForEach(FilterButtonType.allCases, id: \.self) { type in
-                    FilterCell(
-                        isLeadingIcon: type.isLeadingIcon,
-                        isTrailingIcon: type.isTrailingIcon,
-                        text: type.title
-                    )
+                    FilterCell(type: type, selectedFilter: $selectedFilter)
                     .onTapGesture {
                         // 필터 바텀시트 올리기
                     }
