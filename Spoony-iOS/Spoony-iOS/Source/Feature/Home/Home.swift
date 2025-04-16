@@ -68,10 +68,8 @@ struct Home: View {
                                 .redacted(reason: .placeholder)
                         }
                     } else {
-                        // Home.swift 파일의 전체 카테고리 칩 부분만 수정
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
-                                // 전체 카테고리 칩만 수정
                                 CategoryChipsView(
                                     category: CategoryChip(
                                         image: "",
