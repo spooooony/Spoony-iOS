@@ -55,6 +55,9 @@ struct LocationPickerBottomSheet: View {
     @Binding var selectedLocation: LocationType
     @Binding var selectedSubLocation: SubLocationType?
     
+    @State private var tempLocation: LocationType = .seoul
+    @State private var tempSubLocation: SubLocationType?
+    
     @State private var isDisable: Bool = true
     
     var body: some View {
@@ -64,7 +67,7 @@ struct LocationPickerBottomSheet: View {
             HStack(alignment: .top, spacing: 0) {
                 locationView
                 
-                if selectedLocation == .seoul {
+                if tempLocation == .seoul {
                     subLocationView
                 } else {
                     emptyView
@@ -76,19 +79,21 @@ struct LocationPickerBottomSheet: View {
                 size: .xlarge,
                 title: "선택하기",
                 disabled: $isDisable
-            ){
+            ) {
+                selectedLocation = tempLocation
+                selectedSubLocation = tempSubLocation
                 isPresented = false
             }
             .padding(.top, 12)
             .padding(.bottom, 22)
         }
-        .onChange(of: selectedSubLocation) { _, newValue in
+        .onChange(of: tempSubLocation) { _, newValue in
             if newValue != nil {
                 isDisable = false
             }
         }
-        // TODO: 유즈케이스 맞춰서 수정하기
-        .onChange(of: selectedLocation) { _, _ in
+        .onChange(of: tempLocation) { _, _ in
+            tempSubLocation = nil
             isDisable = true
         }
     }
@@ -105,7 +110,7 @@ extension LocationPickerBottomSheet {
                 
                 Image(.icCloseGray400)
                     .onTapGesture {
-                        
+                        isPresented = false
                     }
             }
             .padding(.trailing, 20)
@@ -115,22 +120,25 @@ extension LocationPickerBottomSheet {
     }
     
     private var locationView: some View {
-        VStack(spacing: 0) {
-            ForEach(LocationType.allCases, id: \.self) { location in
-                Text(location.rawValue)
-                    .customFont(.body2m)
-                    .foregroundStyle(selectedLocation == location ? .spoonBlack : .gray400)
-                    .frame(width: 135.adjusted, height: 44.adjustedH)
-                    .background(selectedLocation == location ? .clear : .gray0)
-                    .overlay(
-                        Rectangle()
-                            .stroke(.gray0)
-                    )
-                    .onTapGesture {
-                        selectedLocation = location
-                    }
+        ScrollView {
+            VStack(spacing: 0) {
+                ForEach(LocationType.allCases, id: \.self) { location in
+                    Text(location.rawValue)
+                        .customFont(.body2m)
+                        .foregroundStyle(tempLocation == location ? .spoonBlack : .gray400)
+                        .frame(width: 135.adjusted, height: 44.adjustedH)
+                        .background(tempLocation == location ? .clear : .gray0)
+                        .overlay(
+                            Rectangle()
+                                .stroke(.gray0)
+                        )
+                        .onTapGesture {
+                            tempLocation = location
+                        }
+                }
             }
         }
+        .scrollIndicators(.hidden)
     }
     
     private var subLocationView: some View {
@@ -140,14 +148,14 @@ extension LocationPickerBottomSheet {
                     
                     Text(type.rawValue)
                         .customFont(.body2m)
-                        .foregroundStyle(selectedSubLocation == type ? .spoonBlack : .gray400)
+                        .foregroundStyle(tempSubLocation == type ? .spoonBlack : .gray400)
                         .frame(width: 240.adjusted, height: 44.adjustedH)
                         .background(
                             Rectangle()
                                 .stroke(Color.gray0, lineWidth: 1)
                         )
                         .onTapGesture {
-                            selectedSubLocation = type
+                            tempSubLocation = type
                         }
                 }
             }
