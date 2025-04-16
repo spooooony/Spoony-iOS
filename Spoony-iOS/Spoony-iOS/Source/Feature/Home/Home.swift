@@ -68,13 +68,14 @@ struct Home: View {
                                 .redacted(reason: .placeholder)
                         }
                     } else {
+                        // Home.swift 파일의 전체 카테고리 칩 부분만 수정
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
-                                // 일단 하드코딩 박기ㅋㅋ
+                                // 전체 카테고리 칩만 수정
                                 CategoryChipsView(
                                     category: CategoryChip(
-                                        image: "https://spoony-storage.s3.ap-northeast-2.amazonaws.com/category/icons/all_color.png",
-                                        selectedImage: "https://spoony-storage.s3.ap-northeast-2.amazonaws.com/category/icons/all_white.png",
+                                        image: "",
+                                        selectedImage: "",
                                         title: "전체",
                                         id: 0
                                     ),
@@ -99,7 +100,6 @@ struct Home: View {
                     }
                 }
                 .padding(.vertical, 8)
-                .background(Color.white)
                 
                 Spacer()
             }
