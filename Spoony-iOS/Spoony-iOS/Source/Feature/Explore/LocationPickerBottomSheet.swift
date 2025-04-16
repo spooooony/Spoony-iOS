@@ -58,7 +58,7 @@ struct LocationPickerBottomSheet: View {
     @State private var tempLocation: LocationType = .seoul
     @State private var tempSubLocation: SubLocationType?
     
-    @State private var isDisable: Bool = true
+    @State private var isDisabled: Bool = true
     
     var body: some View {
         VStack(spacing: 0) {
@@ -78,7 +78,7 @@ struct LocationPickerBottomSheet: View {
                 style: .secondary,
                 size: .xlarge,
                 title: "선택하기",
-                disabled: $isDisable
+                disabled: $isDisabled
             ) {
                 selectedLocation = tempLocation
                 selectedSubLocation = tempSubLocation
@@ -89,12 +89,12 @@ struct LocationPickerBottomSheet: View {
         }
         .onChange(of: tempSubLocation) { _, newValue in
             if newValue != nil {
-                isDisable = false
+                isDisabled = false
             }
         }
         .onChange(of: tempLocation) { _, _ in
             tempSubLocation = nil
-            isDisable = true
+            isDisabled = true
         }
     }
 }

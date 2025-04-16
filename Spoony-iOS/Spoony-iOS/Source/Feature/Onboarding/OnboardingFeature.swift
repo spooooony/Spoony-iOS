@@ -68,14 +68,12 @@ struct OnboardingFeature {
                 
             case .tappedBackButton:
                 switch state.currentStep {
-                case .nickname:
+                case .nickname, .finish:
                     break
                 case .information:
                     state.currentStep = .nickname
                 case .introduce:
                     state.currentStep = .information
-                case .finish:
-                    break
                 }
                 return .none
                 
