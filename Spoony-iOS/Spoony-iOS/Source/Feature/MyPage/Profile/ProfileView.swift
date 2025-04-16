@@ -115,7 +115,7 @@ struct ProfileView: View {
                 .padding(.bottom, 4)
             
             Text("크리스탈에메랄드수정")
-                .customFont(.title2b)
+//                .customFont(.title2b)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 8)
             
@@ -158,7 +158,7 @@ struct ProfileView: View {
     private var reviewsHeader: some View {
         HStack {
             Text("리뷰")
-                .customFont(.title2b)
+//                .customFont(.title2b)
                 .foregroundStyle(.spoonBlack)
             Text("0개")
                 .customFont(.body2m)
