@@ -1,0 +1,144 @@
+//
+//  MealTrackerView.swift
+//  Spoony-iOS
+//
+//  Created by 이지훈 on 4/15/25.
+//
+
+import SwiftUI
+
+struct MealTrackerModel {
+    var selectedDays: Set<String> = ["월", "화"]
+    let dateRange = "2025. 03. 24 (월) ~ 2025. 03. 30 (일)"
+    let weekdays = ["월", "화", "수", "목", "금", "토", "일"]
+    let noticeItems = [
+        "출석체크는 매일 자정에 리셋 되어요",
+        "1일 1회 무료로 참여 가능해요",
+        "신규 가입 시 5개의 스푼을 적립해 드려요"
+    ]
+}
+
+struct MealTrackerView: View {
+    @State private var model = MealTrackerModel()
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        ZStack(alignment: .top) {
+            backgroundView
+            mainContentView
+        }
+    }
+    
+    private var backgroundView: some View {
+        VStack {
+            Spacer()
+            Color.gray0
+                .ignoresSafeArea()
+                .frame(height: 168.adjustedH)
+        }
+        .background(.white)
+        .ignoresSafeArea()
+    }
+    
+    private var mainContentView: some View {
+        VStack(spacing: 0) {
+            CustomNavigationBar(style: .attendanceCheck, title: "출석체크")
+            
+            trackerContentView
+                .padding(.horizontal, 20)
+            
+            noticeView
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+        }
+    }
+    
+    private var trackerContentView: some View {
+        VStack(alignment: .leading, spacing: 32) {
+            headerView
+            weekdayGridView
+            Spacer().frame(height: 36)
+        }
+    }
+    
+    private var headerView: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(alignment: .lastTextBaseline) {
+                Text("매일 출석하고\n오늘의 스푼을 획득하세요")
+                    .font(.title1)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                Image(.icInfoGray400)
+                    .padding(.leading, 6)
+                    .frame(width: 24, height: 24)
+            }
+            .padding(.top, 8)
+            
+            Text(model.dateRange)
+                .font(.body2m)
+                .foregroundColor(.gray)
+        }
+    }
+    
+    private var weekdayGridView: some View {
+        let columns = [
+            GridItem(.flexible()),
+            GridItem(.flexible()),
+            GridItem(.flexible())
+        ]
+        
+        return LazyVGrid(columns: columns, spacing: 24) {
+            ForEach(model.weekdays, id: \.self) { day in
+                SpoonAttendanceView(
+                    day: day,
+                    isSelected: model.selectedDays.contains(day),
+                    action: { toggleDay(day) }
+                )
+            }
+        }
+        .padding(.vertical, 4)
+    }
+    
+    private var noticeView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("유의사항")
+                .font(.body2b)
+                .foregroundColor(.gray400)
+            
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(model.noticeItems, id: \.self) { item in
+                    BulletPointText(text: item)
+                }
+            }
+        }
+    }
+    
+    private func toggleDay(_ day: String) {
+        if model.selectedDays.contains(day) {
+            model.selectedDays.remove(day)
+        } else {
+            model.selectedDays.insert(day)
+        }
+    }
+}
+
+struct BulletPointText: View {
+    let text: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Text("•")
+                .font(.body2sb)
+                .foregroundColor(.gray400)
+            
+            Text(text)
+                .font(.body2sb)
+                .foregroundColor(.gray400)
+        }
+    }
+}
+
+#Preview {
+    MealTrackerView()
+}
