@@ -114,8 +114,8 @@ struct NMapView: UIViewRepresentable {
         mapView.touchDelegate = context.coordinator
         mapView.logoAlign = .rightTop
         mapView.logoInteractionEnabled = true
-        mapView.logoMargin = UIEdgeInsets(top: 60, left: 0, bottom: 0, right: 12)
-        
+        let chipAreaHeight = 16+8+32+56.0
+        mapView.logoMargin = UIEdgeInsets(top: chipAreaHeight, left: 0, bottom: 0, right: 20)
         let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleMapTap(_:)))
         tapGesture.delegate = context.coordinator
         mapView.addGestureRecognizer(tapGesture)
