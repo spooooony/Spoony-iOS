@@ -2,45 +2,35 @@
 //  SearchView.swift
 //  Spoony-iOS
 //
-//  Created by 이지훈 on 1/16/25.
+//  Created on 4/17/25.
 //
 
 import SwiftUI
-
 import ComposableArchitecture
 
 struct SearchView: View {
-//    @EnvironmentObject private var navigationManager: NavigationManager
-    @StateObject private var store: SearchStore = SearchStore()
+    @Bindable private var store: StoreOf<SearchFeature>
     @FocusState private var isSearchFocused: Bool
-    private let testStore: StoreOf<SearchFeature>
     
-    init(testStore: StoreOf<SearchFeature>) {
-        self.testStore = testStore
+    init(store: StoreOf<SearchFeature>) {
+        self.store = store
     }
-    
-//    init() {
-//        _store = StateObject(wrappedValue: SearchStore(navigationManager: NavigationManager()))
-//    }
     
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
                 CustomNavigationBar(
                     style: .search(showBackButton: true),
-                    searchText: Binding(
-                        get: { store.model.searchText },
-                        set: { store.dispatch(.updateSearchText($0)) }
-                    ),
+                    searchText: $store.searchText.sending(\.updateSearchText),
                     onBackTapped: {
-                        store.dispatch(.clearSearch)
-                        testStore.send(.routeToPreviousScreen)
+                        store.send(.clearSearch)
+                        store.send(.routeToPreviousScreen)
                     },
                     tappedAction: {
-                        store.dispatch(.search)
+                        store.send(.search)
                     },
                     onClearTapped: {
-                        store.dispatch(.clearSearch)
+                        store.send(.clearSearch)
                     }
                 )
                 .focused($isSearchFocused)
@@ -52,28 +42,27 @@ struct SearchView: View {
         }
         .navigationBarHidden(true)
         .onAppear {
-//            store.updateNavigationManager(navigationManager)
-            if store.model.isFirstAppear {
+            if store.isFirstAppear {
                 isSearchFocused = true
-                store.dispatch(.setFirstAppear(false))
+                store.send(.setFirstAppear(false))
             }
         }
     }
 
     @ViewBuilder
     private var contentView: some View {
-        switch store.state {
+        switch store.searchState {
         case .empty:
-            if store.model.recentSearches.isEmpty {
+            if store.recentSearches.isEmpty {
                 EmptyStateView()
             } else {
                 RecentSearchesView(
-                    recentSearches: store.model.recentSearches,
+                    recentSearches: store.recentSearches,
                     onRemoveSearch: { search in
-                        store.dispatch(.removeRecentSearch(search))
+                        store.send(.removeRecentSearch(search))
                     },
                     onClearAll: {
-                        store.dispatch(.clearAllRecentSearches)
+                        store.send(.clearAllRecentSearches)
                     }
                 )
             }
@@ -85,7 +74,7 @@ struct SearchView: View {
             SearchResultsView(
                 results: results,
                 onSelectResult: { result in
-                    store.dispatch(.selectLocation(result))
+                    store.send(.selectLocation(result))
                 }
             )
         case .error:
@@ -217,4 +206,12 @@ struct SearchResultEmptyView: View {
             Spacer()
         }
     }
+}
+
+#Preview {
+    SearchView(
+        store: Store(initialState: .initialState) {
+            SearchFeature()
+        }
+    )
 }
