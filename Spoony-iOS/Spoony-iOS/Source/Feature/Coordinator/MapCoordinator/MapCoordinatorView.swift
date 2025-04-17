@@ -23,7 +23,7 @@ struct MapCoordinatorView: View {
             case let .map(store):
                 Home(store: store)
             case let .search(store):
-                SearchView(testStore: store)
+                SearchView(store: store)
             }
         }
     }
