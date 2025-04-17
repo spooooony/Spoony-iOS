@@ -25,7 +25,7 @@ struct TabCoordinatorView: View {
                     case .map:
                         MapCoordinatorView(store: store.scope(state: \.map, action: \.map))
                     case .explore:
-                        ExploreView(store: store.scope(state: \.explore, action: \.explore))
+                        Explore(store: store.scope(state: \.explore, action: \.explore))
                     case .register:
                         Register(store: store.scope(state: \.register, action: \.register))
                     case .myPage:

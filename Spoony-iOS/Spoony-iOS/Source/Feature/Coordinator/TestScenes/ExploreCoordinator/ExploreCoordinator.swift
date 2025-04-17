@@ -7,28 +7,3 @@
 
 import ComposableArchitecture
 import SwiftUI
-
-// MARK: - ExploreCoordinator
-@Reducer
-struct ExploreCoordinator {
-    @ObservableState
-    struct State: Equatable {
-        static let initialState = State()
-    }
-    
-    enum Action {}
-    
-    var body: some ReducerOf<Self> {
-        Reduce { state, action in
-            return .none
-        }
-    }
-}
-
-struct ExploreView: View {
-    let store: StoreOf<ExploreCoordinator>
-    
-    var body: some View {
-        Text("Explore View")
-    }
-}

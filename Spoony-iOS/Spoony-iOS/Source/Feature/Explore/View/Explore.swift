@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+import ComposableArchitecture
 import Lottie
 
 enum ExploreViewType {
@@ -87,9 +88,12 @@ enum FilterButtonType: CaseIterable {
 }
 
 struct Explore: View {
-    // 임시 변수 -> 추후 수정 예정
-    @State private var viewType: ExploreViewType = .all
-    @State private var selectedFilter: [FilterButtonType] = [.filter, .sort]
+    @Bindable private var store: StoreOf<ExploreFeature>
+    
+    init(store: StoreOf<ExploreFeature>) {
+        self.store = store
+    }
+    
     let list: [FeedEntity] = [
         .init(
             id: UUID(),
@@ -204,7 +208,7 @@ struct Explore: View {
                     if list.isEmpty {
                         emptyView
                     } else {
-                        switch viewType {
+                        switch store.state.viewType {
                         case .all:
                             listView(list)
                         case .following:
@@ -224,15 +228,15 @@ extension Explore {
         // TODO: 명진샘 애니메이션 훔치기
         HStack {
             Text("전체")
-                .foregroundStyle(viewType == .all ? .main400 : .gray300)
+                .foregroundStyle(store.state.viewType == .all ? .main400 : .gray300)
                 .onTapGesture {
                     // TODO: 탭 바뀌었을 때 스크롤 상단으로 올려야하나 ?
-                    viewType = .all
+                    store.send(.changeViewType(.all))
                 }
             Text("팔로잉")
-                .foregroundStyle(viewType == .following ? .main400 : .gray300)
+                .foregroundStyle(store.state.viewType == .following ? .main400 : .gray300)
                 .onTapGesture {
-                    viewType = .following
+                    store.send(.changeViewType(.following))
                 }
             Spacer()
             Image(.icSearchGray600)
@@ -251,7 +255,7 @@ extension Explore {
                     .frame(width: 12.adjusted, height: 0)
                 
                 ForEach(FilterButtonType.allCases, id: \.self) { type in
-                    FilterCell(type: type, selectedFilter: $selectedFilter)
+                    FilterCell(type: type, selectedFilter: $store.selectedFilter)
                     .onTapGesture {
                         // 필터 바텀시트 올리기
                     }
@@ -270,12 +274,12 @@ extension Explore {
         
         VStack(spacing: 0) {
             
-            LottieView(animation: .named(viewType.lottieImage))
+            LottieView(animation: .named(store.state.viewType.lottieImage))
                 .looping()
                 .frame(width: 220.adjusted, height: 220.adjustedH)
                 .padding(.top, 98)
             
-            Text(viewType.emptyDescription)
+            Text(store.state.viewType.emptyDescription)
                 .multilineTextAlignment(.center)
                 .customFont(.body2m)
                 .foregroundStyle(.gray500)
@@ -284,7 +288,7 @@ extension Explore {
             SpoonyButton(
                 style: .secondary,
                 size: .xsmall,
-                title: viewType.buttonTitle,
+                title: store.state.viewType.buttonTitle,
                 disabled: .constant(false)
             ) {
             }
@@ -302,5 +306,7 @@ extension Explore {
 }
 
 #Preview {
-    Explore()
+    Explore(store: Store(initialState: ExploreFeature.State(), reducer: {
+        ExploreFeature()
+    }))
 }

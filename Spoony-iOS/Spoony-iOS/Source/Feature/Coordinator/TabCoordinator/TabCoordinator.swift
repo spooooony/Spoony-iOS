@@ -23,7 +23,7 @@ struct TabCoordinator {
         )
         
         var map: MapCoordinator.State
-        var explore: ExploreCoordinator.State
+        var explore: ExploreFeature.State
         var register: RegisterFeature.State
         var myPage: MyPageCoordinator.State
         var selectedTab: TabType
@@ -35,7 +35,7 @@ struct TabCoordinator {
     enum Action: BindableAction {
         case binding(BindingAction<State>)
         case map(MapCoordinator.Action)
-        case explore(ExploreCoordinator.Action)
+        case explore(ExploreFeature.Action)
         case register(RegisterFeature.Action)
         case myPage(MyPageCoordinator.Action)
         case tabSelected(TabType)
@@ -52,7 +52,7 @@ struct TabCoordinator {
         }
         
         Scope(state: \.explore, action: \.explore) {
-            ExploreCoordinator()
+            ExploreFeature()
         }
         
         Scope(state: \.register, action: \.register) {
