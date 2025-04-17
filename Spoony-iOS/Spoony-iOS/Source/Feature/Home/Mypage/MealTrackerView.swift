@@ -22,12 +22,17 @@ struct MealTrackerModel {
 
 struct MealTrackerView: View {
     @State private var model = MealTrackerModel()
-     let store: StoreOf<AttendanceFeature>
+    @State private var isInfoSheetPresented = false
+    let store: StoreOf<AttendanceFeature>
     
     var body: some View {
         ZStack(alignment: .top) {
             backgroundView
             mainContentView
+        }
+        .sheet(isPresented: $isInfoSheetPresented) {
+            AttendanceInfoSheetView()
+                .presentationDetents([.medium])
         }
     }
     
@@ -80,6 +85,9 @@ struct MealTrackerView: View {
                 Image(.icInfoGray400)
                     .padding(.leading, 6)
                     .frame(width: 24, height: 24)
+                    .onTapGesture {
+                        isInfoSheetPresented = true
+                    }
             }
             .padding(.top, 8)
             
