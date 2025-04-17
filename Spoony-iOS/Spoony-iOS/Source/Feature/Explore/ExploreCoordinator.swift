@@ -24,6 +24,7 @@ struct ExploreCoordinator {
     }
     
     var body: some ReducerOf<Self> {
+        
         Reduce { state, action in
             switch action {
             case .router(.routeAction(id: _, action: .explore(.routeToExploreSearchScreen))):
@@ -37,5 +38,6 @@ struct ExploreCoordinator {
                 return .none
             }
         }
+        .forEachRoute(\.routes, action: \.router)
     }
 }

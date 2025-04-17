@@ -94,108 +94,6 @@ struct Explore: View {
         self.store = store
     }
     
-    let list: [FeedEntity] = [
-        .init(
-            id: UUID(),
-            postId: 0,
-            userName: "gambasgirl",
-            userRegion: "서울 성북구",
-            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-            categorColorResponse: .init(
-                categoryName: "양식",
-                iconUrl: "",
-                iconTextColor: "",
-                iconBackgroundColor: ""
-            ),
-            zzimCount: 17,
-            photoURLList: [""],
-            createAt: "2025-04-14T12:21:49.524Z"
-        ),
-        .init(
-            id: UUID(),
-            postId: 0,
-            userName: "gambasgirl",
-            userRegion: "서울 성북구",
-            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-            categorColorResponse: .init(
-                categoryName: "양식",
-                iconUrl: "",
-                iconTextColor: "",
-                iconBackgroundColor: ""
-            ),
-            zzimCount: 17,
-            photoURLList: ["", ""],
-            createAt: "2025-04-14T12:21:49.524Z"
-        ),
-        .init(
-            id: UUID(),
-            postId: 0,
-            userName: "gambasgirl",
-            userRegion: "서울 성북구",
-            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-            categorColorResponse: .init(
-                categoryName: "양식",
-                iconUrl: "",
-                iconTextColor: "",
-                iconBackgroundColor: ""
-            ),
-            zzimCount: 17,
-            photoURLList: ["", "", ""],
-            createAt: "2025-04-14T12:21:49.524Z"
-        )
-    ]
-    
-    let follwingList: [FeedEntity] = [
-        .init(
-            id: UUID(),
-            postId: 0,
-            userName: "thingjin",
-            userRegion: "서울 성북구",
-            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-            categorColorResponse: .init(
-                categoryName: "양식",
-                iconUrl: "",
-                iconTextColor: "",
-                iconBackgroundColor: ""
-            ),
-            zzimCount: 17,
-            photoURLList: [""],
-            createAt: "2025-04-14T12:21:49.524Z"
-        ),
-        .init(
-            id: UUID(),
-            postId: 0,
-            userName: "thingjin",
-            userRegion: "서울 성북구",
-            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-            categorColorResponse: .init(
-                categoryName: "양식",
-                iconUrl: "",
-                iconTextColor: "",
-                iconBackgroundColor: ""
-            ),
-            zzimCount: 17,
-            photoURLList: ["", ""],
-            createAt: "2025-04-14T12:21:49.524Z"
-        ),
-        .init(
-            id: UUID(),
-            postId: 0,
-            userName: "thingjin",
-            userRegion: "서울 성북구",
-            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-            categorColorResponse: .init(
-                categoryName: "양식",
-                iconUrl: "",
-                iconTextColor: "",
-                iconBackgroundColor: ""
-            ),
-            zzimCount: 17,
-            photoURLList: ["", "", ""],
-            createAt: "2025-04-14T12:21:49.524Z"
-        )
-    ]
-    
     var body: some View {
         VStack(spacing: 0) {
             customNavigationBar
@@ -205,14 +103,17 @@ struct Explore: View {
                 VStack(spacing: 18) {
                     filterView
                     
-                    if list.isEmpty {
-                        emptyView
+                    if store.state.viewType == .all {
+                        if store.state.allList.isEmpty {
+                            emptyView
+                        } else {
+                            listView(store.state.allList)
+                        }
                     } else {
-                        switch store.state.viewType {
-                        case .all:
-                            listView(list)
-                        case .following:
-                            listView(follwingList)
+                        if store.state.followingList.isEmpty {
+                            emptyView
+                        } else {
+                            listView(store.state.followingList)
                         }
                     }
                 }
@@ -230,7 +131,6 @@ extension Explore {
             Text("전체")
                 .foregroundStyle(store.state.viewType == .all ? .main400 : .gray300)
                 .onTapGesture {
-                    // TODO: 탭 바뀌었을 때 스크롤 상단으로 올려야하나 ?
                     store.send(.changeViewType(.all))
                 }
             Text("팔로잉")
@@ -243,7 +143,7 @@ extension Explore {
                 .resizable()
                 .frame(width: 19.adjusted, height: 19.adjusted)
                 .onTapGesture {
-                    store.send(.routeToExploreSearchScreen)
+                    store.send(.searchButtonTapped)
                 }
         }
         .customFont(.title3sb)
@@ -261,6 +161,7 @@ extension Explore {
                     FilterCell(type: type, selectedFilter: $store.selectedFilter)
                     .onTapGesture {
                         // 필터 바텀시트 올리기
+                        store.send(.filterTapped)
                     }
                 }
                 
@@ -294,6 +195,7 @@ extension Explore {
                 title: store.state.viewType.buttonTitle,
                 disabled: .constant(false)
             ) {
+                store.send(.goButtonTapped)
             }
             .padding(.top, 18)
             
@@ -302,8 +204,11 @@ extension Explore {
     }
     
     private func listView(_ list: [FeedEntity]) -> some View {
-        ForEach(list) { list in
-            ExploreCell(feed: list)
+        ForEach(list) { feed in
+            ExploreCell(feed: feed)
+                .onTapGesture {
+                    store.send(.exploreCellTapped(feed))
+                }
         }
     }
 }
