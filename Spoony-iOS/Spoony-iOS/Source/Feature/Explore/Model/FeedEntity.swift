@@ -22,5 +22,3 @@ struct FeedEntity: Identifiable, Hashable {
     let photoURLList: [String]
     let createAt: String
 }
-
-
