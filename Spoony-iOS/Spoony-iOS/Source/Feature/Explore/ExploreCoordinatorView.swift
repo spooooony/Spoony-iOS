@@ -1,5 +1,5 @@
 //
-//  ExploreView.swift
+//  ExploreCoordinatorView.swift
 //  Spoony-iOS
 //
 //  Created by 최주리 on 4/17/25.
@@ -16,7 +16,7 @@ enum ExploreScreen {
     case search(ExploreSearchFeature)
 }
 
-struct ExploreView: View {
+struct ExploreCoordinatorView: View {
     @Bindable private var store: StoreOf<ExploreCoordinator>
     
     init(store: StoreOf<ExploreCoordinator>) {
