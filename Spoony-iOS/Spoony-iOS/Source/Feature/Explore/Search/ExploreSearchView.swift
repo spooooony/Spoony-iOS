@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+import ComposableArchitecture
+
 enum ExploreSearchViewType {
     case user
     case review
@@ -55,6 +57,12 @@ struct SimpleUser {
 }
 
 struct ExploreSearchView: View {
+    @Bindable private var store: StoreOf<ExploreSearchFeature>
+    
+    init(store: StoreOf<ExploreSearchFeature>) {
+        self.store = store
+    }
+    
     @State private var viewType: ExploreSearchViewType = .user
     @State private var searchState: ExploreSearchState = .searching
     
@@ -122,8 +130,9 @@ struct ExploreSearchView: View {
         VStack {
             CustomNavigationBar(
                 style: .search(showBackButton: true),
-                placeholder: viewType.placeholder
-            )
+                placeholder: viewType.placeholder, onBackTapped: {
+                    store.send(.routeToExploreScreen)
+                })
             
             // TODO: 명진샘꺼 훔쳐오기
             HStack {
@@ -151,6 +160,7 @@ struct ExploreSearchView: View {
             }
         
         }
+        .navigationBarBackButtonHidden()
     }
 }
 
@@ -280,5 +290,7 @@ extension ExploreSearchView {
 }
 
 #Preview {
-    ExploreSearchView()
+    ExploreSearchView(store: StoreOf<ExploreSearchFeature>(initialState: ExploreSearchFeature.State(), reducer: {
+        ExploreSearchFeature()
+    }))
 }

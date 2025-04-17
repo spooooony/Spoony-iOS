@@ -27,7 +27,7 @@ struct ExploreFeature {
         case changeViewType(ExploreViewType)
         
         // MARK: - Navigation
-        case routToExploreScreen
+        case routeToExploreSearchScreen
     }
     
     var body: some ReducerOf<Self> {
@@ -38,7 +38,7 @@ struct ExploreFeature {
             case .changeViewType(let type):
                 state.viewType = type
                 return .none
-            case .routToExploreScreen:
+            case .routeToExploreSearchScreen:
                 return .none
             case .binding:
                 return .none

@@ -242,6 +242,9 @@ extension Explore {
             Image(.icSearchGray600)
                 .resizable()
                 .frame(width: 19.adjusted, height: 19.adjusted)
+                .onTapGesture {
+                    store.send(.routeToExploreSearchScreen)
+                }
         }
         .customFont(.title3sb)
         .padding(.top, 12)
