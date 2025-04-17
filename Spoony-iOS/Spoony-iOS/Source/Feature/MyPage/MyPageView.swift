@@ -45,9 +45,6 @@ struct MyPageView: View {
                 SettingsView(store: store)
             case let .attendance(store):
                 MealTrackerView()
-                    .onDisappear {
-                        store.send(.routeToPreviousScreen)
-                    }
             }
         }
     }

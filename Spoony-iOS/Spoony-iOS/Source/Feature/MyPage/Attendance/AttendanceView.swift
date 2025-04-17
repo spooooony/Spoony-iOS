@@ -28,11 +28,6 @@ struct AttendanceView: View {
             )
             
             Spacer()
-            
-            Text("Attendance View")
-                .font(.largeTitle)
-            
-            Spacer()
         }
     }
 }
