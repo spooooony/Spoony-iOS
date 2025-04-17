@@ -12,6 +12,7 @@ struct CustomNavigationBar: View {
     
     private let style: NavigationBarStyle
     private let title: String?
+    private let placeholder: String?
     private let tappedAction: (() -> Void)?
     private let onClearTapped: (() -> Void)?
     private var spoonCount: Int = 0
@@ -21,6 +22,7 @@ struct CustomNavigationBar: View {
     init(
         style: NavigationBarStyle,
         title: String? = nil,
+        placeholder: String? = nil,
         searchText: Binding<String> = .constant(""),
         spoonCount: Int = 0,
         onBackTapped: (() -> Void)? = nil,
@@ -30,6 +32,7 @@ struct CustomNavigationBar: View {
     ) {
         self.style = style
         self.title = title
+        self.placeholder = placeholder
         self._searchText = searchText
         self.spoonCount = spoonCount
         self.onBackTapped = onBackTapped
@@ -223,7 +226,7 @@ struct CustomNavigationBar: View {
                 TextField("", text: $searchText)
                     .frame(height: 44.adjusted)
                     .placeholder(when: searchText.isEmpty) {
-                        Text("마포구,성수동,강남역")
+                        Text(placeholder ?? "마포구,성수동,강남역")
                             .foregroundStyle(.gray600)
                     }
                     .onSubmit {
@@ -235,8 +238,9 @@ struct CustomNavigationBar: View {
                         searchText = ""
                         onClearTapped?()
                     }) {
-                        Image(.icCloseGray400)
-                            .foregroundStyle(.gray600)
+                        Image(.icDeleteFillGray400)
+                            .resizable()
+                            .frame(width: 20.adjusted, height: 20.adjusted)
                     }
                 }
             }
