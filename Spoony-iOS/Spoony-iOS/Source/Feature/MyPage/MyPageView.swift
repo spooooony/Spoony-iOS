@@ -45,6 +45,8 @@ struct MyPageView: View {
                 SettingsView(store: store)
             case let .attendance(store):
                 MealTrackerView()
+                    .navigationBarBackButtonHidden()
+                    .toolbar(.hidden, for: .tabBar)
             }
         }
     }
