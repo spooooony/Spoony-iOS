@@ -227,7 +227,8 @@ struct CustomNavigationBar: View {
                     .frame(height: 44.adjusted)
                     .placeholder(when: searchText.isEmpty) {
                         Text(placeholder ?? "마포구,성수동,강남역")
-                            .foregroundStyle(.gray600)
+                            .customFont(.body2m)
+                            .foregroundStyle(.gray500)
                     }
                     .onSubmit {
                         tappedAction?()
