@@ -14,12 +14,10 @@ struct ExploreSearchFeature {
     @ObservableState
     struct State: Equatable {
         static let initialState = State()
-    
+        
         var viewType: ExploreSearchViewType = .user
         var searchState: ExploreSearchState = .beforeSearch
         var searchText: String = ""
-        var recentUserSearchList: [String] = ["안용은어쩌꾸저쩌구", "주리만봐", "세홍아네옆"]
-        var recentReviewSearchList: [String] = ["비건", "장어덮밥", "회식"]
         var userResult: [SimpleUser] = [
             .init(id: UUID(), userName: "크리스탈에메랄드수정", regionName: "서울 마포구"),
             .init(id: UUID(), userName: "크리스탈에메랄드수22", regionName: "서울 마포구"),
@@ -82,9 +80,11 @@ struct ExploreSearchFeature {
         case onAppear
         case onSubmit
         case changeViewType(ExploreSearchViewType)
-        case checkRecentSearchText
-        case checkResult
         
+        case updateSearchStateFromRecentSearches
+        case updateSearchStateFromSearchResult
+        
+        case setRecentSearchList
         case allDeleteButtonTapped
         case recentDeleteButtonTapped(String)
         
@@ -100,32 +100,23 @@ struct ExploreSearchFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                return .send(.checkRecentSearchText)
+                return .send(.updateSearchStateFromRecentSearches)
             case .onSubmit:
-                return .send(.checkResult)
+                return .send(.setRecentSearchList)
             case .changeViewType(let type):
                 state.viewType = type
                 if state.searchState != .searching {
-                    return .send(.checkRecentSearchText)
+                    return .send(.updateSearchStateFromRecentSearches)
                 }
                 return .none
-            case .checkRecentSearchText:
-                switch state.viewType {
-                case .user:
-                    if state.recentUserSearchList.isEmpty {
-                        state.searchState = .beforeSearch
-                    } else {
-                        state.searchState = .recentSearch
-                    }
-                case .review:
-                    if state.recentReviewSearchList.isEmpty {
-                        state.searchState = .beforeSearch
-                    } else {
-                        state.searchState = .recentSearch
-                    }
+            case .updateSearchStateFromRecentSearches:
+                if state.viewType.recentSearches.isEmpty {
+                    state.searchState = .beforeSearch
+                } else {
+                    state.searchState = .recentSearch
                 }
                 return .none
-            case .checkResult:
+            case .updateSearchStateFromSearchResult:
                 switch state.viewType {
                 case .user:
                     if state.userResult.isEmpty {
@@ -144,32 +135,54 @@ struct ExploreSearchFeature {
             case .allDeleteButtonTapped:
                 switch state.viewType {
                 case .user:
-                    state.recentUserSearchList = []
-                    
+                    return .run { send in
+                        UserManager.shared.exploreUserRecentSearches = []
+                        await send(.updateSearchStateFromRecentSearches)
+                    }
                 case .review:
-                    state.recentReviewSearchList = []
+                    return .run { send in
+                        UserManager.shared.exploreReviewRecentSearches = []
+                        await send(.updateSearchStateFromRecentSearches)
+                    }
                 }
-                return .send(.checkRecentSearchText)
             case .recentDeleteButtonTapped(let text):
                 switch state.viewType {
                 case .user:
-                    guard let index = state.recentUserSearchList.firstIndex(where: { text == $0 })
-                    else { return .none }
-                    
-                    state.recentUserSearchList.remove(at: index)
+                    return .run { send in
+                        UserManager.shared.deleteRecent("exploreUserRecentSearches", text)
+                        await send(.updateSearchStateFromRecentSearches)
+                    }
                 case .review:
-                    guard let index = state.recentReviewSearchList.firstIndex(where: { text == $0 })
-                    else { return .none }
-                    
-                    state.recentReviewSearchList.remove(at: index)
+                    return .run { send in
+                        UserManager.shared.deleteRecent("exploreReviewRecentSearches", text)
+                        await send(.updateSearchStateFromRecentSearches)
+                    }
                 }
-                return .send(.checkRecentSearchText)
+            case .setRecentSearchList:
+                let trimmedText = state.searchText.replacingOccurrences(of: " ", with: "")
+                
+                if trimmedText.isEmpty {
+                    return .none
+                }
+                
+                switch state.viewType {
+                case .user:
+                    return .run { [searchText = state.searchText] send in
+                        UserManager.shared.setSearches("exploreUserRecentSearches", searchText)
+                        await send(.updateSearchStateFromSearchResult)
+                    }
+                case .review:
+                    return .run { [searchText = state.searchText] send in
+                        UserManager.shared.setSearches("exploreReviewRecentSearches", searchText)
+                        await send(.updateSearchStateFromSearchResult)
+                    }
+                }
             case .binding(\.searchText):
                 let trimmedText = state.searchText.replacingOccurrences(of: " ", with: "")
                 if !trimmedText.isEmpty {
                     state.searchState = .searching
                 } else {
-                    return .send(.checkRecentSearchText)
+                    return .send(.updateSearchStateFromRecentSearches)
                 }
                 return .none
             case .routeToExploreScreen:

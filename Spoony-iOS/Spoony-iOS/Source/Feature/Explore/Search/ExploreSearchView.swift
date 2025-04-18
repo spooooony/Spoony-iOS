@@ -39,6 +39,15 @@ enum ExploreSearchViewType {
             "정확한 키워드를 입력해 보세요"
         }
     }
+    
+    var recentSearches: [String] {
+        switch self {
+        case .user:
+            UserManager.shared.exploreUserRecentSearches ?? []
+        case .review:
+            UserManager.shared.exploreReviewRecentSearches ?? []
+        }
+    }
 }
 
 enum ExploreSearchState {
@@ -153,7 +162,7 @@ extension ExploreSearchView {
             }
             .padding(.bottom, 16)
             
-            ForEach(store.state.viewType == .user ? store.state.recentUserSearchList : store.state.recentReviewSearchList, id: \.self) { text in
+            ForEach(store.state.viewType.recentSearches, id: \.self) { text in
                 resultCell(text)
             }
             
