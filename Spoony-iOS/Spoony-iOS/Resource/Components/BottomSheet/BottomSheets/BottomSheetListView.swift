@@ -12,14 +12,20 @@ import ComposableArchitecture
 struct BottomSheetListView: View {
     @ObservedObject var viewModel: HomeViewModel
     private let store: StoreOf<MapFeature>
-    @State private var currentStyle: BottomSheetStyle = .half
+    @Binding var currentStyle: BottomSheetStyle
+    @Binding var bottomSheetHeight: CGFloat
     @State private var offset: CGFloat = 0
     @GestureState private var isDragging: Bool = false
     @State private var isScrollEnabled: Bool = false
     
-    init(viewModel: HomeViewModel, store: StoreOf<MapFeature>) {
+    init(viewModel: HomeViewModel,
+         store: StoreOf<MapFeature>,
+         currentStyle: Binding<BottomSheetStyle> = .constant(.half),
+         bottomSheetHeight: Binding<CGFloat> = .constant(0)) {
         self.viewModel = viewModel
         self.store = store
+        self._currentStyle = currentStyle
+        self._bottomSheetHeight = bottomSheetHeight
     }
     
     private func getClosestSnapPoint(to offset: CGFloat) -> BottomSheetStyle {
@@ -36,7 +42,7 @@ struct BottomSheetListView: View {
     }
     
     var body: some View {
-        GeometryReader { _ in
+        GeometryReader { geometry in
             VStack(spacing: 0) {
                 // 핸들바 영역
                 VStack(spacing: 8) {
@@ -65,6 +71,7 @@ struct BottomSheetListView: View {
                                 .onTapGesture {
                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                         currentStyle = .full
+                                        bottomSheetHeight = currentStyle.height
                                         isScrollEnabled = true
                                     }
                                     viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
@@ -94,6 +101,7 @@ struct BottomSheetListView: View {
                             offset = 0
                         } else {
                             offset = translation
+                            bottomSheetHeight = currentStyle.height - translation
                         }
                     }
                     .onEnded { value in
@@ -130,12 +138,17 @@ struct BottomSheetListView: View {
                         
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                             offset = 0
+                            bottomSheetHeight = currentStyle.height
                         }
                     }
             )
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentStyle)
             .onChange(of: currentStyle) { _, newStyle in
                 isScrollEnabled = (newStyle == .full)
+                bottomSheetHeight = newStyle.height
+            }
+            .onAppear {
+                bottomSheetHeight = currentStyle.height
             }
         }
         .ignoresSafeArea()

@@ -22,12 +22,18 @@ struct CategoryChipsView: View {
         HStack(spacing: 4) {
             Group {
                 if isSelected {
-                    if let url = URL(string: category.selectedImage) {
+                    if category.title == "전체" {
+                        Image(.icSpoonWhite)
+                            .resizable()
+                    } else if let url = URL(string: category.selectedImage) {
                         KFImage(url)
                             .resizable()
                     }
                 } else {
-                    if let url = URL(string: category.image) {
+                    if category.title == "전체" {
+                        Image(.icSpoonGray600)
+                            .resizable()
+                    } else if let url = URL(string: category.image) {
                         KFImage(url)
                             .resizable()
                     }

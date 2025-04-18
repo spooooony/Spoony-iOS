@@ -7,10 +7,12 @@
 
 import SwiftUI
 import ComposableArchitecture
+import CoreLocation
 
 struct Home: View {
-//    @EnvironmentObject var navigationManager: NavigationManager
+    //    @EnvironmentObject var navigationManager: NavigationManager
     @StateObject private var viewModel = HomeViewModel(service: DefaultHomeService())
+    @State private var locationManager = CLLocationManager()
     private let store: StoreOf<MapFeature>
     @State private var isBottomSheetPresented = true
     @State private var searchText = ""
@@ -19,6 +21,8 @@ struct Home: View {
     @State private var spoonCount: Int = 0
     @State private var selectedCategories: [CategoryChip] = []
     @State private var categories: [CategoryChip] = []
+    @State private var bottomSheetHeight: CGFloat = 0
+    @State private var currentBottomSheetStyle: BottomSheetStyle = .half
     private let restaurantService: HomeServiceType
     private let registerService: RegisterServiceType
     
@@ -52,7 +56,7 @@ struct Home: View {
                     spoonCount: spoonCount,
                     tappedAction: {
                         store.send(.routToSearchScreen)
-//                        navigationManager.push(.searchView)
+                        //                        navigationManager.push(.searchView)
                     }
                 )
                 .frame(height: 56.adjusted)
@@ -66,11 +70,10 @@ struct Home: View {
                     } else {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
-                                // 일단 하드코딩 박기ㅋㅋ
                                 CategoryChipsView(
                                     category: CategoryChip(
-                                        image: "https://spoony-storage.s3.ap-northeast-2.amazonaws.com/category/icons/all_color.png",
-                                        selectedImage: "https://spoony-storage.s3.ap-northeast-2.amazonaws.com/category/icons/all_white.png",
+                                        image: "",
+                                        selectedImage: "",
                                         title: "전체",
                                         id: 0
                                     ),
@@ -95,41 +98,68 @@ struct Home: View {
                     }
                 }
                 .padding(.vertical, 8)
-                .background(Color.white)
                 
                 Spacer()
             }
             
-            Group {
-                if !viewModel.focusedPlaces.isEmpty {
-                    PlaceCard(
-                        places: viewModel.focusedPlaces,
-                        currentPage: $currentPage
-                    )
-                    .padding(.bottom, 12)
-                    .transition(.move(edge: .bottom))
-                } else {
-                    if !viewModel.pickList.isEmpty {
-                        BottomSheetListView(viewModel: viewModel, store: store)
+            ZStack(alignment: .bottomTrailing) {
+                if currentBottomSheetStyle != .full {
+                    Button(action: {
+                        viewModel.moveToUserLocation()
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 44.adjusted, height: 44.adjusted)
+                                .shadow(color: Color.gray300, radius: 16, x: 1, y: 1)
+                            
+                            Image(viewModel.isLocationFocused ? "ic_gps_main" : "ic_gps_gray500")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 24.adjusted, height: 24.adjusted)
+                        }
+                    }
+                    .padding(.bottom, bottomSheetHeight - 68 )
+                    .padding(.trailing, 20)
+                }
+                
+                Group {
+                    if !viewModel.focusedPlaces.isEmpty {
+                        PlaceCard(
+                            places: viewModel.focusedPlaces,
+                            currentPage: $currentPage
+                        )
+                        .padding(.bottom, 12)
+                        .transition(.move(edge: .bottom))
                     } else {
-                        FixedBottomSheetView(store: store)
+                        if !viewModel.pickList.isEmpty {
+                            BottomSheetListView(
+                                viewModel: viewModel,
+                                store: store,
+                                currentStyle: $currentBottomSheetStyle,
+                                bottomSheetHeight: $bottomSheetHeight
+                            )
+                        } else {
+                            FixedBottomSheetView(store: store)
+                        }
                     }
                 }
             }
-        }
-        .navigationBarHidden(true)
-        .task {
-            isBottomSheetPresented = true
-            do {
-                spoonCount = try await restaurantService.fetchSpoonCount()
-                viewModel.fetchPickList()
-                
-                let categoryResponse = try await registerService.getRegisterCategories()
-                categories = try await categoryResponse.toModel()
-                
-               
-            } catch {
-                print("Failed to fetch data:", error)
+            .navigationBarHidden(true)
+            .task {
+                isBottomSheetPresented = true
+                do {
+                    spoonCount = try await restaurantService.fetchSpoonCount()
+                    viewModel.fetchPickList()
+                    
+                    let categoryResponse = try await registerService.getRegisterCategories()
+                    categories = try await categoryResponse.toModel()
+                    
+                    bottomSheetHeight = BottomSheetStyle.half.height
+                    currentBottomSheetStyle = .half
+                } catch {
+                    print("Failed to fetch data:", error)
+                }
             }
         }
     }
