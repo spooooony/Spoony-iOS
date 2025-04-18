@@ -7,19 +7,19 @@
 //
 //import SwiftUI
 //
-//enum FilterType: String, CaseIterable {
-//    case latest
-//    case popularity
-//    
-//    var title: String {
-//        switch self {
-//        case .latest:
-//            "최신순"
-//        case .popularity:
-//            "인기순"
-//        }
-//    }
-//}
+enum FilterType: String, CaseIterable {
+    case latest
+    case popularity
+    
+    var title: String {
+        switch self {
+        case .latest:
+            "최신순"
+        case .popularity:
+            "인기순"
+        }
+    }
+}
 //
 //struct FilterBottomSheet: View {
 //    @ObservedObject var store: ExploreStore

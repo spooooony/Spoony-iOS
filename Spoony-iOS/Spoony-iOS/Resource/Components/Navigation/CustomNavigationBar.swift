@@ -224,6 +224,7 @@ struct CustomNavigationBar: View {
                 Image(.icSearchGray600)
                 
                 TextField("", text: $searchText)
+                    .customFont(.body2m)
                     .frame(height: 44.adjusted)
                     .placeholder(when: searchText.isEmpty) {
                         Text(placeholder ?? "마포구,성수동,강남역")

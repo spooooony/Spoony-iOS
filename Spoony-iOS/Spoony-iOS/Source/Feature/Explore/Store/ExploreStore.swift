@@ -4,7 +4,7 @@
 ////
 ////  Created by 최주리 on 1/20/25.
 ////
-//
+// 혹시 몰라서 남겨둠 API 연결하고 지울게요
 //import SwiftUI
 //
 //final class ExploreStore: ObservableObject {

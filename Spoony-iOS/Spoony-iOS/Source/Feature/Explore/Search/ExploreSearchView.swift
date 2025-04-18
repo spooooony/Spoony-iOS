@@ -50,7 +50,7 @@ enum ExploreSearchState {
 }
 
 // 임시 객체
-struct SimpleUser {
+struct SimpleUser: Identifiable, Hashable {
     let id: UUID
     let userName: String
     let regionName: String
@@ -62,91 +62,39 @@ struct ExploreSearchView: View {
     init(store: StoreOf<ExploreSearchFeature>) {
         self.store = store
     }
-    
-    @State private var viewType: ExploreSearchViewType = .user
-    @State private var searchState: ExploreSearchState = .searching
-    
-    let recentUserSearchList: [String] = ["안용은어쩌꾸저쩌구", "주리만봐", "세홍아네옆"]
-    let recentReviewSearchList: [String] = ["비건", "장어덮밥", "회식"]
-    
-    let userResult: [SimpleUser] = [
-        .init(id: UUID(), userName: "크리스탈에메랄드수정", regionName: "서울 마포구"),
-        .init(id: UUID(), userName: "크리스탈에메랄드수22", regionName: "서울 마포구"),
-        .init(id: UUID(), userName: "크리스탈에메랄드수1", regionName: "서울 마포구"),
-    ]
-    
-    let reviewResult: [FeedEntity] = [
-        .init(
-            id: UUID(),
-            postId: 0,
-            userName: "thingjin",
-            userRegion: "서울 성북구",
-            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-            categorColorResponse: .init(
-                categoryName: "양식",
-                iconUrl: "",
-                iconTextColor: "",
-                iconBackgroundColor: ""
-            ),
-            zzimCount: 17,
-            photoURLList: [""],
-            createAt: "2025-04-14T12:21:49.524Z"
-        ),
-        .init(
-            id: UUID(),
-            postId: 0,
-            userName: "thingjin",
-            userRegion: "서울 성북구",
-            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-            categorColorResponse: .init(
-                categoryName: "양식",
-                iconUrl: "",
-                iconTextColor: "",
-                iconBackgroundColor: ""
-            ),
-            zzimCount: 17,
-            photoURLList: ["", ""],
-            createAt: "2025-04-14T12:21:49.524Z"
-        ),
-        .init(
-            id: UUID(),
-            postId: 0,
-            userName: "thingjin",
-            userRegion: "서울 성북구",
-            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-            categorColorResponse: .init(
-                categoryName: "양식",
-                iconUrl: "",
-                iconTextColor: "",
-                iconBackgroundColor: ""
-            ),
-            zzimCount: 17,
-            photoURLList: ["", "", ""],
-            createAt: "2025-04-14T12:21:49.524Z"
-        )
-    ]
-    
+
     var body: some View {
         VStack {
             CustomNavigationBar(
                 style: .search(showBackButton: true),
-                placeholder: viewType.placeholder, onBackTapped: {
+                placeholder: store.state.viewType.placeholder,
+                searchText: $store.searchText,
+                onBackTapped: {
                     store.send(.routeToExploreScreen)
-                })
+                }, tappedAction: {
+                    store.send(.onSubmit)
+                }
+            )
             
             // TODO: 명진샘꺼 훔쳐오기
             HStack {
                 Text("유저")
+                    .foregroundStyle(store.state.viewType == .user ? .main400 : .gray400)
                     .onTapGesture {
-                        viewType = .user
+                        store.send(.changeViewType(.user))
                     }
+                    .frame(maxWidth: .infinity)
                 Text("리뷰")
+                    .foregroundStyle(store.state.viewType == .review ? .main400 : .gray400)
                     .onTapGesture {
-                        viewType = .review
+                        store.send(.changeViewType(.review))
                     }
+                    .frame(maxWidth: .infinity)
             }
+            .customFont(.body1sb)
+            .frame(maxWidth: .infinity)
             
-            switch searchState {
+            switch store.state.searchState {
             case .beforeSearch:
                 beforeSearchView
             case .recentSearch:
@@ -161,6 +109,9 @@ struct ExploreSearchView: View {
         
         }
         .navigationBarBackButtonHidden()
+        .onAppear {
+            store.send(.onAppear)
+        }
     }
 }
 
@@ -173,7 +124,7 @@ extension ExploreSearchView {
                 .foregroundStyle(.gray200)
                 .padding(.top, 76)
             
-            Text(viewType.description)
+            Text(store.state.viewType.description)
                 .customFont(.body2m)
                 .foregroundStyle(.gray500)
                 .padding(.top, 24)
@@ -196,10 +147,13 @@ extension ExploreSearchView {
                     .customFont(.caption1m)
                     .foregroundStyle(.gray500)
                     .padding(.trailing, 8)
+                    .onTapGesture {
+                        store.send(.allDeleteButtonTapped)
+                    }
             }
             .padding(.bottom, 16)
             
-            ForEach(viewType == .user ? recentUserSearchList : recentReviewSearchList, id: \.self) { text in
+            ForEach(store.state.viewType == .user ? store.state.recentUserSearchList : store.state.recentReviewSearchList, id: \.self) { text in
                 resultCell(text)
             }
             
@@ -220,6 +174,9 @@ extension ExploreSearchView {
             Image(.icCloseGray400)
                 .resizable()
                 .frame(width: 24.adjusted, height: 24.adjusted)
+                .onTapGesture {
+                    store.send(.recentDeleteButtonTapped(text))
+                }
         }
         .frame(height: 52.adjustedH)
     }
@@ -227,12 +184,12 @@ extension ExploreSearchView {
     private var searchResultView: some View {
         ScrollView {
             VStack(spacing: 0) {
-                if viewType == .user {
-                    ForEach(userResult, id: \.id) { user in
+                if store.state.viewType == .user {
+                    ForEach(store.state.userResult, id: \.id) { user in
                         userCell(user)
                     }
                 } else {
-                    ForEach(reviewResult, id: \.id) { feed in
+                    ForEach(store.state.reviewResult, id: \.id) { feed in
                         ExploreCell(feed: feed)
                             .padding(.bottom, 16)
                     }
@@ -278,7 +235,7 @@ extension ExploreSearchView {
                 .customFont(.body2sb)
                 .padding(.top, 24)
             
-            Text(viewType.emptyDescription)
+            Text(store.state.viewType.emptyDescription)
                 .customFont(.body2m)
                 .foregroundStyle(.gray500)
                 .padding(.top, 8)
