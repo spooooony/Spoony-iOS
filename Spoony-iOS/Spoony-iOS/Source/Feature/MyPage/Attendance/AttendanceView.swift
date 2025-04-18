@@ -10,27 +10,6 @@ import SwiftUI
 import ComposableArchitecture
 import TCACoordinators
 
-@Reducer
-struct AttendanceFeature {
-    @ObservableState
-    struct State: Equatable {
-        static let initialState = State()
-    }
-    
-    enum Action {
-        case routeToPreviousScreen
-    }
-    
-    var body: some ReducerOf<Self> {
-        Reduce { state, action in
-            switch action {
-            case .routeToPreviousScreen:
-                return .none
-            }
-        }
-    }
-}
-
 struct AttendanceView: View {
     @Bindable private var store: StoreOf<AttendanceFeature>
     
@@ -47,11 +26,6 @@ struct AttendanceView: View {
                     store.send(.routeToPreviousScreen)
                 }
             )
-            
-            Spacer()
-            
-            Text("Attendance View")
-                .font(.largeTitle)
             
             Spacer()
         }

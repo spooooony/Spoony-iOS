@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+import ComposableArchitecture
+
 struct MealTrackerModel {
     var selectedDays: Set<String> = ["월", "화"]
     let dateRange = "2025. 03. 24 (월) ~ 2025. 03. 30 (일)"
@@ -20,12 +22,17 @@ struct MealTrackerModel {
 
 struct MealTrackerView: View {
     @State private var model = MealTrackerModel()
-    @Environment(\.presentationMode) var presentationMode
+    @State private var isInfoSheetPresented = false
+    let store: StoreOf<AttendanceFeature>
     
     var body: some View {
         ZStack(alignment: .top) {
             backgroundView
             mainContentView
+        }
+        .sheet(isPresented: $isInfoSheetPresented) {
+            AttendanceInfoSheetView()
+                .presentationDetents([.medium])
         }
     }
     
@@ -42,7 +49,13 @@ struct MealTrackerView: View {
     
     private var mainContentView: some View {
         VStack(spacing: 0) {
-            CustomNavigationBar(style: .attendanceCheck, title: "출석체크")
+            CustomNavigationBar(
+                style: .attendanceCheck,
+                title: "출석체크",
+                onBackTapped: {
+                    store.send(.routeToPreviousScreen)
+                }
+            )
             
             trackerContentView
                 .padding(.horizontal, 20)
@@ -72,6 +85,9 @@ struct MealTrackerView: View {
                 Image(.icInfoGray400)
                     .padding(.leading, 6)
                     .frame(width: 24, height: 24)
+                    .onTapGesture {
+                        isInfoSheetPresented = true
+                    }
             }
             .padding(.top, 8)
             
@@ -137,8 +153,4 @@ struct BulletPointText: View {
                 .foregroundColor(.gray400)
         }
     }
-}
-
-#Preview {
-    MealTrackerView()
 }
