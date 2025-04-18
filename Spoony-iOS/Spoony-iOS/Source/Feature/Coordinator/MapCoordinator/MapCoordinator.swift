@@ -23,10 +23,12 @@ struct MapCoordinator {
         static let initialState = State(routes: [.root(.map(.initialState), embedInNavigationView: true)])
         
         var routes: [Route<MapScreen.State>]
+        var selectedLocationId: Int?
     }
     
     enum Action {
         case router(IndexedRouterActionOf<MapScreen>)
+        case locationSelected(Int)
     }
     
     var body: some ReducerOf<Self> {
@@ -34,6 +36,10 @@ struct MapCoordinator {
             switch action {
             case .router(.routeAction(id: _, action: .map(.routToSearchScreen))):
                 state.routes.push(.search(.initialState))
+                return .none
+                
+            case let .locationSelected(locationId):
+                state.selectedLocationId = locationId
                 return .none
                 
             case .router(.routeAction(id: _, action: .search(.routeToPreviousScreen))):
