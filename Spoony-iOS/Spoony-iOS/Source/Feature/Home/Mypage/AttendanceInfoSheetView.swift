@@ -21,7 +21,7 @@ struct AttendanceInfoSheetView: View {
                     HStack(spacing: 8) {
                             
                             Image("VSpoon")
-                                .frame(width: 100, height: 100)
+                            .frame(width: 100.adjusted, height: 100.adjustedH)
                          
                         VStack(alignment: .leading, spacing: 8.adjusted) {
                             Text("오늘의 스푼 받기")
