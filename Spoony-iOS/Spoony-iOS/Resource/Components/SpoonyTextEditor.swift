@@ -52,12 +52,14 @@ extension SpoonyTextEditor {
     // MARK: - customTextEditor
     private var customTextEditor: some View {
         let borderColor: Color = {
-            if errorState == .noError, isFocused {
-                return .main400
-            } else if errorState == .noError {
-                return .gray100
+            if isFocused {
+                if style == .profileEdit {
+                    return errorState == .noError || errorState == .initial ? .gray100 : .error400
+                } else {
+                    return errorState == .noError || errorState == .initial ? .main400 : .error400
+                }
             } else {
-                return .error400
+                return errorState == .noError || errorState == .initial ? .gray100 : .error400
             }
         }()
         
@@ -66,15 +68,19 @@ extension SpoonyTextEditor {
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
                 .focused($isFocused)
-                .font(.body2m)                
+                .customFont(.body2m)
                 .overlay(alignment: .topLeading) {
                     Text("\(placeholder)")
-                        .font(.body2m)
+                        .customFont(.body2m)
                         .foregroundStyle(text.isEmpty ? .gray500 : .clear)
                         .offset(x: 5.adjusted, y: 8.adjustedH)
                 }
                 .onChange(of: text) { _, newValue in
-                    switch checkInputError(newValue) {
+                    if style == .profileEdit {
+                        text = newValue.removeEmogi()
+                    }                    
+                    
+                    switch checkInputError(text) {
                     case .maximumInputError(let style):
                         errorState = .maximumInputError(style: style)
                         text = String(newValue.prefix(style.maximumInput))
@@ -99,14 +105,14 @@ extension SpoonyTextEditor {
                 }
 
             Text("\(text.count) / \(style.maximumInput)")
-                .font(.caption1m)
-                .foregroundStyle(errorState != .noError ? .error400 : .gray500)
+                .customFont(.caption1m)
+                .foregroundStyle(errorState != .noError && errorState != .initial ? .error400 : .gray500)
                 .padding(.trailing, 5)
                 .padding(.bottom, 7)
         }
         .padding(.horizontal, 7)
         .padding(.vertical, 5)
-        .frame(width: 335.adjusted, height: 125.adjustedH)
+        .frame(width: style.width, height: style.height)
         .background {
             RoundedRectangle(cornerRadius: 8)
                 .strokeBorder(borderColor, lineWidth: 1)
@@ -116,12 +122,14 @@ extension SpoonyTextEditor {
     // MARK: - errorMessageView
     private func errorMessageView(_ message: String) -> some View {
         HStack(spacing: 6) {
-            Image(.icErrorRed)
-                .resizable()
-                .frame(width: 16.adjusted, height: 16.adjusted)
+            if !message.isEmpty {
+                Image(.icErrorRed)
+                    .resizable()
+                    .frame(width: 16.adjusted, height: 16.adjusted)
+            }
             
             Text("\(message)")
-                .font(.caption1m)
+                .customFont(.caption1m)
                 .foregroundStyle(.error400)
         }
     }
@@ -150,6 +158,8 @@ extension SpoonyTextEditor {
 public enum SpoonyTextEditorStyle {
     case review
     case report
+    case onboarding
+    case profileEdit
     
     var maximumInput: Int {
         switch self {
@@ -157,6 +167,10 @@ public enum SpoonyTextEditorStyle {
             return 500
         case .report:
             return 300
+        case .onboarding:
+            return 50
+        case .profileEdit:
+            return 50
         }
     }
     
@@ -164,8 +178,26 @@ public enum SpoonyTextEditorStyle {
         switch self {
         case .review:
             return 50
-        case .report:
+        case .report, .onboarding:
             return 1
+        case .profileEdit:
+            return 0
+        }
+    }
+    
+    var width: CGFloat {
+        switch self {
+        case .review, .report, .onboarding, .profileEdit:
+            return 335.adjusted
+        }
+    }
+    
+    var height: CGFloat {
+        switch self {
+        case .review, .report, .onboarding:
+            return 125.adjustedH
+        case .profileEdit:
+            return 65.adjustedH
         }
     }
 }
@@ -187,6 +219,8 @@ public enum TextEditorErrorState: Equatable {
                 return "자세한 후기는 필수예요"
             case .report:
                 return "내용 작성은 필수예요"
+            case .onboarding, .profileEdit:
+                return ""
             }
         case .noError, .initial:
             return nil
@@ -194,6 +228,10 @@ public enum TextEditorErrorState: Equatable {
     }
     
     var isMaximumInputError: Bool {
-        self == .maximumInputError(style: .review) || self == .maximumInputError(style: .report)
+        self == .maximumInputError(style: .review) || self == .maximumInputError(style: .report) || self == .maximumInputError(style: .profileEdit)
     }
+}
+
+#Preview {
+    SpoonyTextEditor(text: .constant(" "), style: .review, placeholder: "dk", isError: .constant(true))
 }

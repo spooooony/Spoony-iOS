@@ -8,56 +8,60 @@
 import UIKit
 
 public extension UIFont {
-    @nonobjc class var title1b: UIFont {
-        return UIFont.font(.pretendardBold, ofSize: 20)
+    @nonobjc class var title1: UIFont {
+        return UIFont.font(.pretendardBold, ofSize: 20.adjusted)
     }
     
-    @nonobjc class var title2b: UIFont {
-        return UIFont.font(.pretendardBold, ofSize: 18)
+    @nonobjc class var title2: UIFont {
+        return UIFont.font(.pretendardBold, ofSize: 20.adjusted)
     }
     
-    @nonobjc class var title2sb: UIFont {
-        return UIFont.font(.pretendardSemiBold, ofSize: 18)
+    @nonobjc class var title3b: UIFont {
+        return UIFont.font(.pretendardBold, ofSize: 18.adjusted)
+    }
+    
+    @nonobjc class var title3sb: UIFont {
+        return UIFont.font(.pretendardSemiBold, ofSize: 18.adjusted)
     }
     
     @nonobjc class var body1b: UIFont {
-        return UIFont.font(.pretendardBold, ofSize: 16)
+        return UIFont.font(.pretendardBold, ofSize: 16.adjusted)
     }
     
     @nonobjc class var body1sb: UIFont {
-        return UIFont.font(.pretendardSemiBold, ofSize: 16)
+        return UIFont.font(.pretendardSemiBold, ofSize: 16.adjusted)
     }
     
     @nonobjc class var body1m: UIFont {
-        return UIFont.font(.pretendardMedium, ofSize: 16)
+        return UIFont.font(.pretendardMedium, ofSize: 16.adjusted)
     }
     
     @nonobjc class var body2b: UIFont {
-        return UIFont.font(.pretendardBold, ofSize: 14)
+        return UIFont.font(.pretendardBold, ofSize: 14.adjusted)
     }
     
     @nonobjc class var body2sb: UIFont {
-        return UIFont.font(.pretendardSemiBold, ofSize: 14)
+        return UIFont.font(.pretendardSemiBold, ofSize: 14.adjusted)
     }
     
     @nonobjc class var body2m: UIFont {
-        return UIFont.font(.pretendardMedium, ofSize: 14)
+        return UIFont.font(.pretendardMedium, ofSize: 14.adjusted)
     }
     
     @nonobjc class var caption1b: UIFont {
-        return UIFont.font(.pretendardBold, ofSize: 12)
+        return UIFont.font(.pretendardBold, ofSize: 12.adjusted)
     }
     
     @nonobjc class var caption1m: UIFont {
-        return UIFont.font(.pretendardMedium, ofSize: 12)
+        return UIFont.font(.pretendardMedium, ofSize: 12.adjusted)
     }
     
     @nonobjc class var caption2b: UIFont {
-        return UIFont.font(.pretendardBold, ofSize: 10)
+        return UIFont.font(.pretendardBold, ofSize: 10.adjusted)
     }
     
     @nonobjc class var caption2m: UIFont {
-        return UIFont.font(.pretendardMedium, ofSize: 10)
+        return UIFont.font(.pretendardMedium, ofSize: 10.adjusted)
     }
 }
 

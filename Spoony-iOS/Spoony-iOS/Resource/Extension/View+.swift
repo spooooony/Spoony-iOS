@@ -12,8 +12,8 @@ extension View {
         self.modifier(ToastModifier(toast: toast))
     }
     
-    func popup(popup: PopupType, isPresented: Binding<Bool>, action: @escaping () -> Void) -> some View {
-        modifier(PopupModifier(popup: popup, isPresented: isPresented, confirmAction: action))
+    func popup(popup: Binding<PopupType?>, confirmAction: @escaping ((PopupType) -> Void)) -> some View {
+        modifier(PopupModifier(popup: popup, confirmAction: confirmAction))
     }
     
     // TextField placeholder를 위한 extension
@@ -28,7 +28,7 @@ extension View {
         }
     }
     
-    //홈 바텀시트 코너 radius
+    //홈 PlaceCard 코너 radius
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape(RoundedCorner(radius: radius, corners: corners))
     }
@@ -36,5 +36,19 @@ extension View {
     // 화면 터치시 키보드를 내리기 위한 extension
     func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
+    func customFont(_ font: Font) -> some View {
+        self.modifier(CustomFontModifier(font: font))
+    }
+    
+    // 조건부로 hidden()을 사용하기 위한 extension
+    @ViewBuilder
+    func isHidden(_ hidden: Bool) -> some View {
+        if hidden {
+            self.hidden()
+        } else {
+            self
+        }
     }
 }

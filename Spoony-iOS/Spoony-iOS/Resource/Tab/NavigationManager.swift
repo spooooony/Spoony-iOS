@@ -6,28 +6,40 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 final class NavigationManager: ObservableObject {
-    
     @Published var selectedTab: TabType = .map
     @Published var mapPath: [ViewType] = []
     @Published var explorePath: [ViewType] = []
     @Published var registerPath: [ViewType] = []
+    @Published var currentLocation: String?
+    
+    @Published var popup: PopupType?
     
     @ViewBuilder
     func build(_ view: ViewType) -> some View {
         switch view {
-        case .test:
-            Explore()
-            
-        case .searchView:
-            SearchView()
+//        case .searchView:
+//            SearchView()
         case .locationView:
-            Home()
-            
-        case .detailView:
-            Home()
-            
+            Home(store: Store(initialState: .initialState, reducer: {
+                MapFeature()
+            }))
+        case .detailView(let postId):
+            PostView(postId: postId, store: Store(initialState: PostFeature.State(), reducer: {
+                PostFeature()
+            }))
+        case .report(let postId):
+            Report(postId: postId)
+        case .searchLocationView(locationId: let locationId, locationTitle: let locationTitle):
+            SearchLocation(
+                locationId: locationId,
+                locationTitle: locationTitle,
+                store: Store(initialState: .initialState, reducer: {
+                    MapFeature()
+                })
+            )
         }
     }
     
@@ -39,17 +51,26 @@ final class NavigationManager: ObservableObject {
             explorePath.append(view)
         case .register:
             registerPath.append(view)
+        default: return
         }
     }
 
     func pop(_ depth: Int) {
         switch selectedTab {
         case .map:
-            mapPath.removeLast(depth)
+                if mapPath.isEmpty { return }
+                if mapPath.contains(where: {
+                    if case .locationView = $0 { return true }
+                    return false
+                }) {
+                    currentLocation = nil
+                }
+                mapPath.removeLast(min(depth, mapPath.count))
         case .explore:
             explorePath.removeLast(depth)
         case .register:
             registerPath.removeLast(depth)
+        default: return
         }
     }
     
@@ -61,7 +82,19 @@ final class NavigationManager: ObservableObject {
             explorePath = []
         case .register:
             registerPath = []
+        default: return
         }
     }
     
+//    func navigateToSearchLocation(locationId: Int, locationTitle: String) {
+//        if let lastView = mapPath.last,
+//           case .searchView = lastView {
+//            pop(1)
+//        }
+//
+//        push(.searchLocationView(
+//            locationId: locationId,
+//            locationTitle: locationTitle
+//        ))
+//    }
 }

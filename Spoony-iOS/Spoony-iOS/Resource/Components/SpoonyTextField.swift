@@ -16,6 +16,7 @@ public struct SpoonyTextField: View {
     
     // MARK: - Properties
     @State private var errorState: TextFieldErrorState = .initial
+    @State private var disabled: Bool = false
     @FocusState private var isFocused
     @Binding var text: String
     @Binding var isError: Bool
@@ -56,7 +57,7 @@ extension SpoonyTextField {
     // MARK: - customTextField
     private var customTextField: some View {
         let borderColor: Color = {
-            if errorState != .noError, style == .helper {
+            if errorState != .noError, errorState != .initial, style == .helper {
                 return .error400
             } else if isFocused, style.isBorder {
                 return .main400
@@ -74,26 +75,28 @@ extension SpoonyTextField {
             
             TextField(text: $text) {
                 Text(placeholder)
-                    .font(.body2m)
+                    .customFont(.body2m)
                     .foregroundStyle(.gray500)
             }
-            .autocapitalization(.none) 
+            .autocapitalization(.none)
             .autocorrectionDisabled()
             .focused($isFocused)
-            .font(.body2m)
+            .customFont(.body2m)
             .foregroundStyle(.gray900)
-            .onChange(of: text) { oldValue, newValue in
+            .onChange(of: text) { _, newValue in
                 if style != .icon {
-                    switch checkInputError(newValue) {
+                    let removeText = newValue.removeEmogi()
+                    
+                    switch checkInputError(removeText) {
                     case .maximumInputError:
                         errorState = .maximumInputError
-                        text = String(newValue.prefix(30))
+                        text = String(removeText.prefix(30))
                     case .minimumInputError:
                         errorState = .minimumInputError
-                    case .invalidInputError:
-                        text = oldValue
+                        text = removeText
                     case .noError, .initial:
                         errorState = .noError
+                        text = removeText
                     }
                 }
             }
@@ -102,7 +105,7 @@ extension SpoonyTextField {
                     errorState = .noError
                 }
             }
-            .onChange(of: errorState) { 
+            .onChange(of: errorState) {
                 switch errorState {
                 case .noError:
                     isError = false
@@ -117,6 +120,11 @@ extension SpoonyTextField {
                     Button {
                         if let action = action {
                             action()
+                            disabled = true
+                            Task { @MainActor in
+                                try? await Task.sleep(for: .seconds(0.5))
+                                disabled = false
+                            }
                         }
                     } label: {
                         if let icon = style.trailingIcon,
@@ -126,6 +134,7 @@ extension SpoonyTextField {
                                 .frame(width: size, height: size)
                         }
                     }
+                    .disabled(disabled)
                 case .icon:
                     if !text.isEmpty {
                         Button {
@@ -143,8 +152,8 @@ extension SpoonyTextField {
                     }
                 case .helper:
                     Text("\(text.count) / 30")
-                        .font(.caption1m)
-                        .foregroundStyle(errorState != .noError ? .error400 : .gray500)
+                        .customFont(.caption1m)
+                        .foregroundStyle(errorState != .noError && errorState != .initial ? .error400 : .gray500)
                 }
             }
         }
@@ -164,7 +173,7 @@ extension SpoonyTextField {
                 .frame(width: 16.adjusted, height: 16.adjustedH)
             
             Text("\(message)")
-                .font(.caption1m)
+                .customFont(.caption1m)
                 .foregroundStyle(.error400)
         }
         .padding(.top, 8)
@@ -174,13 +183,7 @@ extension SpoonyTextField {
 // MARK: - Functions
 extension SpoonyTextField {
     private func checkInputError(_ input: String) -> TextFieldErrorState {
-        let trimmedText = text.replacingOccurrences(of: " ", with: "")
-        let regex = "^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣\\x20\\p{P}]*$"
-        let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
-        
-        if !predicate.evaluate(with: input) {
-            return .invalidInputError
-        }
+        let trimmedText = input.replacingOccurrences(of: " ", with: "")
         
         if trimmedText.isEmpty {
             return .minimumInputError
@@ -270,7 +273,6 @@ public enum SpoonyTextFieldStyle: Equatable {
 public enum TextFieldErrorState {
     case maximumInputError
     case minimumInputError
-    case invalidInputError
     case noError
     case initial
     
@@ -280,7 +282,7 @@ public enum TextFieldErrorState {
             return "글자 수 30자 이하로 입력해 주세요"
         case .minimumInputError:
             return "한 줄 소개는 필수예요"
-        case .noError, .invalidInputError, .initial:
+        case .noError, .initial:
             return nil
         }
     }

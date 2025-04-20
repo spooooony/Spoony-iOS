@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+import Kingfisher
+
 struct CategoryChipsView: View {
     private var category: CategoryChip
     private var isSelected: Bool
@@ -20,16 +22,27 @@ struct CategoryChipsView: View {
         HStack(spacing: 4) {
             Group {
                 if isSelected {
-                    category.selectedImage
-                        .resizable()
+                    if category.title == "전체" {
+                        Image(.icSpoonWhite)
+                            .resizable()
+                    } else if let url = URL(string: category.selectedImage) {
+                        KFImage(url)
+                            .resizable()
+                    }
                 } else {
-                    category.image
-                        .resizable()
+                    if category.title == "전체" {
+                        Image(.icSpoonGray600)
+                            .resizable()
+                    } else if let url = URL(string: category.image) {
+                        KFImage(url)
+                            .resizable()
+                    }
                 }
             }
             .frame(width: 16.adjusted, height: 16.adjustedH)
+            
             Text(category.title)
-                .font(.body2sb)
+                .customFont(.body2sb)
                 .foregroundStyle(isSelected ? .white : .gray600)
         }
         .padding(.horizontal, 14)

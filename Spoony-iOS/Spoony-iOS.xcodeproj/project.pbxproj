@@ -7,16 +7,26 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7156E2E12D74773300F0C5E7 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 7156E2E02D74773300F0C5E7 /* ComposableArchitecture */; };
 		71EDD4792D38EC8700D94926 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 71EDD4782D38EC8700D94926 /* Lottie */; };
 		71F8F73F2D230EFE00B822F3 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 71F8F73E2D230EF100B822F3 /* .swiftlint.yml */; };
 		787B5B042D32D9C50017A378 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B032D32D9C50017A378 /* Kingfisher */; };
 		787B5B072D32DA0F0017A378 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B062D32DA0F0017A378 /* Moya */; };
 		787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B092D32DA500017A378 /* NMapsMap */; };
+		78AD4F082D4299110090E9E3 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */; };
+		78E985B42D564A9D00E02ABB /* FlexSheet in Frameworks */ = {isa = PBXBuildFile; productRef = 78E985B32D564A9D00E02ABB /* FlexSheet */; };
+		ADCF6DE12D9C03D1002F15E8 /* TCACoordinators in Frameworks */ = {isa = PBXBuildFile; productRef = ADCF6DE02D9C03D1002F15E8 /* TCACoordinators */; };
+		CB6B894C2D8149F400DF264B /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = CB6B894B2D8149F400DF264B /* KakaoSDK */; };
+		CB6B894E2D8149F400DF264B /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CB6B894D2D8149F400DF264B /* KakaoSDKAuth */; };
+		CB6B89502D8149F400DF264B /* KakaoSDKCert in Frameworks */ = {isa = PBXBuildFile; productRef = CB6B894F2D8149F400DF264B /* KakaoSDKCert */; };
+		CB6B89522D8149F400DF264B /* KakaoSDKCertCore in Frameworks */ = {isa = PBXBuildFile; productRef = CB6B89512D8149F400DF264B /* KakaoSDKCertCore */; };
+		CB6B89542D8149F400DF264B /* KakaoSDKCommon in Frameworks */ = {isa = PBXBuildFile; productRef = CB6B89532D8149F400DF264B /* KakaoSDKCommon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		71F8F73E2D230EF100B822F3 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		71F8F8B72D27EE0700B822F3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		78C002082D1D9FC400DA101C /* Spoony-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Spoony-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -33,10 +43,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB6B89502D8149F400DF264B /* KakaoSDKCert in Frameworks */,
+				CB6B89542D8149F400DF264B /* KakaoSDKCommon in Frameworks */,
 				787B5B072D32DA0F0017A378 /* Moya in Frameworks */,
+				CB6B89522D8149F400DF264B /* KakaoSDKCertCore in Frameworks */,
 				787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */,
+				7156E2E12D74773300F0C5E7 /* ComposableArchitecture in Frameworks */,
+				78E985B42D564A9D00E02ABB /* FlexSheet in Frameworks */,
 				787B5B042D32D9C50017A378 /* Kingfisher in Frameworks */,
 				71EDD4792D38EC8700D94926 /* Lottie in Frameworks */,
+				CB6B894C2D8149F400DF264B /* KakaoSDK in Frameworks */,
+				ADCF6DE12D9C03D1002F15E8 /* TCACoordinators in Frameworks */,
+				CB6B894E2D8149F400DF264B /* KakaoSDKAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,6 +64,7 @@
 		78C001FF2D1D9FC300DA101C = {
 			isa = PBXGroup;
 			children = (
+				78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */,
 				71F8F73E2D230EF100B822F3 /* .swiftlint.yml */,
 				78C0020A2D1D9FC400DA101C /* Spoony-iOS */,
 				71F8F8B72D27EE0700B822F3 /* Info.plist */,
@@ -86,6 +105,14 @@
 				787B5B062D32DA0F0017A378 /* Moya */,
 				787B5B092D32DA500017A378 /* NMapsMap */,
 				71EDD4782D38EC8700D94926 /* Lottie */,
+				78E985B32D564A9D00E02ABB /* FlexSheet */,
+				7156E2E02D74773300F0C5E7 /* ComposableArchitecture */,
+				CB6B894B2D8149F400DF264B /* KakaoSDK */,
+				CB6B894D2D8149F400DF264B /* KakaoSDKAuth */,
+				CB6B894F2D8149F400DF264B /* KakaoSDKCert */,
+				CB6B89512D8149F400DF264B /* KakaoSDKCertCore */,
+				CB6B89532D8149F400DF264B /* KakaoSDKCommon */,
+				ADCF6DE02D9C03D1002F15E8 /* TCACoordinators */,
 			);
 			productName = SpoonMe;
 			productReference = 78C002082D1D9FC400DA101C /* Spoony-iOS.app */;
@@ -120,6 +147,10 @@
 				787B5B052D32DA0F0017A378 /* XCRemoteSwiftPackageReference "Moya" */,
 				787B5B082D32DA500017A378 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */,
 				71EDD4772D38EC8700D94926 /* XCRemoteSwiftPackageReference "lottie-spm" */,
+				78E985B22D564A9D00E02ABB /* XCRemoteSwiftPackageReference "FlexSheet" */,
+				7156E2DF2D74773300F0C5E7 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				CB6B894A2D8149F400DF264B /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+				ADCF6DDF2D9C03D1002F15E8 /* XCRemoteSwiftPackageReference "TCACoordinators" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 78C002092D1D9FC400DA101C /* Products */;
@@ -136,6 +167,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				78AD4F082D4299110090E9E3 /* Launch Screen.storyboard in Resources */,
 				71F8F73F2D230EFE00B822F3 /* .swiftlint.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,6 +208,8 @@
 /* Begin XCBuildConfiguration section */
 		78C002142D1D9FC500DA101C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 78C0020A2D1D9FC400DA101C /* Spoony-iOS */;
+			baseConfigurationReferenceRelativePath = Config/Config.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -239,6 +273,8 @@
 		};
 		78C002152D1D9FC500DA101C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 78C0020A2D1D9FC400DA101C /* Spoony-iOS */;
+			baseConfigurationReferenceRelativePath = Config/Config.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -300,6 +336,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = "Spoony-iOS/Spoony-iOS.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -310,10 +349,10 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "주변 맛집 정보를 불러오기 위해 위치 정보를 사용하도록 허용합니다.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen.storyboard";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -321,10 +360,10 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.Spoony-iOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.spoony;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = SpoonyDebug;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = 0312spoonyDebug;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -342,6 +381,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = "Spoony-iOS/Spoony-iOSRelease.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
@@ -353,10 +394,10 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "주변 맛집 정보를 불러오기 위해 위치 정보를 사용하도록 허용합니다.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen.storyboard";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -364,10 +405,10 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.Spoony-iOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.spoony;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = SpoonyRelease;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = 0312spoonyRelease;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -402,6 +443,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		7156E2DF2D74773300F0C5E7 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.18.0;
+			};
+		};
 		71EDD4772D38EC8700D94926 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-spm";
@@ -434,9 +483,38 @@
 				minimumVersion = 3.20.0;
 			};
 		};
+		78E985B22D564A9D00E02ABB /* XCRemoteSwiftPackageReference "FlexSheet" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hooni0918/FlexSheet.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.4;
+			};
+		};
+		ADCF6DDF2D9C03D1002F15E8 /* XCRemoteSwiftPackageReference "TCACoordinators" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/johnpatrickmorgan/TCACoordinators.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.11.0;
+			};
+		};
+		CB6B894A2D8149F400DF264B /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.24.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		7156E2E02D74773300F0C5E7 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7156E2DF2D74773300F0C5E7 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
 		71EDD4782D38EC8700D94926 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 71EDD4772D38EC8700D94926 /* XCRemoteSwiftPackageReference "lottie-spm" */;
@@ -456,6 +534,41 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 787B5B082D32DA500017A378 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */;
 			productName = NMapsMap;
+		};
+		78E985B32D564A9D00E02ABB /* FlexSheet */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 78E985B22D564A9D00E02ABB /* XCRemoteSwiftPackageReference "FlexSheet" */;
+			productName = FlexSheet;
+		};
+		ADCF6DE02D9C03D1002F15E8 /* TCACoordinators */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ADCF6DDF2D9C03D1002F15E8 /* XCRemoteSwiftPackageReference "TCACoordinators" */;
+			productName = TCACoordinators;
+		};
+		CB6B894B2D8149F400DF264B /* KakaoSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB6B894A2D8149F400DF264B /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDK;
+		};
+		CB6B894D2D8149F400DF264B /* KakaoSDKAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB6B894A2D8149F400DF264B /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKAuth;
+		};
+		CB6B894F2D8149F400DF264B /* KakaoSDKCert */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB6B894A2D8149F400DF264B /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKCert;
+		};
+		CB6B89512D8149F400DF264B /* KakaoSDKCertCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB6B894A2D8149F400DF264B /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKCertCore;
+		};
+		CB6B89532D8149F400DF264B /* KakaoSDKCommon */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB6B894A2D8149F400DF264B /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKCommon;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

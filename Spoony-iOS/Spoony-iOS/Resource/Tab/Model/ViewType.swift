@@ -8,14 +8,16 @@
 import Foundation
 
 enum ViewType: Hashable {
-    // 임시
-    case test
-    case searchView    // 검색 화면
-    case locationView  // 위치 선택 화면
-    case detailView   // 상세 화면
-    // MARK: - Map
+//    case searchView    // 검색 화면
+    case locationView(title: String)  // 위치 선택 화면
+    case detailView(postId: Int)   // 상세 화면
     
-    // MARK: - Explore
-    
-    // MARK: - Register
-    }
+    case searchLocationView(locationId: Int, locationTitle: String)
+    case report(postId: Int)
+}
+
+enum AuthViewType: Hashable {
+    case agreeView      // 약관 동의 화면
+    case onboardingView // 온보딩 화면
+    case completeOnboardingView // 온보딩 완료 화면
+}

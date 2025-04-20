@@ -1,0 +1,110 @@
+//
+//  LoginFeature.swift
+//  Spoony-iOS
+//
+//  Created by 최주리 on 3/12/25.
+//
+
+import Foundation
+
+import ComposableArchitecture
+
+enum SocialType {
+    case KAKAO
+    case APPLE
+}
+
+enum LoginError: Error {
+    case kakaoTokenError
+    case appleTokenError
+}
+
+@Reducer
+struct LoginFeature {
+    @ObservableState
+    struct State: Equatable {
+        static let initialState = State()
+        
+        var socialType: SocialType = .KAKAO
+        var token: String = ""
+        var isLoading: Bool = false
+    }
+    
+    enum Action {
+        case onAppear
+        case kakaoLoginButtonTapped
+        case appleLoginButtonTapped
+        case setToken(SocialType, String)
+        case error(Error)
+        
+        // MARK: Navigation Action
+        case routToTermsOfServiceScreen
+        case routToOnboardingScreen
+        case routToTabCoordinatorScreen
+    }
+        
+    private let authenticationManager = AuthenticationManager.shared
+    @Dependency(\.loginService) var loginService: LoginServiceProtocol
+    
+    var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .onAppear:
+                //자동 로그인시
+                return .send(.routToTabCoordinatorScreen)
+//                return .none
+            case .kakaoLoginButtonTapped:
+                state.isLoading = true
+                
+                return .run { send in
+                    do {
+                        let result = try await loginService.kakaoLogin()
+                        await send(.setToken(.KAKAO, result))
+                    } catch {
+                        await send(.error(LoginError.kakaoTokenError))
+                    }
+                }
+            case .appleLoginButtonTapped:
+                state.isLoading = true
+                
+                return .run { send in
+                    do {
+                        let result = try await loginService.appleLogin()
+                        await send(.setToken(.APPLE, result))
+                    } catch {
+                        await send(.error(LoginError.appleTokenError))
+                    }
+                }
+            case .setToken(let type, let token):
+                authenticationManager.setToken(type, token)
+                state.isLoading = false
+                return .send(.routToTermsOfServiceScreen)
+            case .error(let error):
+                print(error.localizedDescription)
+                state.isLoading = false
+                return .none
+                
+            // 로그인 성공시(약관 동의 안한 경우)
+            case .routToTermsOfServiceScreen:
+                return .none
+            // 로그인 완료시(앱 삭제 후 다시 로그인한 경우? 삭제하면 어차피 약관 동의도 다시 하지 않나 필요없을지도)
+            case .routToOnboardingScreen:
+                return .none
+            // 로그인 성공시
+            case .routToTabCoordinatorScreen:
+                return .none
+            }
+        }
+    }
+}
+
+private enum LoginServiceKey: DependencyKey {
+    static let liveValue: LoginServiceProtocol = DefaultLoginService()
+}
+
+extension DependencyValues {
+    var loginService: LoginServiceProtocol {
+        get { self[LoginServiceKey.self] }
+        set { self[LoginServiceKey.self] = newValue }
+    }
+}

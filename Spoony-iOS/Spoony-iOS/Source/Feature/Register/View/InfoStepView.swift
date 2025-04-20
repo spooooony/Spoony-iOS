@@ -7,15 +7,14 @@
 
 import SwiftUI
 
+import ComposableArchitecture
+
 struct InfoStepView: View {
-    @ObservedObject private var store: RegisterStore
-    @State private var isDropDown: Bool = false
+    @Bindable private var store: StoreOf<InfoStepFeature>
+    @FocusState private var isPlaceTextFieldFocused: Bool
     
-    var action: () -> Void
-    
-    init(store: RegisterStore, action: @escaping () -> Void) {
+    init(store: StoreOf<InfoStepFeature>) {
         self.store = store
-        self.action = action
     }
     
     var body: some View {
@@ -24,20 +23,16 @@ struct InfoStepView: View {
             
             sectionGroup
             
-            SpoonyButton(
-                style: .primary,
-                size: .xlarge,
-                title: "다음",
-                disabled: $store.disableFirstButton
-            ) {
-                store.step = .middle
-            }
-            .padding(.bottom, 20)
+            nextButton
         }
+        .animation(.easeIn, value: store.recommendTexts.count)
         .background(.white)
         .onTapGesture {
-            isDropDown = false
-            action()
+            store.send(.didTapBackground)
+            hideKeyboard()
+        }
+        .task {
+            store.send(.onAppear)
         }
     }
 }
@@ -52,18 +47,17 @@ extension InfoStepView {
             recommendSection
         }
         .overlay(alignment: .top) {
-            if isDropDown {
+            if store.state.isDropDownPresented {
                 dropDownView
                     .padding(.top, 81)
             }
         }
         .padding(.horizontal, 20.adjusted)
-        .padding(.bottom, 61)
     }
     
     private var titleView: some View {
         Text("나의 찐맛집을 등록해볼까요?")
-            .font(.title2b)
+            .customFont(.title3b)
             .foregroundStyle(.spoonBlack)
             .padding(.vertical, 32)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -73,26 +67,26 @@ extension InfoStepView {
     private var placeSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("장소명을 알려주세요")
-                .font(.body1sb)
+                .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
             
-            if !store.isSelected {
+            if store.state.selectedPlace == nil {
                 SpoonyTextField(
-                    text: $store.text,
+                    text: $store.placeText,
                     style: .icon,
                     placeholder: "어떤 장소를 한 입 줄까요?",
                     isError: .constant(false)
                 ) {
-                    store.text = ""
+                    store.send(.didTapSearchDeleteIcon)
                 }
+                .focused($isPlaceTextFieldFocused)
                 .onSubmit {
-                    isDropDown = true
+                    store.send(.didTapKeyboardEnter)
                 }
             } else {
-                if let place = store.selectedPlace {
+                if let place = store.state.selectedPlace {
                     PlaceInfoCell(placeInfo: place, placeInfoType: .selectedCell) {
-                        store.selectedPlace = nil
-                        store.isSelected = false
+                        store.send(.didTapPlaceInfoCellIcon)
                     }
                 }
             }
@@ -102,34 +96,45 @@ extension InfoStepView {
     
     private var categorySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("카테고리를 골라주세요")
-                .font(.body1sb)
-                .foregroundStyle(.spoonBlack)
-            
-            ChipsContainerView(selectedItem: $store.selectedCategory, items: store.categorys)
+            HStack {
+                Text("카테고리를 골라주세요")
+                    .customFont(.body1sb)
+                    .foregroundStyle(.spoonBlack)
+                Spacer()
+            }
+            if store.state.categories.isEmpty {
+                CategoryChipsView(category: CategoryChip.placeholder)
+                    .redacted(reason: .placeholder)
+            } else {
+                ChipsContainerView(
+                    selectedItem: $store.selectedCategory,
+                    items: store.state.categories
+                )
+            }
         }
         .padding(.bottom, 40)
     }
     
     private var recommendSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
             Text("추천 메뉴를 알려주세요")
-                .font(.body1sb)
+                .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 12)
-
-            VStack {
-                ForEach(store.recommendMenu.indices, id: \.self) { index in
+            
+            VStack(spacing: 8) {
+                ForEach($store.recommendTexts, id: \.id) { $text in
                     SpoonyTextField(
-                        text: $store.recommendMenu[index],
-                        style: .normal(isIcon: store.recommendMenu.count > 1),
+                        text: $text.text,
+                        style: .normal(isIcon: store.state.recommendTexts.count > 1),
                         placeholder: "메뉴 이름",
                         isError: .constant(false)
                     ) {
-                        store.recommendMenu.remove(at: index)
+                        store.send(.didTapRecommendDeleteButton(text))
                     }
                 }
-                if store.recommendMenu.count < 3 {
+                
+                if store.state.recommendTexts.count < 3 {
                     plusButton
                 }
             }
@@ -137,25 +142,19 @@ extension InfoStepView {
     }
     
     private var dropDownView: some View {
-        ScrollView {
-            VStack(spacing: 1) {
-                ForEach(store.searchPlaces, id: \.id) { place in
-                    PlaceInfoCell(placeInfo: place, placeInfoType: .listCell)
-                        .onTapGesture {
-                            store.selectedPlace = place
-                            store.isSelected = true
-                            isDropDown = false
-                            store.text = ""
-                        }
-                    Rectangle()
-                        .frame(height: 1)
-                        .foregroundStyle(.gray100)
-                }
+        VStack(spacing: 0) {
+            ForEach(store.state.searchedPlaces, id: \.id) { place in
+                PlaceInfoCell(placeInfo: place, placeInfoType: .listCell)
+                    .onTapGesture {
+                        store.send(.didTapPlaceInfoCell(place))
+                    }
+                    .overlay(alignment: .bottom) {
+                        Rectangle()
+                            .frame(height: 1.adjusted)
+                            .foregroundStyle(.gray100)
+                    }
             }
         }
-        .lineSpacing(0)
-        .scrollIndicators(.hidden)
-        .frame(height: 189.adjustedH)
         .background(.white)
         .clipShape(
             RoundedRectangle(cornerRadius: 8)
@@ -164,11 +163,12 @@ extension InfoStepView {
             RoundedRectangle(cornerRadius: 8)
                 .strokeBorder(.gray100, lineWidth: 1)
         }
+        .shadow(color: .gray0, radius: 16, x: 0, y: 2)
     }
     
     private var plusButton: some View {
-        Button {
-            store.recommendMenu.append("")
+        return Button {
+            store.send(.didTapRecommendPlusButton)
         } label: {
             Image(.icPlusGray400)
                 .resizable()
@@ -181,11 +181,78 @@ extension InfoStepView {
                 }
         }
         .buttonStyle(.plain)
+        .disabled(store.state.isDisablePlusButton)
+    }
+    
+    private var nextButton: some View {
+        ScrollViewReader { proxy in
+            VStack {
+                SpoonyButton(
+                    style: .primary,
+                    size: .xlarge,
+                    title: "다음",
+                    disabled: $store.isDisableNextButton
+                ) {
+                    store.send(.didTapNextButton)
+                }
+                .padding(.bottom, 20)
+                .padding(.top, 61)
+            }
+            .onAppear {
+                NotificationCenter.default.addObserver(
+                    forName: UIResponder.keyboardWillShowNotification,
+                    object: nil,
+                    queue: .main
+                ) { notification in
+                    if let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                        withAnimation(.smooth) {
+                            if !isPlaceTextFieldFocused {
+                                store.send(.updateKeyboardHeight(frame.height))
+                            }
+                        }
+                    }
+                }
+                
+                NotificationCenter.default.addObserver(
+                    forName: UIResponder.keyboardWillHideNotification,
+                    object: nil,
+                    queue: .main
+                ) { _ in
+                    store.send(.updateKeyboardHeight(0))
+                }
+            }
+            .id("nextButton")
+            .padding(.bottom, store.state.keyboardHeight)
+            .ignoresSafeArea(.keyboard)
+            .onChange(of: store.state.keyboardHeight) { _, newValue in
+                if newValue != 0 && !isPlaceTextFieldFocused {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation {
+                            proxy.scrollTo("nextButton", anchor: .bottom)
+                        }
+                    }
+                }
+            }
+            .overlay(alignment: .top) {
+                ToolTipView()
+                    .padding(.top, 5)
+                    .opacity(store.state.isToolTipPresented ? 1 : 0)
+                    .task {
+                        do {
+                            try await Task.sleep(for: .seconds(3))
+                            store.send(.updateToolTipState)
+                        } catch {
+                            
+                        }
+                    }
+            }
+        }
     }
 }
 
 #Preview {
-    InfoStepView(store: .init()) {
-        
-    }
+    InfoStepView(store: Store(initialState: .initialState, reducer: {
+        InfoStepFeature()
+            ._printChanges()
+    }))
 }

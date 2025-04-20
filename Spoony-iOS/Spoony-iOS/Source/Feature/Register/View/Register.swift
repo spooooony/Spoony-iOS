@@ -7,8 +7,14 @@
 
 import SwiftUI
 
+import ComposableArchitecture
+
 struct Register: View {
-    @StateObject private var store: RegisterStore = RegisterStore()
+    @Bindable private var store: StoreOf<RegisterFeature>
+    
+    init(store: StoreOf<RegisterFeature>) {
+        self.store = store
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -16,26 +22,33 @@ struct Register: View {
             
             ScrollView {
                 Group {
-                    switch store.step {
+                    switch store.state.currentStep {
                     case .start:
-                        InfoStepView(store: store) {
-                            hideKeyboard()
-                        }
-                    case .middle:
-                        VStack {
-                            HStack {
-                                Spacer()
-                                Text("2번째 화면")
-                                Spacer()
-                            }
-                        }
-                        .frame(height: 500)
-                    case .end:
-                        Text("끝")
+                        InfoStepView(store: store.scope(state: \.infoStepState, action: \.infoStepAction))
+                    case .middle, .end:
+                        ReviewStepView(store: store.scope(state: \.reviewStepState, action: \.reviewStepAction))
                     }
                 }
                 .transition(.slide)
-                .animation(.easeInOut, value: store.step)
+                .animation(.easeInOut, value: store.state.currentStep)
+            }
+            .scrollIndicators(.hidden)
+            .simultaneousGesture(
+                DragGesture()
+                    .onChanged { _ in
+                        hideKeyboard()
+                    }
+            )
+        }
+        .onDisappear {
+            store.send(.onDisappear)
+        }        
+        .overlay {
+            if store.state.isLoading {
+                ProgressView()
+                    .tint(.main400)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(.white.opacity(0.1))
             }
         }
     }
@@ -45,9 +58,9 @@ extension Register {
     private var customNavigationBar: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                if store.step != .start {
+                if store.state.currentStep != .start {
                     Button {
-                        store.step = .start
+                        store.send(.reviewStepAction(.movePreviousView))
                     } label: {
                         Image(.icArrowLeftGray700)
                             .resizable()
@@ -64,21 +77,18 @@ extension Register {
     }
     
     private var progressBar: some View {
-        ProgressView(value: 1.0/3 * Double(store.step.rawValue))
+        ProgressView(value: 1.0/3 * Double(store.state.currentStep.rawValue))
             .frame(height: 4.adjustedH)
             .progressViewStyle(.linear)
             .tint(.main400)
             .padding(.horizontal, 20)
-            .animation(.easeInOut, value: store.step)
+            .animation(.easeInOut, value: store.state.currentStep)
     }
 }
 
-enum RegisterStep: Int {
-    case start = 1
-    case middle = 2
-    case end = 3
-}
-
 #Preview {
-    Register()
+    Register(store: Store(initialState: .initialState, reducer: {
+        RegisterFeature()
+            ._printChanges()
+    }))
 }

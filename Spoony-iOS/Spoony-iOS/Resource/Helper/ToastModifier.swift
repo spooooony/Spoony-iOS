@@ -11,7 +11,7 @@ import SwiftUI
 public struct Toast: Equatable {
     var style: ToastStyle
     var message: String
-    var duration: Double = 3
+    var duration: Double = 2.5
     var width: Double = .infinity
     var yOffset: CGFloat = 638
 }
@@ -38,13 +38,13 @@ struct ToastView: View {
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             Text(message)
-                .font(.body2b)
                 .foregroundStyle(.white)
         }
         .frame(height: 40.adjustedH)
         .frame(minWidth: 0, maxWidth: width)
         .background(style.themeColor)
         .cornerRadius(10)
+        .opacity(0.9)
         .padding(.horizontal, 20.adjusted)
     }
 }
@@ -109,8 +109,4 @@ struct ToastModifier: ViewModifier {
         workItem?.cancel()
         workItem = nil
     }
-}
-
-#Preview {
-    ContentView()
 }

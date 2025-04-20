@@ -14,7 +14,7 @@ struct ChipsContainerView: View {
     let horizontalSpacing: CGFloat
     let items: [CategoryChip]
     var sortedItems: [CategoryChip] {
-        items.sorted { $0.priority > $1.priority }
+        items.sorted { $0.id < $1.id }
     }
     
     init(

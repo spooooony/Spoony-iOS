@@ -6,73 +6,183 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
+import CoreLocation
 
 struct Home: View {
-    @State private var selectedPlace: Bool = true
-    @State private var currentPage = 0
+    //    @EnvironmentObject var navigationManager: NavigationManager
+    @StateObject private var viewModel = HomeViewModel(service: DefaultHomeService())
+    @State private var locationManager = CLLocationManager()
+    private let store: StoreOf<MapFeature>
+    @State private var isBottomSheetPresented = true
     @State private var searchText = ""
+    @State private var selectedPlace: CardPlace?
+    @State private var currentPage = 0
+    @State private var spoonCount: Int = 0
+    @State private var selectedCategories: [CategoryChip] = []
+    @State private var categories: [CategoryChip] = []
+    @State private var bottomSheetHeight: CGFloat = 0
+    @State private var currentBottomSheetStyle: BottomSheetStyle = .half
+    private let restaurantService: HomeServiceType
+    private let registerService: RegisterServiceType
     
-    let samplePlaces = [
-        CardPlace(
-            name: "파오리",
-            visitorCount: "21",
-            address: "서울특별시 마포구 와우산로",
-            images: ["testImage1"],
-            title: "클레오가트라",
-            subTitle: "성동구 수제",
-            description: "포켓몬 중 하나의 이름을 가졌지만 카페에요"
-        ),
-        CardPlace(
-            name: "스타벅스",
-            visitorCount: "45",
-            address: "서울특별시 마포구 어울마당로",
-            images: ["testImage1", "testImage2"],
-            title: "클레오가트라",
-            subTitle: "성동구 수제",
-            description: "포켓몬 중 하나의 이름을 가졌지만 카페에요"
-        ),
-        CardPlace(
-            name: "스타벅스",
-            visitorCount: "45",
-            address: "서울특별시 마포구 어울마당로",
-            images: ["testImage1", "testImage2", "testImage3"],
-            title: "클레오가트라",
-            subTitle: "성동구 수제",
-            description: "포켓몬 중 하나의 이름을 가졌지만 카페에요"
-        )
-    ]
+    init(store: StoreOf<MapFeature>,
+         restaurantService: HomeServiceType = DefaultHomeService(),
+         registerService: RegisterServiceType = RegisterService()) {
+        self.store = store
+        self.restaurantService = restaurantService
+        self.registerService = registerService
+    }
     
     var body: some View {
-        ZStack(alignment: .top) {
-            NMapView()
+        ZStack(alignment: .bottom) {
+            Color.white
                 .edgesIgnoringSafeArea(.all)
+            
+            NMapView(viewModel: viewModel, selectedPlace: $selectedPlace)
+                .edgesIgnoringSafeArea(.all)
+                .onChange(of: viewModel.focusedPlaces) { _, newPlaces in
+                    if !newPlaces.isEmpty {
+                        selectedPlace = newPlaces[0]
+                    } else {
+                        selectedPlace = nil
+                    }
+                }
             
             VStack(spacing: 0) {
                 CustomNavigationBar(
-                    style: .detail,
+                    style: .searchContent,
                     searchText: $searchText,
-                    onBackTapped: {}
+                    spoonCount: spoonCount,
+                    tappedAction: {
+                        store.send(.routToSearchScreen)
+                        //                        navigationManager.push(.searchView)
+                    }
                 )
+                .frame(height: 56.adjusted)
                 
-                if selectedPlace {
-                    ZStack {
-                        VStack(spacing: 0) {
-                            Spacer()
+                HStack(spacing: 8) {
+                    if categories.isEmpty {
+                        ForEach(0..<4, id: \.self) { _ in
+                            CategoryChipsView(category: CategoryChip.placeholder)
+                                .redacted(reason: .placeholder)
+                        }
+                    } else {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                CategoryChipsView(
+                                    category: CategoryChip(
+                                        image: "",
+                                        selectedImage: "",
+                                        title: "전체",
+                                        id: 0
+                                    ),
+                                    isSelected: selectedCategories.isEmpty || selectedCategories.contains { $0.id == 0 }
+                                )
+                                .onTapGesture {
+                                    selectedCategories = []
+                                }
+                                
+                                ForEach(categories, id: \.id) { category in
+                                    CategoryChipsView(
+                                        category: category,
+                                        isSelected: selectedCategories.contains { $0.id == category.id }
+                                    )
+                                    .onTapGesture {
+                                        handleCategorySelection(category)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                        }
+                    }
+                }
+                .padding(.vertical, 8)
+                
+                Spacer()
+            }
+            
+            ZStack(alignment: .bottomTrailing) {
+                if currentBottomSheetStyle != .full {
+                    Button(action: {
+                        viewModel.moveToUserLocation()
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 44.adjusted, height: 44.adjusted)
+                                .shadow(color: Color.gray300, radius: 16, x: 1, y: 1)
                             
-                            PlaceCardsContainer(places: samplePlaces, currentPage: $currentPage)
-                                .padding(.bottom, 4)
-                            
-                            PageIndicator(currentPage: currentPage, pageCount: samplePlaces.count)
-                                .padding(.bottom, 4)
+                            Image(viewModel.isLocationFocused ? "ic_gps_main" : "ic_gps_gray500")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 24.adjusted, height: 24.adjusted)
+                        }
+                    }
+                    .padding(.bottom, bottomSheetHeight - 68 )
+                    .padding(.trailing, 20)
+                }
+                
+                Group {
+                    if !viewModel.focusedPlaces.isEmpty {
+                        PlaceCard(
+                            places: viewModel.focusedPlaces,
+                            currentPage: $currentPage
+                        )
+                        .padding(.bottom, 12)
+                        .transition(.move(edge: .bottom))
+                    } else {
+                        if !viewModel.pickList.isEmpty {
+                            BottomSheetListView(
+                                viewModel: viewModel,
+                                store: store,
+                                currentStyle: $currentBottomSheetStyle,
+                                bottomSheetHeight: $bottomSheetHeight
+                            )
+                        } else {
+                            FixedBottomSheetView(store: store)
                         }
                     }
                 }
             }
+            .navigationBarHidden(true)
+            .task {
+                isBottomSheetPresented = true
+                do {
+                    spoonCount = try await restaurantService.fetchSpoonCount()
+                    viewModel.fetchPickList()
+                    
+                    let categoryResponse = try await registerService.getRegisterCategories()
+                    categories = try await categoryResponse.toModel()
+                    
+                    bottomSheetHeight = BottomSheetStyle.half.height
+                    currentBottomSheetStyle = .half
+                } catch {
+                    print("Failed to fetch data:", error)
+                }
+            }
+        }
+    }
+    
+    // 카테고리 선택 처리 메서드
+    private func handleCategorySelection(_ category: CategoryChip) {
+        if selectedCategories.contains(where: { $0.id == category.id }) {
+            selectedCategories.removeAll { $0.id == category.id }
+        } else {
+            selectedCategories = [category]
+        }
+        
+        if !selectedCategories.isEmpty {
+            let categoryId = selectedCategories[0].id
+            print("Selected category: \(categoryId)")
+        } else {
+            
         }
     }
 }
 
 #Preview {
-    Home()
-        .environmentObject(NavigationManager())
+    Home(store: Store(initialState: .initialState) {
+        MapFeature()
+    }).environmentObject(NavigationManager())
 }

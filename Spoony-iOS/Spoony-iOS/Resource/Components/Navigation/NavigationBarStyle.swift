@@ -13,6 +13,7 @@ enum NavigationBarStyle {
     case searchContent //지도에서 왼쪽에 칩 있는거
     case search(showBackButton: Bool = true) // 뒤로가기 버튼 표시 여부 추가
     case searchBar
+    case settingContent
     
     // 위치 관련
     case locationTitle    // 위치 제목 + 오른쪽 X 버튼
@@ -20,7 +21,12 @@ enum NavigationBarStyle {
     
     // 상세 화면 관련
     case detail         // < + 가운데 타이틀 사용 (신고하기)
-    case detailWithChip(count: Int)    // < + 오른쪽 칩 (가운데 타이틀 없음)
+    case detailWithChip    // < + 오른쪽 칩 (가운데 타이틀 없음)
+    case backOnly       // 뒤로가기 버튼만 있는 스타일
+    case attendanceCheck    // < + 가운데 출석체크 + 오른쪽 칩
+    
+    // 온보딩 관련
+    case onboarding     // < + 오른쪽 건너뛰기 버튼
     
     // 백 버튼 표시 여부
     var showsBackButton: Bool {

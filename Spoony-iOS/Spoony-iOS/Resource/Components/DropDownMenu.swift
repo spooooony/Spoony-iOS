@@ -32,7 +32,7 @@ public struct DropDownMenu: View {
                     }) {
                         HStack {
                             Text(item)
-                                .font(.caption1b)
+                                .customFont(.caption1b)
                                 .foregroundColor(.gray900)
                                 .padding(.vertical, 16.adjustedH)
                                 .padding(.leading, 14.adjustedH)

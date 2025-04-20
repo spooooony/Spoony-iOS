@@ -10,34 +10,32 @@ import SwiftUI
 import Lottie
 
 struct PopupModifier: ViewModifier {
-    let popup: PopupType
-    @Binding var isPresented: Bool
-    let confirmAction: () -> Void
+    @Binding var popup: PopupType?
+    let confirmAction: (PopupType) -> Void
     
     func body(content: Content) -> some View {
         ZStack {
             content
-            if isPresented {
+            if let popup = popup {
                 Color.black.opacity(0.6)
                     .ignoresSafeArea(.all)
                 
-                PopupView(popup: popup, isPresented: $isPresented) {
-                    confirmAction()
+                PopupView(popup: $popup) {
+                    confirmAction(popup)
                 }
             }
         }
     }
 }
 
-enum PopupType {
+enum PopupType: Equatable {
     case useSpoon
     case reportSuccess
     case registerSuccess
 }
 
 struct PopupView: View {
-    let popup: PopupType
-    @Binding var isPresented: Bool
+    @Binding var popup: PopupType?
     let confirmAction: () -> Void
     
     var body: some View {
@@ -47,7 +45,7 @@ struct PopupView: View {
             
             if let animationString {
                 Group {
-                    if popup == .useSpoon {
+                    if isLooping {
                         LottieView(animation: .named(animationString))
                             .looping()
                     } else {
@@ -61,7 +59,7 @@ struct PopupView: View {
             
             Text(description)
                 .multilineTextAlignment(.center)
-                .font(.body1b)
+                .customFont(.body1b)
                 .padding(.bottom, descriptionYOffset)
             
             HStack(spacing: 12) {
@@ -72,17 +70,17 @@ struct PopupView: View {
                         title: title,
                         disabled: .constant(false)
                     ) {
-                        isPresented = false
+                        popup = nil
                     }
                 }
                 SpoonyButton(
-                    style: popup == .registerSuccess ? .primary : .secondary,
+                    style: buttonStyle,
                     size: grayButtonTitle == nil ? .large : .xsmall,
                     title: blackButtonTitle,
                     disabled: .constant(false)
                 ) {
                     confirmAction()
-                    isPresented = false
+                    popup = nil
                 }
             }
         }
@@ -98,7 +96,7 @@ extension PopupView {
             return "lottie_popup_use"
         case .registerSuccess:
             return "lottie_popup_get"
-        case .reportSuccess:
+        case .reportSuccess, .none:
             return nil
         }
     }
@@ -111,6 +109,8 @@ extension PopupView {
             "수저 1개를 획득했어요!\n이제 새로운 장소를 떠먹으러 가볼까요?"
         case .reportSuccess:
             "신고가 접수되었어요"
+        case .none:
+            ""
         }
     }
     
@@ -122,6 +122,8 @@ extension PopupView {
             "좋아요!"
         case .reportSuccess:
             "확인"
+        case .none:
+            ""
         }
     }
     
@@ -129,24 +131,36 @@ extension PopupView {
         switch popup {
         case .useSpoon:
             "아니요"
-        case .registerSuccess, .reportSuccess:
+        case .registerSuccess, .reportSuccess, .none:
             nil
         }
     }
     
     private var descriptionYOffset: CGFloat {
         switch popup {
-        case .useSpoon, .registerSuccess:
+        case .useSpoon, .registerSuccess, .none:
             0
         case .reportSuccess:
             12
         }
     }
     
-}
-
-#Preview {
-    PopupView(popup: .useSpoon, isPresented: .constant(true)) {
-        print("dd")
+    private var isLooping: Bool {
+        switch popup {
+        case .useSpoon:
+            true
+        case .reportSuccess, .registerSuccess, .none:
+            false
+        }
     }
+    
+    private var buttonStyle: SpoonyButtonStyle {
+        switch popup {
+        case .useSpoon, .registerSuccess:
+                .primary
+        case .reportSuccess, .none:
+                .secondary
+        }
+    }
+    
 }

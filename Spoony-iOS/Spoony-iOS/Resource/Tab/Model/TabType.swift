@@ -7,10 +7,11 @@
 
 import Foundation
 
-enum TabType: String, CaseIterable {
+enum TabType: String, CaseIterable, Hashable {
     case map
     case explore
     case register
+    case myPage
     
     var title: String {
         switch self {
@@ -20,6 +21,8 @@ enum TabType: String, CaseIterable {
             return "탐색"
         case .register:
             return "등록"
+        case .myPage:
+            return "마이"
         }
     }
     
@@ -31,6 +34,8 @@ enum TabType: String, CaseIterable {
             return selected ? "ic_explore_main400" : "ic_explore_gray400"
         case .register:
             return selected ? "ic_register_main400" : "ic_register_gray400"
+        case .myPage:
+            return selected ? "ic_user_main400" : "ic_user_gray400"
         }
     }
 }
