@@ -128,6 +128,9 @@ extension ExploreSearchView {
             Text(text)
                 .customFont(.body1m)
                 .foregroundStyle(.gray700)
+                .onTapGesture {
+                    store.send(.searchByRecentSearch(text))
+                }
             
             Spacer()
             

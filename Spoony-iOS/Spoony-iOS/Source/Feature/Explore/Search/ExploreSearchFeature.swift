@@ -87,6 +87,7 @@ struct ExploreSearchFeature {
         case setRecentSearchList
         case allDeleteButtonTapped
         case recentDeleteButtonTapped(String)
+        case searchByRecentSearch(String)
         
         // MARK: - Navigation
         case routeToExploreScreen
@@ -174,6 +175,20 @@ struct ExploreSearchFeature {
                 case .review:
                     return .run { [searchText = state.searchText] send in
                         UserManager.shared.setSearches("exploreReviewRecentSearches", searchText)
+                        await send(.updateSearchStateFromSearchResult)
+                    }
+                }
+            case .searchByRecentSearch(let text):
+                state.searchText = text
+                switch state.viewType {
+                case .user:
+                    return .run { send in
+                        UserManager.shared.setSearches("exploreUserRecentSearches", text)
+                        await send(.updateSearchStateFromSearchResult)
+                    }
+                case .review:
+                    return .run { send in
+                        UserManager.shared.setSearches("exploreReviewRecentSearches", text)
                         await send(.updateSearchStateFromSearchResult)
                     }
                 }
