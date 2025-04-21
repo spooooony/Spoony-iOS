@@ -150,12 +150,12 @@ struct ExploreSearchFeature {
                 switch state.viewType {
                 case .user:
                     return .run { send in
-                        UserManager.shared.deleteRecent("exploreUserRecentSearches", text)
+                        UserManager.shared.deleteRecent(.user, text)
                         await send(.updateSearchStateFromRecentSearches)
                     }
                 case .review:
                     return .run { send in
-                        UserManager.shared.deleteRecent("exploreReviewRecentSearches", text)
+                        UserManager.shared.deleteRecent(.review, text)
                         await send(.updateSearchStateFromRecentSearches)
                     }
                 }
@@ -169,12 +169,12 @@ struct ExploreSearchFeature {
                 switch state.viewType {
                 case .user:
                     return .run { [searchText = state.searchText] send in
-                        UserManager.shared.setSearches("exploreUserRecentSearches", searchText)
+                        UserManager.shared.setSearches(.user, searchText)
                         await send(.updateSearchStateFromSearchResult)
                     }
                 case .review:
                     return .run { [searchText = state.searchText] send in
-                        UserManager.shared.setSearches("exploreReviewRecentSearches", searchText)
+                        UserManager.shared.setSearches(.review, searchText)
                         await send(.updateSearchStateFromSearchResult)
                     }
                 }
@@ -183,12 +183,12 @@ struct ExploreSearchFeature {
                 switch state.viewType {
                 case .user:
                     return .run { send in
-                        UserManager.shared.setSearches("exploreUserRecentSearches", text)
+                        UserManager.shared.setSearches(.user, text)
                         await send(.updateSearchStateFromSearchResult)
                     }
                 case .review:
                     return .run { send in
-                        UserManager.shared.setSearches("exploreReviewRecentSearches", text)
+                        UserManager.shared.setSearches(.review, text)
                         await send(.updateSearchStateFromSearchResult)
                     }
                 }

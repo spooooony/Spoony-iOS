@@ -19,13 +19,13 @@ final class UserManager {
     
     private init() { }
     
-    func setSearches(_ key: String, _ text: String) {
+    func setSearches(_ key: SearchType, _ text: String) {
         var list: [String]?
         
         switch key {
-        case "exploreUserRecentSearches":
+        case .user:
             list = exploreUserRecentSearches ?? []
-        case "exploreReviewRecentSearches":
+        case .review:
             list = exploreReviewRecentSearches ?? []
         default:
             return
@@ -40,23 +40,23 @@ final class UserManager {
         list?.insert(text, at: 0)
         
         switch key {
-        case "exploreUserRecentSearches":
+        case .user:
             exploreUserRecentSearches = list
-        case "exploreReviewRecentSearches":
+        case .review:
             exploreReviewRecentSearches = list
         default:
             return
         }
     }
     
-    func deleteRecent(_ key: String, _ text: String) {
+    func deleteRecent(_ key: SearchType, _ text: String) {
         switch key {
-        case "exploreUserRecentSearches":
+        case .user:
             guard let index = exploreUserRecentSearches?.firstIndex(of: text)
             else { return }
             
             exploreUserRecentSearches?.remove(at: index)
-        case "exploreReviewRecentSearches":
+        case .review:
             guard let index = exploreReviewRecentSearches?.firstIndex(of: text)
             else { return }
             
@@ -67,11 +67,8 @@ final class UserManager {
     }
 }
 
-// TODO: 리터럴 -> enum key값 관리하기
-// 여러 파일 건들여야 해서 추후 수정 하겠습니다 !
-enum UserDefaultsKey: String {
-    case userId
-    case recentSearches
-    case exploreUserRecentSearches
-    case exploreReviewRecentSearches
+enum SearchType {
+    case map
+    case user
+    case review
 }
