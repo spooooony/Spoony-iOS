@@ -81,6 +81,9 @@ struct TabCoordinator {
                 state.toast = .init(style: .gray, message: message, yOffset: 558.adjustedH)
                 return .none
                 
+            case .explore(.tabSelected(let tab)):
+                return .send(.tabSelected(tab))
+                
             // 다른 뷰 사용 예시
 //            case let .map(.presentToast(message)):
 //                state.toast = .init(style: .gray, message: message, yOffset: 558.adjustedH)
