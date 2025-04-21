@@ -32,6 +32,7 @@ struct ExploreFeature {
         
         // MARK: - Navigation
         case routeToExploreSearchScreen
+        case tabSelected(TabType)
     }
     
     var body: some ReducerOf<Self> {
@@ -53,13 +54,13 @@ struct ExploreFeature {
                 return .send(.routeToExploreSearchScreen)
             case .goButtonTapped:
                 if state.viewType == .all {
-                    // 등록 탭으로 이동
-                    print("등록 탭으로 이동")
+                    return .send(.tabSelected(.register))
                 } else {
                     return .send(.routeToExploreSearchScreen)
                 }
-                return .none
             case .routeToExploreSearchScreen:
+                return .none
+            case .tabSelected:
                 return .none
             case .binding:
                 return .none

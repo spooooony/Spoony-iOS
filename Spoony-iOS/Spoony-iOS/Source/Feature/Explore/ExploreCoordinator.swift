@@ -21,6 +21,7 @@ struct ExploreCoordinator {
     
     enum Action {
         case router(IndexedRouterActionOf<ExploreScreen>)
+        case tabSelected(TabType)
     }
     
     var body: some ReducerOf<Self> {
@@ -34,6 +35,8 @@ struct ExploreCoordinator {
             case .router(.routeAction(id: _, action: .search(.routeToExploreScreen))):
                 state.routes.goBack()
                 return .none
+            case .router(.routeAction(id: _, action: .explore(.tabSelected(let tab)))):
+                return .send(.tabSelected(tab))
             default:
                 return .none
             }
