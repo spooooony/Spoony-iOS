@@ -19,6 +19,13 @@ enum MyPageScreen {
     case editProfile(EditProfileFeature)
     case settings(SettingsFeature)
     case attendance(AttendanceFeature)
+    
+    case accountManagement(AccountManagementFeature)
+    case blockedUsers(BlockedUsersFeature)
+    case termsOfService(TermsOfServiceFeature)
+    case privacyPolicy(PrivacyPolicyFeature)
+    case locationServices(LocationServicesFeature)
+    case inquiry(InquiryFeature)
 }
 
 struct MyPageView: View {
@@ -47,6 +54,26 @@ struct MyPageView: View {
                 MealTrackerView(store: store)
                     .navigationBarBackButtonHidden()
                     .toolbar(.hidden, for: .tabBar)
+                
+            // 설정 관련 화면들 추가
+            case let .accountManagement(store):
+                AccountManagementView(store: store)
+                    .navigationBarBackButtonHidden()
+            case let .blockedUsers(store):
+                BlockedUsersView(store: store)
+                    .navigationBarBackButtonHidden()
+            case let .termsOfService(store):
+                TermsOfServiceView(store: store)
+                    .navigationBarBackButtonHidden()
+            case let .privacyPolicy(store):
+                PrivacyPolicyView(store: store)
+                    .navigationBarBackButtonHidden()
+            case let .locationServices(store):
+                LocationServicesView(store: store)
+                    .navigationBarBackButtonHidden()
+            case let .inquiry(store):
+                InquiryView(store: store)
+                    .navigationBarBackButtonHidden()
             }
         }
     }
