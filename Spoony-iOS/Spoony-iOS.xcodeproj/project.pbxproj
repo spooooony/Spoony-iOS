@@ -460,8 +460,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.18.0;
+				kind = exactVersion;
+				version = 1.18.0;
 			};
 		};
 		71EDD4772D38EC8700D94926 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
