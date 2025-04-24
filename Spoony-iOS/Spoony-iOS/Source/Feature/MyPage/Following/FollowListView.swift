@@ -79,8 +79,8 @@ extension FollowListView {
                 ForEach(follows, id: \.userId) { user in
                     FollowRow(user: user)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        .alignmentGuide(.listRowSeparatorLeading) { viewDimensions in
-                            return -viewDimensions.width
+                        .alignmentGuide(.listRowSeparatorLeading) {
+                            $0[.leading]
                         }
                 }
             }
@@ -91,8 +91,8 @@ extension FollowListView {
                 ForEach(follows.filter { $0.isFollowing }, id: \.userId) { user in
                     FollowRow(user: user)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        .alignmentGuide(.listRowSeparatorLeading) { viewDimensions in
-                            return -viewDimensions.width
+                        .alignmentGuide(.listRowSeparatorLeading) {
+                            $0[.leading]
                         }
                 }
             }
