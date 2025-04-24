@@ -8,11 +8,16 @@
 import SwiftUI
 
 struct FollowListView: View {
+    
+    // MARK: - Properties
+    
     @Namespace private var tabNamespace
     @State private var currentTab: Int = 0
     
     private let tabs = ["팔로워 1000", "팔로잉 12"]
     private let follows: [FollowModel] = FollowModel.dummyData()
+    
+    // MARK: - Body
     
     var body: some View {
         VStack(spacing: 0) {
