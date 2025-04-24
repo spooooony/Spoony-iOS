@@ -51,7 +51,7 @@ extension FollowListView {
                             if currentTab == index {
                                 Rectangle()
                                     .fill(.main400)
-                                    .frame(height: 2)
+                                    .frame(height: 2.adjustedH)
                                     .matchedGeometryEffect(id: "underline", in: tabNamespace)
                             }
                         }
@@ -107,7 +107,7 @@ struct FollowRow: View {
     let user: FollowModel
     
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 16.adjusted) {
             Circle()
                 .fill(Color.gray.opacity(0.3))
                 .frame(width: 60.adjusted, height: 60.adjustedH)

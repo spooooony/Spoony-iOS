@@ -28,8 +28,8 @@ struct FollowButton: View {
             Text(isFollowing ? "팔로잉" : "팔로우")
                 .font(.body2sb)
                 .foregroundColor(isFollowing ? .gray500 : .white)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 14.adjusted)
+                .padding(.vertical, 8.adjustedH)
                 .background(
                     Group {
                         if isFollowing {
