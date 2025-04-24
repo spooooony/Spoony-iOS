@@ -36,9 +36,9 @@ struct MyPageView: View {
             case let .reviews(store):
                 ReviewsView(store: store)
             case let .following(store):
-                FollowingView(store: store)
+                FollowListView()
             case let .follower(store):
-                FollowerView(store: store)
+                FollowListView()
             case let .editProfile(store):
                 EditProfileView(store: store)
             case let .settings(store):
