@@ -50,7 +50,7 @@ struct FollowButton: View {
                 .cornerRadius(12)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(isFollowing ? .gray100 : .main200, lineWidth: 1)
+                        .strokeBorder(isFollowing ? .gray100 : .main200, lineWidth: 1)
                 )
         }
     }
