@@ -10,10 +10,20 @@ import Foundation
 enum PlaceInfoType {
     case listCell
     case selectedCell
+    case editModeCell
+    
+    var isBorder: Bool {
+        switch self {
+        case .listCell:
+            return false
+        case .selectedCell, .editModeCell:
+            return true
+        }
+    }
     
     var isIcon: Bool {
         switch self {
-        case .listCell:
+        case .listCell, .editModeCell:
             return false
         case .selectedCell:
             return true
@@ -24,7 +34,7 @@ enum PlaceInfoType {
         switch self {
         case .listCell:
             return 63.adjustedH
-        case .selectedCell:
+        case .selectedCell, .editModeCell:
             return 59.adjustedH
         }
     }
@@ -33,7 +43,7 @@ enum PlaceInfoType {
         switch self {
         case .listCell:
             return 8
-        case .selectedCell:
+        case .selectedCell, .editModeCell:
             return 4
         }
     }
@@ -44,7 +54,7 @@ enum PlaceInfoType {
     
     var horizontalSpacing: CGFloat {
         switch self {
-        case .listCell:
+        case .listCell, .editModeCell:
             return 16
         case .selectedCell:
             return 12
@@ -55,7 +65,7 @@ enum PlaceInfoType {
         switch self {
         case .listCell:
             return 12
-        case .selectedCell:
+        case .selectedCell, .editModeCell:
             return 10
         }
     }
