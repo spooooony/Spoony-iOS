@@ -26,7 +26,7 @@ struct MyPageCoordinator {
         Reduce { state, action in
             switch action {
             case .router(.routeAction(id: _, action: .profile(.routeToReviewsScreen))):
-                state.routes.push(.reviews(.initialState))
+                state.routes.push(.reviews(.editState))
                 return .none
                 
             case .router(.routeAction(id: _, action: .profile(.routeToFollowingScreen))):
@@ -48,7 +48,7 @@ struct MyPageCoordinator {
             case .router(.routeAction(id: _, action: .profile(.routeToAttendanceScreen))):
                 state.routes.push(.attendance(.initialState))
                 return .none
-                
+            
             // 이전 화면으로 돌아가기
             case .router(.routeAction(id: _, action: .reviews(.routeToPreviousScreen))),
                  .router(.routeAction(id: _, action: .following(.routeToPreviousScreen))),
