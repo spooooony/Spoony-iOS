@@ -89,7 +89,7 @@ extension InfoStepView {
                 if let place = store.state.selectedPlace {
                     PlaceInfoCell(
                         placeInfo: place,
-                        placeInfoType: store.isEditMode ? .editModelCell : .selectedCell
+                        placeInfoType: store.isEditMode ? .editModeCell : .selectedCell
                     ) {
                         store.send(.didTapPlaceInfoCellIcon)
                     }
