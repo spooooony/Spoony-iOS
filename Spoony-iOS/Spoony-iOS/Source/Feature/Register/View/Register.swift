@@ -44,8 +44,10 @@ struct Register: View {
             store.send(.onAppear)
         }
         .onDisappear {
-            store.send(.onDisappear)
-        }        
+            if !store.state.infoStepState.isEditMode {
+                store.send(.onDisappear)
+            }
+        }
         .overlay {
             if store.state.isLoading {
                 ProgressView()
