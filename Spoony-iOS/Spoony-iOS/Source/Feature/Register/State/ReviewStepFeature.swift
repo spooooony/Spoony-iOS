@@ -14,10 +14,18 @@ struct ReviewStepFeature {
     @ObservableState
     struct State: Equatable {
         static let initialState = State()
+        static var editState: State {
+            var state = State()
+            state.isEditMode = true
+            state.isDisableNextButton = false
+            state.isDetailTextError = false
+            return state
+        }
+        
+        var isEditMode: Bool = false
+        
         // MARK: - 리뷰 관련 property
-        var simpleText: String = ""
         var detailText: String = ""
-        var isSimpleTextError: Bool = true
         var isDetailTextError: Bool = true
         
         // MARK: - 이미지 업로드 관련 property
@@ -26,7 +34,11 @@ struct ReviewStepFeature {
         var uploadImages: [UploadImage] = []
         var uploadImageErrorState: UploadImageErrorState = .initial
         
-        var isDisableNextButton: Bool = true                
+        // MARK: - 아쉬운 점 관련 property
+        var weakPointText: String = ""
+        var isWeakPointTextError: Bool  = false
+        
+        var isDisableNextButton: Bool = true
     }
     
     enum Action: BindableAction, Equatable {
@@ -71,7 +83,7 @@ struct ReviewStepFeature {
                     await send(.updateUploadImages(uploadImages))
                     await send(.removePickerItems)
                 }
-            case .binding(\.isSimpleTextError), .binding(\.isDetailTextError):
+            case .binding(\.isWeakPointTextError), .binding(\.isDetailTextError):
                 return .send(.validateNextButton)
             case .didTapPhotoDeleteIcon(let image):
                 if let index = state.uploadImages.firstIndex(where: { $0.id == image.id }) {
@@ -92,7 +104,7 @@ struct ReviewStepFeature {
                 return .send(.validateNextButton)
             case .validateNextButton:
                 let imageError = [.error, .initial].contains(state.uploadImageErrorState)
-                state.isDisableNextButton = imageError || state.isSimpleTextError || state.isDetailTextError
+                state.isDisableNextButton = imageError || state.isWeakPointTextError || state.isDetailTextError
                 return .none
             default: return .none
             }
