@@ -18,22 +18,97 @@ struct SettingsView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             CustomNavigationBar(
                 style: .detail,
+                title: "설정",
                 searchText: .constant(""),
                 onBackTapped: {
                     store.send(.routeToPreviousScreen)
                 }
             )
             
-            Spacer()
-            
-            Text("Settings View")
-                .font(.largeTitle)
+            VStack(spacing: 0) {
+                sectionHeader(title: "계정")
+                
+                settingsRow(title: "계정 관리", hasArrow: true) {
+                    store.send(.didTapAccountManagement)
+                }
+                
+                sectionHeader(title: "기타")
+                
+                settingsRow(title: "차단한 유저", hasArrow: true) {
+                    store.send(.didTapBlockedUsers)
+                }
+                Divider()
+                    .padding(.leading, 20)
+                
+                settingsRow(title: "서비스 이용약관", hasArrow: true) {
+                    store.send(.didTapServiceTerms)
+                }
+                
+                settingsRow(title: "개인정보 처리 방침", hasArrow: true) {
+                    store.send(.didTapPrivacyPolicy)
+                }
+                
+                settingsRow(title: "위치기반서비스 이용약관", hasArrow: true) {
+                    store.send(.didTapLocationServices)
+                }
+                
+                settingsRow(title: "1:1 문의", hasArrow: true) {
+                    store.send(.didTapInquiry)
+                }
+                Spacer()
+            }
+        }
+        .background(Color.white)
+        .navigationBarHidden(true)
+        .task {
+            store.send(.onAppear)
+        }
+    }
+    
+    private func sectionHeader(title: String) -> some View {
+        HStack {
+            Text(title)
+                .font(.caption1m)
+                .foregroundStyle(.gray600)
+                .padding(.leading, 20)
+                .padding(.vertical, 8)
             
             Spacer()
         }
-        .navigationBarHidden(true)
+        .frame(maxWidth: .infinity)
+        .background(Color.gray0)
+    }
+    
+    private func settingsRow(title: String, hasArrow: Bool = false, action: (() -> Void)? = nil) -> some View {
+        Button(action: {
+            action?()
+        }) {
+            HStack {
+                Text(title)
+                    .font(.body2m)
+                    .foregroundStyle(.gray700)
+                    .padding(.vertical, 16)
+                
+                Spacer()
+                
+                if hasArrow {
+                    Image(.icArrowRightGray400)
+                }
+            }
+            .padding(.horizontal, 20)
+            .background(Color.white)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+#Preview {
+    NavigationView {
+        SettingsView(store: Store(initialState: .initialState, reducer: {
+            SettingsFeature()
+        }))
     }
 }

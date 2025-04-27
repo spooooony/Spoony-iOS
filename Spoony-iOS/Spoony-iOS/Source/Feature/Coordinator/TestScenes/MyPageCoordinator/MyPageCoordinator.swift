@@ -49,13 +49,43 @@ struct MyPageCoordinator {
                 state.routes.push(.attendance(.initialState))
                 return .none
                 
+            case .router(.routeAction(id: _, action: .settings(.routeToAccountManagementScreen))):
+                state.routes.push(.accountManagement(.initialState))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .settings(.routeToBlockedUsersScreen))):
+                state.routes.push(.blockedUsers(.initialState))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .settings(.routeToTermsOfServiceScreen))):
+                state.routes.push(.termsOfService(.initialState))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .settings(.routeToPrivacyPolicyScreen))):
+                state.routes.push(.privacyPolicy(.initialState))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .settings(.routeToLocationServicesScreen))):
+                state.routes.push(.locationServices(.initialState))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .settings(.routeToInquiryScreen))):
+                state.routes.push(.inquiry(.initialState))
+                return .none
+                
             // 이전 화면으로 돌아가기
             case .router(.routeAction(id: _, action: .reviews(.routeToPreviousScreen))),
-                 .router(.routeAction(id: _, action: .following(.routeToPreviousScreen))),
-                 .router(.routeAction(id: _, action: .follower(.routeToPreviousScreen))),
-                 .router(.routeAction(id: _, action: .editProfile(.routeToPreviousScreen))),
-                 .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),
-                 .router(.routeAction(id: _, action: .attendance(.routeToPreviousScreen))):
+                    .router(.routeAction(id: _, action: .following(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .follower(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .editProfile(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .attendance(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .accountManagement(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .blockedUsers(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .termsOfService(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .privacyPolicy(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .locationServices(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .inquiry(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
                 
