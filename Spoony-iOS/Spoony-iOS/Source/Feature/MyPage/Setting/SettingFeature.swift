@@ -26,7 +26,6 @@ struct SettingsFeature {
         static let initialState = State()
         
         var isLoading: Bool = false
-        var destination: SettingsScreenType?
     }
     
     enum Action {
@@ -38,9 +37,7 @@ struct SettingsFeature {
         case didTapPrivacyPolicy
         case didTapLocationServices
         case didTapInquiry
-        case setDestination(SettingsScreenType?)
         
-        // 실제 라우팅 액션 추가
         case routeToAccountManagementScreen
         case routeToBlockedUsersScreen
         case routeToTermsOfServiceScreen
@@ -75,10 +72,6 @@ struct SettingsFeature {
                 
             case .didTapInquiry:
                 return .send(.routeToInquiryScreen)
-                
-            case let .setDestination(destination):
-                state.destination = destination
-                return .none
                 
             case .routeToAccountManagementScreen,
                  .routeToBlockedUsersScreen,
