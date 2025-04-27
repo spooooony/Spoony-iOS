@@ -48,7 +48,6 @@ struct FixedBottomSheetView: View {
                         title: "떠먹으러 가기",
                         disabled: $isDisabled
                     ) {
-                        // 탐색 탭으로 이동
                         store.send(.routToExploreTab)
                     }
                     .padding(.top, 8)
@@ -65,4 +64,12 @@ struct FixedBottomSheetView: View {
         }
         .ignoresSafeArea()
     }
+}
+
+#Preview {
+    FixedBottomSheetView(
+        store: Store(initialState: .initialState) {
+            MapFeature()
+        }
+    )
 }
