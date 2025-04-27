@@ -1,13 +1,13 @@
-////
-////  FilterBottomSheet.swift
-////  Spoony-iOS
-////
-////  Created by 최주리 on 1/14/25.
-////
 //
-//import SwiftUI
+//  SortBottomSheet.swift
+//  Spoony-iOS
 //
-enum FilterType: String, CaseIterable {
+//  Created by 최주리 on 1/14/25.
+//
+
+import SwiftUI
+
+enum SortType: String, CaseIterable {
     case latest
     case popularity
     
@@ -21,7 +21,7 @@ enum FilterType: String, CaseIterable {
     }
 }
 //
-//struct FilterBottomSheet: View {
+//struct SortBottomSheet: View {
 //    @ObservedObject var store: ExploreStore
 //    
 //    var body: some View {

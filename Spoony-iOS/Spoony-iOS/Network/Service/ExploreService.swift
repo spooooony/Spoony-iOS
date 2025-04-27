@@ -13,7 +13,7 @@ protocol ExploreProtocol {
     func getUserFeed(
         categoryId: Int,
         location: String,
-        sort: FilterType
+        sort: SortType
     ) async throws -> FeedListResponse
     
     func getCategoryList() async throws -> SearchCategoryListResponse
@@ -25,7 +25,7 @@ final class DefaultExploreService: ExploreProtocol {
     func getUserFeed(
         categoryId: Int,
         location: String,
-        sort: FilterType
+        sort: SortType
     ) async throws -> FeedListResponse {
         return try await withCheckedThrowingContinuation { continuation in
             provider.request(
@@ -77,7 +77,7 @@ final class MockExploreService: ExploreProtocol {
     func getUserFeed(
         categoryId: Int,
         location: String,
-        sort: FilterType
+        sort: SortType
     ) async throws -> FeedListResponse {
         return .init(feedResponseList: [
             
