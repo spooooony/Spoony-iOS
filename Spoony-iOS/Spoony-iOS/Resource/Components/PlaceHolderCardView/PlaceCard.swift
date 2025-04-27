@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct PlaceCard: View {
-    @EnvironmentObject var navigationManager: NavigationManager
+    let store: StoreOf<MapFeature>
     let places: [CardPlace]
     @Binding var currentPage: Int
     
@@ -21,7 +22,7 @@ struct PlaceCard: View {
                         .padding(.horizontal, 26)
                         .onTapGesture {
                             let postId = places[index].postId
-                            navigationManager.push(.detailView(postId: postId))
+                            store.send(.routToDetailView(postId: postId))
                         }
                 }
             }
