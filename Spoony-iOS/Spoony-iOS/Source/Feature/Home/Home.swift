@@ -1,6 +1,6 @@
 //
 //  Home.swift
-//  SpoonMe
+//  Spoony-iOS
 //
 //  Created by 이지훈 on 1/2/25.
 //
@@ -10,28 +10,11 @@ import ComposableArchitecture
 import CoreLocation
 
 struct Home: View {
-    //    @EnvironmentObject var navigationManager: NavigationManager
-    @StateObject private var viewModel = HomeViewModel(service: DefaultHomeService())
+    @Bindable private var store: StoreOf<MapFeature>
     @State private var locationManager = CLLocationManager()
-    private let store: StoreOf<MapFeature>
-    @State private var isBottomSheetPresented = true
-    @State private var searchText = ""
-    @State private var selectedPlace: CardPlace?
-    @State private var currentPage = 0
-    @State private var spoonCount: Int = 0
-    @State private var selectedCategories: [CategoryChip] = []
-    @State private var categories: [CategoryChip] = []
-    @State private var bottomSheetHeight: CGFloat = 0
-    @State private var currentBottomSheetStyle: BottomSheetStyle = .half
-    private let restaurantService: HomeServiceType
-    private let registerService: RegisterServiceType
     
-    init(store: StoreOf<MapFeature>,
-         restaurantService: HomeServiceType = DefaultHomeService(),
-         registerService: RegisterServiceType = RegisterService()) {
+    init(store: StoreOf<MapFeature>) {
         self.store = store
-        self.restaurantService = restaurantService
-        self.registerService = registerService
     }
     
     var body: some View {
@@ -39,30 +22,33 @@ struct Home: View {
             Color.white
                 .edgesIgnoringSafeArea(.all)
             
-            NMapView(viewModel: viewModel, selectedPlace: $selectedPlace)
-                .edgesIgnoringSafeArea(.all)
-                .onChange(of: viewModel.focusedPlaces) { _, newPlaces in
-                    if !newPlaces.isEmpty {
-                        selectedPlace = newPlaces[0]
-                    } else {
-                        selectedPlace = nil
-                    }
-                }
+            NMapView(
+                store: store,
+                selectedPlace: Binding(
+                    get: { store.selectedPlace },
+                    set: { store.send(.selectPlace($0)) }
+                ),
+                isLocationFocused: store.isLocationFocused,
+                userLocation: store.userLocation,
+                focusedPlaces: store.focusedPlaces,
+                pickList: store.pickList,
+                selectedLocation: store.selectedLocation
+            )
+            .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 0) {
                 CustomNavigationBar(
                     style: .searchContent,
-                    searchText: $searchText,
-                    spoonCount: spoonCount,
+                    searchText: $store.searchText.sending(\.setSearchText),
+                    spoonCount: store.spoonCount,
                     tappedAction: {
                         store.send(.routToSearchScreen)
-                        //                        navigationManager.push(.searchView)
                     }
                 )
                 .frame(height: 56.adjusted)
                 
                 HStack(spacing: 8) {
-                    if categories.isEmpty {
+                    if store.categories.isEmpty {
                         ForEach(0..<4, id: \.self) { _ in
                             CategoryChipsView(category: CategoryChip.placeholder)
                                 .redacted(reason: .placeholder)
@@ -77,19 +63,24 @@ struct Home: View {
                                         title: "전체",
                                         id: 0
                                     ),
-                                    isSelected: selectedCategories.isEmpty || selectedCategories.contains { $0.id == 0 }
+                                    isSelected: store.selectedCategories.isEmpty || store.selectedCategories.contains { $0.id == 0 }
                                 )
                                 .onTapGesture {
-                                    selectedCategories = []
+                                    store.send(.selectCategory(CategoryChip(
+                                        image: "",
+                                        selectedImage: "",
+                                        title: "전체",
+                                        id: 0
+                                    )))
                                 }
                                 
-                                ForEach(categories, id: \.id) { category in
+                                ForEach(store.categories, id: \.id) { category in
                                     CategoryChipsView(
                                         category: category,
-                                        isSelected: selectedCategories.contains { $0.id == category.id }
+                                        isSelected: store.selectedCategories.contains { $0.id == category.id }
                                     )
                                     .onTapGesture {
-                                        handleCategorySelection(category)
+                                        store.send(.selectCategory(category))
                                     }
                                 }
                             }
@@ -103,9 +94,9 @@ struct Home: View {
             }
             
             ZStack(alignment: .bottomTrailing) {
-                if currentBottomSheetStyle != .full {
+                if store.currentBottomSheetStyle != .full {
                     Button(action: {
-                        viewModel.moveToUserLocation()
+                        store.send(.moveToUserLocation)
                     }) {
                         ZStack {
                             Circle()
@@ -113,31 +104,40 @@ struct Home: View {
                                 .frame(width: 44.adjusted, height: 44.adjusted)
                                 .shadow(color: Color.gray300, radius: 16, x: 1, y: 1)
                             
-                            Image(viewModel.isLocationFocused ? "ic_gps_main" : "ic_gps_gray500")
+                            Image(store.isLocationFocused ? "ic_gps_main" : "ic_gps_gray500")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 24.adjusted, height: 24.adjusted)
                         }
                     }
-                    .padding(.bottom, bottomSheetHeight - 68 )
+                    .padding(.bottom, store.bottomSheetHeight - 68)
                     .padding(.trailing, 20)
                 }
                 
                 Group {
-                    if !viewModel.focusedPlaces.isEmpty {
+                    if !store.focusedPlaces.isEmpty {
                         PlaceCard(
-                            places: viewModel.focusedPlaces,
-                            currentPage: $currentPage
+                            store: store,
+                            places: store.focusedPlaces,
+                            currentPage: Binding(
+                                get: { store.currentPage },
+                                set: { store.send(.setCurrentPage($0)) }
+                            )
                         )
                         .padding(.bottom, 12)
                         .transition(.move(edge: .bottom))
                     } else {
-                        if !viewModel.pickList.isEmpty {
+                        if !store.pickList.isEmpty {
                             BottomSheetListView(
-                                viewModel: viewModel,
                                 store: store,
-                                currentStyle: $currentBottomSheetStyle,
-                                bottomSheetHeight: $bottomSheetHeight
+                                currentStyle: Binding(
+                                    get: { store.currentBottomSheetStyle },
+                                    set: { store.send(.setBottomSheetStyle($0)) }
+                                ),
+                                bottomSheetHeight: Binding(
+                                    get: { store.bottomSheetHeight },
+                                    set: { _ in }  // We don't need to set it directly as it's managed by the store
+                                )
                             )
                         } else {
                             FixedBottomSheetView(store: store)
@@ -147,36 +147,35 @@ struct Home: View {
             }
             .navigationBarHidden(true)
             .task {
-                isBottomSheetPresented = true
-                do {
-                    spoonCount = try await restaurantService.fetchSpoonCount()
-                    viewModel.fetchPickList()
-                    
-                    let categoryResponse = try await registerService.getRegisterCategories()
-                    categories = try await categoryResponse.toModel()
-                    
-                    bottomSheetHeight = BottomSheetStyle.half.height
-                    currentBottomSheetStyle = .half
-                } catch {
-                    print("Failed to fetch data:", error)
-                }
+                checkPermissions()
+                store.send(.fetchSpoonCount)
+                store.send(.fetchPickList)
+                store.send(.fetchCategories)
             }
         }
     }
     
-    // 카테고리 선택 처리 메서드
-    private func handleCategorySelection(_ category: CategoryChip) {
-        if selectedCategories.contains(where: { $0.id == category.id }) {
-            selectedCategories.removeAll { $0.id == category.id }
-        } else {
-            selectedCategories = [category]
-        }
-        
-        if !selectedCategories.isEmpty {
-            let categoryId = selectedCategories[0].id
-            print("Selected category: \(categoryId)")
-        } else {
-            
+    private func checkPermissions() {
+        locationManager.delegate = LocationManagerDelegate(onLocationUpdate: { location in
+            store.send(.updateUserLocation(location))
+        })
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+    }
+}
+
+// Helper class to handle location updates
+class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
+    let onLocationUpdate: (CLLocation) -> Void
+    
+    init(onLocationUpdate: @escaping (CLLocation) -> Void) {
+        self.onLocationUpdate = onLocationUpdate
+        super.init()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.last {
+            onLocationUpdate(location)
         }
     }
 }
@@ -184,5 +183,5 @@ struct Home: View {
 #Preview {
     Home(store: Store(initialState: .initialState) {
         MapFeature()
-    }).environmentObject(NavigationManager())
+    })
 }
