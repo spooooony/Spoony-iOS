@@ -10,84 +10,8 @@ import SwiftUI
 import ComposableArchitecture
 import Lottie
 
-enum ExploreViewType {
-    case all
-    case following
-    
-    var emptyDescription: String {
-        switch self {
-        case .all:
-            "아직 발견된 장소가 없어요.\n나만의 리스트를 공유해 볼까요?"
-        case .following:
-            "아직 팔로우 한 유저가 없어요.\n관심 있는 유저들을 팔로우해보세요."
-        }
-    }
-    
-    var buttonTitle: String {
-        switch self {
-        case .all:
-            "등록하러 가기"
-        case .following:
-            "검색하러 가기"
-        }
-
-    }
-    
-    var lottieImage: String {
-        switch self {
-        case .all:
-            "lottie_empty_explore"
-        case .following:
-            "lottie_empty_explore"
-        }
-    }
-}
-
-enum FilterButtonType: CaseIterable {
-    case filter
-    case local
-    case sort
-    case category
-    case location
-    case age
-    
-    var title: String {
-        switch self {
-        case .filter:
-            "필터"
-        case .local:
-            "로컬 리뷰"
-        case .sort:
-            "최신순"
-        case .category:
-            "카테고리"
-        case .location:
-            "지역"
-        case .age:
-            "연령대"
-        }
-    }
-    
-    var isLeadingIcon: Bool {
-        switch self {
-        case .filter:
-            true
-        default:
-            false
-        }
-    }
-    
-    var isTrailingIcon: Bool {
-        switch self {
-        case .filter, .local:
-            false
-        default:
-            true
-        }
-    }
-}
-
 struct Explore: View {
+    @Namespace private var namespace
     @Bindable private var store: StoreOf<ExploreFeature>
     
     init(store: StoreOf<ExploreFeature>) {
@@ -126,19 +50,27 @@ struct Explore: View {
 
 extension Explore {
     private var customNavigationBar: some View {
-        // TODO: 명진샘 애니메이션 훔치기
-        HStack {
-            Text("전체")
-                .foregroundStyle(store.state.viewType == .all ? .main400 : .gray300)
-                .onTapGesture {
-                    store.send(.changeViewType(.all))
+        HStack(spacing: 0) {
+            ForEach(ExploreViewType.allCases, id: \.self) { type in
+                VStack(spacing: 9.adjustedH) {
+                    Text(type.title)
+                        .foregroundStyle(store.state.viewType == type ? .main400 : .gray300)
+                        .onTapGesture {
+                            store.send(.changeViewType(type))
+                        }
+                    
+                    Rectangle()
+                        .fill(.main400)
+                        .frame(height: 2.adjustedH)
+                        .isHidden(store.state.viewType != type)
+                        .matchedGeometryEffect(id: "underline", in: namespace)
                 }
-            Text("팔로잉")
-                .foregroundStyle(store.state.viewType == .following ? .main400 : .gray300)
-                .onTapGesture {
-                    store.send(.changeViewType(.following))
-                }
+                // TODO: 글자 크기에 맞추기
+                .frame(width: 50)
+            }
+            
             Spacer()
+            
             Image(.icSearchGray600)
                 .resizable()
                 .frame(width: 19.adjusted, height: 19.adjusted)
@@ -147,6 +79,10 @@ extension Explore {
                 }
         }
         .customFont(.title3sb)
+        .animation(
+            .easeInOut(duration: 0.25),
+            value: store.state.viewType
+        )
         .padding(.top, 12)
     }
     
