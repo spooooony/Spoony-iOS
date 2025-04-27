@@ -136,7 +136,7 @@ struct Home: View {
                                 ),
                                 bottomSheetHeight: Binding(
                                     get: { store.bottomSheetHeight },
-                                    set: { _ in }  // We don't need to set it directly as it's managed by the store
+                                    set: { _ in }
                                 )
                             )
                         } else {
@@ -164,7 +164,6 @@ struct Home: View {
     }
 }
 
-// Helper class to handle location updates
 class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
     let onLocationUpdate: (CLLocation) -> Void
     

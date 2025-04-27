@@ -15,7 +15,6 @@ struct MapFeature {
     struct State: Equatable {
         static let initialState = State()
         
-        // Map data
         var pickList: [PickListCardResponse] = []
         var focusedPlaces: [CardPlace] = []
         var selectedPlace: CardPlace? = nil
@@ -25,16 +24,13 @@ struct MapFeature {
         var userLocation: CLLocation? = nil
         var selectedLocation: (latitude: Double, longitude: Double)? = nil
         
-        // Category data
         var categories: [CategoryChip] = []
         var selectedCategories: [CategoryChip] = []
         var spoonCount: Int = 0
         
-        // Bottom sheet
         var currentBottomSheetStyle: BottomSheetStyle = .half
         var bottomSheetHeight: CGFloat = 0
         
-        // Search
         var searchText: String = ""
         
         // CLLocation은 자동으로 Equatable을 준수하지 않으므로 직접 구현
@@ -60,12 +56,10 @@ struct MapFeature {
     }
     
     enum Action {
-        // Navigation
         case routToSearchScreen
         case routToExploreTab
         case routToDetailView(postId: Int)
         
-        // Data loading
         case fetchPickList
         case pickListResponse(TaskResult<ResturantpickListResponse>)
         case fetchFocusedPlace(placeId: Int)
@@ -77,7 +71,6 @@ struct MapFeature {
         case fetchCategories
         case categoriesResponse(TaskResult<[CategoryChip]>)
         
-        // UI interactions
         case selectPlace(CardPlace?)
         case setCurrentPage(Int)
         case clearFocusedPlaces
@@ -118,7 +111,6 @@ struct MapFeature {
                 print("포커스 장소 조회 시작: placeId=\(placeId)")
                 state.isLoading = true
                 
-                // 선택된 장소의 위치 정보 설정
                 if let selectedPlace = state.pickList.first(where: { $0.placeId == placeId }) {
                     state.selectedLocation = (selectedPlace.latitude, selectedPlace.longitude)
                 }
@@ -134,7 +126,6 @@ struct MapFeature {
                     }
                 }
                 
-        
             case let .fetchLocationList(locationId):
                 state.isLoading = true
                 return .run { send in
@@ -214,7 +205,7 @@ struct MapFeature {
                 
             case .moveToUserLocation:
                 guard let userLocation = state.userLocation else {
-                    return .none // Handle location permission in view
+                    return .none
                 }
                 
                 state.isLocationFocused.toggle()
@@ -237,7 +228,6 @@ struct MapFeature {
                     state.selectedCategories = [category]
                 }
                 
-                // Here you could add logic to filter places by category
                 return .none
                 
             case let .setBottomSheetStyle(style):
@@ -253,14 +243,10 @@ struct MapFeature {
                 state.isLoading = false
                 let places = response.zzimFocusResponseList.map { $0.toCardPlace() }
                 
-                // 확실하게 상태 업데이트
                 if !places.isEmpty {
-                    print("포커스 장소 데이터 설정: \(places.count)개")
                     state.focusedPlaces = places
                     state.selectedPlace = places[0]
-                    state.currentPage = 0  // 페이지 초기화
-                    
-                    // 바텀시트 스타일 변경
+                    state.currentPage = 0
                     state.currentBottomSheetStyle = .half
                 } else {
                     print("포커스 장소 데이터 없음")
