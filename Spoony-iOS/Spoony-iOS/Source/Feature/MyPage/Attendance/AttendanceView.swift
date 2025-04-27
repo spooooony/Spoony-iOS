@@ -102,7 +102,9 @@ struct AttendanceView: View {
                 SpoonAttendanceView(
                     day: day,
                     isSelected: store.selectedDays.contains(day),
-                    action: { store.send(.toggleDay(day)) }
+                    action: {
+                        store.send(.toggleDay(day))
+                    }
                 )
             }
         }
