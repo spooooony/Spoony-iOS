@@ -242,15 +242,13 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
     
     private func configureMarkerCaption(_ marker: NMFMarker, with placeName: String, isSelected: Bool) {
         marker.captionText = placeName
-        marker.captionColor = .main400  // Changed from .black to .main400
         marker.captionTextSize = 14
-        marker.captionHaloColor = .white
         
         marker.captionMinZoom = isSelected ? 0 : 10
         marker.captionMaxZoom = 20
         
         marker.anchor = CGPoint(x: 0.5, y: 1.0)
-        marker.captionOffset = -12
+        marker.captionOffset = 4
         marker.captionAligns = [.bottom]
     }
     
