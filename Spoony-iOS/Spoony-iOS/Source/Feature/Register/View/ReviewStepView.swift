@@ -20,14 +20,13 @@ struct ReviewStepView: View {
     var body: some View {
         VStack(spacing: 0) {
             titleView
-            simpleReviewSection
-            detailReviewSection
-            pictureUploadSection
+
+            sectionGroupView
             
             SpoonyButton(
                 style: .primary,
                 size: .xlarge,
-                title: "다음",
+                title: store.state.isEditMode ? "리뷰 수정" : "다음",
                 disabled: $store.isDisableNextButton
             ) {
                 store.send(.didTapNextButton)
@@ -49,6 +48,15 @@ struct ReviewStepView: View {
 }
 
 extension ReviewStepView {
+    private var sectionGroupView: some View {
+            VStack(spacing: 30) {
+                detailReviewSection
+                pictureUploadSection
+                weakPointSection
+            }
+            .padding(.bottom, 28)
+        }
+    
     private var titleView: some View {
         Text("거의 다 왔어요!")
             .customFont(.title3b)
@@ -58,40 +66,11 @@ extension ReviewStepView {
             .padding(.leading, 20)
     }
     
-    private var simpleReviewSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("당신의 맛집을 한 줄로 표현해 주세요")
-                .customFont(.body1sb)
-                .foregroundStyle(.spoonBlack)
-            
-            SpoonyTextField(
-                text: $store.simpleText,
-                style: .helper,
-                placeholder: "장소명 언급은 피해주세요. 우리만의 비밀!",
-                isError: $store.isSimpleTextError
-            )
-        }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 40)
-    }
-    
     private var detailReviewSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 6) {
-                Text("자세한 후기를 적어주세요")
-                    .customFont(.body1sb)
-                    .foregroundStyle(.spoonBlack)
-                
-                HStack(spacing: 4) {
-                    Image(.icRegisterMain400)
-                        .resizable()
-                        .frame(width: 6.adjusted, height: 6.adjustedH)
-                    
-                    Text("50자 이상")
-                        .customFont(.caption1m)
-                        .foregroundStyle(.main400)
-                }
-            }
+            Text("자세한 후기를 적어주세요")
+                .font(.body1sb)
+                .foregroundStyle(.spoonBlack)
             
             SpoonyTextEditor(
                 text: $store.detailText,
@@ -101,7 +80,6 @@ extension ReviewStepView {
             )
         }
         .padding(.horizontal, 20)
-        .padding(.bottom, 40)
     }
     
     private var pictureUploadSection: some View {
@@ -136,7 +114,21 @@ extension ReviewStepView {
                 .padding(.horizontal, 20)
             }
         }
-        .padding(.bottom, 24)
+    }
+    
+    private var weakPointSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("딱 한 가지 아쉬운 점은?")
+                .font(.body1sb)
+                .foregroundStyle(.spoonBlack)
+            
+            SpoonyTextEditor(
+                text: $store.weakPointText,
+                style: .weakPoint,
+                placeholder: "사장님 몰래 남기는 솔직 후기!\n이 내용은 비공개 처리 돼요. (선택)",
+                isError: $store.isWeakPointTextError
+            )
+        }
     }
     
     private var plusButton: some View {

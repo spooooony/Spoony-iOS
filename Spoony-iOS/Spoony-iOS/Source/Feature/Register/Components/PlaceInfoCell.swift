@@ -58,7 +58,7 @@ struct PlaceInfoCell: View {
         .background {
             RoundedRectangle(cornerRadius: 8)
                 .fill(.white.opacity(0.1))
-                .strokeBorder(placeInfoType.isIcon ? .gray100 : .clear)
+                .strokeBorder(placeInfoType.isBorder ? .gray100 : .clear)
         }
     }
 }

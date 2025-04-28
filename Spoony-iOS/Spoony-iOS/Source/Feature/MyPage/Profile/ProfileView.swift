@@ -175,6 +175,13 @@ struct ProfileView: View {
                 .frame(width: 100, height: 100)
                 .padding(.top, 30)
             
+            Button {
+                store.send(.routeToReviewsScreen)
+            } label: {
+                Text("테스트용")
+                    .font(.largeTitle)
+            }
+            
             Text("아직 등록한 리뷰가 없어요.\n나만의 찐맛집을 공유해 보세요!")
                 .customFont(.body1m)
                 .foregroundStyle(.gray500)
