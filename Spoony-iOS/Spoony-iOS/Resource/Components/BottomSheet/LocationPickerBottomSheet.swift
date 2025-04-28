@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-// TODO: 서버 드리븐으로 바꾸기
 enum LocationType: String, CaseIterable {
     case seoul = "서울"
     case gyeonggi = "경기"
