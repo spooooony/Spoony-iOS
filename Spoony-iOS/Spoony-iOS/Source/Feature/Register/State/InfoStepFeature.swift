@@ -12,6 +12,15 @@ struct InfoStepFeature {
     @ObservableState
     struct State: Equatable {
         static let initialState = State()
+        static var editState: State {
+            var state = State()
+            state.isEditMode = true
+            state.isDisableNextButton = false
+            state.isToolTipPresented = false
+            return state
+        }
+        
+        var isEditMode: Bool = false
         
         // MARK: - 카테고리 관련 property
         var selectedCategory: [CategoryChip] = []
@@ -26,6 +35,9 @@ struct InfoStepFeature {
         // MARK: - 추천 메뉴 관련 property
         var recommendTexts: [RecommendText] = [.init()]
         var isDisablePlusButton: Bool = false
+        
+        // MARK: - 만족도 property
+        var satisfaction: Double = 50.0
         
         var keyboardHeight: SizeValueType = 0
         var isToolTipPresented: Bool = true

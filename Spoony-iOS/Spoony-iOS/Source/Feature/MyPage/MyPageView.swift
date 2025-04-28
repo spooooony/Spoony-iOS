@@ -13,7 +13,7 @@ import TCACoordinators
 @Reducer(state: .equatable)
 enum MyPageScreen {
     case profile(ProfileFeature)
-    case reviews(ReviewsFeature)
+    case reviews(RegisterFeature)
     case following(FollowingFeature)
     case follower(FollowerFeature)
     case editProfile(EditProfileFeature)
@@ -41,7 +41,7 @@ struct MyPageView: View {
             case let .profile(store):
                 ProfileView(store: store)
             case let .reviews(store):
-                ReviewsView(store: store)
+                Register(store: store)                    
             case let .following(store):
                 FollowListView()
             case let .follower(store):

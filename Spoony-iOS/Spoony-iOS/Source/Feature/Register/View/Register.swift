@@ -40,9 +40,14 @@ struct Register: View {
                     }
             )
         }
+        .onAppear {
+            store.send(.onAppear)
+        }
         .onDisappear {
-            store.send(.onDisappear)
-        }        
+            if !store.state.infoStepState.isEditMode {
+                store.send(.onDisappear)
+            }
+        }
         .overlay {
             if store.state.isLoading {
                 ProgressView()
@@ -51,6 +56,8 @@ struct Register: View {
                     .background(.white.opacity(0.1))
             }
         }
+        .navigationBarBackButtonHidden()
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
@@ -58,9 +65,13 @@ extension Register {
     private var customNavigationBar: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                if store.state.currentStep != .start {
+                if store.state.currentStep != .start || store.state.infoStepState.isEditMode {
                     Button {
-                        store.send(.reviewStepAction(.movePreviousView))
+                        if store.state.infoStepState.isEditMode && store.state.currentStep == .start {
+                            store.send(.routeToPreviousScreen)
+                        } else {
+                            store.send(.reviewStepAction(.movePreviousView))
+                        }
                     } label: {
                         Image(.icArrowLeftGray700)
                             .resizable()

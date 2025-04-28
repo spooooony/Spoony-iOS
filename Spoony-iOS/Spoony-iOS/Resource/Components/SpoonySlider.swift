@@ -33,7 +33,6 @@ struct SpoonySlider: View {
             .font(.body2m)
             .foregroundStyle(.spoonBlack)
         }
-        .padding(.horizontal, 20)
     }
 }
 
