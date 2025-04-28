@@ -7,22 +7,27 @@
 
 import Foundation
 
+struct FilterItem: Identifiable, Equatable {
+    let id: Int
+    let title: String
+}
+
 struct SelectedFilterInfo: Equatable {
-    var selectedLocal: [String] = []
-    var selectedCategories: [String] = []
-    var selectedLocations: [String] = []
-    var selectedAges: [String] = []
+    var selectedLocal: [FilterItem] = []
+    var selectedCategories: [FilterItem] = []
+    var selectedLocations: [FilterItem] = []
+    var selectedAges: [FilterItem] = []
     
-    func items(_ type: FilterType) -> [String] {
+    func items(_ type: FilterType) -> [FilterItem] {
         switch type {
         case .local:
-            return selectedLocal
+            return selectedLocal.sorted { $0.title < $1.title }
         case .category:
-            return selectedCategories
+            return selectedCategories.sorted { $0.id < $1.id }
         case .location:
-            return selectedLocations
+            return selectedLocations.sorted { $0.id < $1.id }
         case .age:
-            return selectedAges
+            return selectedAges.sorted { $0.title < $1.title }
         }
     }
 }

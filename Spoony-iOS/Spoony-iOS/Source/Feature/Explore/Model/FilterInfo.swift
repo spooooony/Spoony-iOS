@@ -10,13 +10,13 @@ import Foundation
 struct FilterInfo {
     var local: String
     var categories: [CategoryChip]
-    var locations: [String]
+    var locations: [Region]
     var ages: [String]
     
     init(
         local: String = "로컬 리뷰",
         categories: [CategoryChip],
-        locations: [String],
+        locations: [Region],
         ages: [String] = ["10대", "20대", "30대", "40대+"]
     ) {
         self.local = local
@@ -25,16 +25,26 @@ struct FilterInfo {
         self.ages = ages
     }
     
-    func items(_ type: FilterType) -> [String] {
+    func items(_ type: FilterType) -> [FilterItem] {
         switch type {
         case .local:
-            return [local]
+            let list: [FilterItem] = [.init(id: 0, title: local)]
+            return list
         case .category:
-            return categories.map { $0.title }
+            let list: [FilterItem] = categories.map {
+                .init(id: $0.id, title: $0.title)
+            }
+            return list
         case .location:
-            return locations
+            let list: [FilterItem] = locations.map {
+                .init(id: $0.id, title: $0.regionName)
+            }
+            return list
         case .age:
-            return ages
+            let list: [FilterItem] = ages.map {
+                .init(id: 0, title: $0)
+            }
+            return list
         }
     }
 }
