@@ -8,10 +8,6 @@
 import SwiftUI
 
 struct FilterCell: View {
-//    private let isLeadingIcon: Bool
-//    private let isTrailingIcon: Bool
-//    private let text: String
-    
     private let type: FilterButtonType
     @Binding var selectedFilter: [FilterButtonType]
     
