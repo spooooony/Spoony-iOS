@@ -62,7 +62,7 @@ extension View {
         self
             .overlay {
                 self
-                    .colorMultiply(.white)
+                    .colorMultiply(.grayShadow.opacity(0.3))
                     .mask(self)
                     .offset(x: x, y: y)
                     .blur(radius: blur)
