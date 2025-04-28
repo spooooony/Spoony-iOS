@@ -51,7 +51,7 @@ struct FilteringBottomSheet: View {
             .padding(.horizontal, 20)
             .task {
                 withAnimation {
-                    proxy.scrollTo(currentFilter, anchor: .top)
+                    proxy.scrollTo(FilterType.allCases[currentFilter], anchor: .top)
                 }
             }
         }
@@ -127,8 +127,8 @@ extension FilteringBottomSheet {
                 items: filters.items(type)
             )
         }
-        .padding(.top, 24)
         .id(type)
+        .padding(.top, 24)
     }
     
     private func binding(_ type: FilterType) -> Binding<[FilterItem]> {
