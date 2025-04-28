@@ -51,4 +51,25 @@ extension View {
             self
         }
     }
+    
+    // shadow modifier
+    func spreadShadow(
+        blur: CGFloat,
+        spread: CGFloat,
+        x: CGFloat,
+        y: CGFloat
+    ) -> some View {
+        self
+            .overlay {
+                self
+                    .colorMultiply(.white)
+                    .mask(self)
+                    .offset(x: x, y: y)
+                    .blur(radius: blur)
+                    .scaleEffect(1 + spread / 100)
+            }
+            .overlay {
+                self
+            }
+    }
 }
