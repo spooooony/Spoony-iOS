@@ -7,9 +7,18 @@
 
 import Foundation
 
-enum ExploreSearchViewType {
+enum ExploreSearchViewType: CaseIterable {
     case user
     case review
+    
+    var title: String {
+        switch self {
+        case .user:
+            "유저"
+        case .review:
+            "리뷰"
+        }
+    }
     
     var description: String {
         switch self {
