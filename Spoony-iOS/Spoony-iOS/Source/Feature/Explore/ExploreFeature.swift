@@ -16,16 +16,21 @@ struct ExploreFeature {
         static let initialState = State()
         
         var viewType: ExploreViewType = .all
-        var selectedFilter: [FilterButtonType] = []
+        var selectedFilterButton: [FilterButtonType] = []
         
         var allList: [FeedEntity] = []
         var followingList: [FeedEntity] = []
+        
+        var selectedFilter: SelectedFilterInfo = .init()
+        
+        var currentFilterTypeIndex: Int = 0
+        var selectedSort: SortType = .latest
     }
     
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case changeViewType(ExploreViewType)
-        case filterTapped
+        case filterTapped(FilterButtonType)
         case exploreCellTapped(FeedEntity)
         case searchButtonTapped
         case goButtonTapped
@@ -43,8 +48,12 @@ struct ExploreFeature {
             case .changeViewType(let type):
                 state.viewType = type
                 return .none
-            case .filterTapped:
-                print("filter tapped")
+            case .filterTapped(let type):
+                if type.rawValue >= 0 {
+                    state.currentFilterTypeIndex = type.rawValue
+                } else {
+                    state.currentFilterTypeIndex = 0
+                }
                 return .none
             case .exploreCellTapped(let feed):
                 // 디테일로 이동
@@ -61,6 +70,29 @@ struct ExploreFeature {
             case .routeToExploreSearchScreen:
                 return .none
             case .tabSelected:
+                return .none
+            case .binding(\.selectedFilter):
+                state.selectedFilterButton = []
+                
+                if !state.selectedFilter.selectedLocal.isEmpty {
+                    state.selectedFilterButton.append(.local)
+                }
+                
+                if !state.selectedFilter.selectedCategories.isEmpty {
+                    state.selectedFilterButton.append(.category)
+                }
+                
+                if !state.selectedFilter.selectedLocations.isEmpty {
+                    state.selectedFilterButton.append(.location)
+                }
+                
+                if !state.selectedFilter.selectedAges.isEmpty {
+                    state.selectedFilterButton.append(.age)
+                }
+                
+                if !state.selectedFilterButton.isEmpty {
+                    state.selectedFilterButton.append(.filter)
+                }
                 return .none
             case .binding:
                 return .none

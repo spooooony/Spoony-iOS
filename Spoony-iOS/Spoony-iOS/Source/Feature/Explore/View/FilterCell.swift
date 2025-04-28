@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct FilterCell: View {
+    private let title: String
     private let type: FilterButtonType
     @Binding var selectedFilter: [FilterButtonType]
     
@@ -16,9 +17,11 @@ struct FilterCell: View {
     }
     
     init(
+        title: String,
         type: FilterButtonType,
         selectedFilter: Binding<[FilterButtonType]>
     ) {
+        self.title = title
         self.type = type
         self._selectedFilter = selectedFilter
     }
@@ -33,7 +36,7 @@ struct FilterCell: View {
                     .frame(width: 16.adjusted, height: 16.adjusted)
             }
             
-            Text(type.title)
+            Text(title)
                 .customFont(.body2sb)
                 .foregroundStyle(isSelected ? .main400 : .gray500)
             
@@ -59,5 +62,5 @@ struct FilterCell: View {
 }
 
 #Preview {
-    FilterCell(type: .filter, selectedFilter: .constant([]))
+    FilterCell(title: "필터", type: .filter, selectedFilter: .constant([]))
 }
