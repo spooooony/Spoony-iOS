@@ -23,7 +23,7 @@ struct SpoonyTooltipView: View {
             .overlay(
                 Triangle()
                     .fill(Color.spoonBlack)
-                    .frame(width: 12, height: 6)
+                    .frame(width: 12.adjusted, height: 6.adjustedH)
                     .rotationEffect(.degrees(0))
                     .offset(y: -6)
                 , alignment: .top
