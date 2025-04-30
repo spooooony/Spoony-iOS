@@ -204,48 +204,16 @@ extension Explore {
     }
     
     private func getFilterTitle(_ type: FilterButtonType) -> String {
-        switch type {
-        case .local, .filter:
-            return type.title
-        case .category:
-            if store.state.selectedFilter.selectedCategories.isEmpty {
-                return type.title
-            } else if store.state.selectedFilter.items(.category).count == 1 {
-                guard let title = store.state.selectedFilter.items(.category).first?.title
-                else { return type.title }
-                return title
-            } else {
-                guard let title = store.state.selectedFilter.items(.category).first?.title
-                else { return type.title }
-                return "\(title) 외 \(store.state.selectedFilter.items(.category).count - 1)개"
-            }
-        case .location:
-            if store.state.selectedFilter.selectedLocations.isEmpty {
-                return type.title
-            } else if store.state.selectedFilter.items(.location).count == 1 {
-                guard let title = store.state.selectedFilter.items(.location).first?.title
-                else { return type.title}
-                
-                return title
-            } else {
-                guard let title = store.state.selectedFilter.items(.location).first?.title
-                else { return type.title}
-                
-                return "\(title) 외 \(store.state.selectedFilter.items(.location).count - 1)개"
-            }
-        case .age:
-            if store.state.selectedFilter.items(.age).isEmpty {
-                return type.title
-            } else if store.state.selectedFilter.items(.age).count == 1 {
-                guard let title = store.state.selectedFilter.items(.age).first?.title
-                else { return type.title}
-                return title
-            } else {
-                guard let title = store.state.selectedFilter.items(.age).first?.title
-                else { return type.title }
-                
-                return "\(title) 외 \(store.state.selectedFilter.items(.age).count - 1)개"
-            }
+        guard let filterType = type.toFilterType else { return type.title }
+        
+        let items = store.state.selectedFilter.items(filterType)
+        
+        guard let firstItemTitle = items.first?.title else { return type.title }
+        
+        if items.count == 1 {
+            return firstItemTitle
+        } else {
+            return "\(firstItemTitle) 외 \(items.count - 1)개"
         }
     }
 }

@@ -46,4 +46,19 @@ enum FilterButtonType: Int, CaseIterable {
             true
         }
     }
+    
+    var toFilterType: FilterType? {
+        switch self {
+        case .local:
+                .local
+        case .category:
+                .category
+        case .location:
+                .location
+        case .age:
+                .age
+        case .filter:
+            nil
+        }
+    }
 }
