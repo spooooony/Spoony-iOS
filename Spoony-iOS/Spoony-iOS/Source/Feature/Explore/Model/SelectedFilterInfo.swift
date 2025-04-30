@@ -20,14 +20,10 @@ struct SelectedFilterInfo: Equatable {
     
     func items(_ type: FilterType) -> [FilterItem] {
         switch type {
-        case .local:
+        case .local, .age:
             return selectedLocal.sorted { $0.title < $1.title }
-        case .category:
+        case .category, .location:
             return selectedCategories.sorted { $0.id < $1.id }
-        case .location:
-            return selectedLocations.sorted { $0.id < $1.id }
-        case .age:
-            return selectedAges.sorted { $0.title < $1.title }
         }
     }
 }

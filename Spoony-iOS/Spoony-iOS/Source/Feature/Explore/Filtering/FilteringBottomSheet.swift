@@ -30,7 +30,7 @@ struct FilteringBottomSheet: View {
                 ScrollView {
                     VStack {
                         ForEach(FilterType.allCases, id: \.self) { type in
-                            filter(type)
+                            filterView(type)
                         }
                     }
                 }
@@ -117,7 +117,7 @@ extension FilteringBottomSheet {
         .padding(.top, 10.5)
     }
     
-    private func filter(_ type: FilterType) -> some View {
+    private func filterView(_ type: FilterType) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(type.title)
                 .customFont(.body2sb)
