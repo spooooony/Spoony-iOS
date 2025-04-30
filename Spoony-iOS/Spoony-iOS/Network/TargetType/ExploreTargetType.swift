@@ -12,7 +12,7 @@ enum ExploreTargetType {
     case getUserFeeds(
         categoryId: Int,
         location: String,
-        sort: FilterType
+        sort: SortType
     )
     case reportPost(report: ReportRequest)
     case getCategories
