@@ -137,7 +137,7 @@ extension Explore {
                     
                     Rectangle()
                         .fill(.clear)
-                        .frame(width: 12.adjusted, height: 0)
+                        .frame(width: 30.adjusted, height: 0)
                 }
             }
             .scrollIndicators(.hidden)
@@ -161,7 +161,7 @@ extension Explore {
             .onTapGesture {
                 sortIsPresented = true
             }
-            .spreadShadow(blur: 5, spread: 0, x: -8, y: 0)
+            .spoonyShadow(style: .shadow500)
             .padding(.trailing, 20)
         }
     }
