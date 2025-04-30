@@ -45,6 +45,8 @@ extension InfoStepView {
             categorySection
             
             recommendSection
+            
+            satisfactionSection
         }
         .overlay(alignment: .top) {
             if store.state.isDropDownPresented {
@@ -85,7 +87,10 @@ extension InfoStepView {
                 }
             } else {
                 if let place = store.state.selectedPlace {
-                    PlaceInfoCell(placeInfo: place, placeInfoType: .selectedCell) {
+                    PlaceInfoCell(
+                        placeInfo: place,
+                        placeInfoType: store.isEditMode ? .editModeCell : .selectedCell
+                    ) {
                         store.send(.didTapPlaceInfoCellIcon)
                     }
                 }
@@ -138,7 +143,19 @@ extension InfoStepView {
                     plusButton
                 }
             }
+            .padding(.bottom, 40)
         }
+    }
+    
+    private var satisfactionSection: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("가격 대비 만족도는 어땠나요?")
+                .font(.body1sb)
+                .foregroundStyle(.spoonBlack)
+            
+            SpoonySlider($store.satisfaction)
+        }
+        
     }
     
     private var dropDownView: some View {
@@ -196,7 +213,7 @@ extension InfoStepView {
                     store.send(.didTapNextButton)
                 }
                 .padding(.bottom, 20)
-                .padding(.top, 61)
+                .padding(.top, 31)
             }
             .onAppear {
                 NotificationCenter.default.addObserver(

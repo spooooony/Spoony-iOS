@@ -26,7 +26,7 @@ struct MyPageCoordinator {
         Reduce { state, action in
             switch action {
             case .router(.routeAction(id: _, action: .profile(.routeToReviewsScreen))):
-                state.routes.push(.reviews(.initialState))
+                state.routes.push(.reviews(.editState))
                 return .none
                 
             case .router(.routeAction(id: _, action: .profile(.routeToFollowingScreen))):
@@ -48,14 +48,20 @@ struct MyPageCoordinator {
             case .router(.routeAction(id: _, action: .profile(.routeToAttendanceScreen))):
                 state.routes.push(.attendance(.initialState))
                 return .none
-                
+              
             // 이전 화면으로 돌아가기
             case .router(.routeAction(id: _, action: .reviews(.routeToPreviousScreen))),
-                 .router(.routeAction(id: _, action: .following(.routeToPreviousScreen))),
-                 .router(.routeAction(id: _, action: .follower(.routeToPreviousScreen))),
-                 .router(.routeAction(id: _, action: .editProfile(.routeToPreviousScreen))),
-                 .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),
-                 .router(.routeAction(id: _, action: .attendance(.routeToPreviousScreen))):
+                    .router(.routeAction(id: _, action: .following(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .follower(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .editProfile(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .attendance(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .accountManagement(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .blockedUsers(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .termsOfService(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .privacyPolicy(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .locationServices(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .inquiry(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
                 

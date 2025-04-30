@@ -17,6 +17,7 @@ struct SimpleUser: Identifiable, Hashable {
 }
 
 struct ExploreSearchView: View {
+    @Namespace private var namespace
     @Bindable private var store: StoreOf<ExploreSearchFeature>
     
     init(store: StoreOf<ExploreSearchFeature>) {
@@ -36,20 +37,31 @@ struct ExploreSearchView: View {
                 }
             )
             
-            // TODO: 명진샘꺼 훔쳐오기
-            HStack {
-                Text("유저")
-                    .foregroundStyle(store.state.viewType == .user ? .main400 : .gray400)
-                    .onTapGesture {
-                        store.send(.changeViewType(.user))
+            HStack(spacing: 0) {
+                ForEach(ExploreSearchViewType.allCases, id: \.self) { type in
+                    VStack(spacing: 0) {
+                        Text(type.title)
+                            .foregroundStyle(store.state.viewType == type ? .main400 : .gray400)
+                            .onTapGesture {
+                                store.send(
+                                    .changeViewType(type),
+                                    animation: .spring(response: 0.3, dampingFraction: 0.7)
+                                )
+                            }
+                            .frame(maxWidth: .infinity)
+                        
+                        Rectangle()
+                            .fill(.main400)
+                            .frame(height: 2.adjustedH)
+                            .isHidden(store.state.viewType != type)
+                            .matchedGeometryEffect(id: "underline", in: namespace)
+                            .padding(.top, 9)
+                        
+                        Rectangle()
+                            .fill(.gray100)
+                            .frame(height: 6.adjustedH)
                     }
-                    .frame(maxWidth: .infinity)
-                Text("리뷰")
-                    .foregroundStyle(store.state.viewType == .review ? .main400 : .gray400)
-                    .onTapGesture {
-                        store.send(.changeViewType(.review))
-                    }
-                    .frame(maxWidth: .infinity)
+                }
             }
             .customFont(.body1sb)
             .frame(maxWidth: .infinity)

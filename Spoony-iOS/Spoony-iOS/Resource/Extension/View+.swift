@@ -51,4 +51,8 @@ extension View {
             self
         }
     }
+
+    func spoonyShadow(style: ShadowStyle) -> some View {
+        self.modifier(ShadowModifier(style: style))
+    }
 }

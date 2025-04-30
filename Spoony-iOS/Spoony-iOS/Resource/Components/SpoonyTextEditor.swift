@@ -160,6 +160,7 @@ public enum SpoonyTextEditorStyle {
     case report
     case onboarding
     case profileEdit
+    case weakPoint
     
     var maximumInput: Int {
         switch self {
@@ -171,30 +172,30 @@ public enum SpoonyTextEditorStyle {
             return 50
         case .profileEdit:
             return 50
+        case .weakPoint:
+            return 100
         }
     }
     
     var minimumInput: Int {
         switch self {
-        case .review:
-            return 50
-        case .report, .onboarding:
+        case .review, .report, .onboarding:
             return 1
-        case .profileEdit:
+        case .profileEdit, .weakPoint:
             return 0
         }
     }
     
     var width: CGFloat {
         switch self {
-        case .review, .report, .onboarding, .profileEdit:
+        case .review, .report, .onboarding, .profileEdit, .weakPoint:
             return 335.adjusted
         }
     }
     
     var height: CGFloat {
         switch self {
-        case .review, .report, .onboarding:
+        case .review, .report, .onboarding, .weakPoint:
             return 125.adjustedH
         case .profileEdit:
             return 65.adjustedH
@@ -219,7 +220,7 @@ public enum TextEditorErrorState: Equatable {
                 return "자세한 후기는 필수예요"
             case .report:
                 return "내용 작성은 필수예요"
-            case .onboarding, .profileEdit:
+            case .onboarding, .profileEdit, .weakPoint:
                 return ""
             }
         case .noError, .initial:
@@ -228,7 +229,7 @@ public enum TextEditorErrorState: Equatable {
     }
     
     var isMaximumInputError: Bool {
-        self == .maximumInputError(style: .review) || self == .maximumInputError(style: .report) || self == .maximumInputError(style: .profileEdit)
+        self == .maximumInputError(style: .review) || self == .maximumInputError(style: .report) || self == .maximumInputError(style: .profileEdit) || self == .maximumInputError(style: .weakPoint)
     }
 }
 
