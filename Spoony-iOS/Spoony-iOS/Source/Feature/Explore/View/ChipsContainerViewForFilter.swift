@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import Kingfisher
-
 /// 다중 선택 가능
 // TODO: 안용이꺼랑 합쳐서 컴포넌트화 하기 .... 근데 register에서는 단일 선택인데 걍 따로 쓰는게 나을지도?
 struct ChipsContainerViewForFilter: View {
@@ -103,56 +101,5 @@ struct ChipsContainerViewForFilter: View {
             )
         }
         .frame(height: totalHeight.adjustedH)
-    }
-}
-
-struct ChipsView: View {
-    private var title: String
-    private var selectedImageString: String?
-    private var imageString: String?
-    private var isSelected: Bool
-    
-    init(
-        title: String,
-        selectedImageString: String? = nil,
-        imageString: String? = nil,
-        isSelected: Bool
-    ) {
-        self.title = title
-        self.selectedImageString = selectedImageString
-        self.imageString = imageString
-        self.isSelected = isSelected
-    }
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Group {
-                if isSelected {
-                    if let imageURL = selectedImageString,
-                       let url = URL(string: imageURL) {
-                        KFImage(url)
-                            .resizable()
-                    }
-                } else {
-                    if let imageURL = imageString,
-                       let url = URL(string: imageURL) {
-                        KFImage(url)
-                            .resizable()
-                    }
-                }
-            }
-            .frame(width: 16.adjusted, height: 16.adjustedH)
-            
-            Text(title)
-                .customFont(.body2sb)
-                .foregroundStyle(isSelected ? .white : .gray600)
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 6)
-        .background {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(isSelected ? .main400 : .gray0)
-                .strokeBorder(.gray100)
-        }
     }
 }
