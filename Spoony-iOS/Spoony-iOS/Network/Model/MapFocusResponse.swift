@@ -18,7 +18,7 @@ struct FocusPlaceResponse: Codable {
     let authorName: String
     let authorRegionName: String
     let postId: Int
-    let postTitle: String
+    let description: String
     let zzimCount: Int
     let photoUrlList: [String]
 }
@@ -41,7 +41,7 @@ extension FocusPlaceResponse {
             address: authorRegionName,
             images: photoUrlList,
             title: authorName,
-            subTitle: postTitle,
+            subTitle: description,
             description: categoryColorResponse.categoryName ?? "",
             categoryColor: categoryColorResponse.iconBackgroundColor ?? "",
             categoryTextColor: categoryColorResponse.iconTextColor ?? "",

@@ -7,6 +7,8 @@
 
 import SwiftUI
 import NMapsMap
+import ComposableArchitecture
+import CoreLocation
 
 struct NMapView: UIViewRepresentable {
     private let defaultZoomLevel: Double = 11.5
@@ -15,48 +17,39 @@ struct NMapView: UIViewRepresentable {
     private let selectedMarker = NMFOverlayImage(name: "ic_selected_marker")
     private let defaultLatitude: Double = 37.5666103
     private let defaultLongitude: Double = 126.9783882
-    private let locationManager = CLLocationManager()
-    @ObservedObject var viewModel: HomeViewModel
+    
+    let store: StoreOf<MapFeature>
     @Binding var selectedPlace: CardPlace?
-    
-    let onMoveCamera: ((Double, Double) -> Void)?
-    
-    init(viewModel: HomeViewModel,
-         selectedPlace: Binding<CardPlace?>,
-         onMoveCamera: ((Double, Double) -> Void)? = nil) {
-        locationManager.requestWhenInUseAuthorization()
-        self.viewModel = viewModel
-        self._selectedPlace = selectedPlace
-        self.onMoveCamera = onMoveCamera
-    }
+    let isLocationFocused: Bool
+    let userLocation: CLLocation?
+    let focusedPlaces: [CardPlace]
+    let pickList: [PickListCardResponse]
+    let selectedLocation: (latitude: Double, longitude: Double)?
     
     func makeUIView(context: Context) -> NMFMapView {
         let mapView = configureMapView(context: context)
         checkLocationPermission(mapView)
-        
-        locationManager.delegate = context.coordinator
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.startUpdatingLocation()
-        
         return mapView
     }
     
     private func checkLocationPermission(_ mapView: NMFMapView) {
+        let locationManager = CLLocationManager()
+        
         switch locationManager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
-            if let location = locationManager.location {
-                viewModel.updateUserLocation(location)
-                if viewModel.selectedLocation == nil {
-                    moveCamera(mapView, to: NMGLatLng(lat: location.coordinate.latitude,
-                                                    lng: location.coordinate.longitude))
-                }
+            if let location = userLocation {
+                moveCamera(mapView, to: NMGLatLng(lat: location.coordinate.latitude,
+                                                lng: location.coordinate.longitude))
+            } else if let selectedLocation = selectedLocation {
+                moveCamera(mapView, to: NMGLatLng(lat: selectedLocation.latitude, lng: selectedLocation.longitude))
+            } else {
+                moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
             }
         case .denied, .restricted:
             moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
         case .notDetermined:
-            locationManager.requestWhenInUseAuthorization()
             moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
-        default:
+        @unknown default:
             moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
         }
     }
@@ -68,18 +61,18 @@ struct NMapView: UIViewRepresentable {
     
     func makeCoordinator() -> Coordinator {
         Coordinator(
+            store: store,
             selectedPlace: $selectedPlace,
             defaultMarkerImage: defaultMarker,
-            selectedMarkerImage: selectedMarker,
-            viewModel: viewModel
+            selectedMarkerImage: selectedMarker
         )
     }
     
     func updateUIView(_ mapView: NMFMapView, context: Context) {
         mapView.touchDelegate = context.coordinator
-        context.coordinator.updateMarkers(mapView: mapView, pickList: viewModel.pickList, selectedPlaceId: selectedPlace?.placeId)
+        context.coordinator.updateMarkers(mapView: mapView, pickList: pickList, selectedPlaceId: selectedPlace?.placeId)
         
-        if viewModel.isLocationFocused, let userLocation = viewModel.userLocation {
+        if isLocationFocused, let userLocation = userLocation {
             let coord = NMGLatLng(lat: userLocation.coordinate.latitude, lng: userLocation.coordinate.longitude)
             let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: userLocationZoomLevel)
             cameraUpdate.animation = .easeIn
@@ -88,8 +81,7 @@ struct NMapView: UIViewRepresentable {
             
             context.coordinator.updateUserLocationMarker(mapView: mapView, location: userLocation)
         }
-
-        else if let location = viewModel.selectedLocation, !viewModel.focusedPlaces.isEmpty {
+        else if let location = selectedLocation, !focusedPlaces.isEmpty {
             let coord = NMGLatLng(lat: location.latitude, lng: location.longitude)
             let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
             cameraUpdate.animation = .easeIn
@@ -97,8 +89,8 @@ struct NMapView: UIViewRepresentable {
             mapView.moveCamera(cameraUpdate)
         }
         
-        if context.coordinator.isInitialLoad && !viewModel.pickList.isEmpty {
-            let bounds = NMGLatLngBounds(latLngs: viewModel.pickList.map {
+        if context.coordinator.isInitialLoad && !pickList.isEmpty {
+            let bounds = NMGLatLngBounds(latLngs: pickList.map {
                 NMGLatLng(lat: $0.latitude, lng: $0.longitude)
             })
             let cameraUpdate = NMFCameraUpdate(fit: bounds, padding: 50)
@@ -124,7 +116,8 @@ struct NMapView: UIViewRepresentable {
     }
 }
 
-final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerDelegate, CLLocationManagerDelegate {
+final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerDelegate {
+    let store: StoreOf<MapFeature>
     @Binding var selectedPlace: CardPlace?
     var markers: [Int: NMFMarker] = [:]
     var isInitialLoad: Bool = true
@@ -135,35 +128,16 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
     
     private let defaultMarkerImage: NMFOverlayImage
     private let selectedMarkerImage: NMFOverlayImage
-    private let viewModel: HomeViewModel
     
-    init(selectedPlace: Binding<CardPlace?>,
+    init(store: StoreOf<MapFeature>,
+         selectedPlace: Binding<CardPlace?>,
          defaultMarkerImage: NMFOverlayImage,
-         selectedMarkerImage: NMFOverlayImage,
-         viewModel: HomeViewModel) {
+         selectedMarkerImage: NMFOverlayImage) {
+        self.store = store
         self._selectedPlace = selectedPlace
         self.defaultMarkerImage = defaultMarkerImage
         self.selectedMarkerImage = selectedMarkerImage
-        self.viewModel = viewModel
         super.init()
-    }
-    
-    // CLLocationManagerDelegate method
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
-        viewModel.updateUserLocation(location)
-        
-        // If we're focusing on user location, update the camera
-        if viewModel.isLocationFocused {
-            // The map view will handle this in updateUIView
-        }
-    }
-    
-    // Handle authorization changes
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        if status == .authorizedWhenInUse || status == .authorizedAlways {
-            manager.startUpdatingLocation()
-        }
     }
     
     // Update or create user location marker
@@ -192,11 +166,8 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
                 }
             }
             
-            self.selectedPlace = nil
-            self.viewModel.clearFocusedPlaces()
-            
-            // When tapping on the map, we're no longer focused on user location
-            self.viewModel.isLocationFocused = false
+            self.store.send(.selectPlace(nil))
+            self.store.send(.clearFocusedPlaces)
         }
     }
     
@@ -242,14 +213,13 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
     
     private func configureMarkerCaption(_ marker: NMFMarker, with placeName: String, isSelected: Bool) {
         marker.captionText = placeName
-        marker.captionColor = .black
         marker.captionTextSize = 14
         
         marker.captionMinZoom = isSelected ? 0 : 10
         marker.captionMaxZoom = 20
         
         marker.anchor = CGPoint(x: 0.5, y: 1.0)
-        marker.captionOffset = -12
+        marker.captionOffset = 4
         marker.captionAligns = [.bottom]
     }
     
@@ -273,57 +243,33 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
         marker.touchHandler = { [weak self] _ -> Bool in
             guard let self = self else { return false }
             
+            // 중복 터치 방지
             if self.isProcessingMarkerTouch { return true }
-            
             self.isProcessingMarkerTouch = true
-            self.lastMarkerTouchTime = Date().timeIntervalSince1970
             
-            guard let placeId = marker.userInfo["placeId"] as? Int,
-                  let placeName = marker.userInfo["placeName"] as? String else {
+            guard let placeId = marker.userInfo["placeId"] as? Int else {
                 self.isProcessingMarkerTouch = false
                 return false
             }
             
-            let isCurrentlySelected = (self.selectedPlace?.placeId == placeId)
-            
             DispatchQueue.main.async {
-                // When selecting a marker, we're no longer focused on user location
-                self.viewModel.isLocationFocused = false
                 
-                if !isCurrentlySelected {
-                    for (_, m) in self.markers {
-                        if let pName = m.userInfo["placeName"] as? String, m !== marker {
-                            m.iconImage = self.defaultMarkerImage
-                            self.configureMarkerCaption(m, with: pName, isSelected: false)
-                        }
-                    }
-                    
-                    marker.iconImage = self.selectedMarkerImage
-                    self.configureMarkerCaption(marker, with: placeName, isSelected: true)
-                    self.viewModel.fetchFocusedPlace(placeId: placeId)
-                } else {
-                    self.viewModel.clearFocusedPlaces()
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        self.selectedPlace = nil
-                        
-                        marker.iconImage = self.defaultMarkerImage
-                        self.configureMarkerCaption(marker, with: placeName, isSelected: false)
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            self.isProcessingMarkerTouch = false
-                        }
-                    }
+                for (_, m) in self.markers {
+                    m.iconImage = self.defaultMarkerImage
                 }
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                marker.iconImage = self.selectedMarkerImage
+                
+                self.store.send(.clearFocusedPlaces)
+                self.store.send(.fetchFocusedPlace(placeId: placeId))
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.isProcessingMarkerTouch = false
                 }
             }
             
             return true
         }
-        
         return marker
     }
     
@@ -331,4 +277,3 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
         return false
     }
 }
-

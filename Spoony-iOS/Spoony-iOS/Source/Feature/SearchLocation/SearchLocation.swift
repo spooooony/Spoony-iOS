@@ -36,15 +36,23 @@ struct SearchLocation: View {
             if isLoading {
                 ProgressView()
             } else {
-                NMapView(viewModel: viewModel, selectedPlace: $selectedPlace)
-                    .edgesIgnoringSafeArea(.all)
-                    .onChange(of: viewModel.focusedPlaces) { _, newPlaces in
-                        if !newPlaces.isEmpty {
-                            selectedPlace = newPlaces[0]
-                        } else {
-                            selectedPlace = nil
-                        }
+                NMapView(
+                    store: store,
+                    selectedPlace: $selectedPlace,
+                    isLocationFocused: false,
+                    userLocation: viewModel.userLocation,
+                    focusedPlaces: viewModel.focusedPlaces,
+                    pickList: viewModel.pickList,
+                    selectedLocation: viewModel.selectedLocation
+                )
+                .edgesIgnoringSafeArea(.all)
+                .onChange(of: viewModel.focusedPlaces) { _, newPlaces in
+                    if !newPlaces.isEmpty {
+                        selectedPlace = newPlaces[0]
+                    } else {
+                        selectedPlace = nil
                     }
+                }
                 
                 VStack(spacing: 0) {
                     CustomNavigationBar(
