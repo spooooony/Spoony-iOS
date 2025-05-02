@@ -12,26 +12,40 @@ enum KeychainType: String {
     case refreshToken
 }
 
+enum KeychainError: Error {
+    case invalidData
+    case failedToCreate
+    case failedToRead
+    case failedToDelete
+}
+
 struct KeychainManager {
     private init() { }
     
-    static func create(key: KeychainType, value: String) {
+    static func create(key: KeychainType, value: String) -> Result<Void, KeychainError> {
+        guard let data = value.data(using: .utf8)
+        else { return .failure(.invalidData) }
+        
         let query: NSDictionary = [
             kSecClass: kSecClassGenericPassword,
-            kSecAttrAccount: key,
-            kSecValueData: value
+            kSecAttrAccount: key.rawValue,
+            kSecValueData: data
         ]
         SecItemDelete(query)
         
         let status = SecItemAdd(query, nil)
         
-        assert(status == noErr, "key chain create failed")
+        if status == noErr {
+            return .success(())
+        } else {
+            return .failure(.failedToCreate)
+        }
     }
     
-    static func read(key: KeychainType) -> String? {
+    static func read(key: KeychainType) -> Result<String?, KeychainError> {
         let query: NSDictionary = [
             kSecClass: kSecClassGenericPassword,
-            kSecAttrAccount: key,
+            kSecAttrAccount: key.rawValue,
             kSecReturnData: kCFBooleanTrue as Any // CFData 타입으로 불러오라는 의미
         ]
         
@@ -41,23 +55,27 @@ struct KeychainManager {
         if status == errSecSuccess {
             guard let data = result as? Data,
                   let value = String(data: data, encoding: String.Encoding.utf8)
-            else { return nil }
+            else { return .failure(.invalidData) }
             
-            return value
+            return .success(value)
         } else {
             print("key chain read failed")
-            return nil
+            return .failure(.failedToRead)
         }
     }
     
-    static func delete(key: KeychainType) {
+    static func delete(key: KeychainType) -> Result<Void, KeychainError> {
         let query: NSDictionary = [
             kSecClass: kSecClassGenericPassword,
-            kSecAttrAccount: key
+            kSecAttrAccount: key.rawValue
         ]
         
         let status = SecItemDelete(query)
-        
-        assert(status == noErr, "key chain delete failed")
+
+        if status == noErr {
+            return .success(())
+        } else {
+            return .failure(.failedToDelete)
+        }
     }
 }
