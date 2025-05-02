@@ -59,7 +59,6 @@ struct KeychainManager {
             
             return .success(value)
         } else {
-            print("key chain read failed")
             return .failure(.failedToRead)
         }
     }
