@@ -24,6 +24,8 @@ struct MapCoordinatorView: View {
                 Home(store: store)
             case let .search(store):
                 SearchView(store: store)
+            case let .searchLocation(store):
+                SearchLocationView(store: store)
             }
         }
     }
