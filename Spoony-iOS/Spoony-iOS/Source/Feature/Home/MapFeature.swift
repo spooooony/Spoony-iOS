@@ -16,6 +16,7 @@ struct MapFeature {
         static let initialState = State()
         
         var pickList: [PickListCardResponse] = []
+        var filteredPickList: [PickListCardResponse] = []
         var focusedPlaces: [CardPlace] = []
         var selectedPlace: CardPlace? = nil
         var currentPage: Int = 0
@@ -36,6 +37,7 @@ struct MapFeature {
         // CLLocation은 자동으로 Equatable을 준수하지 않으므로 직접 구현
         static func == (lhs: State, rhs: State) -> Bool {
             lhs.pickList == rhs.pickList &&
+            lhs.filteredPickList == rhs.filteredPickList &&
             lhs.focusedPlaces == rhs.focusedPlaces &&
             lhs.selectedPlace == rhs.selectedPlace &&
             lhs.currentPage == rhs.currentPage &&
@@ -79,6 +81,7 @@ struct MapFeature {
         case selectCategory(CategoryChip)
         case setBottomSheetStyle(BottomSheetStyle)
         case setSearchText(String)
+        case applyFilters
     }
     
     @Dependency(\.homeService) var homeService
@@ -100,6 +103,8 @@ struct MapFeature {
             case let .pickListResponse(.success(response)):
                 state.isLoading = false
                 state.pickList = response.zzimCardResponses
+                // 초기에는 필터링 없이 모든 목록 표시
+                state.filteredPickList = response.zzimCardResponses
                 return .none
                 
             case let .pickListResponse(.failure(error)):
@@ -111,7 +116,7 @@ struct MapFeature {
                 print("포커스 장소 조회 시작: placeId=\(placeId)")
                 state.isLoading = true
                 
-                if let selectedPlace = state.pickList.first(where: { $0.placeId == placeId }) {
+                if let selectedPlace = state.filteredPickList.first(where: { $0.placeId == placeId }) {
                     state.selectedLocation = (selectedPlace.latitude, selectedPlace.longitude)
                 }
                 
@@ -137,7 +142,9 @@ struct MapFeature {
             case let .locationListResponse(.success(response)):
                 state.isLoading = false
                 state.pickList = response.zzimCardResponses
-                if let firstPlace = response.zzimCardResponses.first {
+                // 필터링 적용
+                state.filteredPickList = filterPickList(state.pickList, with: state.selectedCategories)
+                if let firstPlace = state.filteredPickList.first {
                     state.selectedLocation = (firstPlace.latitude, firstPlace.longitude)
                 }
                 state.isLocationFocused = false
@@ -222,12 +229,30 @@ struct MapFeature {
                 return .none
                 
             case let .selectCategory(category):
-                if state.selectedCategories.contains(where: { $0.id == category.id }) {
-                    state.selectedCategories.removeAll { $0.id == category.id }
-                } else {
+                if category.id == 0 {
                     state.selectedCategories = [category]
+                } else {
+                    if state.selectedCategories.contains(where: { $0.id == category.id }) {
+                        state.selectedCategories.removeAll { $0.id == category.id }
+                    } else {
+                        state.selectedCategories.removeAll { $0.id == 0 }
+                        state.selectedCategories.append(category)
+                    }
+                    
+                    if state.selectedCategories.isEmpty {
+                        state.selectedCategories = [CategoryChip(
+                            image: "",
+                            selectedImage: "",
+                            title: "전체",
+                            id: 0
+                        )]
+                    }
                 }
                 
+                return .send(.applyFilters)
+                
+            case .applyFilters:
+                state.filteredPickList = filterPickList(state.pickList, with: state.selectedCategories)
                 return .none
                 
             case let .setBottomSheetStyle(style):
@@ -238,6 +263,7 @@ struct MapFeature {
             case let .setSearchText(text):
                 state.searchText = text
                 return .none
+                
             case let .focusedPlaceResponse(.success(response)):
                 print("포커스 장소 응답 처리")
                 state.isLoading = false
@@ -262,6 +288,18 @@ struct MapFeature {
                 print("포커스 장소 조회 실패: \(error)")
                 return .none
             }
+        }
+    }
+    
+    private func filterPickList(_ pickList: [PickListCardResponse], with categories: [CategoryChip]) -> [PickListCardResponse] {
+        if categories.isEmpty || categories.contains(where: { $0.id == 0 }) {
+            return pickList
+        }
+        
+        let selectedCategoryIds = Set(categories.map { $0.id })
+        
+        return pickList.filter { pickCard in
+            selectedCategoryIds.contains(pickCard.categoryColorResponse.categoryId)
         }
     }
 }

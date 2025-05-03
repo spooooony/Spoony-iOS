@@ -209,6 +209,26 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
                 markers.removeValue(forKey: idToRemove)
             }
         }
+        
+        if !pickList.isEmpty && isInitialLoad {
+            adjustMapToShowAllMarkers(mapView, pickList: pickList)
+        }
+    }
+    
+    private func adjustMapToShowAllMarkers(_ mapView: NMFMapView, pickList: [PickListCardResponse]) {
+        if pickList.count > 1 {
+            let bounds = NMGLatLngBounds(latLngs: pickList.map {
+                NMGLatLng(lat: $0.latitude, lng: $0.longitude)
+            })
+            let cameraUpdate = NMFCameraUpdate(fit: bounds, padding: 50)
+            mapView.moveCamera(cameraUpdate)
+        } else if let firstPlace = pickList.first {
+            let coord = NMGLatLng(lat: firstPlace.latitude, lng: firstPlace.longitude)
+            let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: 15.0)
+            mapView.moveCamera(cameraUpdate)
+        }
+        
+        isInitialLoad = false
     }
     
     private func configureMarkerCaption(_ marker: NMFMarker, with placeName: String, isSelected: Bool) {
@@ -227,6 +247,8 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
         marker.position = NMGLatLng(lat: pickCard.latitude, lng: pickCard.longitude)
         marker.iconImage = isSelected ? selectedMarkerImage : defaultMarkerImage
         configureMarkerCaption(marker, with: pickCard.placeName, isSelected: isSelected)
+        
+        marker.userInfo = ["placeId": pickCard.placeId, "placeName": pickCard.placeName]
     }
     
     private func createMarker(for pickCard: PickListCardResponse, isSelected: Bool, mapView: NMFMapView) -> NMFMarker {

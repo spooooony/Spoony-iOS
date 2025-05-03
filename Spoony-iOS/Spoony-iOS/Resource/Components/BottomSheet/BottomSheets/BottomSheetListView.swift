@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+
 import ComposableArchitecture
 
 struct BottomSheetListView: View {
@@ -50,7 +51,7 @@ struct BottomSheetListView: View {
                     HStack(spacing: 4) {
                         Text("양수정님의 찐맛집")
                             .customFont(.body2b)
-                        Text("\(store.pickList.count)")
+                        Text("\(store.filteredPickList.count)")
                             .customFont(.body2b)
                             .foregroundColor(.gray500)
                     }
@@ -61,7 +62,7 @@ struct BottomSheetListView: View {
                 
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0) {
-                        ForEach(Array(store.pickList.prefix(currentStyle == .minimal ? 0 : (currentStyle == .half ? 2 : store.pickList.count))), id: \.placeId) { pickCard in
+                        ForEach(store.filteredPickList, id: \.placeId) { pickCard in
                             BottomSheetListItem(pickCard: pickCard)
                                 .background(Color.white)
                                 .onTapGesture {
@@ -75,7 +76,7 @@ struct BottomSheetListView: View {
                         }
                         
                         if currentStyle == .full {
-                            Color.clear.frame(height: 84 + 90.adjusted)
+                            Color.clear.frame(height: 90.adjusted)
                         }
                     }
                 }

@@ -31,7 +31,7 @@ struct Home: View {
                 isLocationFocused: store.isLocationFocused,
                 userLocation: store.userLocation,
                 focusedPlaces: store.focusedPlaces,
-                pickList: store.pickList,
+                pickList: store.filteredPickList,
                 selectedLocation: store.selectedLocation
             )
             .edgesIgnoringSafeArea(.all)
@@ -94,7 +94,7 @@ struct Home: View {
             }
             
             ZStack(alignment: .bottomTrailing) {
-                if store.currentBottomSheetStyle != .full && store.focusedPlaces.isEmpty {
+                if store.currentBottomSheetStyle != .full {
                     Button(action: {
                         store.send(.moveToUserLocation)
                     }) {
@@ -127,7 +127,7 @@ struct Home: View {
                         .padding(.bottom, 12)
                         .transition(.move(edge: .bottom))
                     } else {
-                        if !store.pickList.isEmpty {
+                        if !store.filteredPickList.isEmpty {  
                             BottomSheetListView(
                                 store: store,
                                 currentStyle: Binding(
