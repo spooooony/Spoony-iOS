@@ -51,6 +51,10 @@ struct MapCoordinator {
                 state.routes.goBack()
                 return .none
                 
+            case .router(.routeAction(id: _, action: .detail(.goBack))):
+                state.routes.goBack()
+                return .none
+                
             default:
                 return .none
             }

@@ -71,6 +71,9 @@ struct PostFeature {
         case showToast(String)
         case dismissToast
         
+        case navigateToReport(postId: Int)
+        case goBack 
+
         case error(PostError)
     }
     
@@ -161,6 +164,12 @@ struct PostFeature {
                 return .none
             case .error(let error):
                 return .send(.showToast(error.description))
+                
+            case .goBack:
+                return .none  
+                
+            case let .navigateToReport(postId):
+                return .none
             }
         }
     }
