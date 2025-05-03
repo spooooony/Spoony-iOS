@@ -37,7 +37,7 @@ struct AccountManagementView: View {
                 
                 Spacer()
                 
-                Text("카카오 로그인 사용 중")
+                Text(loginTypeText)
                     .padding(.trailing, 20)
                     .customFont(.body2b)
                     .foregroundStyle(.gray600)
@@ -65,7 +65,6 @@ struct AccountManagementView: View {
             .background(Color.white)
             .padding(.top, 10)
             
-            // 탈퇴하기 버튼
             Button(action: {
                 store.send(.withdrawButtonTapped)
             }) {
@@ -90,6 +89,31 @@ struct AccountManagementView: View {
         }
         .background(Color.gray0)
         .navigationBarHidden(true)
+        .alert(
+            "로그아웃",
+            isPresented: .init(
+                get: { store.logoutAlert != nil },
+                set: { if !$0 { store.send(.cancelLogout) } }
+            ),
+            actions: {
+                Button("취소", role: .cancel) {
+                    store.send(.cancelLogout)
+                }
+                Button("확인", role: .destructive) {
+                    store.send(.confirmLogout)
+                }
+            },
+            message: { Text("정말 로그아웃 하시겠습니까?") }
+        )
+    }
+    
+    private var loginTypeText: String {
+        switch store.currentLoginType {
+        case .apple:
+            return "애플 로그인 사용 중"
+        case .kakao:
+            return "카카오 로그인 사용 중"
+        }
     }
 }
 
