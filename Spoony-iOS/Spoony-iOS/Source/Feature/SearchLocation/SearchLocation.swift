@@ -1,31 +1,21 @@
 //
-//  SearchLocation.swift
+//  SearchLocationView.swift
 //  Spoony-iOS
 //
-//  Created by 이지훈 on 1/30/25.
+//  Created by 이지훈 on 5/3/25.
 //
 
 import SwiftUI
 import ComposableArchitecture
+import CoreLocation
 
-struct SearchLocation: View {
-    @StateObject private var viewModel: HomeViewModel
-    @State private var selectedPlace: CardPlace?
-    @State private var isLoading: Bool = true
+struct SearchLocationView: View {
+    @Bindable private var store: StoreOf<SearchLocationFeature>
+    @State private var viewModel: HomeViewModel
     
-    private let locationId: Int
-    private let locationTitle: String
-    private let store: StoreOf<MapFeature>
-    
-    init(
-        locationId: Int,
-        locationTitle: String,
-        store: StoreOf<MapFeature>
-    ) {
-        self.locationId = locationId
-        self.locationTitle = locationTitle
+    init(store: StoreOf<SearchLocationFeature>) {
         self.store = store
-        self._viewModel = StateObject(wrappedValue: HomeViewModel(service: DefaultHomeService()))
+        self._viewModel = State(initialValue: HomeViewModel(service: DefaultHomeService()))
     }
     
     var body: some View {
@@ -33,62 +23,85 @@ struct SearchLocation: View {
             Color.white
                 .edgesIgnoringSafeArea(.all)
             
-            if isLoading {
+            if store.isLoading {
                 ProgressView()
             } else {
                 NMapView(
-                    store: store,
-                    selectedPlace: $selectedPlace,
-                    isLocationFocused: false,
-                    userLocation: viewModel.userLocation,
-                    focusedPlaces: viewModel.focusedPlaces,
-                    pickList: viewModel.pickList,
-                    selectedLocation: viewModel.selectedLocation
+                    store: store.scope(state: \.mapState, action: \.map),
+                    selectedPlace: Binding(
+                        get: { store.mapState.selectedPlace },
+                        set: { store.send(.map(.selectPlace($0))) }
+                    ),
+                    isLocationFocused: store.mapState.isLocationFocused,
+                    userLocation: store.mapState.userLocation,
+                    focusedPlaces: store.focusedPlaces,
+                    pickList: store.pickList,
+                    selectedLocation: store.selectedLocation
                 )
                 .edgesIgnoringSafeArea(.all)
-                .onChange(of: viewModel.focusedPlaces) { _, newPlaces in
-                    if !newPlaces.isEmpty {
-                        selectedPlace = newPlaces[0]
-                    } else {
-                        selectedPlace = nil
-                    }
+                .onChange(of: store.focusedPlaces) { _, newPlaces in
+                    store.send(.updatePlaces(focusedPlaces: newPlaces))
                 }
                 
                 VStack(spacing: 0) {
                     CustomNavigationBar(
                         style: .locationTitle,
-                        title: locationTitle,
+                        title: store.locationTitle,
                         onBackTapped: {
-                            store.send(.routToExploreTab)
+                            store.send(.routeToHomeScreen)
                         }
                     )
                     .frame(height: 56.adjusted)
                     Spacer()
                 }
                 
-//                Group {
-//                    if !viewModel.focusedPlaces.isEmpty {
-//                        PlaceCard(
-//                            places: viewModel.focusedPlaces,
-//                            currentPage: .constant(0)
-//                        )
-//                        .padding(.bottom, 12)
-//                        .transition(.move(edge: .bottom))
-//                    } else {
-//                        if !viewModel.pickList.isEmpty {
-//                            FlexibleListBottomSheet(viewModel: viewModel)
-//                        } else {
-//                            EmptyStateBottomSheet()
-//                        }
-//                    }
-//                }
+                Group {
+                    if !store.focusedPlaces.isEmpty {
+                        PlaceCard(
+                            store: store.scope(state: \.mapState, action: \.map),
+                            places: store.focusedPlaces,
+                            currentPage: Binding(
+                                get: { store.mapState.currentPage },
+                                set: { store.send(.map(.setCurrentPage($0))) }
+                            )
+                        )
+                        .padding(.bottom, 12)
+                        .transition(.move(edge: .bottom))
+                    } else {
+                        if !store.pickList.isEmpty {
+                            FlexibleListBottomSheet(
+                                viewModel: viewModel,
+                                store: store.scope(state: \.mapState, action: \.map)
+                            )
+                        } else {
+                            EmptyStateBottomSheet()
+                        }
+                    }
+                }
             }
         }
         .navigationBarHidden(true)
-        .task {
-            isLoading = true
-            await viewModel.fetchLocationList(locationId: locationId)
-            isLoading = false
+        .onAppear {
+            store.send(.onAppear)
+            Task {
+                await viewModel.fetchLocationList(locationId: store.locationId)
+            }
+        }
+        .onChange(of: store.pickList) { _, newPickList in
+            viewModel.pickList = newPickList
         }
     }
+}
+
+#Preview {
+    SearchLocationView(
+        store: Store(
+            initialState: SearchLocationFeature.State(
+                locationId: 1,
+                locationTitle: "테스트 장소"
+            )
+        ) {
+            SearchLocationFeature()
+        }
+    )
 }
