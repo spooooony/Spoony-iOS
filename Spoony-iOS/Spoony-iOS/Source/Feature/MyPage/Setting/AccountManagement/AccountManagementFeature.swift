@@ -20,20 +20,33 @@ struct AccountManagementFeature {
         static let initialState = State(currentLoginType: .kakao)
         
         var currentLoginType: LoginType
+        var logoutAlert: LogoutAlert?
     }
     
-    enum Action {
+    enum LogoutAlert: Equatable {
+        case confirmLogout
+    }
+    
+    enum Action: BindableAction {
+        case binding(BindingAction<State>)
         case routeToPreviousScreen
         case selectLoginType(LoginType)
         case logoutButtonTapped
+        case confirmLogout
+        case cancelLogout
         case withdrawButtonTapped
-        case routeToLogoutScreen
         case routeToWithdrawScreen
+        case performLogout
     }
     
     var body: some ReducerOf<Self> {
+        BindingReducer()
+        
         Reduce { state, action in
             switch action {
+            case .binding:
+                return .none
+                
             case .routeToPreviousScreen:
                 return .none
                 
@@ -42,12 +55,24 @@ struct AccountManagementFeature {
                 return .none
                 
             case .logoutButtonTapped:
-                return .send(.routeToLogoutScreen)
+                state.logoutAlert = .confirmLogout
+                return .none
+                
+            case .confirmLogout:
+                state.logoutAlert = nil
+                return .send(.performLogout)
+                
+            case .cancelLogout:
+                state.logoutAlert = nil
+                return .none
                 
             case .withdrawButtonTapped:
                 return .send(.routeToWithdrawScreen)
                 
-            case .routeToLogoutScreen, .routeToWithdrawScreen:
+            case .routeToWithdrawScreen:
+                return .none
+                
+            case .performLogout:
                 return .none
             }
         }
