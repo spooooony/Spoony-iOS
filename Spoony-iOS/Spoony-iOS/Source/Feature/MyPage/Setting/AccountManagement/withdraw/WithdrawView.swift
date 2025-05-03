@@ -23,9 +23,6 @@ struct WithdrawView: View {
                 onBackTapped: {
                     store.send(.routeToPreviousScreen)
                 }
-            )
-            
-            
         }
     }
 }

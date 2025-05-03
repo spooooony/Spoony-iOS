@@ -17,34 +17,34 @@ struct AccountManagementView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // 네비게이션 바
             CustomNavigationBar(
                 style: .detail,
                 title: "계정 관리",
                 onBackTapped: {
                     store.send(.routeToPreviousScreen)
                 }
-            )
+            ).background(Color.white)
             
-            // 로그인 타입 섹션
-            VStack(spacing: 0) {
-               
+            Divider()
+                .frame(height: 1)
+                .foregroundStyle(.gray0)
+            
+            HStack(spacing: 0) {
+                Text("간편 로그인")
+                    .padding(.leading, 20)
+                    .customFont(.body2m)
+                    .foregroundStyle(.gray700)
                 
-                Divider().padding(.leading, 20)
+                Spacer()
                 
-                // 카카오 로그인 버튼
-                loginTypeButton(
-                    title: "카카오 로그인 사용 중",
-                    isSelected: store.currentLoginType == .kakao,
-                    action: { store.send(.selectLoginType(.kakao)) }
-                )
+                Text("카카오 로그인 사용 중")
+                    .padding(.trailing, 20)
+                    .customFont(.body2b)
+                    .foregroundStyle(.gray600)
             }
+            .frame(height: 48.adjustedH)
             .background(Color.white)
-            .cornerRadius(8)
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
             
-            // 로그아웃 버튼
             Button(action: {
                 store.send(.logoutButtonTapped)
             }) {
@@ -52,18 +52,18 @@ struct AccountManagementView: View {
                     Text("로그아웃")
                         .customFont(.body2m)
                         .foregroundColor(.main400)
+                        .padding(.leading, 20)
                     
                     Spacer()
                     
                     Image(.icArrowRightGray400)
+                        .padding(.trailing, 20)
                 }
-                .padding(.horizontal, 20)
-                .frame(height: 50)
+                .frame(maxWidth: .infinity)
+                .frame(height: 48.adjustedH)
             }
             .background(Color.white)
-            .cornerRadius(8)
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
+            .padding(.top, 10)
             
             // 탈퇴하기 버튼
             Button(action: {
@@ -72,45 +72,24 @@ struct AccountManagementView: View {
                 HStack {
                     Text("탈퇴하기")
                         .customFont(.body2m)
-                        .foregroundColor(.gray600)
+                        .foregroundColor(.gray500)
+                        .padding(.leading, 20)
                     
                     Spacer()
                     
                     Image(.icArrowRightGray400)
+                        .padding(.trailing, 20)
                 }
-                .padding(.horizontal, 20)
-                .frame(height: 50)
+                .frame(maxWidth: .infinity)
+                .frame(height: 48.adjustedH)
             }
             .background(Color.white)
-            .cornerRadius(8)
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
+            .padding(.top, 10)
             
             Spacer()
         }
         .background(Color.gray0)
         .navigationBarHidden(true)
-    }
-    
-    private func loginTypeButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack {
-                Text(title)
-                    .customFont(.body2m)
-                    .foregroundColor(.gray700)
-                
-                Spacer()
-                
-                if isSelected {
-                    Circle()
-                        .fill(Color.main400)
-                        .frame(width: 20, height: 20)
-                }
-            }
-            .padding(.horizontal, 20)
-            .frame(height: 50)
-            .contentShape(Rectangle())
-        }
     }
 }
 
