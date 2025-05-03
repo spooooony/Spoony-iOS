@@ -73,15 +73,10 @@ struct MyPageCoordinator {
                 state.routes.push(.inquiry(.initialState))
                 return .none
                 
-            case .router(.routeAction(id: _, action: .accountManagement(.routeToLogoutScreen))):
-                state.routes.push(.logout(.initialState))
-                return .none
-                
             case .router(.routeAction(id: _, action: .accountManagement(.routeToWithdrawScreen))):
                 state.routes.push(.withdraw(.initialState))
                 return .none
               
-            // 이전 화면으로 돌아가기
             case .router(.routeAction(id: _, action: .reviews(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .following(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .follower(.routeToPreviousScreen))),
@@ -94,7 +89,6 @@ struct MyPageCoordinator {
                     .router(.routeAction(id: _, action: .privacyPolicy(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .locationServices(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .inquiry(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .logout(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .withdraw(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none

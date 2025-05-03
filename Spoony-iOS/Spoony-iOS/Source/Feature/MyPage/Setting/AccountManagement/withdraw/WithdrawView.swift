@@ -22,8 +22,11 @@ struct WithdrawView: View {
                 title: "회원 탈퇴",
                 onBackTapped: {
                     store.send(.routeToPreviousScreen)
+                    
                 }
+            )
         }
+        
     }
 }
 
