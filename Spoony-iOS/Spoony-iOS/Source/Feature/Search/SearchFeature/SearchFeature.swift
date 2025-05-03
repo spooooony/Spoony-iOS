@@ -109,9 +109,9 @@ struct SearchFeature {
                     UserManager.shared.recentSearches = []
                 }
                 
-            case .selectLocation:
+            case let .selectLocation(result):
                 state.isSearching = false
-                return .send(.routeToPreviousScreen)
+                   return .none
                 
             case let .searchCompletedSuccess(results):
                 state.isSearching = false
@@ -149,6 +149,7 @@ struct SearchFeature {
             case let .setFirstAppear(isFirst):
                 state.isFirstAppear = isFirst
                 return .none
+                
             }
         }
     }
