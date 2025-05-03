@@ -14,6 +14,7 @@ struct Providers {
     static let explorProvider = MoyaProvider<ExploreTargetType>.init(withAuth: false)
     static let registerProvider = MoyaProvider<RegisterTargetType>.init(withAuth: false)
     static let detailProvider = MoyaProvider<DetailTargetType>.init(withAuth: false)
+    static let myPageProvider = MoyaProvider<MyPageTargetType>.init(withAuth: false)
 }
 
 extension MoyaProvider {
