@@ -19,9 +19,9 @@ enum BottomSheetStyle {
         case .full:
             return screenHeight * 0.876
         case .half:
-            return (120.adjusted * 3) + 60.adjustedH + 20
+            return (120.adjusted * 2) + 60.adjustedH + 84
         case .minimal:
-            return screenHeight * 0.25
+            return 60.adjustedH + 84.adjustedH
         }
     }
 }

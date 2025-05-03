@@ -43,7 +43,7 @@ struct FixedBottomSheetView: View {
                         .multilineTextAlignment(.center)
                     
                     SpoonyButton(
-                        style: .secondary,
+                        style: .primary,
                         size: .xsmall,
                         title: "떠먹으러 가기",
                         disabled: $isDisabled
