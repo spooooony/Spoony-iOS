@@ -26,6 +26,9 @@ enum MyPageScreen {
     case privacyPolicy(PrivacyPolicyFeature)
     case locationServices(LocationServicesFeature)
     case inquiry(InquiryFeature)
+    
+    case logout(LogoutFeature)
+    case withdraw(WithdrawFeature)
 }
 
 struct MyPageView: View {
@@ -55,7 +58,7 @@ struct MyPageView: View {
                     .navigationBarBackButtonHidden()
                     .toolbar(.hidden, for: .tabBar)
                 
-            // 설정 관련 화면들 추가
+                // 설정 관련 화면들 추가
             case let .accountManagement(store):
                 AccountManagementView(store: store)
                     .navigationBarBackButtonHidden()
@@ -73,6 +76,13 @@ struct MyPageView: View {
                     .navigationBarBackButtonHidden()
             case let .inquiry(store):
                 InquiryView(store: store)
+                    .navigationBarBackButtonHidden()
+                
+            case let .logout(store):
+                LogoutView(store: store)
+                    .navigationBarBackButtonHidden()
+            case let .withdraw(store):
+                WithdrawView(store: store)
                     .navigationBarBackButtonHidden()
             }
         }
