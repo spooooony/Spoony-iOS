@@ -79,6 +79,7 @@ struct MapFeature {
         case selectCategory(CategoryChip)
         case setBottomSheetStyle(BottomSheetStyle)
         case setSearchText(String)
+        
     }
     
     @Dependency(\.homeService) var homeService
@@ -260,6 +261,9 @@ struct MapFeature {
             case let .focusedPlaceResponse(.failure(error)):
                 state.isLoading = false
                 print("포커스 장소 조회 실패: \(error)")
+                return .none
+                
+            case let .routToDetailView(postId):
                 return .none
             }
         }
