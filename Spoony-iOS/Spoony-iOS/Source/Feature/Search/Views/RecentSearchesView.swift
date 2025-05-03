@@ -11,6 +11,7 @@ struct RecentSearchesView: View {
     let recentSearches: [String]
     let onRemoveSearch: (String) -> Void
     let onClearAll: () -> Void
+    let onSelectSearch: (String) -> Void 
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -32,17 +33,20 @@ struct RecentSearchesView: View {
             
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(recentSearches, id: \.self) { search in
-                    HStack {
-                        Text(search)
-                            .customFont(.body1b)
-                            .foregroundColor(.gray700)
-                        Spacer()
-                        Button(action: { onRemoveSearch(search) }) {
-                            Image(.icCloseGray400)
+                    Button(action: { onSelectSearch(search) }) {
+                        HStack {
+                            Text(search)
+                                .customFont(.body1b)
+                                .foregroundColor(.gray700)
+                            Spacer()
+                            Button(action: { onRemoveSearch(search) }) {
+                                Image(.icCloseGray400)
+                            }
                         }
+                        .padding(.horizontal, 16.adjusted)
+                        .padding(.vertical, 14.5.adjustedH)
                     }
-                    .padding(.horizontal, 16.adjusted)
-                    .padding(.vertical, 14.5.adjustedH)
+                    .buttonStyle(PlainButtonStyle())
                     
                     if search != recentSearches.last {
                         Divider()
