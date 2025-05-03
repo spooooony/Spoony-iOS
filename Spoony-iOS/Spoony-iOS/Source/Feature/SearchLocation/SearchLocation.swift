@@ -74,7 +74,9 @@ struct SearchLocationView: View {
                                 store: store.scope(state: \.mapState, action: \.map)
                             )
                         } else {
-                            EmptyStateBottomSheet()
+                            FixedBottomSheetView(
+                                store: store.scope(state: \.mapState, action: \.map)
+                            )
                         }
                     }
                 }
