@@ -94,7 +94,7 @@ struct Home: View {
             }
             
             ZStack(alignment: .bottomTrailing) {
-                if store.currentBottomSheetStyle != .full {
+                if store.currentBottomSheetStyle != .full && store.focusedPlaces.isEmpty {
                     Button(action: {
                         store.send(.moveToUserLocation)
                     }) {
