@@ -198,15 +198,3 @@ struct PostFeature {
         state.regionName = data.regionName
     }
 }
-
-private enum DetailUseCaseKey: DependencyKey {
-    static let liveValue: DetailUseCaseProtocol = DefaultDetailUseCase()
-    static let testValue: DetailUseCaseProtocol = MockDetailUseCase()
-}
-
-extension DependencyValues {
-    var detailUseCase: DetailUseCaseProtocol {
-        get { self[DetailUseCaseKey.self] }
-        set { self[DetailUseCaseKey.self] = newValue }
-    }
-}
