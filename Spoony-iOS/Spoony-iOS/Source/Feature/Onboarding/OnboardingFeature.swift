@@ -15,6 +15,10 @@ enum OnboardingStep: Int {
     case finish
 }
 
+enum OnboardingError: Error {
+    case networkError
+}
+
 @Reducer
 struct OnboardingFeature {
     @ObservableState
@@ -33,6 +37,13 @@ struct OnboardingFeature {
         
         var introduceText: String = ""
         var introduceError: Bool = true
+        
+        var user: OnboardingUserEntity = .init(
+            userName: "",
+            region: nil,
+            introduction: nil,
+            birth: nil
+        )
     }
     
     enum Action: BindableAction {
@@ -40,17 +51,25 @@ struct OnboardingFeature {
         case tappedNextButton
         case tappedBackButton
         case tappedSkipButton
-            
+        
         case checkNickname
+        case signup
+        case setUser(OnboardingUserEntity)
+        
+        case error(Error)
         
         // MARK: - Navigation
         case routToTabCoordinatorScreen
     }
     
+    private let authenticationManager = AuthenticationManager.shared
+    @Dependency(\.authService) var authService: AuthProtocol
+    
     var body: some ReducerOf<Self> {
         BindingReducer()
         
-        Reduce { state, action in
+        Reduce {
+            state, action in
             switch action {
             case .tappedNextButton:
                 switch state.currentStep {
@@ -59,7 +78,7 @@ struct OnboardingFeature {
                 case .information:
                     state.currentStep = .introduce
                 case .introduce:
-                    state.currentStep = .finish
+                    return .send(.signup)
                 case .finish:
                     return .send(.routToTabCoordinatorScreen)
                 }
@@ -68,7 +87,8 @@ struct OnboardingFeature {
                 
             case .tappedBackButton:
                 switch state.currentStep {
-                case .nickname, .finish:
+                case .nickname,
+                        .finish:
                     break
                 case .information:
                     state.currentStep = .nickname
@@ -84,20 +104,44 @@ struct OnboardingFeature {
                 case .information:
                     state.currentStep = .introduce
                 case .introduce:
-                    state.currentStep = .finish
+                    return .send(.signup)
                 case .finish:
                     break
                 }
                 return .none
             case .checkNickname:
                 if state.nicknameErrorState == .noError {
-                    // api
+                    // 닉네임 체크 api
                     state.nicknameErrorState = .avaliableNickname
                 }
                 
                 if state.nicknameErrorState == .avaliableNickname {
                     state.nicknameError = false
                 }
+                return .none
+            case .signup:
+                // 추후 고차함수로 수정
+                let birthString = state.birth[0] + state.birth[1] + state.birth[2]
+                return .run { [state] send in
+                    do {
+                        let user = try await authService.signup(
+                            platform: authenticationManager.socialType.rawValue,
+                            userName: state.nicknameText,
+                            birth: birthString,
+                            // 임시
+                            regionId: 0,
+                            introduction: state.introduceText
+                        )
+                        await send(.setUser(user))
+                    } catch {
+                        await send(.error(error))
+                    }
+                }
+            case .setUser(let user):
+                state.user = user
+                state.currentStep = .finish
+                return .none
+            case .error(let error):
                 return .none
             case .routToTabCoordinatorScreen:
                 return .none

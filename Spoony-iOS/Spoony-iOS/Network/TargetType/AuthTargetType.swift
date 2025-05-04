@@ -9,7 +9,8 @@ import Foundation
 import Moya
 
 enum AuthTargetType {
-    case login(platfomr: String, token: String)
+    case login(platform: String, token: String)
+    case signup(SignupRequest)
 }
 
 extension AuthTargetType: TargetType {
@@ -24,12 +25,14 @@ extension AuthTargetType: TargetType {
         switch self {
         case .login:
             return "/auth/login"
+        case .signup:
+            return "/auth/signup"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .login:
+        case .login, .signup:
             return .post
         }
     }
@@ -41,16 +44,17 @@ extension AuthTargetType: TargetType {
                 parameters: ["platform": platform],
                 encoding: JSONEncoding.default
             )
+        case .signup(let request):
+            return .requestCustomJSONEncodable(request, encoder: JSONEncoder())
         }
     }
     
     var headers: [String: String]? {
         switch self {
         case .login(_, let token):
-            return [
-                "Content-Type": "application/json",
-                "Authorization": "Bearer \(token)"
-            ]
+            HeaderType.token(token).value
+        case .signup:
+            HeaderType.auth.value
         }
     }
 }

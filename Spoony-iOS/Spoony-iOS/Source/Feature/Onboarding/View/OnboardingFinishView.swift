@@ -19,7 +19,7 @@ struct OnboardingFinishView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 6) {
                 Text("반가워요,")
-                Text("\("제이예요")")
+                Text(store.state.user.userName)
                     .foregroundStyle(.main400)
                 Text("님!")
             }
