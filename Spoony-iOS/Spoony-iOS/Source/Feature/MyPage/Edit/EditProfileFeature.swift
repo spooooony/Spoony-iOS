@@ -98,14 +98,3 @@ struct EditProfileFeature {
         }
     }
 }
-
-enum MyPageServiceKey: DependencyKey {
-    static let liveValue: MypageServiceProtocol = MyPageService()
-}
-
-extension DependencyValues {
-    var myPageService: MypageServiceProtocol {
-        get { self[MyPageServiceKey.self] }
-        set { self[MyPageServiceKey.self] = newValue }
-    }
-}

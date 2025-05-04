@@ -306,14 +306,3 @@ struct MapFeature {
         }
     }
 }
-
-struct HomeServiceKey: DependencyKey {
-    static let liveValue: HomeServiceType = DefaultHomeService()
-}
-
-extension DependencyValues {
-    var homeService: HomeServiceType {
-        get { self[HomeServiceKey.self] }
-        set { self[HomeServiceKey.self] = newValue }
-    }
-}
