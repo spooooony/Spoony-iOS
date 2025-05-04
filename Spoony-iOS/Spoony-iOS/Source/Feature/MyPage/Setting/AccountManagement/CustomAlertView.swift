@@ -55,7 +55,7 @@ struct CustomAlertView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
             }
-            .frame(width: UIScreen.main.bounds.width - 40)
+            .frame(width: UIScreen.main.bounds.width - 40.adjustedH)
             .background(Color.white)
             .cornerRadius(16)
         }

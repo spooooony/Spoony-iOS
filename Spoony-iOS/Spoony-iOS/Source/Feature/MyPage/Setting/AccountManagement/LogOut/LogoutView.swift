@@ -80,7 +80,6 @@ struct LogoutView: View {
             .padding(.horizontal, 16)
         }
         .background(Color.white)
-        .navigationBarHidden(true)
         .overlay {
             if store.isLoggingOut {
                 ProgressView()
