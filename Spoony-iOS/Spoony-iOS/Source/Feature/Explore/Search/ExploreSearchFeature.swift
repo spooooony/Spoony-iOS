@@ -31,6 +31,7 @@ struct ExploreSearchFeature {
                 userRegion: "서울 성북구",
                 description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
                 categorColorResponse: .init(
+                    categoryId: 6,
                     categoryName: "양식",
                     iconUrl: "",
                     iconTextColor: "",
@@ -47,6 +48,7 @@ struct ExploreSearchFeature {
                 userRegion: "서울 성북구",
                 description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
                 categorColorResponse: .init(
+                    categoryId: 6,
                     categoryName: "양식",
                     iconUrl: "",
                     iconTextColor: "",
@@ -63,6 +65,7 @@ struct ExploreSearchFeature {
                 userRegion: "서울 성북구",
                 description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
                 categorColorResponse: .init(
+                    categoryId: 6,
                     categoryName: "양식",
                     iconUrl: "",
                     iconTextColor: "",
