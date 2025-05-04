@@ -123,7 +123,6 @@ final class MyPageService: MypageServiceProtocol {
                             return
                         }
                         
-                        // 이미 존재하는 toEntity() 메서드를 사용하여 FeedEntity 배열로 변환
                         let feedEntities = data.toEntity()
                         continuation.resume(returning: feedEntities)
                     } catch {
