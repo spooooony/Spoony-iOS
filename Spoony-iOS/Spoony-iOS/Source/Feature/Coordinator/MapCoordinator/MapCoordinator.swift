@@ -14,7 +14,8 @@ import TCACoordinators
 enum MapScreen {
     case map(MapFeature)
     case search(SearchFeature)
-    case detail(PostFeature)
+  case searchLocation(SearchLocationFeature)
+
 }
 
 @Reducer
@@ -45,6 +46,19 @@ struct MapCoordinator {
                 
             case let .locationSelected(locationId):
                 state.selectedLocationId = locationId
+                return .none
+                
+            case .router(.routeAction(id: _, action: .search(.selectLocation(let result)))):
+                let locationState = SearchLocationFeature.State(
+                    locationId: result.locationId,
+                    locationTitle: result.title
+                )
+                
+                state.routes.push(.searchLocation(locationState))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .searchLocation(.routeToHomeScreen))):
+                state.routes = [.root(.map(.initialState), embedInNavigationView: true)]
                 return .none
                 
             case .router(.routeAction(id: _, action: .search(.routeToPreviousScreen))):

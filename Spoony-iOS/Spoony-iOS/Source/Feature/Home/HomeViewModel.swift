@@ -11,7 +11,7 @@ import CoreLocation
 @MainActor
 final class HomeViewModel: ObservableObject {
     private let service: HomeServiceType
-    @Published private(set) var pickList: [PickListCardResponse] = []
+    @Published var pickList: [PickListCardResponse] = []
     @Published var isLoading = false
     @Published var focusedPlaces: [CardPlace] = []
     @Published var selectedLocation: (latitude: Double, longitude: Double)?

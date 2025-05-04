@@ -51,7 +51,7 @@ struct BottomSheetListView: View {
                     HStack(spacing: 4) {
                         Text("양수정님의 찐맛집")
                             .customFont(.body2b)
-                        Text("\(store.pickList.count)")
+                        Text("\(store.filteredPickList.count)")
                             .customFont(.body2b)
                             .foregroundColor(.gray500)
                     }
@@ -62,7 +62,7 @@ struct BottomSheetListView: View {
                 
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0) {
-                        ForEach(store.pickList, id: \.placeId) { pickCard in
+                        ForEach(store.filteredPickList, id: \.placeId) { pickCard in
                             BottomSheetListItem(pickCard: pickCard)
                                 .background(Color.white)
                                 .onTapGesture {
