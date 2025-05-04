@@ -23,9 +23,14 @@ extension DependencyValues {
         set { self[HomeServiceKey.self] = newValue }
     }
     
-    var loginService: LoginServiceProtocol {
-        get { self[LoginServiceKey.self] }
-        set { self[LoginServiceKey.self] = newValue }
+    var socialLoginService: SocialLoginServiceProtocol {
+        get { self[SocialLoginServiceKey.self] }
+        set { self[SocialLoginServiceKey.self] = newValue }
+    }
+    
+    var authService: AuthProtocol {
+        get { self[AuthServiceKey.self] }
+        set { self[AuthServiceKey.self] = newValue }
     }
     
     var registerService: RegisterServiceType {

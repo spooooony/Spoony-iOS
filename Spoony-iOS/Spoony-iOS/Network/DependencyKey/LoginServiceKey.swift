@@ -7,6 +7,10 @@
 
 import Dependencies
 
-enum LoginServiceKey: DependencyKey {
-    static let liveValue: LoginServiceProtocol = DefaultLoginService()
+enum SocialLoginServiceKey: DependencyKey {
+    static let liveValue: SocialLoginServiceProtocol = DefaultSocialLoginService()
+}
+
+enum AuthServiceKey: DependencyKey {
+    static let liveValue: AuthProtocol = DefaultAuthService()
 }
