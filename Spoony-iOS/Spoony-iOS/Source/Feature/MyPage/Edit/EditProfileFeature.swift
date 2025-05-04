@@ -15,6 +15,7 @@ struct EditProfileFeature {
     struct State: Equatable {
         static let initialState = State()
         
+        var imageLevel: Int = 0
         var selectedImage: UIImage?
         var userNickname: String = ""
         var introduction: String = ""
@@ -37,14 +38,20 @@ struct EditProfileFeature {
         case onAppear
         case didTabRegisterButton
         case didTabQuesetionButton
+        case profileInfoResponse(ProfileInfo)
+        
         // MARK: - MyPageCoordinator Action
         case routeToPreviousScreen
     }
     
+    @Dependency(\.myPageService) var network: MypageServiceProtocol
+    
     var body: some ReducerOf<Self> {
         BindingReducer()
         
-        Reduce { state, action in
+        Reduce {
+            state,
+            action in
             switch action {
             case .binding(\.nicknameErrorState):
                 if state.nicknameErrorState == .minimumInputError {
@@ -55,14 +62,31 @@ struct EditProfileFeature {
                 return .none
             case .binding: return .none
             case .onAppear:
-                // TODO: - 유저 정보 API 호출
-                state.userNickname = "Spoony"
-                state.birthDate = ["2000", "01", "01"]
-                state.selectedLocation = .seoul
-                state.selectedSubLocation = .mapo
+                return .run { send in
+                    do {
+                        let profileInfo = try await network.getProfileInfo().toModel()
+                        await send(.profileInfoResponse(profileInfo))
+                    } catch {
+                        print("실패")
+                    }
+                }
+            case .profileInfoResponse(let profileInfo):
+                state.userNickname = profileInfo.nickname
+                state.birthDate = profileInfo.birthDate
+                state.introduction = profileInfo.introduction
+                state.selectedLocation = profileInfo.selectedLocation
+                state.selectedSubLocation = profileInfo.selectedSubLocation
+                state.imageLevel = profileInfo.imageLevel
+                
                 return .none
             case .didTabRegisterButton:
-                // TODO: - 저장 API 호출
+//                let reqeust = EditProfileRequest(
+//                    userName: state.userNickname,
+//                    regionId: <#T##Int#>,
+//                    introduction: <#T##String#>,
+//                    birth: <#T##String#>,
+//                    imageLevel: <#T##Int#>
+//                )
                 print(state)
                 return .send(.routeToPreviousScreen)
             case .didTabQuesetionButton:
@@ -72,5 +96,16 @@ struct EditProfileFeature {
                 return .none
             }
         }
+    }
+}
+
+enum MyPageServiceKey: DependencyKey {
+    static let liveValue: MypageServiceProtocol = MyPageService()
+}
+
+extension DependencyValues {
+    var myPageService: MypageServiceProtocol {
+        get { self[MyPageServiceKey.self] }
+        set { self[MyPageServiceKey.self] = newValue }
     }
 }

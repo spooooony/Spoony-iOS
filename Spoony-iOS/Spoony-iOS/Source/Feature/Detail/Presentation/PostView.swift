@@ -37,7 +37,7 @@ struct PostView: View {
                     style: .detailWithChip,
                     spoonCount: store.spoonCount,
                     onBackTapped: {
-                        navigationManager.pop(1)
+                        store.send(.goBack)
                     }
                 )
                 ScrollView(.vertical) {

@@ -287,6 +287,9 @@ struct MapFeature {
                 state.isLoading = false
                 print("포커스 장소 조회 실패: \(error)")
                 return .none
+                
+            case let .routToDetailView(postId):
+                return .none
             }
         }
     }
