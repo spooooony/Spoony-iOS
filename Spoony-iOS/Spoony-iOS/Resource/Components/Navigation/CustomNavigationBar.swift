@@ -109,9 +109,7 @@ struct CustomNavigationBar: View {
     }
     
     private var searchContent: some View {
-        HStack(spacing: 12) {
-            LogoChip(type: .small, count: spoonCount)
-            
+        HStack(spacing: 12) {            
             HStack(spacing: 8) {
                 Image(.icSearchGray600)
                 

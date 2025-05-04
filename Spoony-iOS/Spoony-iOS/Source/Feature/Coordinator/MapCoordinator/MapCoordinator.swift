@@ -14,6 +14,10 @@ import TCACoordinators
 enum MapScreen {
     case map(MapFeature)
     case search(SearchFeature)
+    case searchLocation(SearchLocationFeature)
+    case detail(PostFeature)
+    
+    
 }
 
 @Reducer
@@ -34,6 +38,10 @@ struct MapCoordinator {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case let .router(.routeAction(id: _, action: .map(.routToDetailView(postId: postId)))):
+                state.routes.push(.detail(PostFeature.State(postId: postId)))
+                return .none
+                
             case .router(.routeAction(id: _, action: .map(.routToSearchScreen))):
                 state.routes.push(.search(.initialState))
                 return .none
@@ -42,7 +50,24 @@ struct MapCoordinator {
                 state.selectedLocationId = locationId
                 return .none
                 
+            case .router(.routeAction(id: _, action: .search(.selectLocation(let result)))):
+                let locationState = SearchLocationFeature.State(
+                    locationId: result.locationId,
+                    locationTitle: result.title
+                )
+                
+                state.routes.push(.searchLocation(locationState))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .searchLocation(.routeToHomeScreen))):
+                state.routes = [.root(.map(.initialState), embedInNavigationView: true)]
+                return .none
+                
             case .router(.routeAction(id: _, action: .search(.routeToPreviousScreen))):
+                state.routes.goBack()
+                return .none
+                
+            case .router(.routeAction(id: _, action: .detail(.goBack))):
                 state.routes.goBack()
                 return .none
                 

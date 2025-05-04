@@ -45,6 +45,7 @@ struct SearchFeature {
         case removeRecentSearch(String)
         case clearAllRecentSearches
         case selectLocation(SearchResult)
+        case selectRecentSearch(String)
         case setFirstAppear(Bool)
         case searchCompletedSuccess([SearchResult])
         case searchCompletedFailure(String)
@@ -96,7 +97,7 @@ struct SearchFeature {
             case let .removeRecentSearch(search):
                 if let index = state.recentSearches.firstIndex(of: search) {
                     state.recentSearches.remove(at: index)
-                    let searches = state.recentSearches  
+                    let searches = state.recentSearches
                     return .run { _ in
                         UserManager.shared.recentSearches = searches
                     }
@@ -109,9 +110,13 @@ struct SearchFeature {
                     UserManager.shared.recentSearches = []
                 }
                 
-            case .selectLocation:
+            case let .selectLocation(result):
                 state.isSearching = false
-                return .send(.routeToPreviousScreen)
+                   return .none
+                
+            case let .selectRecentSearch(searchText):
+                state.searchText = searchText
+                return .send(.search)
                 
             case let .searchCompletedSuccess(results):
                 state.isSearching = false
@@ -149,6 +154,7 @@ struct SearchFeature {
             case let .setFirstAppear(isFirst):
                 state.isFirstAppear = isFirst
                 return .none
+                
             }
         }
     }

@@ -48,7 +48,7 @@ struct EditProfileView: View {
 extension EditProfileView {
     private var sectionContainerView: some View {
         ScrollView {
-            VStack {
+            VStack(spacing: 0) {
                 profileSection
                 
                 nicknameSection
@@ -93,12 +93,12 @@ extension EditProfileView {
             profileImageList
         }
         .padding(.top, 5)
-        .padding(.bottom, 39.11)
+        .padding(.bottom, 41)
     }
     
     private var profileImageList: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: 11.49) {
+            HStack(spacing: 12) {
                 ForEach(0...5, id: \.self) { i in
                     profileImageCell(i==0)
                 }
@@ -112,12 +112,12 @@ extension EditProfileView {
         Circle()
             .fill(.gray200)
             .strokeBorder(isSelected ? .main400 : .clear, lineWidth: 4.59.adjusted)
-            .frame(width: 91.89.adjusted, height: 91.89.adjustedH)
+            .frame(width: 90.adjusted, height: 90.adjustedH)
             .overlay {
                 if !isSelected {
                     Image(.icLock)
                         .resizable()
-                        .frame(width: 22.97.adjusted, height: 22.97.adjustedH)
+                        .frame(width: 23.adjusted, height: 23.adjustedH)
                 }
             }
     }

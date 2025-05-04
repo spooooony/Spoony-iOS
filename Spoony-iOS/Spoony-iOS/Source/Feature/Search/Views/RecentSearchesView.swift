@@ -11,6 +11,7 @@ struct RecentSearchesView: View {
     let recentSearches: [String]
     let onRemoveSearch: (String) -> Void
     let onClearAll: () -> Void
+    let onSelectSearch: (String) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -43,6 +44,10 @@ struct RecentSearchesView: View {
                     }
                     .padding(.horizontal, 16.adjusted)
                     .padding(.vertical, 14.5.adjustedH)
+                    .contentShape(Rectangle()) 
+                    .onTapGesture {
+                        onSelectSearch(search)
+                    }
                     
                     if search != recentSearches.last {
                         Divider()

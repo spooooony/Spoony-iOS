@@ -49,13 +49,14 @@ extension ProfileImageBottomSheet {
         }
         .padding(.top, 12)
         .padding(.bottom, 24)
-        // TODO: - 지훈이형이 넣은 사진으로 바꾸기
         .background(
-            LinearGradient(
-                gradient: Gradient(colors: [.spoonBlack, .spoonBlack, .gray500]),
-                startPoint: .topTrailing,
-                endPoint: .bottomLeading
-            )
+            GeometryReader { geo in
+                Image(.bgBottomGrad)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .clipped()
+            }
         )
     }
     

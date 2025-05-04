@@ -63,6 +63,9 @@ struct SearchView: View {
                     },
                     onClearAll: {
                         store.send(.clearAllRecentSearches)
+                    },
+                    onSelectSearch: { search in
+                        store.send(.selectRecentSearch(search))
                     }
                 )
             }

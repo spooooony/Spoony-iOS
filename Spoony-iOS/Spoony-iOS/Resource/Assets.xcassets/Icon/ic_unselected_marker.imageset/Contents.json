@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "makerTestPlain.svg",
+      "filename" : "touch area.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "makerTestPlain 1.svg",
+      "filename" : "touch area 2.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "makerTestPlain 2.svg",
+      "filename" : "touch area 1.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
