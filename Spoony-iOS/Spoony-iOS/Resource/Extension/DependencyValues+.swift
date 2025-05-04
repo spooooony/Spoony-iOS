@@ -33,24 +33,3 @@ extension DependencyValues {
         set { self[RegisterServiceKey.self] = newValue }
     }
 }
-
-private enum MyPageServiceKey: DependencyKey {
-    static let liveValue: MypageServiceProtocol = MyPageService()
-}
-
-private enum DetailUseCaseKey: DependencyKey {
-    static let liveValue: DetailUseCaseProtocol = DefaultDetailUseCase()
-    static let testValue: DetailUseCaseProtocol = MockDetailUseCase()
-}
-
-private enum HomeServiceKey: DependencyKey {
-    static let liveValue: HomeServiceType = DefaultHomeService()
-}
-
-private enum LoginServiceKey: DependencyKey {
-    static let liveValue: LoginServiceProtocol = DefaultLoginService()
-}
-
-private enum RegisterServiceKey: DependencyKey {
-    static let liveValue: RegisterServiceType = RegisterService()
-}
