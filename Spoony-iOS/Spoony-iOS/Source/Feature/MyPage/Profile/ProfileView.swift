@@ -202,20 +202,19 @@ struct ProfileView: View {
                 emptyReviewsView
             }
         }
-        .padding(.bottom, 40)
     }
     
     private var reviewsHeader: some View {
         HStack {
             Text("리뷰")
-                .customFont(.title1)
+                .customFont(.body1b)
                 .foregroundStyle(.spoonBlack)
             Text("\(store.reviewCount)개")
                 .customFont(.body2m)
                 .foregroundStyle(.gray400)
         }
         .padding(.horizontal, 20)
-        .padding(.top, 24)
+        .padding(.top, 19)
     }
     
     private var reviewsLoadingView: some View {
@@ -239,10 +238,9 @@ struct ProfileView: View {
     
     private func reviewListView(_ reviews: [FeedEntity]) -> some View {
         ScrollView {
-            LazyVStack(spacing: 12) {
+            LazyVStack(spacing: 18) {
                 ForEach(reviews) { review in
                     ExploreCell(feed: review)
-                        .frame(maxWidth: .infinity)
                         .padding(.horizontal, 20)
                 }
             }
