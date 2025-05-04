@@ -29,9 +29,10 @@ struct Explore: View {
             
             ScrollView {
                 VStack(spacing: 18) {
-                    filterView
-                        .isHidden(store.state.viewType == .following)
-                        .padding(.leading, -20)
+                    if store.state.viewType == .all {
+                        filterView
+                            .padding(.leading, -20)
+                    }
                     
                     if store.state.viewType == .all {
                         if store.state.allList.isEmpty {
@@ -51,6 +52,9 @@ struct Explore: View {
                 }
             }
             .scrollIndicators(.hidden)
+        }
+        .task {
+            store.send(.viewOnAppear)
         }
         .sheet(isPresented: $filterIsPresented) {
             FilteringBottomSheet(

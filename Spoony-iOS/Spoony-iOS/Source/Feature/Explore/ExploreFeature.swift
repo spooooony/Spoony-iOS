@@ -29,25 +29,44 @@ struct ExploreFeature {
     
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case viewOnAppear
         case changeViewType(ExploreViewType)
         case filterTapped(FilterButtonType)
         case exploreCellTapped(FeedEntity)
         case searchButtonTapped
         case goButtonTapped
         
+        case feedFirstAppear
+        case followingFirstAppear
+        
+        case setFeed([FeedEntity])
+        
         // MARK: - Navigation
         case routeToExploreSearchScreen
         case tabSelected(TabType)
     }
+    
+    @Dependency(\.exploreService) var exploreService: ExploreProtocol
     
     var body: some ReducerOf<Self> {
         BindingReducer()
         
         Reduce { state, action in
             switch action {
+            case .viewOnAppear:
+                if state.viewType == .all {
+                    return .send(.feedFirstAppear)
+                } else {
+                    return .send(.followingFirstAppear)
+                }
             case .changeViewType(let type):
                 state.viewType = type
-                return .none
+                switch type {
+                case .all:
+                    return .send(.feedFirstAppear)
+                case .following:
+                    return .send(.followingFirstAppear)
+                }
             case .filterTapped(let type):
                 if type.rawValue >= 0 {
                     state.currentFilterTypeIndex = type.rawValue
@@ -67,6 +86,31 @@ struct ExploreFeature {
                 } else {
                     return .send(.routeToExploreSearchScreen)
                 }
+            case .feedFirstAppear:
+                return .run { send in
+                    do {
+                        let list = try await exploreService.getFeedList().toEntity()
+                        await send(.setFeed(list))
+                    } catch {
+                       // 에러처리
+                    }
+                }
+            case .followingFirstAppear:
+                return .run { send in
+                    do {
+                        let list = try await exploreService.getFollowingFeedList().toEntity()
+                        await send(.setFeed(list))
+                    } catch {
+                       // 에러처리
+                    }
+                }
+            case .setFeed(let list):
+                if state.viewType == .all {
+                    state.allList = list
+                } else {
+                    state.followingList = list
+                }
+                return .none
             case .routeToExploreSearchScreen:
                 return .none
             case .tabSelected:
@@ -101,4 +145,15 @@ struct ExploreFeature {
         }
     }
     
+}
+
+private enum ExploreServiceKey: DependencyKey {
+    static let liveValue: ExploreProtocol = MockExploreService()
+}
+
+extension DependencyValues {
+    var exploreService: ExploreProtocol {
+        get { self[ExploreServiceKey.self] }
+        set { self[ExploreServiceKey.self] = newValue }
+    }
 }

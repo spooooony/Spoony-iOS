@@ -62,6 +62,11 @@ extension ExploreCell {
     @ViewBuilder
     private func photoView(_ num: Int) -> some View {
         switch num {
+        case 0:
+            // 존재할 수 없는 상황이지만 혹시나 빈 배열로 들어오게 됐을 때 처리
+            Rectangle()
+                .fill(.clear)
+                .frame(width: 0, height: 0)
         case 1:
                 AsyncImage(url: URL(string: "\(feed.photoURLList[0])")) { image in
                     image
