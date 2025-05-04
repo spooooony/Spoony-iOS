@@ -97,14 +97,3 @@ struct LoginFeature {
         }
     }
 }
-
-private enum LoginServiceKey: DependencyKey {
-    static let liveValue: LoginServiceProtocol = DefaultLoginService()
-}
-
-extension DependencyValues {
-    var loginService: LoginServiceProtocol {
-        get { self[LoginServiceKey.self] }
-        set { self[LoginServiceKey.self] = newValue }
-    }
-}

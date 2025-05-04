@@ -178,14 +178,3 @@ struct RegisterFeature {
         }
     }
 }
-
-enum RegisterServiceKey: DependencyKey {
-    static let liveValue: RegisterServiceType = RegisterService()
-}
-
-extension DependencyValues {
-    var registerService: RegisterServiceType {
-        get { self[RegisterServiceKey.self] }
-        set { self[RegisterServiceKey.self] = newValue }
-    }
-}
