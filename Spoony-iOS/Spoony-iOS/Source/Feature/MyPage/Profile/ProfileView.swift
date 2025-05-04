@@ -20,15 +20,17 @@ struct ProfileView: View {
     var body: some View {
         VStack(spacing: 0) {
             navigationBar
-            profileSection
             
-            Divider()
-                .frame(height: 2)
-                .background(Color.gray0)
-                .padding(0)
-            
-            reviewsSection
-            Spacer()
+            if store.isLoading {
+                loadingView
+            } else if store.errorMessage != nil {
+                errorView
+            } else {
+                profileContentView
+            }
+        }
+        .task {
+            store.send(.onAppear)
         }
     }
     
@@ -46,6 +48,47 @@ struct ProfileView: View {
         .padding(.bottom, 24)
     }
     
+    private var loadingView: some View {
+        VStack {
+            Spacer()
+            ProgressView()
+                .scaleEffect(1.5)
+            Spacer()
+        }
+    }
+    
+    private var errorView: some View {
+        VStack {
+            Spacer()
+            Text("정보를 불러오는데 실패했습니다.")
+                .customFont(.body1m)
+                .foregroundStyle(.gray600)
+            Text(store.errorMessage ?? "")
+                .customFont(.caption1m)
+                .foregroundStyle(.gray400)
+                .padding(.top, 8)
+            Button("다시 시도") {
+                store.send(.onAppear)
+            }
+            .padding(.top, 16)
+            Spacer()
+        }
+    }
+    
+    private var profileContentView: some View {
+        VStack(spacing: 0) {
+            profileSection
+            
+            Divider()
+                .frame(height: 2)
+                .background(Color.gray0)
+                .padding(0)
+            
+            reviewsSection
+            Spacer()
+        }
+    }
+    
     private var profileSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             profileHeader
@@ -55,10 +98,11 @@ struct ProfileView: View {
     
     private var profileHeader: some View {
         HStack(alignment: .center, spacing: 24) {
-            // 프로필 사진 대체예정
+            // 프로필 이미지
             Circle()
                 .fill(Color.gray200)
                 .frame(width: 85.adjusted, height: 85.adjustedH)
+            
             Spacer()
             
             statsCounters
@@ -109,19 +153,22 @@ struct ProfileView: View {
     
     private var userInfoSection: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(store.username)
+            Text("서울 \(store.location) 스푼")
                 .customFont(.body2sb)
                 .foregroundStyle(.gray600)
                 .padding(.bottom, 4)
             
-            Text("크리스탈에메랄드수정")
-//                .customFont(.title2b)
+            Text(store.username)
+                .customFont(.title3sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 8)
             
-            Text(store.location)
-                .customFont(.caption1m)
-                .foregroundStyle(.gray600)
+            if !store.introduction.isEmpty {
+                Text(store.introduction)
+                    .customFont(.caption1m)
+                    .foregroundStyle(.gray600)
+                    .lineLimit(2)
+            }
         }
     }
     
@@ -145,11 +192,14 @@ struct ProfileView: View {
         VStack(alignment: .leading, spacing: 16) {
             reviewsHeader
             
-            if store.reviewCount == 0 {
-                emptyReviewsView
+            if store.isLoadingReviews {
+                reviewsLoadingView
+            } else if let error = store.reviewsErrorMessage {
+                reviewsErrorView(error)
+            } else if let reviews = store.reviews, !reviews.isEmpty {
+                reviewListView(reviews)
             } else {
-                // 리뷰가 있는 경우 리뷰 목록 표시
-                // TODO: 리뷰 목록 구현
+                emptyReviewsView
             }
         }
         .padding(.bottom, 40)
@@ -158,14 +208,46 @@ struct ProfileView: View {
     private var reviewsHeader: some View {
         HStack {
             Text("리뷰")
-//                .customFont(.title2b)
+                .customFont(.title1)
                 .foregroundStyle(.spoonBlack)
-            Text("0개")
+            Text("\(store.reviewCount)개")
                 .customFont(.body2m)
                 .foregroundStyle(.gray400)
         }
         .padding(.horizontal, 20)
         .padding(.top, 24)
+    }
+    
+    private var reviewsLoadingView: some View {
+        VStack {
+            ProgressView()
+                .padding(.top, 30)
+                .frame(maxWidth: .infinity)
+        }
+    }
+    
+    private func reviewsErrorView(_ error: String) -> some View {
+        VStack {
+            Text("리뷰를 불러오는데 실패했습니다.")
+                .customFont(.body2m)
+                .foregroundStyle(.gray600)
+                .multilineTextAlignment(.center)
+                .padding(.top, 30)
+                .frame(maxWidth: .infinity)
+        }
+    }
+    
+    private func reviewListView(_ reviews: [FeedEntity]) -> some View {
+        ScrollView {
+            LazyVStack(spacing: 12) {
+                ForEach(reviews) { review in
+                    ExploreCell(feed: review)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, 20)
+                }
+            }
+            .padding(.top, 16)
+        }
     }
     
     private var emptyReviewsView: some View {
@@ -174,13 +256,6 @@ struct ProfileView: View {
                 .resizable()
                 .frame(width: 100, height: 100)
                 .padding(.top, 30)
-            
-            Button {
-                store.send(.routeToReviewsScreen)
-            } label: {
-                Text("테스트용")
-                    .font(.largeTitle)
-            }
             
             Text("아직 등록한 리뷰가 없어요.\n나만의 찐맛집을 공유해 보세요!")
                 .customFont(.body1m)
