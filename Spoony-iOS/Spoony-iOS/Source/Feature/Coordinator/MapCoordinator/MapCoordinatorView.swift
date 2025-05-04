@@ -26,6 +26,8 @@ struct MapCoordinatorView: View {
                 SearchView(store: store)
             case let .searchLocation(store):
                 SearchLocationView(store: store)
+            case let .detail(store):
+                PostView(postId: store.postId, store: store)
             }
         }
     }

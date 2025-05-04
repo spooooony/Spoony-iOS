@@ -14,8 +14,10 @@ import TCACoordinators
 enum MapScreen {
     case map(MapFeature)
     case search(SearchFeature)
-  case searchLocation(SearchLocationFeature)
-
+    case searchLocation(SearchLocationFeature)
+    case detail(PostFeature)
+    
+    
 }
 
 @Reducer
