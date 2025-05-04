@@ -111,23 +111,3 @@ struct LoginFeature {
         }
     }
 }
-
-private enum SocialLoginServiceKey: DependencyKey {
-    static let liveValue: SocialLoginServiceProtocol = DefaultSocialLoginService()
-}
-
-private enum AuthServiceKey: DependencyKey {
-    static let liveValue: AuthProtocol = DefaultAuthService()
-}
-
-extension DependencyValues {
-    var socialLoginService: SocialLoginServiceProtocol {
-        get { self[SocialLoginServiceKey.self] }
-        set { self[SocialLoginServiceKey.self] = newValue }
-    }
-    
-    var authService: AuthProtocol {
-        get { self[AuthServiceKey.self] }
-        set { self[AuthServiceKey.self] = newValue }
-    }
-}
