@@ -22,7 +22,7 @@ enum HeaderType {
         case .auth:
             switch KeychainManager.read(key: .accessToken) {
             case .success(let token):
-                guard let token else{
+                guard let token else {
                     print("Access Token Nil Error")
                     return [:]
                 }
