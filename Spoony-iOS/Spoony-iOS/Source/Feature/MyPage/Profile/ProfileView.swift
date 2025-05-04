@@ -98,10 +98,19 @@ struct ProfileView: View {
     
     private var profileHeader: some View {
         HStack(alignment: .center, spacing: 24) {
-            // 프로필 이미지
-            Circle()
-                .fill(Color.gray200)
-                .frame(width: 85.adjusted, height: 85.adjustedH)
+            AsyncImage(url: URL(string: store.profileImageUrl)) { phase in
+                if case .success(let image) = phase {
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 85.adjusted, height: 85.adjustedH)
+                        .clipShape(Circle())
+                } else {
+                    Circle()
+                        .fill(Color.gray200)
+                        .frame(width: 85.adjusted, height: 85.adjustedH)
+                }
+            }
             
             Spacer()
             
