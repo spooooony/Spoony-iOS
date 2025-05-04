@@ -14,7 +14,6 @@ struct Explore: View {
     @Namespace private var namespace
     @Bindable private var store: StoreOf<ExploreFeature>
     
-    @State private var filterIsPresented: Bool = false
     @State private var sortIsPresented: Bool = false
     
     init(store: StoreOf<ExploreFeature>) {
@@ -56,9 +55,10 @@ struct Explore: View {
         .task {
             store.send(.viewOnAppear)
         }
-        .sheet(isPresented: $filterIsPresented) {
+        .sheet(isPresented: $store.isFilterPresented) {
             FilteringBottomSheet(
-                isPresented: $filterIsPresented,
+                filters: $store.filterInfo,
+                isPresented: $store.isFilterPresented,
                 selectedFilter: $store.selectedFilter,
                 currentFilter: $store.currentFilterTypeIndex
             )
@@ -117,7 +117,6 @@ extension Explore {
         .padding(.top, 12)
     }
     
-    // TODO: 필터 레이블 적용
     private var filterView: some View {
         ZStack(alignment: .trailing) {
             ScrollView(.horizontal) {
@@ -134,8 +133,6 @@ extension Explore {
                         )
                             .onTapGesture {
                                 store.send(.filterTapped(type))
-                                
-                                filterIsPresented = true
                             }
                     }
                     

@@ -11,13 +11,22 @@ struct FilteringBottomSheet: View {
     // TODO: 스크롤에 따라 title 선택되도록...
     @Namespace private var namespace
     
-    let filters: FilterInfo = .init(
-        categories: CategoryChip.mock(),
-        locations: Region.mock()
-    )
+    @Binding var filters: FilterInfo
     @Binding var isPresented: Bool
     @Binding var selectedFilter: SelectedFilterInfo
     @Binding var currentFilter: Int
+
+    init(
+        filters: Binding<FilterInfo>,
+        isPresented: Binding<Bool>,
+        selectedFilter: Binding<SelectedFilterInfo>,
+        currentFilter: Binding<Int>
+    ) {
+        self._filters = filters
+        self._isPresented = isPresented
+        self._selectedFilter = selectedFilter
+        self._currentFilter = currentFilter
+    }
     
     @State private var tempFilter: SelectedFilterInfo = .init()
     
@@ -122,15 +131,25 @@ extension FilteringBottomSheet {
             Text(type.title)
                 .customFont(.body2sb)
                 .foregroundStyle(.gray900)
-            ChipsContainerViewForFilter(
-                selectedItem: binding(type),
-                items: filters.items(type)
-            )
+            
+            if type == .category {
+                ChipsContainerViewForFilter(
+                    selectedItem: binding(type),
+                    items: filters.items(type),
+                    selectedIcons: filters.categories.map { $0.selectedImage },
+                    icons: filters.categories.map { $0.image }
+                )
+            } else {
+                ChipsContainerViewForFilter(
+                    selectedItem: binding(type),
+                    items: filters.items(type)
+                )
+            }
         }
         .id(type)
         .padding(.top, 24)
     }
-    
+
     private func binding(_ type: FilterType) -> Binding<[FilterItem]> {
         switch type {
         case .local:

@@ -15,6 +15,9 @@ struct ExploreFeature {
     struct State: Equatable {
         static let initialState = State()
         
+        var isFilterPresented: Bool = false
+        var isSortFilterPresented: Bool = false
+        
         var viewType: ExploreViewType = .all
         var selectedFilterButton: [FilterButtonType] = []
         
@@ -25,6 +28,8 @@ struct ExploreFeature {
         
         var currentFilterTypeIndex: Int = 0
         var selectedSort: SortType = .latest
+        
+        var filterInfo: FilterInfo = .init(categories: [], locations: [])
     }
     
     enum Action: BindableAction, Equatable {
@@ -40,6 +45,7 @@ struct ExploreFeature {
         case followingFirstAppear
         
         case setFeed([FeedEntity])
+        case setFilterInfo(category: [CategoryChip], location: [Region])
         
         // MARK: - Navigation
         case routeToExploreSearchScreen
@@ -73,7 +79,15 @@ struct ExploreFeature {
                 } else {
                     state.currentFilterTypeIndex = 0
                 }
-                return .none
+                
+                return .run { send in
+                    do {
+                        let categories = try await exploreService.getCategoryList().toModel()
+                        let locations = try await exploreService.getRegionList().toEntity()
+                        
+                        await send(.setFilterInfo(category: categories, location: locations))
+                    }
+                }
             case .exploreCellTapped(let feed):
                 // 디테일로 이동
                 print("cell tapped!")
@@ -110,6 +124,11 @@ struct ExploreFeature {
                 } else {
                     state.followingList = list
                 }
+                return .none
+            case .setFilterInfo(let category, let region):
+                state.filterInfo.categories = category
+                state.filterInfo.locations = region
+                state.isFilterPresented = true
                 return .none
             case .routeToExploreSearchScreen:
                 return .none
@@ -148,7 +167,7 @@ struct ExploreFeature {
 }
 
 private enum ExploreServiceKey: DependencyKey {
-    static let liveValue: ExploreProtocol = MockExploreService()
+    static let liveValue: ExploreProtocol = DefaultExploreService()
 }
 
 extension DependencyValues {

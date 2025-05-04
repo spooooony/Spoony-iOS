@@ -10,34 +10,21 @@ import Foundation
 import Moya
 
 protocol ExploreProtocol {
-    func getCategoryList() async throws -> SearchCategoryListResponse
-    
     func getFeedList() async throws -> FeedListResponse
     func getFollowingFeedList() async throws -> FeedListResponse
+    
+    func getRegionList() async throws -> RegionListResponse
+    // TODO: 모델명 바꾸기 ..
+    // register service에 존재하는 코드인데 이것만을 사용하기 위해 또 registerService를 선언하는 것이 조금 이상하게 생각되어서 중복코드를 만들어버렸습니다...
+    // 추후 카테고리 리스트 받아오는 코드 자체를 각 서비스에서 분리해서 새로운 서비스 파일을 만드는 방향이 좋아보이는데 어떻게 생각하시는지 궁금하네요 !
+    // 같은 맥락으로 region list 관련 api도 ....
+    func getCategoryList() async throws -> RegisterCategoryResponse
 }
 
 final class DefaultExploreService: ExploreProtocol {
     let provider = Providers.explorProvider
-    
-    func getCategoryList() async throws -> SearchCategoryListResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.getCategories) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<SearchCategoryListResponse>.self)
-                        guard let data = responseDto.data else { return }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
-        }
-    }
+    let registerProvider = Providers.registerProvider
+    let mypageProvider = Providers.myPageProvider
     
     func getFeedList() async throws -> FeedListResponse {
         return try await withCheckedThrowingContinuation { continuation in
@@ -59,7 +46,7 @@ final class DefaultExploreService: ExploreProtocol {
             }
         }
     }
-    // todo
+
     func getFollowingFeedList() async throws -> FeedListResponse {
         return try await withCheckedThrowingContinuation { continuation in
             provider.request(.getFollowingFeedList) { result in
@@ -80,63 +67,49 @@ final class DefaultExploreService: ExploreProtocol {
             }
         }
     }
+    
+    func getCategoryList() async throws -> RegisterCategoryResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            registerProvider.request(.getRegisterCategories) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<RegisterCategoryResponse>.self)
+                        guard let data = responseDto.data else { return }
+                        
+                        continuation.resume(returning: data)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    func getRegionList() async throws -> RegionListResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            mypageProvider.request(.getUserRegion) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<RegionListResponse>.self)
+                        guard let data = responseDto.data else { return }
+                        
+                        continuation.resume(returning: data)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
 }
 
 final class MockExploreService: ExploreProtocol {
-    func getCategoryList() async throws -> SearchCategoryListResponse {
-        return .init(
-            categoryMonoList: [
-                .init(
-                    categoryId: 1,
-                    categoryName: "로컬 수저",
-                    iconUrlNotSelected: "",
-                    iconUrlSelected: ""
-                ),
-                .init(
-                    categoryId: 2,
-                    categoryName: "한식",
-                    iconUrlNotSelected: "",
-                    iconUrlSelected: ""
-                ),
-                .init(
-                    categoryId: 3,
-                    categoryName: "일식",
-                    iconUrlNotSelected: "",
-                    iconUrlSelected: ""
-                ),
-                .init(
-                    categoryId: 4,
-                    categoryName: "중식",
-                    iconUrlNotSelected: "",
-                    iconUrlSelected: ""
-                ),
-                .init(
-                    categoryId: 5,
-                    categoryName: "양식",
-                    iconUrlNotSelected: "",
-                    iconUrlSelected: ""
-                ),
-                .init(
-                    categoryId: 6,
-                    categoryName: "퓨전/세계요리",
-                    iconUrlNotSelected: "",
-                    iconUrlSelected: ""
-                ),
-                .init(
-                    categoryId: 7,
-                    categoryName: "카페",
-                    iconUrlNotSelected: "",
-                    iconUrlSelected: ""
-                ),
-                .init(
-                    categoryId: 8,
-                    categoryName: "주류",
-                    iconUrlNotSelected: "",
-                    iconUrlSelected: ""
-                )
-            ]
-        )
-    }
     
     func getFeedList() async throws -> FeedListResponse {
         return .init(
@@ -180,5 +153,22 @@ final class MockExploreService: ExploreProtocol {
 //                photoUrlList: []
 //            )
         ])
+    }
+    
+    func getCategoryList() async throws -> RegisterCategoryResponse {
+        return .init(
+            categoryMonoList: [
+                .init(
+                    categoryId: 0,
+                    categoryName: "",
+                    iconUrlNotSelected: "",
+                    iconUrlSelected: ""
+                )
+            ]
+        )
+    }
+    
+    func getRegionList() async throws -> RegionListResponse {
+        return .init(regionList: [])
     }
 }

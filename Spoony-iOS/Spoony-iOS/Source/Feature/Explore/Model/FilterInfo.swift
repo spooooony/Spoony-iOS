@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct FilterInfo {
+struct FilterInfo: Equatable {
     var local: String
     var categories: [CategoryChip]
     var locations: [Region]
