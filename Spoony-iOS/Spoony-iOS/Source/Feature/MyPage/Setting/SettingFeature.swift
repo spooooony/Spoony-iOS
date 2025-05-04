@@ -62,23 +62,27 @@ struct SettingsFeature {
                 return .send(.routeToBlockedUsersScreen)
                 
             case .didTapServiceTerms:
-                return .send(.routeToTermsOfServiceScreen)
+                URLHelper.openURL(Config.termsOfServiceURL)
+                return .none
                 
             case .didTapPrivacyPolicy:
-                return .send(.routeToPrivacyPolicyScreen)
+                URLHelper.openURL(Config.privacyPolicyURL)
+                return .none
                 
             case .didTapLocationServices:
-                return .send(.routeToLocationServicesScreen)
+                URLHelper.openURL(Config.locationServicesURL)
+                return .none
                 
             case .didTapInquiry:
-                return .send(.routeToInquiryScreen)
+                URLHelper.openURL(Config.inquiryURL)
+                return .none
                 
             case .routeToAccountManagementScreen,
-                 .routeToBlockedUsersScreen,
-                 .routeToTermsOfServiceScreen,
-                 .routeToPrivacyPolicyScreen,
-                 .routeToLocationServicesScreen,
-                 .routeToInquiryScreen:
+                    .routeToBlockedUsersScreen,
+                    .routeToTermsOfServiceScreen,
+                    .routeToPrivacyPolicyScreen,
+                    .routeToLocationServicesScreen,
+                    .routeToInquiryScreen:
                 return .none
             }
         }

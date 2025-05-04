@@ -44,65 +44,65 @@ struct SettingsView: View {
                     .padding(.leading, 20)
                 
                 settingsRow(title: "서비스 이용약관", hasArrow: true) {
-                    store.send(.didTapServiceTerms)
+                    URLHelper.openURL(Config.termsOfServiceURL)
                 }
                 
                 settingsRow(title: "개인정보 처리 방침", hasArrow: true) {
-                    store.send(.didTapPrivacyPolicy)
+                    URLHelper.openURL(Config.privacyPolicyURL)
                 }
                 
                 settingsRow(title: "위치기반서비스 이용약관", hasArrow: true) {
-                    store.send(.didTapLocationServices)
+                    URLHelper.openURL(Config.locationServicesURL)
                 }
                 
                 settingsRow(title: "1:1 문의", hasArrow: true) {
-                    store.send(.didTapInquiry)
+                    URLHelper.openURL(Config.inquiryURL)
                 }
-                Spacer()
-            }
+            Spacer()
         }
+    }
         .background(Color.white)
         .navigationBarHidden(true)
         .task {
             store.send(.onAppear)
         }
+}
+
+private func sectionHeader(title: String) -> some View {
+    HStack {
+        Text(title)
+            .font(.caption1m)
+            .foregroundStyle(.gray600)
+            .padding(.leading, 20)
+            .padding(.vertical, 8)
+        
+        Spacer()
     }
-    
-    private func sectionHeader(title: String) -> some View {
+    .frame(maxWidth: .infinity)
+    .background(Color.gray0)
+}
+
+private func settingsRow(title: String, hasArrow: Bool = false, action: (() -> Void)? = nil) -> some View {
+    Button(action: {
+        action?()
+    }) {
         HStack {
             Text(title)
-                .font(.caption1m)
-                .foregroundStyle(.gray600)
-                .padding(.leading, 20)
-                .padding(.vertical, 8)
+                .font(.body2m)
+                .foregroundStyle(.gray700)
+                .padding(.vertical, 16)
             
             Spacer()
-        }
-        .frame(maxWidth: .infinity)
-        .background(Color.gray0)
-    }
-    
-    private func settingsRow(title: String, hasArrow: Bool = false, action: (() -> Void)? = nil) -> some View {
-        Button(action: {
-            action?()
-        }) {
-            HStack {
-                Text(title)
-                    .font(.body2m)
-                    .foregroundStyle(.gray700)
-                    .padding(.vertical, 16)
-                
-                Spacer()
-                
-                if hasArrow {
-                    Image(.icArrowRightGray400)
-                }
+            
+            if hasArrow {
+                Image(.icArrowRightGray400)
             }
-            .padding(.horizontal, 20)
-            .background(Color.white)
         }
-        .buttonStyle(PlainButtonStyle())
+        .padding(.horizontal, 20)
+        .background(Color.white)
     }
+    .buttonStyle(PlainButtonStyle())
+}
 }
 
 #Preview {
