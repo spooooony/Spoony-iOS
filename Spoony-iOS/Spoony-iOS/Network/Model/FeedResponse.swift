@@ -17,12 +17,14 @@ struct FeedResponse: Codable {
     let createdAt: String
     let userRegion: String
     let postId: Int
-    let title: String
+    let description: String
     let categoryColorResponse: CategoryColorResponse
     let zzimCount: Int
+    let photoUrlList: [String]
 }
 
 struct CategoryColorResponse: Codable, Hashable {
+    let categoryId: Int?
     let categoryName: String
     let iconUrl: String
     let iconTextColor: String
@@ -37,10 +39,10 @@ extension FeedListResponse {
                     postId: feed.postId,
                     userName: feed.userName,
                     userRegion: feed.userRegion,
-                    description: feed.title,
+                    description: feed.description,
                     categorColorResponse: feed.categoryColorResponse,
                     zzimCount: feed.zzimCount,
-                    photoURLList: [],
+                    photoURLList: feed.photoUrlList,
                     createAt: feed.createdAt
                 )
         }
@@ -52,14 +54,16 @@ extension FeedListResponse {
         createdAt: "2025-01-19T22:58:53.622066",
         userRegion: "서울시 성북구",
         postId: 1,
-        title: "테스트 title",
+        description: "테스트 description",
         categoryColorResponse: .init(
+            categoryId: 1,
             categoryName: "로컬 수저",
             iconUrl: "url",
             iconTextColor: "hexa code",
             iconBackgroundColor: "hexa code"
         ),
-        zzimCount: 1
+        zzimCount: 1,
+        photoUrlList: []
     )
 }
 

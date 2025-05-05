@@ -11,12 +11,12 @@ import Foundation
 import KakaoSDKUser
 import KakaoSDKAuth
 
-protocol LoginServiceProtocol {
+protocol SocialLoginServiceProtocol {
     func kakaoLogin() async throws -> String
     func appleLogin() async throws -> String
 }
 
-final class DefaultLoginService: NSObject, LoginServiceProtocol {
+final class DefaultSocialLoginService: NSObject, SocialLoginServiceProtocol {
     private var appleLoginContinuation: CheckedContinuation<String, Error>?
 
     func kakaoLogin() async throws -> String {
@@ -59,7 +59,7 @@ final class DefaultLoginService: NSObject, LoginServiceProtocol {
     }
 }
 
-extension DefaultLoginService: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+extension DefaultSocialLoginService: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     // apple 로그인 UI를 어느 뷰에 표시할지 지정
     @MainActor
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
@@ -84,6 +84,7 @@ extension DefaultLoginService: ASAuthorizationControllerDelegate, ASAuthorizatio
         #if DEBUG
         print("token \(String(describing: token))")
         print("code \(String(describing: code))")
+        
         #endif
         
         if let continuation = appleLoginContinuation,

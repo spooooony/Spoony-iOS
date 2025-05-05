@@ -16,8 +16,6 @@ enum MapScreen {
     case search(SearchFeature)
     case searchLocation(SearchLocationFeature)
     case detail(PostFeature)
-    
-    
 }
 
 @Reducer

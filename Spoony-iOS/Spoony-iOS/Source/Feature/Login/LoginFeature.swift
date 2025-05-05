@@ -9,7 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 
-enum SocialType {
+enum SocialType: String {
     case KAKAO
     case APPLE
 }
@@ -17,6 +17,7 @@ enum SocialType {
 enum LoginError: Error {
     case kakaoTokenError
     case appleTokenError
+    case serverLoginError
 }
 
 @Reducer
@@ -34,7 +35,8 @@ struct LoginFeature {
         case onAppear
         case kakaoLoginButtonTapped
         case appleLoginButtonTapped
-        case setToken(SocialType, String)
+        case login(SocialType, String)
+
         case error(Error)
         
         // MARK: Navigation Action
@@ -44,22 +46,23 @@ struct LoginFeature {
     }
         
     private let authenticationManager = AuthenticationManager.shared
-    @Dependency(\.loginService) var loginService: LoginServiceProtocol
+    @Dependency(\.socialLoginService) var socialLoginService: SocialLoginServiceProtocol
+    @Dependency(\.authService) var authService: AuthProtocol
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .onAppear:
                 //자동 로그인시
-                return .send(.routToTabCoordinatorScreen)
-//                return .none
+//                return .send(.routToTabCoordinatorScreen)
+                return .none
             case .kakaoLoginButtonTapped:
                 state.isLoading = true
                 
                 return .run { send in
                     do {
-                        let result = try await loginService.kakaoLogin()
-                        await send(.setToken(.KAKAO, result))
+                        let result = try await socialLoginService.kakaoLogin()
+                        await send(.login(.KAKAO, result))
                     } catch {
                         await send(.error(LoginError.kakaoTokenError))
                     }
@@ -69,16 +72,25 @@ struct LoginFeature {
                 
                 return .run { send in
                     do {
-                        let result = try await loginService.appleLogin()
-                        await send(.setToken(.APPLE, result))
+                        let result = try await socialLoginService.appleLogin()
+                        await send(.login(.APPLE, result))
                     } catch {
                         await send(.error(LoginError.appleTokenError))
                     }
                 }
-            case .setToken(let type, let token):
-                authenticationManager.setToken(type, token)
-                state.isLoading = false
-                return .send(.routToTermsOfServiceScreen)
+            case .login(let type, let token):
+                return .run { send in
+                    do {
+                        let isExists = try await authService.login(platform: type.rawValue, token: token)
+                        if isExists {
+                            await send(.routToTabCoordinatorScreen)
+                        } else {
+                            await send(.routToTermsOfServiceScreen)
+                        }
+                    } catch {
+                        await send(.error(LoginError.serverLoginError))
+                    }
+                }
             case .error(let error):
                 print(error.localizedDescription)
                 state.isLoading = false
@@ -86,25 +98,16 @@ struct LoginFeature {
                 
             // 로그인 성공시(약관 동의 안한 경우)
             case .routToTermsOfServiceScreen:
+                state.isLoading = false
                 return .none
             // 로그인 완료시(앱 삭제 후 다시 로그인한 경우? 삭제하면 어차피 약관 동의도 다시 하지 않나 필요없을지도)
             case .routToOnboardingScreen:
                 return .none
             // 로그인 성공시
             case .routToTabCoordinatorScreen:
+                state.isLoading = false
                 return .none
             }
         }
-    }
-}
-
-private enum LoginServiceKey: DependencyKey {
-    static let liveValue: LoginServiceProtocol = DefaultLoginService()
-}
-
-extension DependencyValues {
-    var loginService: LoginServiceProtocol {
-        get { self[LoginServiceKey.self] }
-        set { self[LoginServiceKey.self] = newValue }
     }
 }

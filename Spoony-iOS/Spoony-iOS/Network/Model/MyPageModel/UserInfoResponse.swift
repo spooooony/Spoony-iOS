@@ -14,8 +14,8 @@ struct UserInfoResponse: Codable {
     let userName: String
     let regionName: String
     let introduction: String
-    let createdAt: Date
-    let updatedAt: Date
+    let createdAt: String
+    let updatedAt: String
     let followerCount: Int
     let followingCount: Int
     let isFollowing: Bool
