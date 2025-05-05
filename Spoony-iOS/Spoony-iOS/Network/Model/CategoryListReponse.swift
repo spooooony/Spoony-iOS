@@ -1,5 +1,5 @@
 //
-//  RegisterCategoryResponse.swift
+//  CategoryListResponse.swift
 //  Spoony-iOS
 //
 //  Created by 최안용 on 1/21/25.
@@ -9,7 +9,7 @@ import Foundation
 import Moya
 import Kingfisher
 
-struct RegisterCategoryResponse: Codable {
+struct CategoryListResponse: Codable {
     let categoryMonoList: [CategoryResponse]
 }
 
@@ -20,7 +20,7 @@ struct CategoryResponse: Codable {
     let iconUrlSelected: String
 }
 
-extension RegisterCategoryResponse {
+extension CategoryListResponse {
     func toModel() async throws -> [CategoryChip] {
         categoryMonoList.map { category in
                 .init(

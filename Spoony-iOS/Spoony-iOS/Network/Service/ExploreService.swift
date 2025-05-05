@@ -13,12 +13,9 @@ protocol ExploreProtocol {
     func getFeedList() async throws -> FeedListResponse
     func getFollowingFeedList() async throws -> FeedListResponse
     
+    // 추후 카테고리 리스트 받아오는 코드 자체를 각 서비스에서 분리해서 새로운 서비스 파일을 만드는 방향
     func getRegionList() async throws -> RegionListResponse
-    // TODO: 모델명 바꾸기 ..
-    // register service에 존재하는 코드인데 이것만을 사용하기 위해 또 registerService를 선언하는 것이 조금 이상하게 생각되어서 중복코드를 만들어버렸습니다...
-    // 추후 카테고리 리스트 받아오는 코드 자체를 각 서비스에서 분리해서 새로운 서비스 파일을 만드는 방향이 좋아보이는데 어떻게 생각하시는지 궁금하네요 !
-    // 같은 맥락으로 region list 관련 api도 ....
-    func getCategoryList() async throws -> RegisterCategoryResponse
+    func getCategoryList() async throws -> CategoryListResponse
 }
 
 final class DefaultExploreService: ExploreProtocol {
@@ -68,13 +65,13 @@ final class DefaultExploreService: ExploreProtocol {
         }
     }
     
-    func getCategoryList() async throws -> RegisterCategoryResponse {
+    func getCategoryList() async throws -> CategoryListResponse {
         return try await withCheckedThrowingContinuation { continuation in
             registerProvider.request(.getRegisterCategories) { result in
                 switch result {
                 case .success(let response):
                     do {
-                        let responseDto = try response.map(BaseResponse<RegisterCategoryResponse>.self)
+                        let responseDto = try response.map(BaseResponse<CategoryListResponse>.self)
                         guard let data = responseDto.data else { return }
                         
                         continuation.resume(returning: data)
@@ -155,7 +152,7 @@ final class MockExploreService: ExploreProtocol {
         ])
     }
     
-    func getCategoryList() async throws -> RegisterCategoryResponse {
+    func getCategoryList() async throws -> CategoryListResponse {
         return .init(
             categoryMonoList: [
                 .init(
