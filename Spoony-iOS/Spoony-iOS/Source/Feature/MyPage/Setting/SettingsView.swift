@@ -62,7 +62,6 @@ struct SettingsView: View {
         }
     }
         .background(Color.white)
-        .navigationBarHidden(true)
         .task {
             store.send(.onAppear)
         }
