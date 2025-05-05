@@ -249,12 +249,36 @@ struct ProfileView: View {
         ScrollView {
             LazyVStack(spacing: 18) {
                 ForEach(reviews) { review in
-                    ExploreCell(feed: review)
-                        .padding(.horizontal, 20)
+                    ExploreCell(
+                        feed: review,
+                        onDelete: { postId in
+                            store.send(.deleteReview(postId))
+                        },
+                        onEdit: { feed in
+                           //어디로 가야하오,,
+                        }
+                    )
+                    .padding(.horizontal, 20)
                 }
             }
             .padding(.top, 16)
         }
+        .alert(
+            "리뷰 삭제",
+            isPresented: .init(
+                get: { store.showDeleteAlert },
+                set: { _ in }
+            ),
+            actions: {
+                Button("취소", role: .cancel) {}
+                Button("삭제", role: .destructive) {
+                    store.send(.confirmDeleteReview)
+                }
+            },
+            message: {
+                Text("이 리뷰를 정말 삭제하시겠습니까?")
+            }
+        )
     }
     
     private var emptyReviewsView: some View {
