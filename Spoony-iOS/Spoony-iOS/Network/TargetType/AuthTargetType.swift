@@ -10,8 +10,7 @@ import Moya
 
 enum AuthTargetType {
     case login(platform: String, token: String)
-    // TODO: authorization에 뭐들어가야됨.. 전윤혁이랑 상의 후 마무리 하기
-    case signup(SignupRequest)
+    case signup(SignupRequest, token: String)
 }
 
 extension AuthTargetType: TargetType {
@@ -45,7 +44,7 @@ extension AuthTargetType: TargetType {
                 parameters: ["platform": platform],
                 encoding: JSONEncoding.default
             )
-        case .signup(let request):
+        case .signup(let request, _):
             return .requestCustomJSONEncodable(request, encoder: JSONEncoder())
         }
     }
@@ -54,8 +53,8 @@ extension AuthTargetType: TargetType {
         switch self {
         case .login(_, let token):
             HeaderType.token(token).value
-        case .signup:
-            HeaderType.auth.value
+        case .signup(_, let token):
+            HeaderType.token(token).value
         }
     }
 }

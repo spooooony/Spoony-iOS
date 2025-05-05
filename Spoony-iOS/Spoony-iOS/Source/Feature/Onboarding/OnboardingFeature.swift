@@ -120,17 +120,21 @@ struct OnboardingFeature {
                 }
                 return .none
             case .signup:
-                // 추후 고차함수로 수정
+                // TODO: 추후 고차함수로 수정
                 let birthString = state.birth[0] + state.birth[1] + state.birth[2]
                 return .run { [state] send in
                     do {
+                        guard let token = authenticationManager.socialToken
+                        else { return }
+                        
                         let user = try await authService.signup(
                             platform: authenticationManager.socialType.rawValue,
                             userName: state.nicknameText,
                             birth: birthString,
                             // 임시
                             regionId: 0,
-                            introduction: state.introduceText
+                            introduction: state.introduceText,
+                            token: token
                         )
                         await send(.setUser(user))
                     } catch {

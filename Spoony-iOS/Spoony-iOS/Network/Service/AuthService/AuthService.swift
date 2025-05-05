@@ -14,7 +14,8 @@ protocol AuthProtocol {
         userName: String,
         birth: String?,
         regionId: Int?,
-        introduction: String?
+        introduction: String?,
+        token: String
     ) async throws -> OnboardingUserEntity
 }
 
@@ -59,7 +60,8 @@ final class DefaultAuthService: AuthProtocol {
         userName: String,
         birth: String?,
         regionId: Int?,
-        introduction: String?
+        introduction: String?,
+        token: String
     ) async throws -> OnboardingUserEntity {
         return try await withCheckedThrowingContinuation { continuation in
             let request: SignupRequest = .init(
@@ -69,7 +71,7 @@ final class DefaultAuthService: AuthProtocol {
                 regionId: regionId,
                 introduction: introduction
             )
-            provider.request(.signup(request)) { result in
+            provider.request(.signup(request, token: token)) { result in
                 switch result {
                 case .success(let response):
                     do {
@@ -112,7 +114,14 @@ final class MockAuthService: AuthProtocol {
         return false
     }
     
-    func signup(platform: String, userName: String, birth: String?, regionId: Int?, introduction: String?) async throws -> OnboardingUserEntity {
+    func signup(
+        platform: String,
+        userName: String,
+        birth: String?,
+        regionId: Int?,
+        introduction: String?,
+        token: String
+    ) async throws -> OnboardingUserEntity {
         return .init(
             userName: "주리부리",
             region: nil,
