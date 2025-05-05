@@ -62,47 +62,54 @@ extension ExploreCell {
     @ViewBuilder
     private func photoView(_ num: Int) -> some View {
         switch num {
+       
         case 1:
-                AsyncImage(url: URL(string: "\(feed.photoURLList[0])")) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                } placeholder: {
-                    RoundedRectangle(cornerRadius: 6)
-                        .foregroundStyle(.gray200)
-                }
-                .frame(height: 311.adjustedH)
-                .frame(maxWidth: .infinity)
+            AsyncImage(url: URL(string: "\(feed.photoURLList[0])")) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } placeholder: {
+                Rectangle()
+                    .foregroundStyle(.gray200)
+            }
+            .frame(height: 311.adjustedH)
+            .frame(maxWidth: .infinity)
+            .cornerRadius(6)
+            .clipped()
         case 2:
             HStack(spacing: 7) {
                 ForEach(0..<2) { num in
                     AsyncImage(url: URL(string: "\(feed.photoURLList[num])")) { image in
                         image
                             .resizable()
-                            .scaledToFit()
+                            .aspectRatio(contentMode: .fill)
                     } placeholder: {
-                        RoundedRectangle(cornerRadius: 6)
+                        Rectangle()
                             .foregroundStyle(.gray200)
                     }
+                    .frame(height: 155.adjustedH)
+                    .cornerRadius(6)
+                    .frame(maxWidth: .infinity)
+                    .clipped()
                 }
             }
-            .frame(height: 156.adjustedH)
-            .frame(maxWidth: .infinity)
         default:
             HStack(spacing: 7) {
-                ForEach(0..<3) { num in
+                ForEach(0..<min(3, feed.photoURLList.count)) { num in
                     AsyncImage(url: URL(string: "\(feed.photoURLList[num])")) { image in
                         image
                             .resizable()
-                            .scaledToFit()
+                            .aspectRatio(contentMode: .fill)
                     } placeholder: {
-                        RoundedRectangle(cornerRadius: 6)
+                        Rectangle()
                             .foregroundStyle(.gray200)
                     }
+                    .frame(height: 99.adjustedH)
+                    .cornerRadius(6)
+                    .frame(maxWidth: .infinity)
+                    .clipped() 
                 }
             }
-            .frame(height: 99.adjustedH)
-            .frame(maxWidth: .infinity)
         }
     }
     
@@ -145,6 +152,7 @@ extension ExploreCell {
             userRegion: "서울 성북구",
             description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
             categorColorResponse: .init(
+                categoryId: 6,
                 categoryName: "양식",
                 iconUrl: "",
                 iconTextColor: "",
