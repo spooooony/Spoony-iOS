@@ -9,9 +9,15 @@ import SwiftUI
 
 struct ExploreCell: View {
     private let feed: FeedEntity
+    @State private var showOptions: Bool = false
     
-    init(feed: FeedEntity) {
+    var onDelete: ((Int) -> Void)?
+    var onEdit: ((FeedEntity) -> Void)?
+    
+    init(feed: FeedEntity, onDelete: ((Int) -> Void)? = nil, onEdit: ((FeedEntity) -> Void)? = nil) {
         self.feed = feed
+        self.onDelete = onDelete
+        self.onEdit = onEdit
     }
     
     var body: some View {
@@ -25,6 +31,65 @@ struct ExploreCell: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 18)
         .background(.gray0, in: RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            VStack {
+                if showOptions {
+                    GeometryReader { geometry in
+                        VStack(spacing: 0) {
+                            Button(action: {
+                                showOptions = false
+                                onEdit?(feed)
+                            }) {
+                                HStack {
+                                    Text("수정하기")
+                                        .customFont(.body2m)
+                                        .foregroundColor(.spoonBlack)
+                                    Spacer()
+                                }
+                                .frame(height: 48)
+                                .padding(.horizontal, 20)
+                                .background(Color.white)
+                            }
+                            
+                            Divider()
+                                .foregroundColor(.gray100)
+                            
+                            // 삭제하기 버튼
+                            Button(action: {
+                                showOptions = false
+                                onDelete?(feed.postId)
+                            }) {
+                                HStack {
+                                    Text("삭제하기")
+                                        .customFont(.body2m)
+                                        .foregroundColor(.spoonBlack)
+                                    Spacer()
+                                }
+                                .frame(height: 48)
+                                .padding(.horizontal, 20)
+                                .background(Color.white)
+                            }
+                        }
+                        .frame(width: 140)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.white)
+                                .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 2)
+                        )
+                        .position(x: geometry.size.width - 80, y: 30)
+                        .zIndex(100)
+                    }
+                    .background(
+                        Color.black.opacity(0.01)
+                            .onTapGesture {
+                                withAnimation {
+                                    showOptions = false
+                                }
+                            }
+                    )
+                }
+            }
+        )
     }
 }
 
@@ -36,9 +101,15 @@ extension ExploreCell {
                 
                 Spacer()
                 
-                Image(.icMenu)
-                    .resizable()
-                    .frame(width: 24.adjusted, height: 24.adjusted)
+                Button(action: {
+                    withAnimation {
+                        showOptions.toggle()
+                    }
+                }) {
+                    Image(.icMenu)
+                        .resizable()
+                        .frame(width: 24.adjusted, height: 24.adjusted)
+                }
             }
             
             HStack(alignment: .bottom, spacing: 4) {
@@ -107,7 +178,7 @@ extension ExploreCell {
                     .frame(height: 99.adjustedH)
                     .cornerRadius(6)
                     .frame(maxWidth: .infinity)
-                    .clipped() 
+                    .clipped()
                 }
             }
         }
