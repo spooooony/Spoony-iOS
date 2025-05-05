@@ -40,7 +40,6 @@ struct PostFeature {
         var postId: Int = 0
         var userName: String = ""
         var photoUrlList: [String] = []
-        var title: String = ""
         var date: String = "2025-08-21"
         var menuList: [String] = []
         var description: String = ""
@@ -54,8 +53,10 @@ struct PostFeature {
         var iconBackgroundColor: String = ""
         var categoryColorResponse: DetailCategoryColorResponse = .init(categoryId: 0, categoryName: "", iconUrl: "", iconTextColor: "", iconBackgroundColor: "")
         var isMine: Bool = false
-        var userImageUrl: String = ""
+        var profileImageUrl: String = ""
         var regionName: String = ""
+        var value: Double = 0.0
+        var cons: String = ""
     }
     
     enum Action {
@@ -72,8 +73,8 @@ struct PostFeature {
         case dismissToast
         
         case navigateToReport(postId: Int)
-        case goBack 
-
+        case goBack
+        
         case error(PostError)
     }
     
@@ -166,7 +167,7 @@ struct PostFeature {
                 return .send(.showToast(error.description))
                 
             case .goBack:
-                return .none  
+                return .none
                 
             case let .navigateToReport(postId):
                 return .none
@@ -182,7 +183,6 @@ struct PostFeature {
         state.postId = data.postId
         state.userName = data.userName
         state.photoUrlList = data.photoUrlList
-        state.title = data.title
         state.date = data.date.toFormattedDateString()
         state.menuList = data.menuList
         state.description = data.description
@@ -194,7 +194,9 @@ struct PostFeature {
         state.iconUrl = data.categoryColorResponse.iconUrl ?? ""
         state.categoryColorResponse = data.categoryColorResponse
         state.isMine = data.isMine
-        state.userImageUrl = data.userImageUrl
+        state.profileImageUrl = data.profileImageUrl
         state.regionName = data.regionName
+        state.value = data.value
+        state.cons = data.cons
     }
 }
