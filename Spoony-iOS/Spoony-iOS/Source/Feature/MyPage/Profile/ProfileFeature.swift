@@ -30,8 +30,8 @@ struct ProfileFeature {
         var isLoadingReviews: Bool = false
         var reviewsErrorMessage: String? = nil
         
-        // 삭제 관련 상태 추가
         var showDeleteAlert: Bool = false
+    
         var reviewToDeleteId: Int? = nil
     }
     
@@ -50,6 +50,8 @@ struct ProfileFeature {
         case deleteReview(Int)
         case confirmDeleteReview
         case reviewDeleted(TaskResult<Bool>)
+        case cancelDeleteReview
+        
     }
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
@@ -103,7 +105,7 @@ struct ProfileFeature {
                 state.reviewsErrorMessage = error.localizedDescription
                 print("Error fetching user reviews: \(error.localizedDescription)")
                 return .none
-            
+                
             case let .deleteReview(postId):
                 state.reviewToDeleteId = postId
                 state.showDeleteAlert = true
@@ -134,6 +136,11 @@ struct ProfileFeature {
                 
                 return .none
                 
+            case .cancelDeleteReview: 
+                state.showDeleteAlert = false
+                state.reviewToDeleteId = nil
+                return .none
+                
             case .reviewDeleted(.success(false)):
                 // 삭제 실패했지만 API 응답은 성공인 경우
                 state.isLoadingReviews = false
@@ -150,8 +157,8 @@ struct ProfileFeature {
                 return .none
                 
             case .routeToReviewsScreen, .routeToFollowingScreen,
-                 .routeToFollowerScreen, .routeToEditProfileScreen,
-                 .routeToSettingsScreen, .routeToAttendanceScreen:
+                    .routeToFollowerScreen, .routeToEditProfileScreen,
+                    .routeToSettingsScreen, .routeToAttendanceScreen:
                 return .none
             }
         }
