@@ -135,9 +135,10 @@ extension ExploreCell {
 extension ExploreCell {
     private var relativeDate: String {
         let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         
-        guard let date = formatter.date(from: feed.createAt) else {
+        let trimmedDate = feed.createAt.split(separator: ".")[0] +
+        "Z"
+        guard let date = formatter.date(from: String(trimmedDate)) else {
             return "시간 오류"
         }
         
