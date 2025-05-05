@@ -160,6 +160,7 @@ struct OnboardingFeature {
                 state.currentStep = .finish
                 return .none
             case .error(let error):
+                // 토스트 에러
                 return .none
             case .routToTabCoordinatorScreen:
                 return .none
