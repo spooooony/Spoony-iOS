@@ -158,7 +158,7 @@ extension ExploreSearchView {
     
     private var searchResultView: some View {
         ScrollView {
-            VStack(spacing: 0) {
+            LazyVStack(spacing: 0) {
                 if store.state.viewType == .user {
                     ForEach(store.state.userResult, id: \.id) { user in
                         userCell(user)

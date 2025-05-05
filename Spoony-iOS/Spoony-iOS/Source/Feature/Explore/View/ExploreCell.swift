@@ -63,7 +63,6 @@ extension ExploreCell {
     private func photoView(_ num: Int) -> some View {
         switch num {
         case 0:
-            // 존재할 수 없는 상황이지만 혹시나 빈 배열로 들어오게 됐을 때 처리
             Rectangle()
                 .fill(.clear)
                 .frame(width: 0, height: 0)
@@ -76,8 +75,7 @@ extension ExploreCell {
                 Rectangle()
                     .foregroundStyle(.gray200)
             }
-            .frame(height: 311.adjustedH)
-            .frame(maxWidth: .infinity)
+            .frame(width: 311.adjusted, height: 311.adjustedH)
             .cornerRadius(6)
             .clipped()
         case 2:
@@ -91,7 +89,7 @@ extension ExploreCell {
                         Rectangle()
                             .foregroundStyle(.gray200)
                     }
-                    .frame(height: 155.adjustedH)
+                    .frame(width: 156.adjusted, height: 155.5.adjustedH)
                     .cornerRadius(6)
                     .frame(maxWidth: .infinity)
                     .clipped()
@@ -108,7 +106,7 @@ extension ExploreCell {
                         Rectangle()
                             .foregroundStyle(.gray200)
                     }
-                    .frame(height: 99.adjustedH)
+                    .frame(width: 99.adjusted, height: 99.adjustedH)
                     .cornerRadius(6)
                     .frame(maxWidth: .infinity)
                     .clipped() 

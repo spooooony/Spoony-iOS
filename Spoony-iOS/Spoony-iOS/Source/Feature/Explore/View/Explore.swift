@@ -131,9 +131,9 @@ extension Explore {
                             type: type,
                             selectedFilter: $store.selectedFilterButton
                         )
-                            .onTapGesture {
-                                store.send(.filterTapped(type))
-                            }
+                        .onTapGesture {
+                            store.send(.filterTapped(type))
+                        }
                     }
                     
                     Rectangle()
@@ -196,12 +196,13 @@ extension Explore {
     }
     
     private func listView(_ list: [FeedEntity]) -> some View {
-        ForEach(list) { feed in
-            // TODO: 변경된 api 머지받아서 반영
-            ExploreCell(feed: feed)
-                .onTapGesture {
-                    store.send(.exploreCellTapped(feed))
-                }
+        LazyVStack(spacing: 18) {
+            ForEach(list) { feed in
+                ExploreCell(feed: feed)
+                    .onTapGesture {
+                        store.send(.exploreCellTapped(feed))
+                    }
+            }
         }
     }
     
