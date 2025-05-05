@@ -23,7 +23,7 @@ struct ExploreCell: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             infoView
-        
+            
             photoView(feed.photoURLList.count)
             
             bottomView
@@ -31,63 +31,13 @@ struct ExploreCell: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 18)
         .background(.gray0, in: RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            VStack {
-                if showOptions {
-                    GeometryReader { geometry in
-                        VStack(spacing: 0) {
-                            Button(action: {
-                                showOptions = false
-                                onEdit?(feed)
-                            }) {
-                                HStack {
-                                    Text("수정하기")
-                                        .customFont(.body2m)
-                                        .foregroundColor(.spoonBlack)
-                                    Spacer()
-                                }
-                                .frame(height: 48)
-                                .padding(.horizontal, 20)
-                                .background(Color.white)
-                            }
-                            
-                            Divider()
-                                .foregroundColor(.gray100)
-                            
-                            // 삭제하기 버튼
-                            Button(action: {
-                                showOptions = false
-                                onDelete?(feed.postId)
-                            }) {
-                                HStack {
-                                    Text("삭제하기")
-                                        .customFont(.body2m)
-                                        .foregroundColor(.spoonBlack)
-                                    Spacer()
-                                }
-                                .frame(height: 48)
-                                .padding(.horizontal, 20)
-                                .background(Color.white)
-                            }
-                        }
-                        .frame(width: 140)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.white)
-                                .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 2)
-                        )
-                        .position(x: geometry.size.width - 80, y: 30)
-                        .zIndex(100)
-                    }
-                    .background(
-                        Color.black.opacity(0.01)
-                            .onTapGesture {
-                                withAnimation {
-                                    showOptions = false
-                                }
-                            }
-                    )
-                }
+        .reviewDropdownMenu(
+            isShowing: $showOptions,
+            onEdit: {
+                onEdit?(feed)
+            },
+            onDelete: {
+                onDelete?(feed.postId)
             }
         )
     }
@@ -101,11 +51,21 @@ extension ExploreCell {
                 
                 Spacer()
                 
-                Button(action: {
-                    withAnimation {
-                        showOptions.toggle()
+                if onDelete != nil || onEdit != nil {
+                    Button(action: {
+                        withAnimation {
+                            showOptions.toggle()
+                        }
+                    }) {
+                        Image(.icMenu)
+                            .resizable()
+                            .frame(width: 24.adjusted, height: 24.adjusted)
+                            .contentShape(Rectangle())
                     }
-                }) {
+                    .id("menuButton-\(feed.id)")
+                    .environment(\.reviewCellID, feed.id.uuidString)
+                    .buttonStyle(PlainButtonStyle())
+                } else {
                     Image(.icMenu)
                         .resizable()
                         .frame(width: 24.adjusted, height: 24.adjusted)
@@ -133,7 +93,7 @@ extension ExploreCell {
     @ViewBuilder
     private func photoView(_ num: Int) -> some View {
         switch num {
-       
+            
         case 1:
             AsyncImage(url: URL(string: "\(feed.photoURLList[0])")) { image in
                 image
@@ -193,7 +153,7 @@ extension ExploreCell {
                 .customFont(.caption2m)
                 .foregroundStyle(.main400)
             Spacer()
-
+            
             Text(relativeDate)
                 .customFont(.caption2m)
                 .foregroundStyle(.gray400)
@@ -212,26 +172,4 @@ extension ExploreCell {
         
         return date.relativeTimeNamed
     }
-}
-
-#Preview {
-    ExploreCell(
-        feed: .init(
-            id: UUID(),
-            postId: 0,
-            userName: "gambasgirl",
-            userRegion: "서울 성북구",
-            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-            categorColorResponse: .init(
-                categoryId: 6,
-                categoryName: "양식",
-                iconUrl: "",
-                iconTextColor: "",
-                iconBackgroundColor: ""
-            ),
-            zzimCount: 17,
-            photoURLList: ["", "", ""],
-            createAt: "2025-04-14T14:51:35.369Z"
-        )
-    )
 }
