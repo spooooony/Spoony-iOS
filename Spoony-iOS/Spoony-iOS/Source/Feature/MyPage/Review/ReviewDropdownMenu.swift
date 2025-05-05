@@ -1,3 +1,10 @@
+//
+//  ReviewDropdownMenu.swift
+//  Spoony-iOS
+//
+//  Created by 이지훈 on 5/5/25.
+//
+
 import SwiftUI
 
 struct ReviewDropdownMenu: View {
@@ -13,17 +20,14 @@ struct ReviewDropdownMenu: View {
             }) {
                 HStack {
                     Text("수정하기")
-                        .customFont(.body2m)
+                        .customFont(.caption1b)
                         .foregroundColor(.spoonBlack)
                     Spacer()
                 }
-                .frame(height: 48)
+                .frame(height: 44.adjustedH)
                 .padding(.horizontal, 20)
                 .background(Color.white)
             }
-            
-            Divider()
-                .foregroundColor(.gray100)
             
             Button(action: {
                 onDelete()
@@ -31,24 +35,19 @@ struct ReviewDropdownMenu: View {
             }) {
                 HStack {
                     Text("삭제하기")
-                        .customFont(.body2m)
+                        .customFont(.caption1b)
                         .foregroundColor(.spoonBlack)
                     Spacer()
                 }
-                .frame(height: 48)
+                .frame(height: 44.adjustedH)
                 .padding(.horizontal, 20)
                 .background(Color.white)
             }
         }
-        .frame(width: 140)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.white)
-                .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 2)
-        )
-        .offset(x: -10, y: 10)
-        .zIndex(100)
-        .transition(.opacity)
+        .frame(width: 107.adjusted)
+        .cornerRadius(10)
+        .modifier(ShadowModifier(style: .shadow300))
+
     }
 }
 
@@ -72,9 +71,19 @@ extension View {
                         onEdit: onEdit,
                         onDelete: onDelete
                     )
+                    .padding(.trailing, 50)
+                    .padding(.top, 30)
                 }
             },
             alignment: .topTrailing
         )
     }
+}
+
+#Preview {
+    ReviewDropdownMenu(
+        isShowing: .constant(true),
+        onEdit: {},
+        onDelete: {}
+    )
 }
