@@ -246,31 +246,35 @@ struct ProfileView: View {
     }
     
     private func reviewListView(_ reviews: [FeedEntity]) -> some View {
-        ScrollView {
-            LazyVStack(spacing: 18) {
-                ForEach(reviews) { review in
-                    ExploreCell(
-                        feed: review,
-                        onDelete: { postId in
-                            store.send(.deleteReview(postId))
-                        },
-                        onEdit: { feed in
-                           //어디로 가야하오,,
-                        }
-                    )
-                    .padding(.horizontal, 20)
+        VStack {
+            ScrollView {
+                LazyVStack(spacing: 18) {
+                    ForEach(reviews) { review in
+                        ExploreCell(
+                            feed: review,
+                            onDelete: { postId in
+                                store.send(.deleteReview(postId))
+                            },
+                            onEdit: { feed in
+                                // 수정 기능
+                            }
+                        )
+                        .padding(.horizontal, 20)
+                    }
                 }
+                .padding(.top, 16)
             }
-            .padding(.top, 16)
         }
         .alert(
             "리뷰 삭제",
-            isPresented: .init(
+            isPresented: Binding<Bool>(
                 get: { store.showDeleteAlert },
-                set: { _ in }
+                set: { _ in store.send(.cancelDeleteReview) }
             ),
             actions: {
-                Button("취소", role: .cancel) {}
+                Button("취소", role: .cancel) {
+                    store.send(.cancelDeleteReview)
+                }
                 Button("삭제", role: .destructive) {
                     store.send(.confirmDeleteReview)
                 }
@@ -280,7 +284,7 @@ struct ProfileView: View {
             }
         )
     }
-    
+
     private var emptyReviewsView: some View {
         VStack(spacing: 16) {
             Image(.imageGoToList)
