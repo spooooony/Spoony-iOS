@@ -37,10 +37,12 @@ final class DefaultAuthService: AuthProtocol {
                             return
                         }
                         
-                        self.saveKeychain(
-                            access: data.jwtTokenDto.accessToken,
-                            refresh: data.jwtTokenDto.refreshToken
-                        )
+                        if let token = data.jwtTokenDto {
+                            self.saveKeychain(
+                                access: token.accessToken,
+                                refresh: token.refreshToken
+                            )
+                        }
                         continuation.resume(returning: data.exists)
                     } catch {
                         continuation.resume(throwing: error)
