@@ -10,7 +10,6 @@ import Foundation
 struct ReviewDetailModel: Codable {
     let postId: Int
     let photoUrlList: [String]
-    let title: String
     let date: String
     let menuList: [String]
     let description: String
@@ -25,13 +24,14 @@ struct ReviewDetailModel: Codable {
     let isMine: Bool
     let spoonCount: Int
     let userName: String
-    let userImageUrl: String
+    let profileImageUrl: String
     let regionName: String
+    let value: Double
+    let cons: String
     
     public init(reviewDetail: ReviewDetailResponseDTO, userInfo: UserInfoResponseDTO, spoonCount: Int) {
         self.postId = reviewDetail.postId
         self.photoUrlList = reviewDetail.photoUrlList
-        self.title = reviewDetail.title
         self.date = reviewDetail.date
         self.menuList = reviewDetail.menuList
         self.description = reviewDetail.description
@@ -45,8 +45,10 @@ struct ReviewDetailModel: Codable {
         self.categoryColorResponse = reviewDetail.categoryColorResponse
         self.isMine = reviewDetail.isMine
         self.userName = userInfo.userName
-        self.userImageUrl = userInfo.userImageUrl
+        self.profileImageUrl = userInfo.profileImageUrl
         self.regionName = userInfo.regionName
         self.spoonCount = spoonCount
+        self.value = reviewDetail.value
+        self.cons = reviewDetail.cons
     }
 }

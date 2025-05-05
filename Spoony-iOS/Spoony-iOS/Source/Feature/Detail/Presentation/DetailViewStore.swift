@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+//TODO: TCA 로 이전 끝나면 제가 삭제할게요!!
 final class DetailViewStore: ObservableObject {
     
     // MARK: - State
@@ -37,7 +38,6 @@ final class DetailViewStore: ObservableObject {
         var postId: Int = 0
         var userName: String = ""
         var photoUrlList: [String] = []
-        var title: String = ""
         var date: String = ""
         var menuList: [String] = []
         var description: String = ""
@@ -116,7 +116,6 @@ final class DetailViewStore: ObservableObject {
             postId: data.postId,
             userName: data.userName,
             photoUrlList: data.photoUrlList,
-            title: data.title,
             date: data.date.toFormattedDateString(),
             menuList: data.menuList,
             description: data.description,
@@ -128,7 +127,7 @@ final class DetailViewStore: ObservableObject {
             iconUrl: data.categoryColorResponse.iconUrl ?? "",
             categoryColorResponse: data.categoryColorResponse,
             isMine: data.isMine,
-            userImageUrl: data.userImageUrl,
+            userImageUrl: data.profileImageUrl,
             regionName: data.regionName
         )
         
