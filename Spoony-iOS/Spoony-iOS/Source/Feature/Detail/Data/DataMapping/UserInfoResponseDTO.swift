@@ -14,8 +14,13 @@ struct UserInfoResponseDTO: Codable {
     let platform: String
     let platformId: String
     let userName: String
-    let userImageUrl: String
     let regionName: String
+    let introduction: String
     let createdAt: String
     let updatedAt: String
+    let followerCount: Int
+    let followingCount: Int
+    let isFollowing: Bool
+    let reviewCount: Int
+    let profileImageUrl: String
 }

@@ -108,7 +108,7 @@ extension PostView {
     private var userProfileSection: some View {
         HStack(alignment: .center, spacing: 14.adjustedH) {
             
-            RemoteImageView(urlString: store.userImageUrl)
+            RemoteImageView(urlString: store.profileImageUrl)
                 .scaledToFit()
                 .clipShape(Circle())
                 .frame(width: 48.adjusted, height: 48.adjustedH)
@@ -177,7 +177,7 @@ extension PostView {
                 chip: store.categoryColorResponse.toEntity()
             )
             
-            Text(store.title)
+            Text("여기 없어질거")
                 .customFont(.title2)
                 .foregroundStyle(.black)
             
