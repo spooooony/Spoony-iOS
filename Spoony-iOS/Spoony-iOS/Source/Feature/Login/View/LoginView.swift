@@ -23,6 +23,18 @@ struct LoginView: View {
                     .padding(.bottom, 330)
                     .padding(.top, 200)
                 
+                Text("홈 바로가기")
+                    .font(.body)
+                    .padding(10)
+                    .background {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.white)
+                    }
+                    .padding(.bottom, 16)
+                    .onTapGesture {
+                        store.send(.tempHomeButtonTapped)
+                    }
+                
                 Image(.imageKakaoLogin)
                     .onTapGesture {
                         store.send(.kakaoLoginButtonTapped)

@@ -32,6 +32,8 @@ struct LoginFeature {
     }
     
     enum Action {
+        case tempHomeButtonTapped
+        
         case onAppear
         case kakaoLoginButtonTapped
         case appleLoginButtonTapped
@@ -52,6 +54,8 @@ struct LoginFeature {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .tempHomeButtonTapped:
+                return .send(.routToTabCoordinatorScreen)
             case .onAppear:
                 //자동 로그인시
 //                return .send(.routToTabCoordinatorScreen)
