@@ -24,11 +24,15 @@ struct ProfileFeature {
         var followingCount: Int = 0
         var followerCount: Int = 0
         var isLoading: Bool = false
-        var errorMessage: String?
+        var errorMessage: String? = nil
         
-        var reviews: [FeedEntity]?
+        var reviews: [FeedEntity]? = nil
         var isLoadingReviews: Bool = false
-        var reviewsErrorMessage: String?
+        var reviewsErrorMessage: String? = nil
+        
+        // 삭제 관련 상태 추가
+        var showDeleteAlert: Bool = false
+        var reviewToDeleteId: Int? = nil
     }
     
     enum Action {
@@ -42,6 +46,10 @@ struct ProfileFeature {
         case routeToEditProfileScreen
         case routeToSettingsScreen
         case routeToAttendanceScreen
+        
+        case deleteReview(Int)
+        case confirmDeleteReview
+        case reviewDeleted(TaskResult<Bool>)
     }
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
@@ -95,6 +103,51 @@ struct ProfileFeature {
                 state.reviewsErrorMessage = error.localizedDescription
                 print("Error fetching user reviews: \(error.localizedDescription)")
                 return .none
+            
+            case let .deleteReview(postId):
+                state.reviewToDeleteId = postId
+                state.showDeleteAlert = true
+                return .none
+                
+            case .confirmDeleteReview:
+                guard let postId = state.reviewToDeleteId else {
+                    return .none
+                }
+                
+                state.isLoadingReviews = true
+                return .run { send in
+                    await send(.reviewDeleted(
+                        TaskResult { try await myPageService.deleteReview(postId: postId) }
+                    ))
+                }
+                
+            case .reviewDeleted(.success(true)):
+                state.isLoadingReviews = false
+                state.showDeleteAlert = false
+                
+                if let postId = state.reviewToDeleteId, var reviews = state.reviews {
+                    reviews.removeAll { $0.postId == postId }
+                    state.reviews = reviews
+                    state.reviewCount = max(0, state.reviewCount - 1)
+                }
+                state.reviewToDeleteId = nil
+                
+                return .none
+                
+            case .reviewDeleted(.success(false)):
+                // 삭제 실패했지만 API 응답은 성공인 경우
+                state.isLoadingReviews = false
+                state.showDeleteAlert = false
+                state.reviewsErrorMessage = "리뷰 삭제에 실패했습니다. 다시 시도해주세요."
+                state.reviewToDeleteId = nil
+                return .none
+                
+            case let .reviewDeleted(.failure(error)):
+                state.isLoadingReviews = false
+                state.showDeleteAlert = false
+                state.reviewsErrorMessage = "리뷰 삭제 실패: \(error.localizedDescription)"
+                state.reviewToDeleteId = nil
+                return .none
                 
             case .routeToReviewsScreen, .routeToFollowingScreen,
                  .routeToFollowerScreen, .routeToEditProfileScreen,
@@ -103,5 +156,4 @@ struct ProfileFeature {
             }
         }
     }
-
 }
