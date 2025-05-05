@@ -31,7 +31,7 @@ struct ProfileFeature {
         var reviewsErrorMessage: String? = nil
         
         var showDeleteAlert: Bool = false
-    
+        var showDeleteConfirm: Bool = false
         var reviewToDeleteId: Int? = nil
     }
     
@@ -49,8 +49,8 @@ struct ProfileFeature {
         
         case deleteReview(Int)
         case confirmDeleteReview
-        case reviewDeleted(TaskResult<Bool>)
         case cancelDeleteReview
+        case reviewDeleted(TaskResult<Bool>)
         
     }
     

@@ -18,15 +18,31 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            navigationBar
+        ZStack {
+            VStack(spacing: 0) {
+                navigationBar
+                
+                if store.isLoading {
+                    loadingView
+                } else if store.errorMessage != nil {
+                    errorView
+                } else {
+                    profileContentView
+                }
+            }
             
-            if store.isLoading {
-                loadingView
-            } else if store.errorMessage != nil {
-                errorView
-            } else {
-                profileContentView
+            if store.showDeleteAlert {
+                CustomAlertView(
+                    title: "정말로 리뷰를 삭제할까요?",
+                    cancelTitle: "아니요",
+                    confirmTitle: "네",
+                    cancelAction: {
+                        store.send(.cancelDeleteReview)
+                    },
+                    confirmAction: {
+                        store.send(.confirmDeleteReview)
+                    }
+                )
             }
         }
         .task {
@@ -246,7 +262,8 @@ struct ProfileView: View {
     }
     
     private func reviewListView(_ reviews: [FeedEntity]) -> some View {
-        VStack {
+        ZStack {
+            // 리뷰 목록
             ScrollView {
                 LazyVStack(spacing: 18) {
                     ForEach(reviews) { review in
@@ -265,26 +282,8 @@ struct ProfileView: View {
                 .padding(.top, 16)
             }
         }
-        .alert(
-            "리뷰 삭제",
-            isPresented: Binding<Bool>(
-                get: { store.showDeleteAlert },
-                set: { _ in store.send(.cancelDeleteReview) }
-            ),
-            actions: {
-                Button("취소", role: .cancel) {
-                    store.send(.cancelDeleteReview)
-                }
-                Button("삭제", role: .destructive) {
-                    store.send(.confirmDeleteReview)
-                }
-            },
-            message: {
-                Text("이 리뷰를 정말 삭제하시겠습니까?")
-            }
-        )
     }
-
+    
     private var emptyReviewsView: some View {
         VStack(spacing: 16) {
             Image(.imageGoToList)
