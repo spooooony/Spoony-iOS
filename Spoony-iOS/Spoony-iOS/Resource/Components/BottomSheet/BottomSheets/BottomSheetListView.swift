@@ -76,7 +76,7 @@ struct BottomSheetListView: View {
                         }
                         
                         if currentStyle == .full {
-                            Color.clear.frame(height: 90.adjusted)
+                            Color.clear.frame(height: 230.adjustedH)
                         }
                     }
                 }
