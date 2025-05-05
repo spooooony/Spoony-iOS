@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 //TODO: PostView 로 이전 끝나면 제가 삭제할게요!!
 struct DetailView: View {
     
