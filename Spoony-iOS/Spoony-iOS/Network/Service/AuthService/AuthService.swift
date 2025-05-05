@@ -17,10 +17,12 @@ protocol AuthProtocol {
         introduction: String?,
         token: String
     ) async throws -> OnboardingUserEntity
+    func nicknameDuplicateCheck(userName: String) async throws -> Bool
 }
 
 final class DefaultAuthService: AuthProtocol {
     let provider = Providers.authProvider
+    let myPageProvider = Providers.myPageProvider
     
     func login(platform: String, token: String) async throws -> Bool {
         return try await withCheckedThrowingContinuation { continuation in
@@ -94,6 +96,30 @@ final class DefaultAuthService: AuthProtocol {
         }
     }
     
+    func nicknameDuplicateCheck(userName: String) async throws -> Bool {
+        return try await withCheckedThrowingContinuation { continuation in
+            myPageProvider.request(.nicknameDuplicateCheck(query: userName)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let dto = try response.map(BaseResponse<Bool>.self)
+                        guard let data = dto.data
+                        else {
+                            continuation.resume(throwing: APIAuthError.noData)
+                            return
+                        }
+                        
+                        continuation.resume(returning: data)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
     private func saveKeychain(access: String, refresh: String) {
         if case .failure(let error) = KeychainManager.create(
             key: .accessToken, value: access
@@ -128,5 +154,9 @@ final class MockAuthService: AuthProtocol {
             introduction: nil,
             birth: nil
         )
+    }
+    
+    func nicknameDuplicateCheck(userName: String) async throws -> Bool {
+        return false
     }
 }

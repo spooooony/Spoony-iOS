@@ -54,7 +54,9 @@ struct OnboardingFeature {
         
         case checkNickname
         case signup
+        
         case setUser(OnboardingUserEntity)
+        case setNicknameError(NicknameTextFieldErrorState)
         
         case error(Error)
         
@@ -111,17 +113,29 @@ struct OnboardingFeature {
                 return .none
             case .checkNickname:
                 if state.nicknameErrorState == .noError {
-                    // 닉네임 체크 api
-                    state.nicknameErrorState = .avaliableNickname
+                    return .run { [state] send in
+                        do {
+                            let isDuplicated = try await authService.nicknameDuplicateCheck(userName: state.nicknameText)
+                            
+                            if isDuplicated {
+                                await send(.setNicknameError(.duplicateNicknameError))
+                            } else {
+                                await send(.setNicknameError(.avaliableNickname))
+                            }
+                        }
+                    }
                 }
                 
                 if state.nicknameErrorState == .avaliableNickname {
                     state.nicknameError = false
                 }
                 return .none
+            case .setNicknameError(let error):
+                state.nicknameErrorState = error
+                return .none
             case .signup:
-                // TODO: 추후 고차함수로 수정
                 let birthString = state.birth[0] + state.birth[1] + state.birth[2]
+                
                 return .run { [state] send in
                     do {
                         guard let token = authenticationManager.socialToken
@@ -131,7 +145,7 @@ struct OnboardingFeature {
                             platform: authenticationManager.socialType.rawValue,
                             userName: state.nicknameText,
                             birth: birthString,
-                            // 임시
+                            // TODO: 임시
                             regionId: 0,
                             introduction: state.introduceText,
                             token: token
