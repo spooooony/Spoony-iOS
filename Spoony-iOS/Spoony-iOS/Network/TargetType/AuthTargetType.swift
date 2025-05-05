@@ -10,6 +10,7 @@ import Moya
 
 enum AuthTargetType {
     case login(platform: String, token: String)
+    // TODO: authorization에 뭐들어가야됨.. 전윤혁이랑 상의 후 마무리 하기
     case signup(SignupRequest)
 }
 
