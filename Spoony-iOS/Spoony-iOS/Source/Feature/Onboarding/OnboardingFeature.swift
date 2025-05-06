@@ -32,7 +32,8 @@ struct OnboardingFeature {
         
         var birth: [String] = ["", "", ""]
         var region: LocationType = .seoul
-        var subRegion: SubLocationType?
+        
+        var subRegion: Region?
         var infoError: Bool = true
         
         var introduceText: String = ""
@@ -134,7 +135,7 @@ struct OnboardingFeature {
                 state.nicknameErrorState = error
                 return .none
             case .signup:
-                let birthString = state.birth[0] + state.birth[1] + state.birth[2]
+                let birthString = state.birth[0] + "-" + state.birth[1] + "-" + state.birth[2]
                 
                 return .run { [state] send in
                     do {
@@ -145,8 +146,7 @@ struct OnboardingFeature {
                             platform: authenticationManager.socialType.rawValue,
                             userName: state.nicknameText,
                             birth: birthString,
-                            // TODO: 임시
-                            regionId: 0,
+                            regionId: state.subRegion?.id ?? nil,
                             introduction: state.introduceText,
                             token: token
                         )

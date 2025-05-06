@@ -10,7 +10,7 @@ import SwiftUI
 struct SpoonyLocationPicker: View {
     @State var isPresented: Bool = false
     @Binding var selectedLocation: LocationType
-    @Binding var selectedSubLocation: SubLocationType?
+    @Binding var selectedSubLocation: Region?
     
     var body: some View {
         HStack(spacing: 22) {
@@ -27,7 +27,9 @@ struct SpoonyLocationPicker: View {
             LocationPickerBottomSheet(
                 isPresented: $isPresented,
                 selectedLocation: $selectedLocation,
-                selectedSubLocation: $selectedSubLocation
+                selectedSubLocation: $selectedSubLocation,
+                // 서버에서 받아온 값으로 바꾸기 !
+                regionList: []
             )
             .presentationDetents([.height(542.adjustedH)])
             .presentationCornerRadius(16)
@@ -36,11 +38,11 @@ struct SpoonyLocationPicker: View {
 }
 
 extension SpoonyLocationPicker {
-    private func placeholderWithImageView(_ location: LocationType, _ subLocation: SubLocationType?) -> some View {
+    private func placeholderWithImageView(_ location: LocationType, _ subLocation: Region?) -> some View {
         let locationTitle = location.rawValue
         var subLocationTitle: String {
-            if let subLocation = subLocation {
-                subLocation.rawValue
+            if let subLocation {
+                subLocation.regionName
             } else {
                 "마포구"
             }
