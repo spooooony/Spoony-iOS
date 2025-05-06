@@ -18,6 +18,7 @@ protocol AuthProtocol {
         token: String
     ) async throws -> OnboardingUserEntity
     func nicknameDuplicateCheck(userName: String) async throws -> Bool
+    func getRegionList() async throws -> RegionListResponse
 }
 
 final class DefaultAuthService: AuthProtocol {
@@ -120,6 +121,26 @@ final class DefaultAuthService: AuthProtocol {
         }
     }
     
+    func getRegionList() async throws -> RegionListResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            myPageProvider.request(.getUserRegion) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<RegionListResponse>.self)
+                        guard let data = responseDto.data else { return }
+                        
+                        continuation.resume(returning: data)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
     private func saveKeychain(access: String, refresh: String) {
         if case .failure(let error) = KeychainManager.create(
             key: .accessToken, value: access
@@ -158,5 +179,9 @@ final class MockAuthService: AuthProtocol {
     
     func nicknameDuplicateCheck(userName: String) async throws -> Bool {
         return false
+    }
+    
+    func getRegionList() async throws -> RegionListResponse {
+        return .init(regionList: [])
     }
 }

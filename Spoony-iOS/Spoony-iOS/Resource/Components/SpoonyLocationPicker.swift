@@ -8,9 +8,20 @@
 import SwiftUI
 
 struct SpoonyLocationPicker: View {
+    private let locationList: [Region]
     @State var isPresented: Bool = false
     @Binding var selectedLocation: LocationType
     @Binding var selectedSubLocation: Region?
+    
+    init(
+        locationList: [Region],
+        selectedLocation: Binding<LocationType>,
+        selectedSubLocation: Binding<Region?>
+    ) {
+        self.locationList = locationList
+        self._selectedLocation = selectedLocation
+        self._selectedSubLocation = selectedSubLocation
+    }
     
     var body: some View {
         HStack(spacing: 22) {
@@ -28,8 +39,7 @@ struct SpoonyLocationPicker: View {
                 isPresented: $isPresented,
                 selectedLocation: $selectedLocation,
                 selectedSubLocation: $selectedSubLocation,
-                // 서버에서 받아온 값으로 바꾸기 !
-                regionList: []
+                regionList: locationList
             )
             .presentationDetents([.height(542.adjustedH)])
             .presentationCornerRadius(16)
@@ -68,5 +78,5 @@ extension SpoonyLocationPicker {
 }
 
 #Preview {
-    SpoonyLocationPicker(selectedLocation: .constant(.busan), selectedSubLocation: .constant(nil))
+    SpoonyLocationPicker(locationList: [], selectedLocation: .constant(.busan), selectedSubLocation: .constant(nil))
 }

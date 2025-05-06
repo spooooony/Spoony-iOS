@@ -174,6 +174,8 @@ extension EditProfileView {
                 .foregroundStyle(.spoonBlack)
             
             SpoonyLocationPicker(
+                // 서버에서 받아온 값으로 바꿔주세요!!!
+                locationList: [],
                 selectedLocation: $store.selectedLocation,
                 selectedSubLocation: $store.selectedSubLocation
             )

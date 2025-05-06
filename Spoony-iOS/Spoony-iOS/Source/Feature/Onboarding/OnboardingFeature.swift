@@ -30,9 +30,10 @@ struct OnboardingFeature {
         var nicknameError: Bool = true
         var nicknameErrorState: NicknameTextFieldErrorState = .initial
         
+        var regionList: [Region] = []
+        
         var birth: [String] = ["", "", ""]
         var region: LocationType = .seoul
-        
         var subRegion: Region?
         var infoError: Bool = true
         
@@ -53,11 +54,14 @@ struct OnboardingFeature {
         case tappedBackButton
         case tappedSkipButton
         
+        case infoStepViewOnAppear
+        
         case checkNickname
         case signup
         
         case setUser(OnboardingUserEntity)
         case setNicknameError(NicknameTextFieldErrorState)
+        case setRegion([Region])
         
         case error(Error)
         
@@ -112,6 +116,15 @@ struct OnboardingFeature {
                     break
                 }
                 return .none
+            case .infoStepViewOnAppear:
+                return .run { send in
+                    do {
+                        let list = try await authService.getRegionList().toEntity()
+                        await send(.setRegion(list))
+                    } catch {
+                        print("error: \(error.localizedDescription)")
+                    }
+                }
             case .checkNickname:
                 if state.nicknameErrorState == .noError {
                     return .run { [state] send in
@@ -133,6 +146,9 @@ struct OnboardingFeature {
                 return .none
             case .setNicknameError(let error):
                 state.nicknameErrorState = error
+                return .none
+            case .setRegion(let list):
+                state.regionList = list
                 return .none
             case .signup:
                 let birthString = state.birth[0] + "-" + state.birth[1] + "-" + state.birth[2]
