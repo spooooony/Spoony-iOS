@@ -109,8 +109,13 @@ struct OnboardingFeature {
                 case .nickname:
                     break
                 case .information:
+                    state.birth = ["", "", ""]
+                    state.subRegion = nil
+                    state.infoError = true
                     state.currentStep = .introduce
                 case .introduce:
+                    state.introduceText = ""
+                    state.introduceError = true
                     return .send(.signup)
                 case .finish:
                     break
