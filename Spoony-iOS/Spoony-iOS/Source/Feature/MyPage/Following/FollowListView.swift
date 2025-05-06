@@ -6,16 +6,16 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct FollowListView: View {
     
     // MARK: - Properties
     
+    @Bindable var store: StoreOf<FollowFeature>
+    
     @Namespace private var tabNamespace
     @State private var currentTab: Int = 0
-    
-    private let tabs = ["팔로워 1000", "팔로잉 12"]
-    private let follows: [FollowModel] = FollowModel.dummyData()
     
     // MARK: - Body
     
@@ -27,6 +27,9 @@ struct FollowListView: View {
             
             listSection
         }
+        .task {
+            await store.send(.onAppear).finish()
+        }
     }
 }
 
@@ -35,7 +38,12 @@ extension FollowListView {
     // MARK: - 상단 페이지 컨트롤
     
     private var pageControlSection: some View {
-        HStack(spacing: 0) {
+        let tabs = [
+            "팔로워 \(store.followerCount)",
+            "팔로잉 \(store.followingCount)"
+        ]
+        
+        return HStack(spacing: 0) {
             ForEach(tabs.indices, id: \.self) { index in
                 Button {
                     withAnimation(.easeInOut(duration: 0.35)) {
@@ -50,7 +58,7 @@ extension FollowListView {
                         ZStack {
                             if currentTab == index {
                                 Rectangle()
-                                    .fill(.main400)
+                                    .fill(Color.main400)
                                     .frame(height: 2.adjustedH)
                                     .matchedGeometryEffect(id: "underline", in: tabNamespace)
                             }
@@ -76,24 +84,28 @@ extension FollowListView {
     private var listSection: some View {
         TabView(selection: $currentTab) {
             List {
-                ForEach(follows, id: \.userId) { user in
-                    FollowRow(user: user)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        .alignmentGuide(.listRowSeparatorLeading) {
-                            $0[.leading]
-                        }
+                ForEach(store.followerList, id: \.userId) { user in
+                    FollowRow(user: user) {
+                        store.send(.followButtonTapped(userId: user.userId, isFollowing: user.isFollowing))
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .alignmentGuide(.listRowSeparatorLeading) {
+                        $0[.leading]
+                    }
                 }
             }
             .listStyle(.plain)
             .tag(0)
             
             List {
-                ForEach(follows.filter { $0.isFollowing }, id: \.userId) { user in
-                    FollowRow(user: user)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        .alignmentGuide(.listRowSeparatorLeading) {
-                            $0[.leading]
-                        }
+                ForEach(store.followingList, id: \.userId) { user in
+                    FollowRow(user: user) {
+                        store.send(.followButtonTapped(userId: user.userId, isFollowing: user.isFollowing))
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .alignmentGuide(.listRowSeparatorLeading) {
+                        $0[.leading]
+                    }
                 }
             }
             .listStyle(.plain)
@@ -104,7 +116,8 @@ extension FollowListView {
 }
 
 struct FollowRow: View {
-    let user: FollowModel
+    let user: FollowUserDTO
+    let onFollowTap: () -> Void
     
     var body: some View {
         HStack(spacing: 16.adjusted) {
@@ -115,20 +128,16 @@ struct FollowRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(user.username)
                     .font(.body2sb)
-                Text("서울 \(user.location) 스푼")
+                Text("서울 \(user.regionName) 스푼")
                     .font(.caption1m)
                     .foregroundColor(.black)
             }
             
             Spacer()
             
-            FollowButton(isFollowing: user.isFollowing) {
-                print("팔로우 버튼 탭됨: \(user.username)")
-                // TODO: 팔로우 언팔로직 넣어야함
-            }
-            .contentShape(Rectangle())
-            .buttonStyle(.borderless)
-            
+            FollowButton(isFollowing: user.isFollowing, action: onFollowTap)
+                .contentShape(Rectangle())
+                .buttonStyle(.borderless)
         }
         .contentShape(Rectangle()) // 전체 HStack을 터치영역으로
         .onTapGesture {
@@ -141,5 +150,7 @@ struct FollowRow: View {
 }
 
 #Preview {
-    FollowListView()
+    FollowListView(
+        store: Store(initialState: .init(), reducer: { FollowFeature() })
+    )
 }
