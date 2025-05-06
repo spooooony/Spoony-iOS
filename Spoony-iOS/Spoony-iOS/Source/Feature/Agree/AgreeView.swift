@@ -51,7 +51,12 @@ struct AgreeView: View {
                 isIcon: false,
                 disabled: $store.isDisableButton
             ) {
-                locationManager.requestWhenInUseAuthorization()
+                switch locationManager.authorizationStatus {
+                case .notDetermined:
+                    locationManager.requestWhenInUseAuthorization()
+                default:
+                    store.send(.routToOnboardingScreen)
+                }
             }
             .padding(.bottom, 20)
         }
