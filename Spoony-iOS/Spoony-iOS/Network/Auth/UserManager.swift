@@ -9,7 +9,7 @@ import Foundation
 
 final class UserManager {
     @UserDefaultWrapper<String>(key: "userId") public var userId
-    
+    @UserDefaultWrapper<Bool>(key: "isTooltipPresented") public var isTooltipPresented
     @UserDefaultWrapper(key: "RecentSearches") public var recentSearches: [String]?
     
     @UserDefaultWrapper(key: "exploreUserRecentSearches") public var exploreUserRecentSearches: [String]?
