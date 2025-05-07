@@ -25,6 +25,7 @@ enum MyPageTargetType {
     case getFollowinglist
     case getFollowerlist
     case nicknameDuplicateCheck(query: String)
+    case getBlockedUsers
 }
 
 extension MyPageTargetType: TargetType {
@@ -63,6 +64,8 @@ extension MyPageTargetType: TargetType {
             return "/user/followers"
         case .nicknameDuplicateCheck:
             return "/user/exists"
+        case .getBlockedUsers:
+            return "/user/blockings"
         }
     }
     
@@ -84,7 +87,8 @@ extension MyPageTargetType: TargetType {
                 .getProfileImages,
                 .getFollowinglist,
                 .getFollowerlist,
-                .nicknameDuplicateCheck:
+                .nicknameDuplicateCheck,
+                .getBlockedUsers:
             return .get
         }
     }
@@ -116,7 +120,8 @@ extension MyPageTargetType: TargetType {
                 .getUserRegion,
                 .getProfileImages,
                 .getFollowinglist,
-                .getFollowerlist:
+                .getFollowerlist,
+                .getBlockedUsers:
             return .requestPlain
         }
     }
