@@ -21,6 +21,11 @@ struct FollowListView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            
+            CustomNavigationBar(style: .backOnly) {
+                store.send(.routeToPreviousScreen)
+            }
+            
             pageControlSection
             
             separatorSection

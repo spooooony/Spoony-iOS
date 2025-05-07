@@ -30,11 +30,7 @@ struct MyPageCoordinator {
                 return .none
                 
             case .router(.routeAction(id: _, action: .profile(.routeToFollowingScreen))):
-                state.routes.push(.following(.initialState))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .profile(.routeToFollowerScreen))):
-                state.routes.push(.follower(.initialState))
+                state.routes.push(.follow(.initialState))
                 return .none
                 
             case .router(.routeAction(id: _, action: .profile(.routeToEditProfileScreen))):
@@ -78,8 +74,7 @@ struct MyPageCoordinator {
                 return .none
               
             case .router(.routeAction(id: _, action: .reviews(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .following(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .follower(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .follow(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .editProfile(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .attendance(.routeToPreviousScreen))),
