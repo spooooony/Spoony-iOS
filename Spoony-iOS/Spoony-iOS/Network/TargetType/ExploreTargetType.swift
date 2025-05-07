@@ -19,6 +19,8 @@ enum ExploreTargetType {
     
     case getFeedList
     case getFollowingFeedList
+    
+    case searchPost(query: String)
 }
 
 extension ExploreTargetType: TargetType {
@@ -42,13 +44,15 @@ extension ExploreTargetType: TargetType {
             return "/feed"
         case .getFollowingFeedList:
             return "/feed/following"
+        case .searchPost:
+            return "/post/search"
         }
     }
     
     var method: Moya.Method {
         switch self {
         case .getUserFeeds,
-                .getCategories, .getFeedList, .getFollowingFeedList:
+                .getCategories, .getFeedList, .getFollowingFeedList, .searchPost:
             return .get
         case .reportPost:
             return .post
@@ -67,6 +71,10 @@ extension ExploreTargetType: TargetType {
             return .requestPlain
         case .reportPost(let report):
             return .requestCustomJSONEncodable(report, encoder: JSONEncoder())
+        case .searchPost(let query):
+            return .requestParameters(parameters: [
+                "query": query
+            ], encoding: URLEncoding.default)
         }
     }
     
