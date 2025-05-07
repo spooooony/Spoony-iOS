@@ -9,13 +9,6 @@ import SwiftUI
 
 import ComposableArchitecture
 
-// 임시 객체
-struct SimpleUser: Identifiable, Hashable {
-    let id: UUID
-    let userName: String
-    let regionName: String
-}
-
 struct ExploreSearchView: View {
     @Namespace private var namespace
     @Bindable private var store: StoreOf<ExploreSearchFeature>

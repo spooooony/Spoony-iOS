@@ -16,6 +16,9 @@ protocol ExploreProtocol {
     // 추후 카테고리 리스트 받아오는 코드 자체를 각 서비스에서 분리해서 새로운 서비스 파일을 만드는 방향
     func getRegionList() async throws -> RegionListResponse
     func getCategoryList() async throws -> CategoryListResponse
+    
+    func searchUser(keyword: String) async throws -> UserSimpleListResponse
+    func searchReview(keyword: String) async throws -> ReviewSearchListResponse
 }
 
 final class DefaultExploreService: ExploreProtocol {
@@ -104,6 +107,46 @@ final class DefaultExploreService: ExploreProtocol {
             }
         }
     }
+    
+    func searchUser(keyword: String) async throws -> UserSimpleListResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            mypageProvider.request(.searchUser(query: keyword)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<UserSimpleListResponse>.self)
+                        guard let data = responseDto.data else { return }
+                        
+                        continuation.resume(returning: data)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    func searchReview(keyword: String) async throws -> ReviewSearchListResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.request(.searchPost(query: keyword)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<ReviewSearchListResponse>.self)
+                        guard let data = responseDto.data else { return }
+                        
+                        continuation.resume(returning: data)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
 }
 
 final class MockExploreService: ExploreProtocol {
@@ -167,5 +210,13 @@ final class MockExploreService: ExploreProtocol {
     
     func getRegionList() async throws -> RegionListResponse {
         return .init(regionList: [])
+    }
+    
+    func searchUser(keyword: String) async throws -> UserSimpleListResponse {
+        return .init(userSimpleResponseDTO: [])
+    }
+    
+    func searchReview(keyword: String) async throws -> ReviewSearchListResponse {
+        return .init(postSearchResultList: [])
     }
 }
