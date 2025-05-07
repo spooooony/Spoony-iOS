@@ -25,6 +25,7 @@ enum MyPageTargetType {
     case getFollowinglist
     case getFollowerlist
     case nicknameDuplicateCheck(query: String)
+    case deleteReview(postId: Int)
 }
 
 extension MyPageTargetType: TargetType {
@@ -63,6 +64,8 @@ extension MyPageTargetType: TargetType {
             return "/user/followers"
         case .nicknameDuplicateCheck:
             return "/user/exists"
+        case .deleteReview(let postId):
+            return "/post/\(postId)"
         }
     }
     
@@ -70,7 +73,7 @@ extension MyPageTargetType: TargetType {
         switch self {
         case .followUser, .blockUser:
             return .post
-        case .cancelFollowUser, .unblockUser:
+        case .cancelFollowUser, .unblockUser, .deleteReview:
             return .delete
         case .editProfileInfo:
             return .patch
@@ -116,7 +119,8 @@ extension MyPageTargetType: TargetType {
                 .getUserRegion,
                 .getProfileImages,
                 .getFollowinglist,
-                .getFollowerlist:
+                .getFollowerlist,
+                .deleteReview:
             return .requestPlain
         }
     }

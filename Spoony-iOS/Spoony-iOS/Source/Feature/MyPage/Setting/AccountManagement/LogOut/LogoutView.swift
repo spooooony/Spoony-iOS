@@ -28,15 +28,9 @@ struct LogoutView: View {
             VStack(spacing: 20) {
                 Spacer()
                 
-                
                 Text("로그아웃 하시겠습니까?")
                     .customFont(.title3b)
                     .foregroundStyle(.spoonBlack)
-                
-                Text("로그아웃 시 스푸니 서비스 이용이 제한됩니다.")
-                    .customFont(.body2m)
-                    .foregroundStyle(.gray500)
-                    .multilineTextAlignment(.center)
                 
                 HStack(spacing: 16) {
                     // 취소 버튼
