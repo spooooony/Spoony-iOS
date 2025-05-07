@@ -9,15 +9,21 @@ import SwiftUI
 
 struct ExploreCell: View {
     private let feed: FeedEntity
+    @State private var showOptions: Bool = false
     
-    init(feed: FeedEntity) {
+    var onDelete: ((Int) -> Void)?
+    var onEdit: ((FeedEntity) -> Void)?
+    
+    init(feed: FeedEntity, onDelete: ((Int) -> Void)? = nil, onEdit: ((FeedEntity) -> Void)? = nil) {
         self.feed = feed
+        self.onDelete = onDelete
+        self.onEdit = onEdit
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             infoView
-        
+            
             photoView(feed.photoURLList.count)
             
             bottomView
@@ -25,6 +31,15 @@ struct ExploreCell: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 18)
         .background(.gray0, in: RoundedRectangle(cornerRadius: 8))
+        .reviewDropdownMenu(
+            isShowing: $showOptions,
+            onEdit: {
+                onEdit?(feed)
+            },
+            onDelete: {
+                onDelete?(feed.postId)
+            }
+        )
     }
 }
 
@@ -36,9 +51,25 @@ extension ExploreCell {
                 
                 Spacer()
                 
-                Image(.icMenu)
-                    .resizable()
-                    .frame(width: 24.adjusted, height: 24.adjusted)
+                if onDelete != nil || onEdit != nil {
+                    Button(action: {
+                        withAnimation {
+                            showOptions.toggle()
+                        }
+                    }) {
+                        Image(.icMenu)
+                            .resizable()
+                            .frame(width: 24.adjusted, height: 24.adjusted)
+                            .contentShape(Rectangle())
+                    }
+                    .id("menuButton-\(feed.id)")
+                    .environment(\.reviewCellID, feed.id.uuidString)
+                    .buttonStyle(PlainButtonStyle())
+                } else {
+                    Image(.icMenu)
+                        .resizable()
+                        .frame(width: 24.adjusted, height: 24.adjusted)
+                }
             }
             
             HStack(alignment: .bottom, spacing: 4) {
@@ -62,7 +93,10 @@ extension ExploreCell {
     @ViewBuilder
     private func photoView(_ num: Int) -> some View {
         switch num {
-       
+        case 0:
+            Rectangle()
+                .fill(.clear)
+                .frame(width: 0, height: 0)
         case 1:
             AsyncImage(url: URL(string: "\(feed.photoURLList[0])")) { image in
                 image
@@ -72,8 +106,7 @@ extension ExploreCell {
                 Rectangle()
                     .foregroundStyle(.gray200)
             }
-            .frame(height: 311.adjustedH)
-            .frame(maxWidth: .infinity)
+            .frame(width: 311.adjusted, height: 311.adjustedH)
             .cornerRadius(6)
             .clipped()
         case 2:
@@ -87,7 +120,7 @@ extension ExploreCell {
                         Rectangle()
                             .foregroundStyle(.gray200)
                     }
-                    .frame(height: 155.adjustedH)
+                    .frame(width: 156.adjusted, height: 155.5.adjustedH)
                     .cornerRadius(6)
                     .frame(maxWidth: .infinity)
                     .clipped()
@@ -104,10 +137,10 @@ extension ExploreCell {
                         Rectangle()
                             .foregroundStyle(.gray200)
                     }
-                    .frame(height: 99.adjustedH)
+                    .frame(width: 99.adjusted, height: 99.adjustedH)
                     .cornerRadius(6)
                     .frame(maxWidth: .infinity)
-                    .clipped() 
+                    .clipped()
                 }
             }
         }
@@ -122,7 +155,7 @@ extension ExploreCell {
                 .customFont(.caption2m)
                 .foregroundStyle(.main400)
             Spacer()
-
+            
             Text(relativeDate)
                 .customFont(.caption2m)
                 .foregroundStyle(.gray400)
@@ -133,34 +166,13 @@ extension ExploreCell {
 extension ExploreCell {
     private var relativeDate: String {
         let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         
-        guard let date = formatter.date(from: feed.createAt) else {
+        let trimmedDate = feed.createAt.split(separator: ".")[0] +
+        "Z"
+        guard let date = formatter.date(from: String(trimmedDate)) else {
             return "시간 오류"
         }
         
         return date.relativeTimeNamed
     }
-}
-
-#Preview {
-    ExploreCell(
-        feed: .init(
-            id: UUID(),
-            postId: 0,
-            userName: "gambasgirl",
-            userRegion: "서울 성북구",
-            description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-            categorColorResponse: .init(
-                categoryId: 6,
-                categoryName: "양식",
-                iconUrl: "",
-                iconTextColor: "",
-                iconBackgroundColor: ""
-            ),
-            zzimCount: 17,
-            photoURLList: ["", "", ""],
-            createAt: "2025-04-14T14:51:35.369Z"
-        )
-    )
 }

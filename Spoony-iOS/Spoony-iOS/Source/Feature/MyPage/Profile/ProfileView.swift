@@ -18,20 +18,38 @@ struct ProfileView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            navigationBar
+        ZStack {
+            VStack(spacing: 0) {
+                navigationBar
+                
+                if store.isLoading {
+                    loadingView
+                } else if store.errorMessage != nil {
+                    errorView
+                } else {
+                    profileContentView
+                }
+            }
             
-            if store.isLoading {
-                loadingView
-            } else if store.errorMessage != nil {
-                errorView
-            } else {
-                profileContentView
+            if store.showDeleteAlert {
+                CustomAlertView(
+                    title: "정말로 리뷰를 삭제할까요?",
+                    cancelTitle: "아니요",
+                    confirmTitle: "네",
+                    cancelAction: {
+                        store.send(.cancelDeleteReview)
+                    },
+                    confirmAction: {
+                        store.send(.confirmDeleteReview)
+                    }
+                )
             }
         }
+        .toolbar(store.showDeleteAlert ? .hidden : .visible, for: .tabBar)
         .task {
             store.send(.onAppear)
         }
+        .edgesIgnoringSafeArea(.bottom)
     }
     
     private var navigationBar: some View {
@@ -246,14 +264,25 @@ struct ProfileView: View {
     }
     
     private func reviewListView(_ reviews: [FeedEntity]) -> some View {
-        ScrollView {
-            LazyVStack(spacing: 18) {
-                ForEach(reviews) { review in
-                    ExploreCell(feed: review)
+        ZStack {
+            // 리뷰 목록
+            ScrollView {
+                LazyVStack(spacing: 18) {
+                    ForEach(reviews) { review in
+                        ExploreCell(
+                            feed: review,
+                            onDelete: { postId in
+                                store.send(.deleteReview(postId))
+                            },
+                            onEdit: { feed in
+                                // 수정 기능
+                            }
+                        )
                         .padding(.horizontal, 20)
+                    }
                 }
+                .padding(.top, 16)
             }
-            .padding(.top, 16)
         }
     }
     

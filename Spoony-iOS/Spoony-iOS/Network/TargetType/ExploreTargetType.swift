@@ -16,6 +16,9 @@ enum ExploreTargetType {
     )
     case reportPost(report: ReportRequest)
     case getCategories
+    
+    case getFeedList
+    case getFollowingFeedList
 }
 
 extension ExploreTargetType: TargetType {
@@ -35,13 +38,17 @@ extension ExploreTargetType: TargetType {
             return "/report"
         case .getCategories:
             return "/post/categories"
+        case .getFeedList:
+            return "/feed"
+        case .getFollowingFeedList:
+            return "/feed/following"
         }
     }
     
     var method: Moya.Method {
         switch self {
         case .getUserFeeds,
-                .getCategories:
+                .getCategories, .getFeedList, .getFollowingFeedList:
             return .get
         case .reportPost:
             return .post
@@ -56,13 +63,14 @@ extension ExploreTargetType: TargetType {
                 "sortBy": filter.rawValue
             ]
             return .requestParameters(parameters: params, encoding: URLEncoding.default)
-        case .getCategories:
+        case .getCategories, .getFeedList, .getFollowingFeedList:
             return .requestPlain
         case .reportPost(let report):
             return .requestCustomJSONEncodable(report, encoder: JSONEncoder())
         }
     }
     
+    // TODO: 헤더타입 바꾸기
     var headers: [String: String]? {
         return Config.defaultHeader
     }

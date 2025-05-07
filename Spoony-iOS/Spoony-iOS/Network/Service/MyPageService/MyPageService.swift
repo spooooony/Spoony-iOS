@@ -16,6 +16,7 @@ protocol MypageServiceProtocol {
     func getUserReviews() async throws -> [FeedEntity]
     func getBlockedUsers() async throws -> BlockedUsersResponse
     func unblockUser(userId: Int) async throws -> Bool
+    func deleteReview(postId: Int) async throws -> Bool
 }
 
 final class MyPageService: MypageServiceProtocol {
@@ -181,4 +182,23 @@ final class MyPageService: MypageServiceProtocol {
                 }
             }
         }
+    func deleteReview(postId: Int) async throws -> Bool {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.request(.deleteReview(postId: postId)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<BlankData>.self)
+                        continuation.resume(returning: responseDto.success)
+                    } catch {
+                        print("Review deletion error: \(error)")
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    print("Review deletion API error: \(error)")
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
 }

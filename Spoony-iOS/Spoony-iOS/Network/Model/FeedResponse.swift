@@ -26,9 +26,9 @@ struct FeedResponse: Codable {
 struct CategoryColorResponse: Codable, Hashable {
     let categoryId: Int?
     let categoryName: String
-    let iconUrl: String
-    let iconTextColor: String
-    let iconBackgroundColor: String
+    let iconUrl: String?
+    let iconTextColor: String?
+    let iconBackgroundColor: String?
 }
 
 extension FeedListResponse {
@@ -71,9 +71,9 @@ extension CategoryColorResponse {
     func toEntity() -> ChipColorEntity {
         .init(
             name: self.categoryName,
-            iconUrl: self.iconUrl,
-            textColor: self.iconTextColor,
-            backgroundColor: self.iconBackgroundColor
+            iconUrl: self.iconUrl ?? "",
+            textColor: self.iconTextColor ?? "",
+            backgroundColor: self.iconBackgroundColor ?? ""
         )
     }
 }

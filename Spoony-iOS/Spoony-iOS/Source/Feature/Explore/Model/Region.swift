@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Region: Identifiable {
+struct Region: Identifiable, Equatable {
     let id: Int
     let regionName: String
 }
