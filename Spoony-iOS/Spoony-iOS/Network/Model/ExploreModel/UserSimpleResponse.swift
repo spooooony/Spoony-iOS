@@ -22,7 +22,6 @@ extension UserSimpleListResponse {
 
 extension UserSimpleListResponse {
     func toEntity() -> [SimpleUser] {
-        
         return userSimpleResponseDTO.map {
             .init(
                 id: $0.userId,
