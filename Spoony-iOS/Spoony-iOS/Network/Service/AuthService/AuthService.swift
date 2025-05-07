@@ -16,7 +16,7 @@ protocol AuthProtocol {
         regionId: Int?,
         introduction: String?,
         token: String
-    ) async throws -> OnboardingUserEntity
+    ) async throws -> String
     func nicknameDuplicateCheck(userName: String) async throws -> Bool
     func getRegionList() async throws -> RegionListResponse
 }
@@ -37,7 +37,7 @@ final class DefaultAuthService: AuthProtocol {
                         let dto = try response.map(BaseResponse<LoginResponse>.self)
                         guard let data = dto.data
                         else {
-                            continuation.resume(throwing: APIAuthError.noData)
+                            continuation.resume(throwing: SNError.noData)
                             return
                         }
                         
@@ -65,7 +65,7 @@ final class DefaultAuthService: AuthProtocol {
         regionId: Int?,
         introduction: String?,
         token: String
-    ) async throws -> OnboardingUserEntity {
+    ) async throws -> String {
         return try await withCheckedThrowingContinuation { continuation in
             let request: SignupRequest = .init(
                 platform: platform,
@@ -81,11 +81,11 @@ final class DefaultAuthService: AuthProtocol {
                         let dto = try response.map(BaseResponse<SignupResponse>.self)
                         guard let data = dto.data
                         else {
-                            continuation.resume(throwing: APIAuthError.noData)
+                            continuation.resume(throwing: SNError.noData)
                             return
                         }
                         
-                        let user = data.user.toEntity()
+                        let user = data.user.userName
                         continuation.resume(returning: user)
                     } catch {
                         continuation.resume(throwing: error)
@@ -106,7 +106,7 @@ final class DefaultAuthService: AuthProtocol {
                         let dto = try response.map(BaseResponse<Bool>.self)
                         guard let data = dto.data
                         else {
-                            continuation.resume(throwing: APIAuthError.noData)
+                            continuation.resume(throwing: SNError.noData)
                             return
                         }
                         
@@ -168,13 +168,8 @@ final class MockAuthService: AuthProtocol {
         regionId: Int?,
         introduction: String?,
         token: String
-    ) async throws -> OnboardingUserEntity {
-        return .init(
-            userName: "주리부리",
-            region: nil,
-            introduction: nil,
-            birth: nil
-        )
+    ) async throws -> String {
+        return "nickname"
     }
     
     func nicknameDuplicateCheck(userName: String) async throws -> Bool {

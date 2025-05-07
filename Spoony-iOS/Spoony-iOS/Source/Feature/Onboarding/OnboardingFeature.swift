@@ -40,12 +40,7 @@ struct OnboardingFeature {
         var introduceText: String = ""
         var introduceError: Bool = true
         
-        var user: OnboardingUserEntity = .init(
-            userName: "",
-            region: nil,
-            introduction: nil,
-            birth: nil
-        )
+        var userNickname: String = ""
     }
     
     enum Action: BindableAction {
@@ -59,7 +54,7 @@ struct OnboardingFeature {
         case checkNickname
         case signup
         
-        case setUser(OnboardingUserEntity)
+        case setUserNickname(String)
         case setNicknameError(NicknameTextFieldErrorState)
         case setRegion([Region])
         
@@ -156,9 +151,12 @@ struct OnboardingFeature {
                 state.regionList = list
                 return .none
             case .signup:
-                let birthString = state.birth[0] + "-" + state.birth[1] + "-" + state.birth[2]
-                
                 return .run { [state] send in
+                    var birthString = ""
+                    if !state.birth[0].isEmpty {
+                        birthString = state.birth[0] + "-" + state.birth[1] + "-" + state.birth[2]
+                    }
+                    
                     do {
                         guard let token = authenticationManager.socialToken
                         else { return }
@@ -171,13 +169,13 @@ struct OnboardingFeature {
                             introduction: state.introduceText,
                             token: token
                         )
-                        await send(.setUser(user))
+                        await send(.setUserNickname(user))
                     } catch {
                         await send(.error(error))
                     }
                 }
-            case .setUser(let user):
-                state.user = user
+            case .setUserNickname(let nickname):
+                state.userNickname = nickname
                 state.currentStep = .finish
                 return .none
             case .error(let error):
