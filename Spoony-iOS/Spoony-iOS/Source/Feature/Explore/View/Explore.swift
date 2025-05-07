@@ -14,7 +14,6 @@ struct Explore: View {
     @Namespace private var namespace
     @Bindable private var store: StoreOf<ExploreFeature>
     
-    @State private var filterIsPresented: Bool = false
     @State private var sortIsPresented: Bool = false
     
     init(store: StoreOf<ExploreFeature>) {
@@ -29,9 +28,10 @@ struct Explore: View {
             
             ScrollView {
                 VStack(spacing: 18) {
-                    filterView
-                        .isHidden(store.state.viewType == .following)
-                        .padding(.leading, -20)
+                    if store.state.viewType == .all {
+                        filterView
+                            .padding(.leading, -20)
+                    }
                     
                     if store.state.viewType == .all {
                         if store.state.allList.isEmpty {
@@ -52,9 +52,13 @@ struct Explore: View {
             }
             .scrollIndicators(.hidden)
         }
-        .sheet(isPresented: $filterIsPresented) {
+        .onAppear {
+            store.send(.viewOnAppear)
+        }
+        .sheet(isPresented: $store.isFilterPresented) {
             FilteringBottomSheet(
-                isPresented: $filterIsPresented,
+                filters: $store.filterInfo,
+                isPresented: $store.isFilterPresented,
                 selectedFilter: $store.selectedFilter,
                 currentFilter: $store.currentFilterTypeIndex
             )
@@ -113,7 +117,6 @@ extension Explore {
         .padding(.top, 12)
     }
     
-    // TODO: 필터 레이블 적용
     private var filterView: some View {
         ZStack(alignment: .trailing) {
             ScrollView(.horizontal) {
@@ -128,11 +131,9 @@ extension Explore {
                             type: type,
                             selectedFilter: $store.selectedFilterButton
                         )
-                            .onTapGesture {
-                                store.send(.filterTapped(type))
-                                
-                                filterIsPresented = true
-                            }
+                        .onTapGesture {
+                            store.send(.filterTapped(type))
+                        }
                     }
                     
                     Rectangle()
@@ -195,11 +196,13 @@ extension Explore {
     }
     
     private func listView(_ list: [FeedEntity]) -> some View {
-        ForEach(list) { feed in
-            ExploreCell(feed: feed)
-                .onTapGesture {
-                    store.send(.exploreCellTapped(feed))
-                }
+        LazyVStack(spacing: 18) {
+            ForEach(list) { feed in
+                ExploreCell(feed: feed)
+                    .onTapGesture {
+                        store.send(.exploreCellTapped(feed))
+                    }
+            }
         }
     }
     

@@ -30,11 +30,24 @@ struct DefaultDetailUseCase {
 extension DefaultDetailUseCase: DetailUseCaseProtocol {
     
     func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel {
-        let spoonCount = try await homeService.fetchSpoonCount()
-        let reviewDetail = try await detailRepository.fetchReviewDetail(postId: postId)
-        let userInfo = try await detailRepository.fetchUserInfo()
-        
-        return ReviewDetailModel(reviewDetail: reviewDetail, userInfo: userInfo, spoonCount: spoonCount)
+        do {
+            print("🔍 1. get spoonCount")
+            let spoonCount = try await homeService.fetchSpoonCount()
+            print("✅ 1. spoonCount =", spoonCount)
+
+            print("🔍 2. get reviewDetail")
+            let reviewDetail = try await detailRepository.fetchReviewDetail(postId: postId)
+            print("✅ 2. reviewDetail =")
+
+            print("🔍 3. get userInfo")
+            let userInfo = try await detailRepository.fetchUserInfo()
+            print("✅ 3. userInfo =", userInfo.userName)
+
+            return ReviewDetailModel(reviewDetail: reviewDetail, userInfo: userInfo, spoonCount: spoonCount)
+        } catch {
+            print("❌ fetchInitialDetail error:", error)
+            throw error
+        }
     }
     
     func scrapReview(postId: Int) async throws {

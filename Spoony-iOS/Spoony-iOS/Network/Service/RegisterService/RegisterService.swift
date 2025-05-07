@@ -13,7 +13,7 @@ protocol RegisterServiceType {
     func searchPlace(query: String) async throws -> SearchPlaceResponse
     func validatePlace(request: ValidatePlaceRequest) async throws -> ValidatePlaceResponse
     func registerPost(request: RegisterPostRequest, imagesData: [Data]) async throws -> Bool
-    func getRegisterCategories() async throws -> RegisterCategoryResponse
+    func getRegisterCategories() async throws -> CategoryListResponse
 }
 
 final class RegisterService: RegisterServiceType {
@@ -79,13 +79,13 @@ final class RegisterService: RegisterServiceType {
         }
     }
     
-    func getRegisterCategories() async throws -> RegisterCategoryResponse {
+    func getRegisterCategories() async throws -> CategoryListResponse {
         return try await withCheckedThrowingContinuation { continuation in
             provider.request(.getRegisterCategories) { result in
                 switch result {
                 case .success(let response):
                     do {
-                        let responseDto = try response.map(BaseResponse<RegisterCategoryResponse>.self)
+                        let responseDto = try response.map(BaseResponse<CategoryListResponse>.self)
                         guard let data = responseDto.data else { return }
                         
                         continuation.resume(returning: data)

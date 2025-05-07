@@ -93,7 +93,10 @@ extension ExploreCell {
     @ViewBuilder
     private func photoView(_ num: Int) -> some View {
         switch num {
-            
+        case 0:
+            Rectangle()
+                .fill(.clear)
+                .frame(width: 0, height: 0)
         case 1:
             AsyncImage(url: URL(string: "\(feed.photoURLList[0])")) { image in
                 image
@@ -103,8 +106,7 @@ extension ExploreCell {
                 Rectangle()
                     .foregroundStyle(.gray200)
             }
-            .frame(height: 311.adjustedH)
-            .frame(maxWidth: .infinity)
+            .frame(width: 311.adjusted, height: 311.adjustedH)
             .cornerRadius(6)
             .clipped()
         case 2:
@@ -118,7 +120,7 @@ extension ExploreCell {
                         Rectangle()
                             .foregroundStyle(.gray200)
                     }
-                    .frame(height: 155.adjustedH)
+                    .frame(width: 156.adjusted, height: 155.5.adjustedH)
                     .cornerRadius(6)
                     .frame(maxWidth: .infinity)
                     .clipped()
@@ -135,7 +137,7 @@ extension ExploreCell {
                         Rectangle()
                             .foregroundStyle(.gray200)
                     }
-                    .frame(height: 99.adjustedH)
+                    .frame(width: 99.adjusted, height: 99.adjustedH)
                     .cornerRadius(6)
                     .frame(maxWidth: .infinity)
                     .clipped()
@@ -164,9 +166,10 @@ extension ExploreCell {
 extension ExploreCell {
     private var relativeDate: String {
         let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         
-        guard let date = formatter.date(from: feed.createAt) else {
+        let trimmedDate = feed.createAt.split(separator: ".")[0] +
+        "Z"
+        guard let date = formatter.date(from: String(trimmedDate)) else {
             return "시간 오류"
         }
         

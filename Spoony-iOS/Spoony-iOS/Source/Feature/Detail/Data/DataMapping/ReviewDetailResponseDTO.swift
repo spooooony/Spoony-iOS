@@ -13,10 +13,11 @@ struct ReviewDetailResponseDTO: Codable {
     let postId: Int
     let userId: Int
     let photoUrlList: [String]
-    let title: String
     let date: String
     let menuList: [String]
     let description: String
+    let value: Double
+    let cons: String
     let placeName: String
     let placeAddress: String
     let latitude: Double

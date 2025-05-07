@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+//TODO: PostView 로 이전 끝나면 제가 삭제할게요!!
 struct DetailView: View {
     
     // MARK: - Properties
@@ -179,7 +180,7 @@ extension DetailView {
                 chip: store.entity.categoryColorResponse.toEntity()
             )
             
-            Text(store.entity.title)
+            Text("타이틀 없어짐")
                 .customFont(.title2)
                 .foregroundStyle(.black)
             
