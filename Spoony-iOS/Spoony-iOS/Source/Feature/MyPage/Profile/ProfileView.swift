@@ -45,9 +45,11 @@ struct ProfileView: View {
                 )
             }
         }
+        .toolbar(store.showDeleteAlert ? .hidden : .visible, for: .tabBar)
         .task {
             store.send(.onAppear)
         }
+        .edgesIgnoringSafeArea(.bottom)
     }
     
     private var navigationBar: some View {
