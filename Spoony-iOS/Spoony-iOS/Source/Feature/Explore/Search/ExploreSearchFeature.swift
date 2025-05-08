@@ -18,64 +18,8 @@ struct ExploreSearchFeature {
         var viewType: ExploreSearchViewType = .user
         var searchState: ExploreSearchState = .beforeSearch
         var searchText: String = ""
-        var userResult: [SimpleUser] = [
-            .init(id: UUID(), userName: "크리스탈에메랄드수정", regionName: "서울 마포구"),
-            .init(id: UUID(), userName: "크리스탈에메랄드수22", regionName: "서울 마포구"),
-            .init(id: UUID(), userName: "크리스탈에메랄드수1", regionName: "서울 마포구")
-        ]
-        var reviewResult: [FeedEntity] = [
-            .init(
-                id: UUID(),
-                postId: 0,
-                userName: "thingjin",
-                userRegion: "서울 성북구",
-                description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-                categorColorResponse: .init(
-                    categoryId: 6,
-                    categoryName: "양식",
-                    iconUrl: "",
-                    iconTextColor: "",
-                    iconBackgroundColor: ""
-                ),
-                zzimCount: 17,
-                photoURLList: [""],
-                createAt: "2025-04-14T12:21:49.524Z"
-            ),
-            .init(
-                id: UUID(),
-                postId: 0,
-                userName: "thingjin",
-                userRegion: "서울 성북구",
-                description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-                categorColorResponse: .init(
-                    categoryId: 6,
-                    categoryName: "양식",
-                    iconUrl: "",
-                    iconTextColor: "",
-                    iconBackgroundColor: ""
-                ),
-                zzimCount: 17,
-                photoURLList: ["", ""],
-                createAt: "2025-04-14T12:21:49.524Z"
-            ),
-            .init(
-                id: UUID(),
-                postId: 0,
-                userName: "thingjin",
-                userRegion: "서울 성북구",
-                description: "이자카야인데 친구랑 가서 안주만 5개 넘게 시킴.. 명성이 자자한 고등어봉 초밥은 꼭 시키세요! 입에 넣자마자 사르르 녹아 없어지는 어쩌구 저쩌구 어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구어쩌구 저쩌구",
-                categorColorResponse: .init(
-                    categoryId: 6,
-                    categoryName: "양식",
-                    iconUrl: "",
-                    iconTextColor: "",
-                    iconBackgroundColor: ""
-                ),
-                zzimCount: 17,
-                photoURLList: ["", "", ""],
-                createAt: "2025-04-14T12:21:49.524Z"
-            )
-        ]
+        var userResult: [SimpleUser] = []
+        var reviewResult: [FeedEntity] = []
     }
     
     enum Action: BindableAction, Equatable {
@@ -85,7 +29,7 @@ struct ExploreSearchFeature {
         case changeViewType(ExploreSearchViewType)
         
         case updateSearchStateFromRecentSearches
-        case updateSearchStateFromSearchResult
+        case updateSearchStateFromSearchResult(reviewList: [FeedEntity]?, userList: [SimpleUser]?)
         
         case setRecentSearchList
         case allDeleteButtonTapped
@@ -96,11 +40,11 @@ struct ExploreSearchFeature {
         case routeToExploreScreen
     }
     
+    @Dependency(\.exploreService) var exploreService: ExploreProtocol
+    
     var body: some ReducerOf<Self> {
         BindingReducer()
-        // TODO: 검색 유즈케이스 기획에 더 물어보기...
-        // 1. 검색 완료된 상황에서 x 버튼 누르면? 검색된 결과도 사라지나?
-        // 등등... 더 있을 듯
+        
         Reduce { state, action in
             switch action {
             case .onAppear:
@@ -120,15 +64,21 @@ struct ExploreSearchFeature {
                     state.searchState = .recentSearch
                 }
                 return .none
-            case .updateSearchStateFromSearchResult:
+            case .updateSearchStateFromSearchResult(let reviewList, let userList):
                 switch state.viewType {
                 case .user:
+                    guard let userList else { return .none }
+                    state.userResult = userList
+                    
                     if state.userResult.isEmpty {
                         state.searchState = .noResult
                     } else {
                         state.searchState = .searchResult
                     }
                 case .review:
+                    guard let reviewList else { return .none }
+                    state.reviewResult = reviewList
+                    
                     if state.reviewResult.isEmpty {
                         state.searchState = .noResult
                     } else {
@@ -172,13 +122,19 @@ struct ExploreSearchFeature {
                 switch state.viewType {
                 case .user:
                     return .run { [searchText = state.searchText] send in
-                        UserManager.shared.setSearches(.user, searchText)
-                        await send(.updateSearchStateFromSearchResult)
+                        do {
+                            UserManager.shared.setSearches(.user, searchText)
+                            let list = try await exploreService.searchUser(keyword: searchText).toEntity()
+                            await send(.updateSearchStateFromSearchResult(reviewList: nil, userList: list))
+                        }
                     }
                 case .review:
                     return .run { [searchText = state.searchText] send in
-                        UserManager.shared.setSearches(.review, searchText)
-                        await send(.updateSearchStateFromSearchResult)
+                        do {
+                            UserManager.shared.setSearches(.review, searchText)
+                            let list = try await exploreService.searchReview(keyword: searchText).toEntity()
+                            await send(.updateSearchStateFromSearchResult(reviewList: list, userList: nil))
+                        }
                     }
                 }
             case .searchByRecentSearch(let text):
@@ -186,13 +142,23 @@ struct ExploreSearchFeature {
                 switch state.viewType {
                 case .user:
                     return .run { send in
-                        UserManager.shared.setSearches(.user, text)
-                        await send(.updateSearchStateFromSearchResult)
+                        do {
+                            UserManager.shared.setSearches(.user, text)
+                            let list = try await exploreService.searchUser(keyword: text).toEntity()
+                            await send(.updateSearchStateFromSearchResult(reviewList: nil, userList: list))
+                        } catch {
+                            
+                        }
                     }
                 case .review:
                     return .run { send in
-                        UserManager.shared.setSearches(.review, text)
-                        await send(.updateSearchStateFromSearchResult)
+                        do {
+                            UserManager.shared.setSearches(.review, text)
+                            let list = try await exploreService.searchReview(keyword: text).toEntity()
+                            await send(.updateSearchStateFromSearchResult(reviewList: list, userList: nil))
+                        } catch {
+                            
+                        }
                     }
                 }
             case .binding(\.searchText):
