@@ -12,21 +12,25 @@ import Foundation
 struct RegisterFeature {
     @ObservableState
     struct State: Equatable {
-        static let initialState = State(
-            infoStepState: .initialState,
-            reviewStepState: .initialState
-        )
-        
-        static let editState = State(
-            infoStepState: .editState,
-            reviewStepState: .editState
-        )
-        
+        static let initialState = State()
+                       
+        var postId: Int?
         var currentStep: RegisterStep = .start
         var isLoading: Bool = false
         var isRegistrationSuccess: Bool = false
         var infoStepState: InfoStepFeature.State
         var reviewStepState: ReviewStepFeature.State
+        
+        init(postId: Int) {
+            self.postId = postId
+            infoStepState = .editState
+            reviewStepState = .editState
+        }
+        
+        init() {
+            infoStepState = .initialState
+            reviewStepState = .initialState
+        }
     }
     
     enum Action: BindableAction, Equatable {
@@ -37,6 +41,9 @@ struct RegisterFeature {
         case resetState
         case registrationSuccessful
         case onDisappear
+        case registerPostRequest(_ selectedPlace: PlaceInfo, _ selectedCategory: CategoryChip)
+        case editPostRequest(_ selectedCategory: CategoryChip)
+        case reviewInfoResponse(_ response: ReviewInfo)
         
         // MARK: - Child Action
         case infoStepAction(InfoStepFeature.Action)
@@ -47,6 +54,7 @@ struct RegisterFeature {
         case presentToast(message: String)
         
         case routeToPreviousScreen
+        case routeToPreviousTab
     }
         
     @Dependency(\.registerService) var network: RegisterServiceType
@@ -66,31 +74,38 @@ struct RegisterFeature {
             switch action {
             case .onAppear:
                 if state.infoStepState.isEditMode {
-                    // TODO: - 게시물 정보 API 호출
-                    state.infoStepState.selectedCategory.append(
-                        .init(
-                            image: "https://spoony-storage.s3.ap-northeast-2.amazonaws.com/category/icons/korean_black.png",
-                            selectedImage: "https://spoony-storage.s3.ap-northeast-2.amazonaws.com/category/icons/korean_white.png",
-                            title: "한식",
-                            id: 3
-                        )
-                    )
+                    guard let postId = state.postId else { return .none }
                     
-                    state.infoStepState.recommendTexts = [RecommendText(text: "아메리카노")]
-                    state.infoStepState.selectedPlace = .init(
-                        placeName: "스타벅스 한국프레스센터점",
-                        placeAddress: "서울특별시 중구 태평로1가 25",
-                        placeRoadAddress: "모름",
-                        latitude: 37.5672475,
-                        longitude: 126.9780493
-                    )
-                    state.infoStepState.satisfaction = 90.0
-                    state.reviewStepState.detailText = "한 달에 5번은 먹는 마라탕 집이에요. 마라 향 센 걸 잘 못 먹는 사람들한테 추천해용 친구, 가족 모두한테 소개해 줬는데 다들 좋아해요!"
-                    state.reviewStepState.uploadImages.append(UploadImage(image: ImageType(.imgMockGodeung), imageData: Data()))
+                    state.isLoading = true
                     
-                    state.reviewStepState.selectableCount = 4
+                    return .run { [postId] send in
+                        do {
+                            let reviewInfo = try await network.getReviewInfo(postId: postId).toModel()
+                            await send(.reviewInfoResponse(reviewInfo))
+                        } catch {
+                            await send(.presentToast(message: "네트워크 에러!"))
+                        }
+                    }
                 }
                 return .none
+            case .reviewInfoResponse(let reviewInfo):
+                state.infoStepState.selectedPlace = PlaceInfo(
+                    placeName: reviewInfo.placeName,
+                    placeAddress: "",
+                    placeRoadAddress: reviewInfo.placeAddress,
+                    latitude: 0.0,
+                    longitude: 0.0
+                )
+                
+                state.infoStepState.selectedCategoryId = reviewInfo.selectedCategoryId
+                state.infoStepState.recommendTexts = reviewInfo.menuList.map { RecommendText(text: $0) }
+                state.infoStepState.satisfaction = reviewInfo.value
+                state.reviewStepState.detailText = reviewInfo.description
+                state.reviewStepState.weakPointText = reviewInfo.cons
+                state.reviewStepState.uploadImages = reviewInfo.uploadImages
+                state.reviewStepState.selectableCount = 5 - reviewInfo.uploadImages.count
+                state.isLoading = false
+                return .send(.infoStepAction(.loadSelectedCategory))
             case .updateIsLoading(let isLoading):
                 state.isLoading = isLoading
                 
@@ -110,12 +125,29 @@ struct RegisterFeature {
                       let selectedCategory = state.infoStepState.selectedCategory.first else {
                     return .none
                 }
-                
-                // TODO: - 수정 등록 분기
+                                
+                if state.infoStepState.isEditMode {
+                    return .send(.editPostRequest(selectedCategory))
+                } else {
+                    return .send(.registerPostRequest(selectedPlace, selectedCategory))
+                }
+            case .reviewStepAction(.movePreviousView):
+                state.currentStep = .start
+                return .none
+            case .resetState:
+                state.currentStep = .start
+                state.isRegistrationSuccess = false
+                var infoStepNewState: InfoStepFeature.State = .initialState
+                infoStepNewState.isToolTipPresented = false
+                state.infoStepState = infoStepNewState
+                state.reviewStepState = .initialState
+                return .none
+            case let .registerPostRequest(selectedPlace, selectedCategory):
                 let request = RegisterPostRequest(
-                    userId: Config.userId,
                     title: "",
                     description: state.reviewStepState.detailText,
+                    value: state.infoStepState.satisfaction,
+                    cons: state.reviewStepState.weakPointText,
                     placeName: selectedPlace.placeName,
                     placeAddress: selectedPlace.placeAddress,
                     placeRoadAddress: selectedPlace.placeRoadAddress,
@@ -125,7 +157,7 @@ struct RegisterFeature {
                     menuList: state.infoStepState.recommendTexts.map { $0.text }
                 )
                 
-                let images = state.reviewStepState.uploadImages.map { $0.imageData }
+                let images = state.reviewStepState.uploadImages.compactMap { $0.imageData }
                 
                 state.isLoading = true
                 
@@ -146,17 +178,39 @@ struct RegisterFeature {
                         await send(.presentToast(message: "네트워크 오류!"))
                     }
                 }
-            case .reviewStepAction(.movePreviousView):
-                state.currentStep = .start
-                return .none
-            case .resetState:
-                state.currentStep = .start
-                state.isRegistrationSuccess = false
-                var infoStepNewState: InfoStepFeature.State = .initialState
-                infoStepNewState.isToolTipPresented = false
-                state.infoStepState = infoStepNewState
-                state.reviewStepState = .initialState
-                return .none
+            case let .editPostRequest(selectedCategory):
+                guard let postId = state.postId else { return .none }
+                let request = EditPostRequest(
+                    postId: postId,
+                    description: state.reviewStepState.detailText,
+                    value: state.infoStepState.satisfaction,
+                    cons: state.reviewStepState.weakPointText,
+                    categoryId: selectedCategory.id,
+                    menuList: state.infoStepState.recommendTexts.map { $0.text },
+                    deleteImageUrlList: state.reviewStepState.deleteImagesUrl
+                )
+                
+                let images = state.reviewStepState.uploadImages.compactMap { $0.imageData }
+                
+                state.isLoading = true
+                
+                return .run { [request, images] send in
+                    guard let success = try? await network.editPost(
+                        request: request,
+                        imagesData: images
+                    ) else {
+                        await send(.updateIsLoading(false))
+                        return
+                    }
+                    
+                    await send(.updateIsLoading(false))
+                    
+                    if success {
+                        await send(.registrationSuccessful)
+                    } else {
+                        await send(.presentToast(message: "네트워크 오류!"))
+                    }
+                }
             case .registrationSuccessful:
                 state.currentStep = .end
                 state.isRegistrationSuccess = true
