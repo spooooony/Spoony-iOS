@@ -25,8 +25,8 @@ struct MyPageCoordinator {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .router(.routeAction(id: _, action: .profile(.routeToReviewsScreen))):
-                state.routes.push(.reviews(.editState))
+            case .router(.routeAction(id: _, action: .profile(.routeToEditReviewScreen(let postId)))):
+                state.routes.presentCover(.reviews(.init(postId: postId)))
                 return .none
                 
             case .router(.routeAction(id: _, action: .profile(.routeToFollowingScreen))):
