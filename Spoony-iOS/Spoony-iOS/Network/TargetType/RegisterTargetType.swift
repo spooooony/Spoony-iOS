@@ -12,7 +12,9 @@ enum RegisterTargetType {
     case searchPlace(query: String)
     case validatePlace(request: ValidatePlaceRequest)
     case registerPost(request: RegisterPostRequest, imagesDate: [Data])
+    case editPost(request: EditPostRequest, imagesDate: [Data])
     case getRegisterCategories
+    case getReviewInfo(postId: Int)
 }
 
 extension RegisterTargetType: TargetType {
@@ -30,19 +32,23 @@ extension RegisterTargetType: TargetType {
             return "/place/search"
         case .validatePlace:
             return "/place/check"
-        case .registerPost:
+        case .registerPost, .editPost:
             return "/post"
         case .getRegisterCategories:
             return "/post/categories/food"
+        case .getReviewInfo(let postId):
+            return "/post/\(postId)"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .searchPlace, .getRegisterCategories:
+        case .searchPlace, .getRegisterCategories, .getReviewInfo:
             return .get
         case .validatePlace, .registerPost:
             return .post
+        case .editPost:
+            return .patch
         }
     }
     
@@ -53,7 +59,7 @@ extension RegisterTargetType: TargetType {
                 parameters: ["query": query],
                 encoding: URLEncoding.queryString
             )
-        case .getRegisterCategories:
+        case .getRegisterCategories, .getReviewInfo:
             return .requestPlain
         case .validatePlace(let request):
             return .requestJSONEncodable(request)
@@ -63,14 +69,19 @@ extension RegisterTargetType: TargetType {
             }
             
             return .uploadMultipart(multipartData)
+        case let .editPost(request, imagesDate):
+            guard let multipartData = createMultipartData(from: request, images: imagesDate) else {
+                fatalError("Multipart data could not be created")
+            }
+            return .uploadMultipart(multipartData)
         }
     }
     
     var headers: [String: String]? {
         switch self {
-        case .searchPlace, .getRegisterCategories, .validatePlace:
+        case .searchPlace, .getRegisterCategories, .validatePlace, .getReviewInfo:
             return Config.defaultHeader
-        case .registerPost:
+        case .registerPost, .editPost:
             return [
                 "Content-Type": "multipart/form-data",
                 "Authorization": "Bearer \(Config.fixedAccessToken)"
@@ -80,7 +91,7 @@ extension RegisterTargetType: TargetType {
 }
 
 extension RegisterTargetType {
-    private func createMultipartData(from request: RegisterPostRequest, images: [Data]) -> [MultipartFormData]? {
+    private func createMultipartData<T>(from request: T, images: [Data]) -> [MultipartFormData]? where T: Codable {
         var formData: [MultipartFormData] = []
         
         guard let jsonObject = try? JSONEncoder().encode(request),
