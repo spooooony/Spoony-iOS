@@ -19,6 +19,7 @@ struct ReviewStepFeature {
             state.isEditMode = true
             state.isDisableNextButton = false
             state.isDetailTextError = false
+            state.uploadImageErrorState = .noError
             return state
         }
         
