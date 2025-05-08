@@ -33,6 +33,7 @@ struct ReviewStepFeature {
         var pickerItems: [PhotoPickerType] = []
         var uploadImages: [UploadImage] = []
         var uploadImageErrorState: UploadImageErrorState = .initial
+        var deleteImagesUrl: [String] = []
         
         // MARK: - 아쉬운 점 관련 property
         var weakPointText: String = ""
@@ -89,6 +90,11 @@ struct ReviewStepFeature {
                 if let index = state.uploadImages.firstIndex(where: { $0.id == image.id }) {
                     state.uploadImages.remove(at: index)
                     state.selectableCount += 1
+                    
+                    if let url = image.url {
+                        state.deleteImagesUrl.append(url)
+                    }
+                    
                     if state.uploadImages.isEmpty {
                         state.uploadImageErrorState = .error
                     }
