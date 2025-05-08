@@ -141,7 +141,8 @@ struct ProfileView: View {
     private var statsCounters: some View {
         HStack(spacing: 54) {
             statCounter(title: "리뷰", count: store.reviewCount) {
-                store.send(.routeToReviewsScreen)
+                // 리뷰 누르면 이동하는 곳 없지 않나요?
+//                store.send(.routeToReviewsScreen)
             }
             
             statCounter(title: "팔로워", count: store.followerCount) {
@@ -276,6 +277,7 @@ struct ProfileView: View {
                             },
                             onEdit: { feed in
                                 // 수정 기능
+                                store.send(.routeToEditReviewScreen(feed.postId))
                             }
                         )
                         .padding(.horizontal, 20)
