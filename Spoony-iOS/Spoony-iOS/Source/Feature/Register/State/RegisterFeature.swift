@@ -222,11 +222,7 @@ struct RegisterFeature {
                     return .send(.presentPopup)
                 }
             case .onDisappear:
-                if state.isRegistrationSuccess {
-                    return .send(.resetState)
-                } else {
-                    return .none
-                }
+                return .send(.resetState)
             default: return .none
             }
         }
