@@ -21,6 +21,7 @@ struct InfoStepFeature {
         }
         
         var isEditMode: Bool = false
+        var selectedCategoryId: Int?
         
         // MARK: - 카테고리 관련 property
         var selectedCategory: [CategoryChip] = []
@@ -40,7 +41,7 @@ struct InfoStepFeature {
         var satisfaction: Double = 50.0
         
         var keyboardHeight: SizeValueType = 0
-        var isToolTipPresented: Bool = true
+        var isToolTipPresented: Bool = UserManager.shared.isTooltipPresented ?? true
         var isDisableNextButton: Bool = true
     }
     
@@ -50,6 +51,7 @@ struct InfoStepFeature {
         
         // MARK: - 카테고리 관련 이벤트
         case categoryResponse([CategoryChip])
+        case loadSelectedCategory
         
         // MARK: - 검색 관련 이벤트
         case didTapSearchDeleteIcon
@@ -100,9 +102,20 @@ struct InfoStepFeature {
             case .binding(\.selectedCategory):
                 return .send(.validateNextButton)
             case .binding: return .none
+            case .loadSelectedCategory:
+                if let selectedId = state.selectedCategoryId,
+                   let selectedCategory = state.categories.first(where: { $0.id == selectedId }){
+                    state.selectedCategory = [selectedCategory]
+                }
+                
+                return .none
             case .categoryResponse(let value):
                 state.categories = value
-                return .none
+                if state.isEditMode {
+                    return .send(.loadSelectedCategory)
+                } else {
+                    return .none
+                }
             case .didTapSearchDeleteIcon:
                 state.placeText = ""
                 return .none
@@ -195,6 +208,7 @@ struct InfoStepFeature {
                 state.keyboardHeight = height
                 return .none
             case .updateToolTipState:
+                UserManager.shared.isTooltipPresented = false 
                 state.isToolTipPresented = false
                 return .none
             default:
