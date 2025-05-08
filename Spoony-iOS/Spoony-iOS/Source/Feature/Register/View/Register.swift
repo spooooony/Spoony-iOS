@@ -20,25 +20,34 @@ struct Register: View {
         VStack(spacing: 0) {
             customNavigationBar
             
-            ScrollView {
-                Group {
-                    switch store.state.currentStep {
-                    case .start:
-                        InfoStepView(store: store.scope(state: \.infoStepState, action: \.infoStepAction))
-                    case .middle, .end:
-                        ReviewStepView(store: store.scope(state: \.reviewStepState, action: \.reviewStepAction))
-                    }
+            if store.state.isLoading {
+                VStack {
+                    Spacer()
+                    ProgressView()
+                        .tint(.main400)
+                    Spacer()
                 }
-                .transition(.slide)
-                .animation(.easeInOut, value: store.state.currentStep)
-            }
-            .scrollIndicators(.hidden)
-            .simultaneousGesture(
-                DragGesture()
-                    .onChanged { _ in
-                        hideKeyboard()
+            } else {
+                ScrollView {
+                    Group {
+                        switch store.state.currentStep {
+                        case .start:
+                            InfoStepView(store: store.scope(state: \.infoStepState, action: \.infoStepAction))
+                        case .middle, .end:
+                            ReviewStepView(store: store.scope(state: \.reviewStepState, action: \.reviewStepAction))
+                        }
                     }
-            )
+                    .transition(.slide)
+                    .animation(.easeInOut, value: store.state.currentStep)
+                }
+                .scrollIndicators(.hidden)
+                .simultaneousGesture(
+                    DragGesture()
+                        .onChanged { _ in
+                            hideKeyboard()
+                        }
+                )
+            }
         }
         .onAppear {
             store.send(.onAppear)
@@ -48,16 +57,6 @@ struct Register: View {
                 store.send(.onDisappear)
             }
         }
-        .overlay {
-            if store.state.isLoading {
-                ProgressView()
-                    .tint(.main400)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(.white.opacity(0.1))
-            }
-        }
-        .navigationBarBackButtonHidden()
-        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
@@ -65,19 +64,22 @@ extension Register {
     private var customNavigationBar: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                if store.state.currentStep != .start || store.state.infoStepState.isEditMode {
-                    Button {
-                        if store.state.infoStepState.isEditMode && store.state.currentStep == .start {
+                Button {
+                    if store.state.currentStep == .start {
+                        if store.state.infoStepState.isEditMode {
                             store.send(.routeToPreviousScreen)
                         } else {
-                            store.send(.reviewStepAction(.movePreviousView))
+                            store.send(.routeToPreviousTab)
                         }
-                    } label: {
-                        Image(.icArrowLeftGray700)
-                            .resizable()
-                            .frame(width: 24.adjusted, height: 24.adjustedH)
+                    } else {
+                        store.send(.reviewStepAction(.movePreviousView))
                     }
+                } label: {
+                    Image(.icArrowLeftGray700)
+                        .resizable()
+                        .frame(width: 24.adjusted, height: 24.adjustedH)
                 }
+                
                 Spacer()
             }
             .padding(.horizontal, 12)
