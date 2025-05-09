@@ -28,6 +28,7 @@ struct MapCoordinatorView: View {
                 SearchLocationView(store: store)
             case let .detail(store):
                 PostView(postId: store.postId, store: store)
+                    .navigationBarBackButtonHidden()
             }
         }
     }
