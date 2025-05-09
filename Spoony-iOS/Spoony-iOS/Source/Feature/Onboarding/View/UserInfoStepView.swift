@@ -58,6 +58,7 @@ extension UserInfoStepView {
                 .padding(.top, 32)
             
             SpoonyLocationPicker(
+                locationList: store.state.regionList,
                 selectedLocation: $store.state.region,
                 selectedSubLocation: $store.subRegion
             )

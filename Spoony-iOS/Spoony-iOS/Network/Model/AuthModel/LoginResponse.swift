@@ -9,7 +9,7 @@ import Foundation
 
 struct LoginResponse: Codable {
     let exists: Bool
-    let jwtTokenDto: JWTResponse
+    let jwtTokenDto: JWTResponse?
 }
 
 extension LoginResponse {

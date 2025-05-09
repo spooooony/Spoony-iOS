@@ -6,11 +6,15 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 import ComposableArchitecture
 
 struct AgreeView: View {
     @Bindable private var store: StoreOf<AgreeFeature>
+    
+    @State private var locationManager = CLLocationManager()
+    @StateObject private var locationDelegate = LocationManagerDelegate { _ in }
     
     init(store: StoreOf<AgreeFeature>) {
         self.store = store
@@ -47,12 +51,22 @@ struct AgreeView: View {
                 isIcon: false,
                 disabled: $store.isDisableButton
             ) {
-                
-                store.send(.routToOnboardingScreen)
+                switch locationManager.authorizationStatus {
+                case .notDetermined:
+                    locationManager.requestWhenInUseAuthorization()
+                default:
+                    store.send(.routToOnboardingScreen)
+                }
             }
             .padding(.bottom, 20)
         }
         .padding(.horizontal, 20)
+        .onAppear {
+            locationManager.delegate = locationDelegate
+        }
+        .onChange(of: locationManager.authorizationStatus) {
+            store.send(.routToOnboardingScreen)
+        }
     }
 }
 

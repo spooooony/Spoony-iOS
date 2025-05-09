@@ -45,10 +45,17 @@ struct AgreeFeature {
                     state.selectedAgrees = AgreeType.allCases
                 }
                 return .send(.selectedAgreesChanged)
-            case .agreeURLTapped(let agree):
-                // url 연결하기
-                guard let url = agree.url else { return .none }
-                print(url)
+            case .agreeURLTapped(let type):
+                switch type {
+                case .age:
+                    break
+                case .termsOfUse:
+                    URLHelper.openURL(Config.termsOfServiceURL)
+                case .privacyPolicy:
+                    URLHelper.openURL(Config.privacyPolicyURL)
+                case .locationPolicy:
+                    URLHelper.openURL(Config.locationServicesURL)
+                }
                 return .none
             case .selectedAgreeTapped(let agree):
                 if let index = state.selectedAgrees.firstIndex(of: agree) {

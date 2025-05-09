@@ -28,6 +28,9 @@ struct OnboardingView: View {
                         NicknameStepView(store: store)
                     case .information:
                         UserInfoStepView(store: store)
+                            .onAppear {
+                                store.send(.infoStepViewOnAppear)
+                            }
                     case .introduce:
                         UserIntroduceView(store: store)
                     case .finish:

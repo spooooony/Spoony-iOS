@@ -14,12 +14,16 @@ protocol AuthProtocol {
         userName: String,
         birth: String?,
         regionId: Int?,
-        introduction: String?
-    ) async throws -> OnboardingUserEntity
+        introduction: String?,
+        token: String
+    ) async throws -> String
+    func nicknameDuplicateCheck(userName: String) async throws -> Bool
+    func getRegionList() async throws -> RegionListResponse
 }
 
 final class DefaultAuthService: AuthProtocol {
     let provider = Providers.authProvider
+    let myPageProvider = Providers.myPageProvider
     
     func login(platform: String, token: String) async throws -> Bool {
         return try await withCheckedThrowingContinuation { continuation in
@@ -33,14 +37,16 @@ final class DefaultAuthService: AuthProtocol {
                         let dto = try response.map(BaseResponse<LoginResponse>.self)
                         guard let data = dto.data
                         else {
-                            continuation.resume(throwing: APIAuthError.noData)
+                            continuation.resume(throwing: SNError.noData)
                             return
                         }
                         
-                        self.saveKeychain(
-                            access: data.jwtTokenDto.accessToken,
-                            refresh: data.jwtTokenDto.refreshToken
-                        )
+                        if let token = data.jwtTokenDto {
+                            self.saveKeychain(
+                                access: token.accessToken,
+                                refresh: token.refreshToken
+                            )
+                        }
                         continuation.resume(returning: data.exists)
                     } catch {
                         continuation.resume(throwing: error)
@@ -57,8 +63,9 @@ final class DefaultAuthService: AuthProtocol {
         userName: String,
         birth: String?,
         regionId: Int?,
-        introduction: String?
-    ) async throws -> OnboardingUserEntity {
+        introduction: String?,
+        token: String
+    ) async throws -> String {
         return try await withCheckedThrowingContinuation { continuation in
             let request: SignupRequest = .init(
                 platform: platform,
@@ -67,19 +74,63 @@ final class DefaultAuthService: AuthProtocol {
                 regionId: regionId,
                 introduction: introduction
             )
-            provider.request(.signup(request)) { result in
+            provider.request(.signup(request, token: token)) { result in
                 switch result {
                 case .success(let response):
                     do {
                         let dto = try response.map(BaseResponse<SignupResponse>.self)
                         guard let data = dto.data
                         else {
-                            continuation.resume(throwing: APIAuthError.noData)
+                            continuation.resume(throwing: SNError.noData)
                             return
                         }
                         
-                        let user = data.user.toEntity()
+                        let user = data.user.userName
                         continuation.resume(returning: user)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    func nicknameDuplicateCheck(userName: String) async throws -> Bool {
+        return try await withCheckedThrowingContinuation { continuation in
+            myPageProvider.request(.nicknameDuplicateCheck(query: userName)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let dto = try response.map(BaseResponse<Bool>.self)
+                        guard let data = dto.data
+                        else {
+                            continuation.resume(throwing: SNError.noData)
+                            return
+                        }
+                        
+                        continuation.resume(returning: data)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    func getRegionList() async throws -> RegionListResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            myPageProvider.request(.getUserRegion) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<RegionListResponse>.self)
+                        guard let data = responseDto.data else { return }
+                        
+                        continuation.resume(returning: data)
                     } catch {
                         continuation.resume(throwing: error)
                     }
@@ -110,12 +161,22 @@ final class MockAuthService: AuthProtocol {
         return false
     }
     
-    func signup(platform: String, userName: String, birth: String?, regionId: Int?, introduction: String?) async throws -> OnboardingUserEntity {
-        return .init(
-            userName: "주리부리",
-            region: nil,
-            introduction: nil,
-            birth: nil
-        )
+    func signup(
+        platform: String,
+        userName: String,
+        birth: String?,
+        regionId: Int?,
+        introduction: String?,
+        token: String
+    ) async throws -> String {
+        return "nickname"
+    }
+    
+    func nicknameDuplicateCheck(userName: String) async throws -> Bool {
+        return false
+    }
+    
+    func getRegionList() async throws -> RegionListResponse {
+        return .init(regionList: [])
     }
 }

@@ -21,6 +21,7 @@ enum LocationType: String, CaseIterable {
     case jeonnam = "전남"
 }
 
+// Region으로 바꾸기
 enum SubLocationType: String, CaseIterable {
     case gangnam = "강남구"
     case gangdong = "강동구"
@@ -50,14 +51,28 @@ enum SubLocationType: String, CaseIterable {
 }
 
 struct LocationPickerBottomSheet: View {
-    @Binding var isPresented: Bool
-    @Binding var selectedLocation: LocationType
-    @Binding var selectedSubLocation: SubLocationType?
+    @Binding private var isPresented: Bool
+    @Binding private var selectedLocation: LocationType
+    @Binding private var selectedSubLocation: Region?
     
     @State private var tempLocation: LocationType = .seoul
-    @State private var tempSubLocation: SubLocationType?
+    @State private var tempSubLocation: Region?
     
     @State private var isDisabled: Bool = true
+    
+    private let regionList: [Region]
+    
+    init(
+        isPresented: Binding<Bool>,
+        selectedLocation: Binding<LocationType>,
+        selectedSubLocation: Binding<Region?>,
+        regionList: [Region]
+    ) {
+        self._isPresented = isPresented
+        self._selectedLocation = selectedLocation
+        self._selectedSubLocation = selectedSubLocation
+        self.regionList = regionList
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -143,18 +158,18 @@ extension LocationPickerBottomSheet {
     private var subLocationView: some View {
         ScrollView {
             VStack(spacing: 0) {
-                ForEach(SubLocationType.allCases, id: \.self) { type in
+                ForEach(regionList, id: \.id) { region in
                     
-                    Text(type.rawValue)
+                    Text(region.regionName)
                         .customFont(.body2m)
-                        .foregroundStyle(tempSubLocation == type ? .spoonBlack : .gray400)
+                        .foregroundStyle(tempSubLocation == region ? .spoonBlack : .gray400)
                         .frame(width: 240.adjusted, height: 44.adjustedH)
                         .background(
                             Rectangle()
                                 .stroke(Color.gray0, lineWidth: 1)
                         )
                         .onTapGesture {
-                            tempSubLocation = type
+                            tempSubLocation = region
                         }
                 }
             }
@@ -175,8 +190,4 @@ extension LocationPickerBottomSheet {
         }
         .frame(maxWidth: .infinity)
     }
-}
-
-#Preview {
-    LocationPickerBottomSheet(isPresented: .constant(true), selectedLocation: .constant(.gwangju), selectedSubLocation: .constant(nil))
 }

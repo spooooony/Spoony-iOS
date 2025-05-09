@@ -30,20 +30,17 @@ struct OnboardingFeature {
         var nicknameError: Bool = true
         var nicknameErrorState: NicknameTextFieldErrorState = .initial
         
+        var regionList: [Region] = []
+        
         var birth: [String] = ["", "", ""]
         var region: LocationType = .seoul
-        var subRegion: SubLocationType?
+        var subRegion: Region?
         var infoError: Bool = true
         
         var introduceText: String = ""
         var introduceError: Bool = true
         
-        var user: OnboardingUserEntity = .init(
-            userName: "",
-            region: nil,
-            introduction: nil,
-            birth: nil
-        )
+        var userNickname: String = ""
     }
     
     enum Action: BindableAction {
@@ -52,9 +49,14 @@ struct OnboardingFeature {
         case tappedBackButton
         case tappedSkipButton
         
+        case infoStepViewOnAppear
+        
         case checkNickname
         case signup
-        case setUser(OnboardingUserEntity)
+        
+        case setUserNickname(String)
+        case setNicknameError(NicknameTextFieldErrorState)
+        case setRegion([Region])
         
         case error(Error)
         
@@ -102,46 +104,82 @@ struct OnboardingFeature {
                 case .nickname:
                     break
                 case .information:
+                    state.birth = ["", "", ""]
+                    state.subRegion = nil
+                    state.infoError = true
                     state.currentStep = .introduce
                 case .introduce:
+                    state.introduceText = ""
+                    state.introduceError = true
                     return .send(.signup)
                 case .finish:
                     break
                 }
                 return .none
+            case .infoStepViewOnAppear:
+                return .run { send in
+                    do {
+                        let list = try await authService.getRegionList().toEntity()
+                        await send(.setRegion(list))
+                    } catch {
+                        print("error: \(error.localizedDescription)")
+                    }
+                }
             case .checkNickname:
                 if state.nicknameErrorState == .noError {
-                    // 닉네임 체크 api
-                    state.nicknameErrorState = .avaliableNickname
+                    return .run { [state] send in
+                        do {
+                            let isDuplicated = try await authService.nicknameDuplicateCheck(userName: state.nicknameText)
+                            
+                            if isDuplicated {
+                                await send(.setNicknameError(.duplicateNicknameError))
+                            } else {
+                                await send(.setNicknameError(.avaliableNickname))
+                            }
+                        }
+                    }
                 }
                 
                 if state.nicknameErrorState == .avaliableNickname {
                     state.nicknameError = false
                 }
                 return .none
+            case .setNicknameError(let error):
+                state.nicknameErrorState = error
+                return .none
+            case .setRegion(let list):
+                state.regionList = list
+                return .none
             case .signup:
-                // 추후 고차함수로 수정
-                let birthString = state.birth[0] + state.birth[1] + state.birth[2]
                 return .run { [state] send in
+                    var birthString = ""
+                    if !state.birth[0].isEmpty {
+                        birthString = state.birth[0] + "-" + state.birth[1] + "-" + state.birth[2]
+                    }
+                    
                     do {
+                        guard let token = authenticationManager.socialToken
+                        else { return }
+                        
                         let user = try await authService.signup(
                             platform: authenticationManager.socialType.rawValue,
                             userName: state.nicknameText,
                             birth: birthString,
-                            // 임시
-                            regionId: 0,
-                            introduction: state.introduceText
+                            regionId: state.subRegion?.id ?? nil,
+                            introduction: state.introduceText,
+                            token: token
                         )
-                        await send(.setUser(user))
+                        await send(.setUserNickname(user))
                     } catch {
                         await send(.error(error))
                     }
                 }
-            case .setUser(let user):
-                state.user = user
+            case .setUserNickname(let nickname):
+                state.userNickname = nickname
                 state.currentStep = .finish
                 return .none
             case .error(let error):
+                // 토스트 에러
                 return .none
             case .routToTabCoordinatorScreen:
                 return .none

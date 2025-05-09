@@ -21,7 +21,8 @@ struct EditProfileFeature {
         var introduction: String = ""
         var birthDate: [String] = ["", "", ""]
         var selectedLocation: LocationType = .seoul
-        var selectedSubLocation: SubLocationType? = .gangnam
+//        var selectedSubLocation: SubLocationType? = .gangnam
+        var selectedSubLocation: Region?
         var isNicknameError: Bool = false
         var isDisableRegisterButton: Bool = false
         

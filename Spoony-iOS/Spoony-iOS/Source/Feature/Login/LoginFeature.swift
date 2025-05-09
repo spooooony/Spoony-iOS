@@ -66,6 +66,7 @@ struct LoginFeature {
                 return .run { send in
                     do {
                         let result = try await socialLoginService.kakaoLogin()
+                        authenticationManager.setToken(.KAKAO, result)
                         await send(.login(.KAKAO, result))
                     } catch {
                         await send(.error(LoginError.kakaoTokenError))
@@ -77,6 +78,7 @@ struct LoginFeature {
                 return .run { send in
                     do {
                         let result = try await socialLoginService.appleLogin()
+                        authenticationManager.setToken(.APPLE, result)
                         await send(.login(.APPLE, result))
                     } catch {
                         await send(.error(LoginError.appleTokenError))

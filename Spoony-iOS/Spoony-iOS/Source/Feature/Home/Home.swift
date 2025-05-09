@@ -164,8 +164,8 @@ struct Home: View {
     }
 }
 
-class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
-    let onLocationUpdate: (CLLocation) -> Void
+class LocationManagerDelegate: NSObject, CLLocationManagerDelegate, ObservableObject {
+    let onLocationUpdate: (CLLocation) -> Void?
     
     init(onLocationUpdate: @escaping (CLLocation) -> Void) {
         self.onLocationUpdate = onLocationUpdate

@@ -25,11 +25,6 @@ extension SignupResponse {
         let birth: String?
     }
     
-    struct RegionResponse: Codable {
-        let regionId: Int
-        let regionName: String
-    }
-    
     struct JWTResponse: Codable {
         let accessToken: String
         let refreshToken: String
@@ -37,18 +32,9 @@ extension SignupResponse {
 }
 
 extension SignupResponse.UserResponse {
-    func toEntity() -> OnboardingUserEntity {
-        return .init(
-            userName: userName,
-            region: region?.toEntity(),
-            introduction: introduction,
-            birth: birth
-        )
-    }
-}
-
-extension SignupResponse.RegionResponse {
-    func toEntity() -> RegionEntity {
-        return .init(regionID: regionId, regionName: regionName)
+    
+    struct RegionResponse: Codable {
+        let regionId: Int
+        let regionName: String
     }
 }

@@ -26,7 +26,7 @@ struct NicknameTextField: View {
         return VStack(alignment: .trailing, spacing: 0) {
             HStack {
                 TextField(text: $text) {
-                    Text("스푼의 이름을 정해주세요")
+                    Text("스푼의 이름을 정해주세요 (한글, 영문, 숫자 입력 가능)")
                         .customFont(.body2m)
                         .foregroundStyle(.gray400)
                 }
@@ -35,19 +35,21 @@ struct NicknameTextField: View {
                     .customFont(.body2m)
                     .lineLimit(1)
                 
-                Image(.icDeleteFillGray400)
-                    .padding(.trailing, -2)
-                    .padding(.leading, 8)
-                    .opacity(!text.isEmpty ? 1 : 0)
-                    .onTapGesture {
-                        text = ""
-                    }
+                if !text.isEmpty {
+                    Image(.icDeleteFillGray400)
+                        .padding(.trailing, -2)
+                        .padding(.leading, 8)
+                        .onTapGesture {
+                            text = ""
+                        }
+                }
             }
             .padding(12)
             .background {
                 RoundedRectangle(cornerRadius: 8)
                     .strokeBorder(errorState.errorColor, lineWidth: 1)
             }
+            .frame(height: 44.adjustedH)
             .onChange(of: text) { oldValue, newValue in
 
                 if oldValue.removeSpecialCharacter() != oldValue {

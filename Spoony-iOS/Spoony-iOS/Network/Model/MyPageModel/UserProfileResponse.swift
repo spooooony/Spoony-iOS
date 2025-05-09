@@ -25,6 +25,8 @@ extension UserProfileResponse {
         
         var subLocation: SubLocationType?
         
+        // SubLocationType -> Region 변경
+        
         if regionNameComponents.count > 1 {
             subLocation = SubLocationType.allCases.first(where: { $0.rawValue == regionNameComponents[1] })
         }
@@ -34,7 +36,7 @@ extension UserProfileResponse {
             introduction: introduction,
             birthDate: birthDateComponents,
             selectedLocation: location ?? .seoul,
-            selectedSubLocation: subLocation,
+            selectedSubLocation: nil,
             imageLevel: imageLevel
         )
     }
