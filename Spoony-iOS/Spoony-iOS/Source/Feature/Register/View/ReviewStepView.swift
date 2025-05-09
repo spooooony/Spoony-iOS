@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import Kingfisher
 
 import ComposableArchitecture
 
@@ -161,22 +162,33 @@ extension ReviewStepView {
     }
     
     private func loadedImageView(_ image: UploadImage) -> some View {
-        image.image
-            .resizable()
-            .scaledToFill()
-            .frame(width: 80.adjusted, height: 80.adjustedH)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(alignment: .topTrailing) {
-                Button {
-                    store.send(.didTapPhotoDeleteIcon(image))
-                } label: {
-                    Image(.icDeleteFillGray400)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .frame(width: 20.adjusted, height: 20.adjustedH)
-                }
-                .padding(.top, 4)
-                .padding(.trailing, 4.5)
+        Group {
+            if let image = image.image {
+                image
+                    .resizable()
+                    .scaledToFill()
+            } else if let urlString = image.url,
+                      let url = URL(string: urlString) {
+                KFImage(url)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Text("에러")
             }
+        }
+        .frame(width: 80.adjusted, height: 80.adjustedH)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(alignment: .topTrailing) {
+            Button {
+                store.send(.didTapPhotoDeleteIcon(image))
+            } label: {
+                Image(.icDeleteFillGray400)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .frame(width: 20.adjusted, height: 20.adjustedH)
+            }
+            .padding(.top, 4)
+            .padding(.trailing, 4.5)
+        }
     }
 }
 

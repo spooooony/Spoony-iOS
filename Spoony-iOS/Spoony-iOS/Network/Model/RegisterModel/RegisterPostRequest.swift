@@ -8,9 +8,10 @@
 import Foundation
 
 struct RegisterPostRequest: Codable {
-    let userId: Int
     let title: String
     let description: String
+    let value: Double
+    let cons: String
     let placeName: String
     let placeAddress: String
     let placeRoadAddress: String

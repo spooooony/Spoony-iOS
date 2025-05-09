@@ -19,7 +19,8 @@ struct TabCoordinator {
             explore: .initialState,
             register: .initialState,
             myPage: .initialState,
-            selectedTab: .map
+            selectedTab: .map,
+            previousSelectedTab: .map
         )
         
         var map: MapCoordinator.State
@@ -27,6 +28,7 @@ struct TabCoordinator {
         var register: RegisterFeature.State
         var myPage: MyPageCoordinator.State
         var selectedTab: TabType
+        var previousSelectedTab: TabType
         
         var toast: Toast?
         var popup: PopupType?
@@ -73,6 +75,7 @@ struct TabCoordinator {
                     state.toast = nil
                 }
                 
+                state.previousSelectedTab = state.selectedTab
                 state.selectedTab = tab
                 
                 return .none
@@ -90,6 +93,10 @@ struct TabCoordinator {
 //                return .none
 //                
             // 자식 Feature에서 presentPopup 호출시 팝업 생성
+            case .register(\.routeToPreviousTab):
+                state.selectedTab = state.previousSelectedTab
+                return .none
+                
             case .register(\.presentPopup):
                 state.popup = .registerSuccess
                 return .none

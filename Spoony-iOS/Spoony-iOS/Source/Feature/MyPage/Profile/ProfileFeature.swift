@@ -40,18 +40,17 @@ struct ProfileFeature {
         case userInfoResponse(TaskResult<UserInfoResponse>)
         case fetchUserReviews
         case userReviewsResponse(TaskResult<[FeedEntity]>)
-        case routeToReviewsScreen
         case routeToFollowingScreen
         case routeToFollowerScreen
-        case routeToEditProfileScreen
         case routeToSettingsScreen
         case routeToAttendanceScreen
+        case routeToEditProfileScreen
+        case routeToEditReviewScreen(Int)
         
         case deleteReview(Int)
         case confirmDeleteReview
         case cancelDeleteReview
         case reviewDeleted(TaskResult<Bool>)
-        
     }
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
@@ -155,10 +154,8 @@ struct ProfileFeature {
                 state.reviewsErrorMessage = "리뷰 삭제 실패: \(error.localizedDescription)"
                 state.reviewToDeleteId = nil
                 return .none
-                
-            case .routeToReviewsScreen, .routeToFollowingScreen,
-                    .routeToFollowerScreen, .routeToEditProfileScreen,
-                    .routeToSettingsScreen, .routeToAttendanceScreen:
+
+            case .routeToFollowingScreen, .routeToFollowerScreen, .routeToEditProfileScreen, .routeToSettingsScreen, .routeToAttendanceScreen, .routeToEditReviewScreen:
                 return .none
             }
         }

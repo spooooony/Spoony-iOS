@@ -9,6 +9,7 @@ import SwiftUI
 
 struct UploadImage: Identifiable, Equatable {
     let id = UUID()
-    let image: Image
-    let imageData: Data
+    let image: Image?
+    let imageData: Data?
+    var url: String? = nil
 }

@@ -44,7 +44,8 @@ struct MyPageView: View {
             case let .profile(store):
                 ProfileView(store: store)
             case let .reviews(store):
-                Register(store: store)                    
+                Register(store: store)
+                    .navigationBarHidden(true)
             case let .following(store):
                 FollowListView()
             case let .follower(store):
