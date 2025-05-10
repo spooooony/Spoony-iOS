@@ -79,25 +79,26 @@ struct Explore: View {
 extension Explore {
     private var customNavigationBar: some View {
         HStack(spacing: 0) {
-            ForEach(ExploreViewType.allCases, id: \.self) { type in
-                VStack(spacing: 9.adjustedH) {
-                    Text(type.title)
-                        .foregroundStyle(store.state.viewType == type ? .main400 : .gray300)
-                        .onTapGesture {
-                            store.send(
-                                .changeViewType(type),
-                                animation: .spring(response: 0.3, dampingFraction: 0.7)
-                            )
-                        }
-                    
-                    Rectangle()
-                        .fill(.main400)
-                        .frame(height: 2.adjustedH)
-                        .isHidden(store.state.viewType != type)
-                        .matchedGeometryEffect(id: "underline", in: namespace)
+            HStack(spacing: 12) {
+                ForEach(ExploreViewType.allCases, id: \.self) { type in
+                    VStack(spacing: 9.adjustedH) {
+                        Text(type.title)
+                            .foregroundStyle(store.state.viewType == type ? .main400 : .gray300)
+                            .onTapGesture {
+                                store.send(
+                                    .changeViewType(type),
+                                    animation: .spring(response: 0.3, dampingFraction: 0.7)
+                                )
+                            }
+                        
+                        Rectangle()
+                            .fill(.main400)
+                            .frame(height: 2.adjustedH)
+                            .isHidden(store.state.viewType != type)
+                            .matchedGeometryEffect(id: "underline", in: namespace)
+                    }
+                    .fixedSize()
                 }
-                // TODO: 글자 크기에 맞추기
-                .frame(width: 50)
             }
             
             Spacer()
