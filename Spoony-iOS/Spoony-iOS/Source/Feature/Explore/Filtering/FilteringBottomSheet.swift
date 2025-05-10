@@ -8,14 +8,15 @@
 import SwiftUI
 
 struct FilteringBottomSheet: View {
-    // TODO: 스크롤에 따라 title 선택되도록...
     @Namespace private var namespace
     
     @Binding var filters: FilterInfo
     @Binding var isPresented: Bool
     @Binding var selectedFilter: SelectedFilterInfo
     @Binding var currentFilter: Int
-
+    
+    @State private var isSegmentTapped = false
+    
     init(
         filters: Binding<FilterInfo>,
         isPresented: Binding<Bool>,
@@ -44,6 +45,19 @@ struct FilteringBottomSheet: View {
                     }
                 }
                 .scrollIndicators(.hidden)
+                .coordinateSpace(name: "scroll")
+                .gesture(
+                    DragGesture()
+                        .onChanged({ _ in
+                            isSegmentTapped = false
+                        })
+                )
+                .onPreferenceChange(FilterSectionPreferenceKey.self) { dics in // [FilterType: CGFloat]
+                    guard !isSegmentTapped else { return }
+                    if let current = dics.min(by: { abs($0.value) < abs($1.value) })?.key {
+                        currentFilter = FilterType.allCases.firstIndex(of: current) ?? 0
+                    }
+                }
                 
                 SpoonyButton(
                     style: .primary,
@@ -103,6 +117,7 @@ extension FilteringBottomSheet {
                             .font(.body2b)
                             .foregroundColor(currentFilter == index ? .main400 : .gray400)
                             .onTapGesture {
+                                isSegmentTapped = true
                                 withAnimation(.easeInOut(duration: 0.35)) {
                                     currentFilter = index
                                     proxy.scrollTo(FilterType.allCases[index])
@@ -147,9 +162,18 @@ extension FilteringBottomSheet {
             }
         }
         .id(type)
+        .background {
+            // 현재 뷰의 Y 위치를 구하고 Preferencekey로 전달
+            GeometryReader { geometry in
+                Color.clear
+                    .preference(
+                        key: FilterSectionPreferenceKey.self,
+                        value: [type: geometry.frame(in: .named("scroll")).minY])
+            }
+        }
         .padding(.top, 24)
     }
-
+    
     private func binding(_ type: FilterType) -> Binding<[FilterItem]> {
         switch type {
         case .local:
@@ -161,5 +185,19 @@ extension FilteringBottomSheet {
         case .age:
             return $tempFilter.selectedAges
         }
+    }
+}
+
+struct FilterSectionPreferenceKey: PreferenceKey {
+    typealias Value = [FilterType: CGFloat]
+    
+    static var defaultValue: [FilterType: CGFloat] = [:]
+    
+    // 여러 뷰에서 보내는 값을 병합
+    static func reduce(
+        value: inout [FilterType: CGFloat],
+        nextValue: () -> [FilterType: CGFloat]
+    ) {
+        value.merge(nextValue(), uniquingKeysWith: { $1 })
     }
 }
