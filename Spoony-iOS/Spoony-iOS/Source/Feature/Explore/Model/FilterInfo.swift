@@ -17,7 +17,7 @@ struct FilterInfo: Equatable {
         local: String = "로컬 리뷰",
         categories: [CategoryChip],
         locations: [Region],
-        ages: [String] = ["10대", "20대", "30대", "40대+"]
+        ages: [String] = AgeType.allCases.map { $0.title }
     ) {
         self.local = local
         self.categories = categories

@@ -10,14 +10,22 @@ import SwiftUI
 struct ExploreCell: View {
     private let feed: FeedEntity
     @State private var showOptions: Bool = false
+    @State private var isDropdown: Bool = false
     
-    var onDelete: ((Int) -> Void)?
-    var onEdit: ((FeedEntity) -> Void)?
+    private var onDelete: ((Int) -> Void)?
+    private var onEdit: ((FeedEntity) -> Void)?
+    private var onReport: ((FeedEntity) -> Void)?
     
-    init(feed: FeedEntity, onDelete: ((Int) -> Void)? = nil, onEdit: ((FeedEntity) -> Void)? = nil) {
+    init(
+        feed: FeedEntity,
+        onDelete: ((Int) -> Void)? = nil,
+        onEdit: ((FeedEntity) -> Void)? = nil,
+        onReport: ((FeedEntity) -> Void)? = nil
+    ) {
         self.feed = feed
         self.onDelete = onDelete
         self.onEdit = onEdit
+        self.onReport = onReport
     }
     
     var body: some View {
@@ -40,6 +48,12 @@ struct ExploreCell: View {
                 onDelete?(feed.postId)
             }
         )
+        .overlay(alignment: .topTrailing, content: {
+            dropDownView
+                .onTapGesture {
+                    onReport?(feed)
+                }
+        })
     }
 }
 
@@ -65,10 +79,20 @@ extension ExploreCell {
                     .id("menuButton-\(feed.id)")
                     .environment(\.reviewCellID, feed.id.uuidString)
                     .buttonStyle(PlainButtonStyle())
+                    
                 } else {
-                    Image(.icMenu)
-                        .resizable()
-                        .frame(width: 24.adjusted, height: 24.adjusted)
+                    
+                    Button(action: {
+                        withAnimation {
+                            isDropdown.toggle()
+                        }
+                    }) {
+                        Image(.icMenu)
+                            .resizable()
+                            .frame(width: 24.adjusted, height: 24.adjusted)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
             
@@ -159,6 +183,22 @@ extension ExploreCell {
             Text(relativeDate)
                 .customFont(.caption2m)
                 .foregroundStyle(.gray400)
+        }
+    }
+    
+    private var dropDownView: some View {
+        Group {
+            if isDropdown {
+                DropDownMenu(
+                    items: ["신고하기"],
+                    isPresented: $isDropdown
+                ) { _ in
+                    
+                }
+                .frame(alignment: .topTrailing)
+                .padding(.top, 48.adjustedH)
+                .padding(.trailing, 20.adjusted)
+            }
         }
     }
 }

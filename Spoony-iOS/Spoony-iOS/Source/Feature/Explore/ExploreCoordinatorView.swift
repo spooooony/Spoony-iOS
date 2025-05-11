@@ -14,6 +14,9 @@ import TCACoordinators
 enum ExploreScreen {
     case explore(ExploreFeature)
     case search(ExploreSearchFeature)
+    case detail(PostFeature)
+    // report TCA로 변경하고 추가하기
+//    case report()
 }
 
 struct ExploreCoordinatorView: View {
@@ -31,6 +34,8 @@ struct ExploreCoordinatorView: View {
                 Explore(store: store)
             case .search(let store):
                 ExploreSearchView(store: store)
+            case .detail(let store):
+                PostView(postId: store.postId, store: store)
             }
             
         }
