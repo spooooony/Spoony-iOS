@@ -31,6 +31,9 @@ struct ExploreCoordinator {
             case .router(.routeAction(id: _, action: .explore(.routeToExploreSearchScreen))):
                 state.routes.push(.search(.initialState))
                 return .none
+            case let .router(.routeAction(id: _, action: .explore(.routeToDetailScreen(post)))):
+                state.routes.push(.detail(PostFeature.State(postId: post.postId)))
+                return .none
             // 이전 화면
             case .router(.routeAction(id: _, action: .search(.routeToExploreScreen))):
                 state.routes.goBack()
