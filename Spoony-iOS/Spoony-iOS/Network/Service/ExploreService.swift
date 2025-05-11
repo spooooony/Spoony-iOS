@@ -10,7 +10,13 @@ import Foundation
 import Moya
 
 protocol ExploreProtocol {
-    func getFeedList() async throws -> FeedListResponse
+    func getFilteredFeedList(
+        isLocal: Bool,
+        category: [Int],
+        region: [Int],
+        age: [String],
+        sort: SortType
+    ) async throws -> FilteredFeedResponse
     func getFollowingFeedList() async throws -> FeedListResponse
     
     // 추후 카테고리 리스트 받아오는 코드 자체를 각 서비스에서 분리해서 새로운 서비스 파일을 만드는 방향
@@ -26,13 +32,26 @@ final class DefaultExploreService: ExploreProtocol {
     let registerProvider = Providers.registerProvider
     let mypageProvider = Providers.myPageProvider
     
-    func getFeedList() async throws -> FeedListResponse {
+    func getFilteredFeedList(
+        isLocal: Bool,
+        category: [Int],
+        region: [Int],
+        age: [String],
+        sort: SortType
+    ) async throws -> FilteredFeedResponse {
         return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.getFeedList) { result in
+            let request: FeedFilteredRequest = .init(
+                isLocal: isLocal,
+                categoryIds: category,
+                regionIds: region,
+                ageGroups: age,
+                sortBy: sort.rawValue
+            )
+            provider.request(.getFilteredFeedList(request)) { result in
                 switch result {
                 case .success(let response):
                     do {
-                        let responseDto = try response.map(BaseResponse<FeedListResponse>.self)
+                        let responseDto = try response.map(BaseResponse<FilteredFeedResponse>.self)
                         guard let data = responseDto.data
                         else { throw SNError.decodeError }
                         
@@ -150,30 +169,16 @@ final class DefaultExploreService: ExploreProtocol {
 }
 
 final class MockExploreService: ExploreProtocol {
-    
-    func getFeedList() async throws -> FeedListResponse {
-        return .init(
-            feedResponseList: [
-//                .init(
-//                    userId: 1,
-//                    userName: "지훈",
-//                    createdAt: "2025-05-04T12:11:17.333Z",
-//                    userRegion: "강동구",
-//                    postId: 1,
-//                    description: "어쩌구저쩌구",
-//                    categoryColorResponse: .init(
-//                        categoryName: "한식",
-//                        iconUrl: "",
-//                        iconTextColor: "",
-//                        iconBackgroundColor: ""
-//                    ),
-//                    zzimCount: 2,
-//                    photoUrlList: []
-//                )
-            ]
-        )
+    func getFilteredFeedList(
+        isLocal: Bool,
+        category: [Int],
+        region: [Int],
+        age: [String],
+        sort: SortType
+    ) async throws -> FilteredFeedResponse {
+        return .init(filteredFeedResponseDTOList: [])
     }
-    
+
     func getFollowingFeedList() async throws -> FeedListResponse {
         return .init(feedResponseList: [
 //            .init(

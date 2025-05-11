@@ -82,6 +82,7 @@ struct PostView: View {
                 .animation(.easeInOut, value: store.isLoading)
             }
         }
+        .navigationBarBackButtonHidden()
     }
 }
 

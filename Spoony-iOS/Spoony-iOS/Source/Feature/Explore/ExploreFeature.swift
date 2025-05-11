@@ -27,7 +27,7 @@ struct ExploreFeature {
         var selectedFilter: SelectedFilterInfo = .init()
         
         var currentFilterTypeIndex: Int = 0
-        var selectedSort: SortType = .latest
+        var selectedSort: SortType = .createdAt
         
         var filterInfo: FilterInfo = .init(categories: [], locations: [])
     }
@@ -37,18 +37,19 @@ struct ExploreFeature {
         case viewOnAppear
         case changeViewType(ExploreViewType)
         case filterTapped(FilterButtonType)
-        case exploreCellTapped(FeedEntity)
         case searchButtonTapped
         case goButtonTapped
         
-        case feedFirstAppear
-        case followingFirstAppear
+        case fetchFilteredFeed
+        case fetchFollowingFeed
         
         case setFeed([FeedEntity])
         case setFilterInfo(category: [CategoryChip], location: [Region])
         
         // MARK: - Navigation
         case routeToExploreSearchScreen
+        case routeToDetailScreen(FeedEntity)
+        case routeToReportScreen(FeedEntity)
         case tabSelected(TabType)
     }
     
@@ -57,21 +58,23 @@ struct ExploreFeature {
     var body: some ReducerOf<Self> {
         BindingReducer()
         
-        Reduce { state, action in
+        Reduce {
+            state,
+            action in
             switch action {
             case .viewOnAppear:
                 if state.viewType == .all {
-                    return .send(.feedFirstAppear)
+                    return .send(.fetchFilteredFeed)
                 } else {
-                    return .send(.followingFirstAppear)
+                    return .send(.fetchFollowingFeed)
                 }
             case .changeViewType(let type):
                 state.viewType = type
                 switch type {
                 case .all:
-                    return .send(.feedFirstAppear)
+                    return .send(.fetchFilteredFeed)
                 case .following:
-                    return .send(.followingFirstAppear)
+                    return .send(.fetchFollowingFeed)
                 }
             case .filterTapped(let type):
                 if type.rawValue >= 0 {
@@ -88,9 +91,11 @@ struct ExploreFeature {
                         await send(.setFilterInfo(category: categories, location: locations))
                     }
                 }
-            case .exploreCellTapped(let feed):
-                // 디테일로 이동
-                print("cell tapped!")
+            case .routeToDetailScreen:
+                // TODO: 명진샘 PostFeature에 navigation back button 눌렀을 때 exploreScreen으로 이동하는 로직 추가해야 함
+                return .none
+            case .routeToReportScreen(let feed):
+                // TODO: 신고하기 TCA 도입 후 화면 전환
                 return .none
             case .searchButtonTapped:
                 return .send(.routeToExploreSearchScreen)
@@ -100,16 +105,24 @@ struct ExploreFeature {
                 } else {
                     return .send(.routeToExploreSearchScreen)
                 }
-            case .feedFirstAppear:
-                return .run { send in
+            case .fetchFilteredFeed:
+                return .run { [state] send in
                     do {
-                        let list = try await exploreService.getFeedList().toEntity()
+                        let list = try await exploreService.getFilteredFeedList(
+                            isLocal: state.selectedFilter.selectedLocal.isEmpty ? false : true,
+                            category: state.selectedFilter.selectedCategories.map { $0.id },
+                            region: state.selectedFilter.selectedLocations.map { $0.id },
+                            age: state.selectedFilter.selectedAges.map {
+                                AgeType.toType(from: $0.title)?.key ?? ""
+                            },
+                            sort: state.selectedSort
+                        ).toEntity()
                         await send(.setFeed(list))
                     } catch {
                        // 에러처리
                     }
                 }
-            case .followingFirstAppear:
+            case .fetchFollowingFeed:
                 return .run { send in
                     do {
                         let list = try await exploreService.getFollowingFeedList().toEntity()
@@ -156,7 +169,9 @@ struct ExploreFeature {
                 if !state.selectedFilterButton.isEmpty {
                     state.selectedFilterButton.append(.filter)
                 }
-                return .none
+                return .send(.fetchFilteredFeed)
+            case .binding(\.selectedSort):
+                return .send(.fetchFilteredFeed)
             case .binding:
                 return .none
             }

@@ -8,14 +8,14 @@
 import SwiftUI
 
 enum SortType: String, CaseIterable {
-    case latest
-    case popularity
+    case createdAt
+    case zzimCount
     
     var title: String {
         switch self {
-        case .latest:
+        case .createdAt:
             "최신순"
-        case .popularity:
+        case .zzimCount:
             "저장순"
         }
     }
