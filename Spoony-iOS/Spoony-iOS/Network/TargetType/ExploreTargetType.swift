@@ -9,7 +9,9 @@ import Foundation
 import Moya
 
 enum ExploreTargetType {
-    case reportPost(report: ReportRequest)
+    case reportPost(report: PostReportRequest)
+    case reportUser(report: UserReportRequest)
+    
     case getCategories
     
     case getFilteredFeedList(FeedFilteredRequest)
@@ -30,7 +32,9 @@ extension ExploreTargetType: TargetType {
     var path: String {
         switch self {
         case .reportPost:
-            return "/report"
+            return "/report/post"
+        case .reportUser:
+            return "/report/user"
         case .getCategories:
             return "/post/categories"
         case .getFilteredFeedList:
@@ -46,7 +50,7 @@ extension ExploreTargetType: TargetType {
         switch self {
         case .getCategories, .getFilteredFeedList, .getFollowingFeedList, .searchPost:
             return .get
-        case .reportPost:
+        case .reportPost, .reportUser:
             return .post
         }
     }
@@ -56,6 +60,8 @@ extension ExploreTargetType: TargetType {
         case .getCategories, .getFollowingFeedList:
             return .requestPlain
         case .reportPost(let report):
+            return .requestCustomJSONEncodable(report, encoder: JSONEncoder())
+        case .reportUser(let report):
             return .requestCustomJSONEncodable(report, encoder: JSONEncoder())
         case .searchPost(let query):
             return .requestParameters(parameters: [

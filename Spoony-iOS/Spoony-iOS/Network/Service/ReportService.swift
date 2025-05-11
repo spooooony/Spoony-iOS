@@ -15,6 +15,13 @@ protocol ReportProtocol {
         report: ReportType,
         description: String
     ) async throws
+    
+    func reportUser(
+        targetUserId: Int,
+        // TODO: user report type으로 변경
+        report: ReportType,
+        description: String
+    ) async throws
 }
 
 final class DefaultReportService: ReportProtocol {
@@ -25,15 +32,49 @@ final class DefaultReportService: ReportProtocol {
         report: ReportType,
         description: String
     ) async throws {
-        let request = ReportRequest(
+        let request = PostReportRequest(
             postId: postId,
-            userId: Config.userId,
             reportType: report.key,
             reportDetail: description
         )
         
         return try await withCheckedThrowingContinuation { continuation in
             provider.request(.reportPost(report: request)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let dataDto = try response.map(BaseResponse<BlankData>.self)
+                        let success = dataDto.success
+                        
+                        if success {
+                            continuation.resume()
+                        } else {
+                            continuation.resume(throwing: NSError(domain: "Report Post Error", code: 0, userInfo: nil))
+                        }
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                    
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    func reportUser(
+        targetUserId: Int,
+        report: ReportType,
+        description: String
+    ) async throws {
+        let request: UserReportRequest = .init(
+            targetUserId: targetUserId,
+            userReportType: report.key,
+            reportDetail: description
+        )
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.request(.reportUser(report: request)) { result in
                 switch result {
                 case .success(let response):
                     do {
