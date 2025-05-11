@@ -75,6 +75,7 @@ struct ExploreSearchView: View {
         }
         .navigationBarBackButtonHidden()
         .onAppear {
+            // 여기서 키보드 올리기 어떻게 하는지 모르겠다... 
             store.send(.onAppear)
         }
     }
