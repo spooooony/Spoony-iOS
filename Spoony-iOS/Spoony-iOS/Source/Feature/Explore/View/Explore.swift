@@ -26,31 +26,29 @@ struct Explore: View {
                 .padding(.bottom, 20)
                 .padding(.horizontal, 20)
             
-            ScrollView {
-                VStack(spacing: 18) {
-                    if store.state.viewType == .all {
-                        filterView
-                            .padding(.leading, -20)
-                    }
-                    
-                    if store.state.viewType == .all {
-                        if store.state.allList.isEmpty {
-                            emptyView
-                        } else {
-                            listView(store.state.allList)
-                                .padding(.horizontal, 20)
-                        }
+            VStack(spacing: 18) {
+                if store.state.viewType == .all {
+                    filterView
+                        .padding(.leading, -20)
+                }
+                
+                if store.state.viewType == .all {
+                    if store.state.allList.isEmpty {
+                        emptyView
                     } else {
-                        if store.state.followingList.isEmpty {
-                            emptyView
-                        } else {
-                            listView(store.state.followingList)
-                                .padding(.horizontal, 20)
-                        }
+                        filteredListView(store.state.allList)
+                            .padding(.horizontal, 20)
+                    }
+                } else {
+                    if store.state.followingList.isEmpty {
+                        emptyView
+                    } else {
+                        followingListView(store.state.followingList)
+                            .padding(.horizontal, 20)
                     }
                 }
             }
-            .scrollIndicators(.hidden)
+            
         }
         .onAppear {
             store.send(.viewOnAppear)
@@ -133,7 +131,15 @@ extension Explore {
                             selectedFilter: $store.selectedFilterButton
                         )
                         .onTapGesture {
-                            store.send(.filterTapped(type))
+                            if type == .local {
+                                if store.selectedFilter.selectedLocal.isEmpty {
+                                    store.selectedFilter.selectedLocal.append(.init(id: 0, title: "로컬 리뷰"))
+                                } else {
+                                    store.selectedFilter.selectedLocal = []
+                                }
+                            } else {
+                                store.send(.filterTapped(type))
+                            }
                         }
                     }
                     
@@ -150,7 +156,7 @@ extension Explore {
                     .resizable()
                     .frame(width: 16.adjusted, height: 16.adjusted)
             }
-            .padding(.vertical, 6)
+            .padding(.top, 6)
             .padding(.horizontal, 14)
             .background(
                 RoundedRectangle(cornerRadius: 12)
@@ -196,14 +202,59 @@ extension Explore {
         }
     }
     
-    private func listView(_ list: [FeedEntity]) -> some View {
-        LazyVStack(spacing: 18) {
-            ForEach(list) { feed in
-                ExploreCell(feed: feed)
+    private func followingListView(_ list: [FeedEntity]) -> some View {
+        ScrollView {
+            LazyVStack(spacing: 18) {
+                Rectangle()
+                    .fill(.clear)
+                    .frame(height: 16.5.adjustedH)
+            
+                ForEach(list) { feed in
+                    ExploreCell(
+                        feed: feed,
+                        onReport: { feed in
+                            // TODO: 신고하기 뷰로 이동
+                            // store.send(.exploreCellTapped(feed))
+                        }
+                    )
                     .onTapGesture {
-                        store.send(.exploreCellTapped(feed))
+                        store.send(.routeToDetailScreen(feed))
                     }
+                }
             }
+        }
+        .scrollIndicators(.hidden)
+        .refreshable {
+            store.send(.fetchFollowingFeed)
+        }
+    }
+    
+    private func filteredListView(_ list: [FeedEntity]) -> some View {
+        ScrollView {
+            LazyVStack(spacing: 18) {
+                Rectangle()
+                    .fill(.clear)
+                    .frame(height: 16.5.adjustedH)
+                
+                ForEach(list) { feed in
+                    // TODO: 내 게시물인지 아닌지 확인하고 수정/삭제 or 신고 dropdown
+                    
+                    ExploreCell(
+                        feed: feed,
+                        onReport: { feed in
+                            // TODO: 신고하기 뷰로 이동
+                            // store.send(.exploreCellTapped(feed))
+                        }
+                    )
+                    .onTapGesture {
+                        store.send(.routeToDetailScreen(feed))
+                    }
+                }
+            }
+        }
+        .scrollIndicators(.hidden)
+        .refreshable {
+            store.send(.fetchFilteredFeed)
         }
     }
     
