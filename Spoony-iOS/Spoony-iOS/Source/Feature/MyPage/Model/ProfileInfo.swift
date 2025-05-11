@@ -11,8 +11,8 @@ struct ProfileInfo: Equatable {
     let nickname: String
     let introduction: String
     let birthDate: [String]
+    let regionName: String
     let selectedLocation: LocationType
-//    let selectedSubLocation: SubLocationType?
     let selectedSubLocation: Region?
     let imageLevel: Int
 }
