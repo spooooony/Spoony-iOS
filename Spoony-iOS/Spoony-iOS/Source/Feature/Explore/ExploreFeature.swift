@@ -49,7 +49,7 @@ struct ExploreFeature {
         // MARK: - Navigation
         case routeToExploreSearchScreen
         case routeToDetailScreen(FeedEntity)
-        case routeToReportScreen(FeedEntity)
+        case routeToReportScreen(Int)
         case tabSelected(TabType)
     }
     
@@ -173,6 +173,8 @@ struct ExploreFeature {
             case .binding(\.selectedSort):
                 return .send(.fetchFilteredFeed)
             case .binding:
+                return .none
+            case .routeToReportScreen:
                 return .none
             }
             

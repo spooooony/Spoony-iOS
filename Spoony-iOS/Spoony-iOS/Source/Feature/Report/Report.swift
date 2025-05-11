@@ -7,58 +7,15 @@
 
 import SwiftUI
 
-enum ReportType: String, CaseIterable, Encodable {
-    case advertisement
-    case insult
-    case illegalInfo
-    case personalInfo
-    case duplicate
-    case other
-    
-    var title: String {
-        switch self {
-        case .advertisement:
-            "영리 목적/홍보성 후기"
-        case .insult:
-            "욕설/인신공격"
-        case .illegalInfo:
-            "불법정보"
-        case .personalInfo:
-            "개인정보노출"
-        case .duplicate:
-            "도배"
-        case .other:
-            "기타"
-        }
-    }
-    
-    var key: String {
-        switch self {
-        case .advertisement:
-            "ADVERTISEMENT"
-        case .personalInfo:
-            "PERSONAL_INFO"
-        case .insult:
-            "INSULT"
-        case .duplicate:
-            "DUPLICATE"
-        case .illegalInfo:
-            "ILLEGAL_INFO"
-        case .other:
-            "OTHER"
-        }
-    }
-}
+import ComposableArchitecture
 
 struct Report: View {
-    @EnvironmentObject private var navigationManager: NavigationManager
-    @StateObject var store: ReportStore
+    @Bindable private var store: StoreOf<ReportFeature>
+    private let postId: Int
     
-    let postId: Int
-    
-    init(postId: Int) {
-        self._store = StateObject(wrappedValue: ReportStore(navigationManager: .init()))
+    init(postId: Int, store: StoreOf<ReportFeature>) {
         self.postId = postId
+        self.store = store
     }
 
     var body: some View {
@@ -67,7 +24,7 @@ struct Report: View {
                 style: .detail,
                 title: "신고하기",
                 onBackTapped: {
-                    store.dispatch(.backButtonTapped)
+                    store.send(.routeToExploreScreen)
                 }
             )
             Divider()
@@ -79,10 +36,10 @@ struct Report: View {
                     style: .secondary,
                     size: .xlarge,
                     title: "신고하기",
-                    disabled: .constant(store.state.isError)
+                    disabled: $store.isError
                 ) {
                     hideKeyboard()
-                    store.dispatch(.reportPostButtonTapped(postId))
+                    store.send(.reportPostButtonTapped(postId))
                 }
                 .padding(.top, !store.state.isError ? 12 : 20)
                 .padding(.bottom, 20)
@@ -94,15 +51,12 @@ struct Report: View {
         .onTapGesture {
             hideKeyboard()
         }
-        .onAppear {
-            store.dispatch(.onAppear(navigationManager))
-        }
     }
 }
 
 extension Report {
     
-    //MARK: - Views
+    // MARK: - Views
     private var reportTitle: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("후기를 신고하는 이유가 무엇인가요?")
@@ -116,7 +70,7 @@ extension Report {
                     isSelected: store.state.selectedReport == report
                 )
                 .onTapGesture {
-                    store.dispatch(.reportReasonButtonTapped(report))
+                    store.send(.reportReasonButtonTapped(report))
                     hideKeyboard()
                 }
             }
@@ -133,10 +87,10 @@ extension Report {
                 .padding(.bottom, 12.adjustedH)
             
             SpoonyTextEditor(
-                text: textBinding(),
+                text: $store.description,
                 style: .report,
                 placeholder: "내용을 자세히 적어주시면 신고에 도움이 돼요",
-                isError: errorBinding()
+                isError: $store.isError
             )
             
             HStack(alignment: .top, spacing: 10) {
@@ -166,20 +120,5 @@ extension Report {
             Spacer()
         }
         .frame(height: 42.adjustedH)
-    }
-    
-    //MARK: - Functions
-    private func textBinding() -> Binding<String> {
-        Binding(
-            get: { store.state.description },
-            set: { store.dispatch(.descriptionChanged($0)) }
-        )
-    }
-    
-    private func errorBinding() -> Binding<Bool> {
-        Binding(
-            get: { store.state.isError },
-            set: { store.dispatch(.isErrorChanged($0)) }
-        )
     }
 }
