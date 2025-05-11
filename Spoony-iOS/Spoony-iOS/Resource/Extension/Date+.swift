@@ -18,7 +18,7 @@ extension Date {
             let minutes = secondsAgo / 60
             return "약 \(minutes)분 전"
         } else if secondsAgo < 60 * 60 * 24 {
-            let hours = secondsAgo / 60 * 60
+            let hours = secondsAgo / (60 * 60)
             return "약 \(hours)시간 전"
         } else {
             let formatter = DateFormatter()
