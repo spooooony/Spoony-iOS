@@ -14,8 +14,7 @@ import TCACoordinators
 enum MyPageScreen {
     case profile(ProfileFeature)
     case reviews(RegisterFeature)
-    case following(FollowingFeature)
-    case follower(FollowerFeature)
+    case follow(FollowFeature)
     case editProfile(EditProfileFeature)
     case settings(SettingsFeature)
     case attendance(AttendanceFeature)
@@ -44,12 +43,10 @@ struct MyPageView: View {
             case let .profile(store):
                 ProfileView(store: store)
             case let .reviews(store):
-                Register(store: store)
-                    .navigationBarHidden(true)
-            case let .following(store):
-                FollowListView()
-            case let .follower(store):
-                FollowListView()
+                Register(store: store)                    
+            case let .follow(store):
+                FollowListView(store: store)
+                    .navigationBarBackButtonHidden()
             case let .editProfile(store):
                 EditProfileView(store: store)
             case let .settings(store):
