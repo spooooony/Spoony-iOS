@@ -9,15 +9,10 @@ import Foundation
 import Moya
 
 enum ExploreTargetType {
-    case getUserFeeds(
-        categoryId: Int,
-        location: String,
-        sort: SortType
-    )
     case reportPost(report: ReportRequest)
     case getCategories
     
-    case getFeedList
+    case getFilteredFeedList(FeedFilteredRequest)
     case getFollowingFeedList
     
     case searchPost(query: String)
@@ -34,14 +29,12 @@ extension ExploreTargetType: TargetType {
     
     var path: String {
         switch self {
-        case .getUserFeeds(let categoryId, _, _):
-            return "/feed/\(categoryId)"
         case .reportPost:
             return "/report"
         case .getCategories:
             return "/post/categories"
-        case .getFeedList:
-            return "/feed"
+        case .getFilteredFeedList:
+            return "/feed/filtered"
         case .getFollowingFeedList:
             return "/feed/following"
         case .searchPost:
@@ -51,8 +44,7 @@ extension ExploreTargetType: TargetType {
     
     var method: Moya.Method {
         switch self {
-        case .getUserFeeds,
-                .getCategories, .getFeedList, .getFollowingFeedList, .searchPost:
+        case .getCategories, .getFilteredFeedList, .getFollowingFeedList, .searchPost:
             return .get
         case .reportPost:
             return .post
@@ -61,13 +53,7 @@ extension ExploreTargetType: TargetType {
     
     var task: Moya.Task {
         switch self {
-        case let .getUserFeeds(_, location, filter):
-            let params: [String: String] = [
-                "query": location,
-                "sortBy": filter.rawValue
-            ]
-            return .requestParameters(parameters: params, encoding: URLEncoding.default)
-        case .getCategories, .getFeedList, .getFollowingFeedList:
+        case .getCategories, .getFollowingFeedList:
             return .requestPlain
         case .reportPost(let report):
             return .requestCustomJSONEncodable(report, encoder: JSONEncoder())
@@ -75,11 +61,35 @@ extension ExploreTargetType: TargetType {
             return .requestParameters(parameters: [
                 "query": query
             ], encoding: URLEncoding.default)
+        case .getFilteredFeedList(let request):
+            var params: [String: Any] = [:]
+            
+            var category: [Int] = request.categoryIds
+            
+            if request.isLocal {
+                category.insert(2, at: 0)
+            }
+            
+            let joinedCategory = category.map { String($0) }.joined(separator: ",")
+            params["categoryIds"] = joinedCategory
+
+            if !request.regionIds.isEmpty {
+                let joinedString = request.regionIds.map { String($0) }.joined(separator: ",")
+                params["regionIds"] = joinedString
+            }
+            
+            if !request.ageGroups.isEmpty {
+                let joinedString = request.ageGroups.joined(separator: ",")
+                params["ageGroups"] = joinedString
+            }
+            
+            params["sortBy"] = request.sortBy
+            return .requestParameters(parameters: params, encoding: URLEncoding.default)
         }
     }
-    
-    // TODO: 헤더타입 바꾸기
+
     var headers: [String: String]? {
+//        return HeaderType.auth.value
         return Config.defaultHeader
     }
     
