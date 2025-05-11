@@ -213,8 +213,7 @@ extension Explore {
                     ExploreCell(
                         feed: feed,
                         onReport: { feed in
-                            // TODO: 신고하기 뷰로 이동
-                            // store.send(.exploreCellTapped(feed))
+                            store.send(.routeToReportScreen(feed.postId))
                         }
                     )
                     .onTapGesture {
@@ -242,8 +241,7 @@ extension Explore {
                     ExploreCell(
                         feed: feed,
                         onReport: { feed in
-                            // TODO: 신고하기 뷰로 이동
-                            // store.send(.exploreCellTapped(feed))
+                            store.send(.routeToReportScreen(feed.postId))
                         }
                     )
                     .onTapGesture {

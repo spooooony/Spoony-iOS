@@ -33,6 +33,7 @@ struct ExploreCoordinator {
                 return .none
             case let .router(.routeAction(id: _, action: .explore(.routeToDetailScreen(post)))):
                 state.routes.push(.detail(PostFeature.State(postId: post.postId)))
+                return .none
             case let .router(.routeAction(id: _, action: .explore(.routeToReportScreen(postId)))):
                 state.routes.push(.report(ReportFeature.State(postId: postId)))
                 return .none

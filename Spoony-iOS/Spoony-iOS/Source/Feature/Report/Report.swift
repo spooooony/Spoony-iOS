@@ -51,6 +51,7 @@ struct Report: View {
         .onTapGesture {
             hideKeyboard()
         }
+        .navigationBarBackButtonHidden()
     }
 }
 
