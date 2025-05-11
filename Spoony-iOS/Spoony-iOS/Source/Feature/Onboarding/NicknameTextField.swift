@@ -105,7 +105,7 @@ struct NicknameTextField: View {
             Text("\(text.count) / 10")
                 .customFont(.caption1m)
         }
-        .foregroundStyle(errorState.errorColor)
+        .foregroundStyle(errorState.fontColor)
         .padding(.top, 8)
     }
     
@@ -152,6 +152,17 @@ enum NicknameTextFieldErrorState {
             return "사용 가능한 닉네임이에요"
         case .noError, .initial:
             return nil
+        }
+    }
+    
+    var fontColor: Color {
+        switch self {
+        case .avaliableNickname:
+                .green400
+        case .noError, .initial:
+                .gray500
+        default:
+                .error400
         }
     }
     
