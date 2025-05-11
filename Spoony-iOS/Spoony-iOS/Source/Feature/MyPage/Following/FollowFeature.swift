@@ -115,16 +115,3 @@ struct FollowFeature {
         }
     }
 }
-
-// MARK: - TCA Dependency
-
-enum FollowUseCaseKey: DependencyKey {
-    static let liveValue: FollowUseCase = FollowUseCaseImpl(repository: FollowRepositoryImpl())
-}
-
-extension DependencyValues {
-    var followUseCase: FollowUseCase {
-        get { self[FollowUseCaseKey.self] }
-        set { self[FollowUseCaseKey.self] = newValue }
-    }
-}
