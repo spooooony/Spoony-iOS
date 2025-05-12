@@ -21,35 +21,52 @@ struct Explore: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            customNavigationBar
-                .padding(.bottom, 20)
-                .padding(.horizontal, 20)
-            
-            VStack(spacing: 18) {
-                if store.state.viewType == .all {
-                    filterView
-                        .padding(.leading, -20)
+        ZStack {
+            VStack(spacing: 0) {
+                customNavigationBar
+                    .padding(.bottom, 20)
+                    .padding(.horizontal, 20)
+                
+                VStack(spacing: 18) {
+                    if store.state.viewType == .all {
+                        filterView
+                            .padding(.leading, -20)
+                    }
+                    
+                    if store.state.viewType == .all {
+                        if store.state.allList.isEmpty {
+                            emptyView
+                        } else {
+                            filteredListView(store.state.allList)
+                                .padding(.horizontal, 20)
+                        }
+                    } else {
+                        if store.state.followingList.isEmpty {
+                            emptyView
+                        } else {
+                            followingListView(store.state.followingList)
+                                .padding(.horizontal, 20)
+                        }
+                    }
                 }
                 
-                if store.state.viewType == .all {
-                    if store.state.allList.isEmpty {
-                        emptyView
-                    } else {
-                        filteredListView(store.state.allList)
-                            .padding(.horizontal, 20)
-                    }
-                } else {
-                    if store.state.followingList.isEmpty {
-                        emptyView
-                    } else {
-                        followingListView(store.state.followingList)
-                            .padding(.horizontal, 20)
-                    }
-                }
             }
             
+            if store.showDeleteAlert {
+                CustomAlertView(
+                    title: "정말로 리뷰를 삭제할까요?",
+                    cancelTitle: "아니요",
+                    confirmTitle: "네",
+                    cancelAction: {
+                        store.send(.cancelDeleteReview)
+                    },
+                    confirmAction: {
+                        store.send(.confirmDeleteReview)
+                    }
+                )
+            }
         }
+        .toolbar(store.state.showDeleteAlert ? .hidden : .visible, for: .tabBar)
         .onAppear {
             store.send(.viewOnAppear)
         }
@@ -236,16 +253,29 @@ extension Explore {
                     .frame(height: 16.5.adjustedH)
                 
                 ForEach(list) { feed in
-                    // TODO: 내 게시물인지 아닌지 확인하고 수정/삭제 or 신고 dropdown
-                    
-                    ExploreCell(
-                        feed: feed,
-                        onReport: { feed in
-                            store.send(.routeToReportScreen(feed.postId))
+                    if !feed.isMine {
+                        ExploreCell(
+                            feed: feed,
+                            onDelete: { _ in
+                                store.send(.deleteMyReview(feed.postId))
+                            },
+                            onEdit: { feed in
+                                store.send(.routeToEditReviewScreen(feed.postId))
+                            }
+                        )
+                        .onTapGesture {
+                            store.send(.routeToDetailScreen(feed))
                         }
-                    )
-                    .onTapGesture {
-                        store.send(.routeToDetailScreen(feed))
+                    } else {
+                        ExploreCell(
+                            feed: feed,
+                            onReport: { feed in
+                                store.send(.routeToReportScreen(feed.postId))
+                            }
+                        )
+                        .onTapGesture {
+                            store.send(.routeToDetailScreen(feed))
+                        }
                     }
                 }
             }

@@ -37,6 +37,9 @@ struct ExploreCoordinator {
             case let .router(.routeAction(id: _, action: .explore(.routeToReportScreen(postId)))):
                 state.routes.push(.report(ReportFeature.State(postId: postId)))
                 return .none
+            case .router(.routeAction(id: _, action: .explore(.routeToEditReviewScreen(let postId)))):
+                state.routes.presentCover(.edit(.init(postId: postId)))
+                return .none
             // 이전 화면
             case .router(.routeAction(id: _, action: .search(.routeToExploreScreen))):
                 state.routes.goBack()

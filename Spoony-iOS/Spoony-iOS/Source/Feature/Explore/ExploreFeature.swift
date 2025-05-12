@@ -17,6 +17,9 @@ struct ExploreFeature {
         
         var isFilterPresented: Bool = false
         var isSortFilterPresented: Bool = false
+        var showDeleteAlert: Bool = false
+        
+        var deleteReviewID: Int = -1
         
         var viewType: ExploreViewType = .all
         var selectedFilterButton: [FilterButtonType] = []
@@ -46,14 +49,22 @@ struct ExploreFeature {
         case setFeed([FeedEntity])
         case setFilterInfo(category: [CategoryChip], location: [Region])
         
+        case deleteMyReview(Int)
+        case cancelDeleteReview
+        case confirmDeleteReview
+        
+        case deleteReviewResult(Bool)
+        
         // MARK: - Navigation
         case routeToExploreSearchScreen
         case routeToDetailScreen(FeedEntity)
         case routeToReportScreen(Int)
+        case routeToEditReviewScreen(Int)
         case tabSelected(TabType)
     }
     
     @Dependency(\.exploreService) var exploreService: ExploreProtocol
+    @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
     
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -90,7 +101,6 @@ struct ExploreFeature {
                     }
                 }
             case .routeToDetailScreen:
-                // TODO: 명진샘 PostFeature에 navigation back button 눌렀을 때 exploreScreen으로 이동하는 로직 추가해야 함
                 return .none
             case .searchButtonTapped:
                 return .send(.routeToExploreSearchScreen)
@@ -137,6 +147,29 @@ struct ExploreFeature {
                 state.filterInfo.categories = category
                 state.filterInfo.locations = region
                 state.isFilterPresented = true
+                return .none
+            case .deleteMyReview(let postId):
+                state.deleteReviewID = postId
+                state.showDeleteAlert = true
+                return .none
+            case .cancelDeleteReview:
+                state.showDeleteAlert = false
+                return .none
+            case .confirmDeleteReview:
+                return .run { [state] send in
+                    do {
+                        let success = try await myPageService.deleteReview(postId: state.deleteReviewID)
+                        
+                        await send(.deleteReviewResult(success))
+                    } catch {
+                        // 에러처리
+                    }
+                }
+            case .deleteReviewResult(let success):
+                // TODO: 성공, 실패 처리
+                state.showDeleteAlert = false
+                return .none
+            case .routeToEditReviewScreen:
                 return .none
             case .routeToExploreSearchScreen:
                 return .none
