@@ -44,6 +44,9 @@ struct ExploreCoordinator {
             case .router(.routeAction(id: _, action: .report(.routeToExploreScreen))):
                 state.routes.goBack()
                 return .none
+            case .router(.routeAction(id: _, action: .detail(.routeToExploreScreen))):
+                state.routes.goBack()
+                return .none
             // 탭
             case .router(.routeAction(id: _, action: .explore(.tabSelected(let tab)))):
                 return .send(.tabSelected(tab))
