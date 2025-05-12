@@ -37,7 +37,8 @@ struct PostView: View {
                     style: .detailWithChip,
                     spoonCount: store.spoonCount,
                     onBackTapped: {
-                        store.send(.goBack)
+                        // 탐색탭으로 뒤로가기
+                        store.send(.routeToExploreScreen)
                     }
                 )
                 ScrollView(.vertical) {

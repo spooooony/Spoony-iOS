@@ -7,58 +7,23 @@
 
 import SwiftUI
 
-enum ReportType: String, CaseIterable, Encodable {
-    case advertisement
-    case insult
-    case illegalInfo
-    case personalInfo
-    case duplicate
-    case other
-    
-    var title: String {
-        switch self {
-        case .advertisement:
-            "영리 목적/홍보성 후기"
-        case .insult:
-            "욕설/인신공격"
-        case .illegalInfo:
-            "불법정보"
-        case .personalInfo:
-            "개인정보노출"
-        case .duplicate:
-            "도배"
-        case .other:
-            "기타"
-        }
-    }
-    
-    var key: String {
-        switch self {
-        case .advertisement:
-            "ADVERTISEMENT"
-        case .personalInfo:
-            "PERSONAL_INFO"
-        case .insult:
-            "INSULT"
-        case .duplicate:
-            "DUPLICATE"
-        case .illegalInfo:
-            "ILLEGAL_INFO"
-        case .other:
-            "OTHER"
-        }
-    }
-}
+import ComposableArchitecture
 
 struct Report: View {
-    @EnvironmentObject private var navigationManager: NavigationManager
-    @StateObject var store: ReportStore
+    @Bindable private var store: StoreOf<ReportFeature>
+    // 게시물 신고의 경우 postId를 포함시키고
+    // 유저 신고의 경우 userId를 포함시키면 됩니다.
+    private let postId: Int?
+    private let userId: Int?
     
-    let postId: Int
-    
-    init(postId: Int) {
-        self._store = StateObject(wrappedValue: ReportStore(navigationManager: .init()))
+    init(
+        postId: Int?,
+        userId: Int?,
+        store: StoreOf<ReportFeature>
+    ) {
         self.postId = postId
+        self.userId = userId
+        self.store = store
     }
 
     var body: some View {
@@ -67,7 +32,7 @@ struct Report: View {
                 style: .detail,
                 title: "신고하기",
                 onBackTapped: {
-                    store.dispatch(.backButtonTapped)
+                    store.send(.routeToExploreScreen)
                 }
             )
             Divider()
@@ -79,10 +44,10 @@ struct Report: View {
                     style: .secondary,
                     size: .xlarge,
                     title: "신고하기",
-                    disabled: .constant(store.state.isError)
+                    disabled: $store.isError
                 ) {
                     hideKeyboard()
-                    store.dispatch(.reportPostButtonTapped(postId))
+                    store.send(.reportPostButtonTapped)
                 }
                 .padding(.top, !store.state.isError ? 12 : 20)
                 .padding(.bottom, 20)
@@ -94,30 +59,42 @@ struct Report: View {
         .onTapGesture {
             hideKeyboard()
         }
-        .onAppear {
-            store.dispatch(.onAppear(navigationManager))
-        }
+        .navigationBarBackButtonHidden()
     }
 }
 
 extension Report {
     
-    //MARK: - Views
+    // MARK: - Views
     private var reportTitle: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("후기를 신고하는 이유가 무엇인가요?")
+            Text(store.state.reportType.title)
                 .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 12)
             
-            ForEach(ReportType.allCases, id: \.self) { report in
-                radioButton(
-                    report: report,
-                    isSelected: store.state.selectedReport == report
-                )
-                .onTapGesture {
-                    store.dispatch(.reportReasonButtonTapped(report))
-                    hideKeyboard()
+            switch store.state.reportType {
+            case .post:
+                ForEach(PostReportType.allCases, id: \.self) { report in
+                    radioButton(
+                        report: report,
+                        isSelected: store.state.selectedPostReport == report
+                    )
+                    .onTapGesture {
+                        store.send(.reportPostReasonButtonTapped(report))
+                        hideKeyboard()
+                    }
+                }
+            case .user:
+                ForEach(UserReportType.allCases, id: \.self) { report in
+                    radioButton(
+                        report: report,
+                        isSelected: store.state.selectedUserReport == report
+                    )
+                    .onTapGesture {
+                        store.send(.reportUserReasonButtonTapped(report))
+                        hideKeyboard()
+                    }
                 }
             }
         }
@@ -133,10 +110,10 @@ extension Report {
                 .padding(.bottom, 12.adjustedH)
             
             SpoonyTextEditor(
-                text: textBinding(),
+                text: $store.description,
                 style: .report,
                 placeholder: "내용을 자세히 적어주시면 신고에 도움이 돼요",
-                isError: errorBinding()
+                isError: $store.isError
             )
             
             HStack(alignment: .top, spacing: 10) {
@@ -155,7 +132,7 @@ extension Report {
         .padding(.horizontal, 20)
     }
     
-    private func radioButton(report: ReportType, isSelected: Bool) -> some View {
+    private func radioButton(report: any ReportTypeProtocol, isSelected: Bool) -> some View {
         HStack(spacing: 12) {
             Image(isSelected ? .icRadioOnGray900 : .icRadioOffGray400)
             
@@ -166,20 +143,5 @@ extension Report {
             Spacer()
         }
         .frame(height: 42.adjustedH)
-    }
-    
-    //MARK: - Functions
-    private func textBinding() -> Binding<String> {
-        Binding(
-            get: { store.state.description },
-            set: { store.dispatch(.descriptionChanged($0)) }
-        )
-    }
-    
-    private func errorBinding() -> Binding<Bool> {
-        Binding(
-            get: { store.state.isError },
-            set: { store.dispatch(.isErrorChanged($0)) }
-        )
     }
 }

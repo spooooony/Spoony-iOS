@@ -47,4 +47,9 @@ extension DependencyValues {
         get { self[FollowUseCaseKey.self] }
         set { self[FollowUseCaseKey.self] = newValue }
     }
+    
+    var reportService: ReportProtocol {
+        get { self[ReportServiceKey.self] }
+        set { self[ReportServiceKey.self] = newValue }
+    }
 }

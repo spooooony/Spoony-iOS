@@ -50,9 +50,6 @@ struct ExploreCell: View {
         )
         .overlay(alignment: .topTrailing, content: {
             dropDownView
-                .onTapGesture {
-                    onReport?(feed)
-                }
         })
     }
 }
@@ -193,7 +190,7 @@ extension ExploreCell {
                     items: ["신고하기"],
                     isPresented: $isDropdown
                 ) { _ in
-                    
+                    onReport?(feed)
                 }
                 .frame(alignment: .topTrailing)
                 .padding(.top, 48.adjustedH)

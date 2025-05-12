@@ -34,10 +34,20 @@ struct ExploreCoordinator {
             case let .router(.routeAction(id: _, action: .explore(.routeToDetailScreen(post)))):
                 state.routes.push(.detail(PostFeature.State(postId: post.postId)))
                 return .none
+            case let .router(.routeAction(id: _, action: .explore(.routeToReportScreen(postId)))):
+                state.routes.push(.report(ReportFeature.State(postId: postId)))
+                return .none
             // 이전 화면
             case .router(.routeAction(id: _, action: .search(.routeToExploreScreen))):
                 state.routes.goBack()
                 return .none
+            case .router(.routeAction(id: _, action: .report(.routeToExploreScreen))):
+                state.routes.goBack()
+                return .none
+            case .router(.routeAction(id: _, action: .detail(.routeToExploreScreen))):
+                state.routes.goBack()
+                return .none
+            // 탭
             case .router(.routeAction(id: _, action: .explore(.tabSelected(let tab)))):
                 return .send(.tabSelected(tab))
             default:

@@ -49,7 +49,7 @@ struct ExploreFeature {
         // MARK: - Navigation
         case routeToExploreSearchScreen
         case routeToDetailScreen(FeedEntity)
-        case routeToReportScreen(FeedEntity)
+        case routeToReportScreen(Int)
         case tabSelected(TabType)
     }
     
@@ -58,9 +58,7 @@ struct ExploreFeature {
     var body: some ReducerOf<Self> {
         BindingReducer()
         
-        Reduce {
-            state,
-            action in
+        Reduce { state, action in
             switch action {
             case .viewOnAppear:
                 if state.viewType == .all {
@@ -93,9 +91,6 @@ struct ExploreFeature {
                 }
             case .routeToDetailScreen:
                 // TODO: 명진샘 PostFeature에 navigation back button 눌렀을 때 exploreScreen으로 이동하는 로직 추가해야 함
-                return .none
-            case .routeToReportScreen(let feed):
-                // TODO: 신고하기 TCA 도입 후 화면 전환
                 return .none
             case .searchButtonTapped:
                 return .send(.routeToExploreSearchScreen)
@@ -144,6 +139,8 @@ struct ExploreFeature {
                 state.isFilterPresented = true
                 return .none
             case .routeToExploreSearchScreen:
+                return .none
+            case .routeToReportScreen:
                 return .none
             case .tabSelected:
                 return .none
