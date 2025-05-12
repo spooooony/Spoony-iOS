@@ -15,8 +15,8 @@ struct ReportFeature {
     struct State: Equatable {
         static let initialState = State()
         
-        var postId: Int = 0
-        var targetUserId: Int = 0
+        var postId: Int = -1
+        var targetUserId: Int = -1
         var reportType: ReportType = .post
         var selectedPostReport: PostReportType = .advertisement
         var selectedUserReport: UserReportType = .advertisement
@@ -41,9 +41,9 @@ struct ReportFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                if state.postId != 0 {
+                if state.postId != -1 {
                     state.reportType = .post
-                } else if state.targetUserId != 0 {
+                } else if state.targetUserId != -1 {
                     state.reportType = .user
                 }
                 return .none
