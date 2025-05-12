@@ -11,8 +11,6 @@ import ComposableArchitecture
 struct BlockedUsersView: View {
     @Bindable private var store: StoreOf<BlockedUsersFeature>
     
-    private let blockedUsers: [BlockedUserModel] = BlockedUserModel.dummyData()
-    
     init(store: StoreOf<BlockedUsersFeature>) {
         self.store = store
     }
@@ -27,7 +25,11 @@ struct BlockedUsersView: View {
                 }
             )
             
-            if blockedUsers.isEmpty {
+            if store.isLoading {
+                loadingView
+            } else if let error = store.errorMessage {
+                errorView(error)
+            } else if store.blockedUsers.isEmpty {
                 emptyStateView
             } else {
                 blockedUsersList
@@ -35,21 +37,72 @@ struct BlockedUsersView: View {
         }
         .background(Color.white)
         .navigationBarHidden(true)
+        .task {
+            store.send(.onAppear)
+        }
     }
-    // TODO: 디자인추가되면 만들어야징
-    private var emptyStateView: some View {
+    
+    private var loadingView: some View {
+        VStack {
+            Spacer()
+            ProgressView()
+                .scaleEffect(1.5)
+            Spacer()
+        }
+    }
+    
+    private func errorView(_ error: String) -> some View {
         VStack(spacing: 16) {
             Spacer()
             
-            Image(systemName: "person.slash")
+            Image(systemName: "exclamationmark.triangle")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 60, height: 60)
                 .foregroundColor(.gray300)
                 .padding(.bottom, 8)
             
-            Text("차단한 유저가 없습니다")
+            Text("사용자 정보를 불러오는데 실패했습니다")
                 .customFont(.body1sb)
+                .foregroundColor(.gray600)
+            
+            Text(error)
+                .customFont(.caption1m)
+                .foregroundColor(.gray400)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+            
+            Button(action: {
+                store.send(.fetchBlockedUsers)
+            }) {
+                Text("다시 시도")
+                    .customFont(.body2sb)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.main400)
+                    )
+            }
+            .padding(.top, 16)
+            
+            Spacer()
+        }
+    }
+    
+    private var emptyStateView: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            
+            Image(.imageGoToList)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 100, height: 100)
+                .padding(.bottom, 8)
+            
+            Text("차단한 유저가 없습니다")
+                .customFont(.body2m)
                 .foregroundColor(.gray500)
             
             Spacer()
@@ -63,14 +116,16 @@ struct BlockedUsersView: View {
                 .frame(height: 10.adjustedH)
             
             List {
-                ForEach(blockedUsers, id: \.userId) { user in
-                    BlockedUserRow(user: user, isBlocked: user.userId != 3) {
-                        print("차단 상태 변경: \(user.username)")
-                    }
+                ForEach(store.blockedUsers, id: \.userId) { user in
+                    BlockedUserRow(
+                        user: user,
+                        isProcessing: store.processingUserIds.contains(user.userId),
+                        unblockAction: {
+                            store.send(.unblockUser(user.userId))
+                        }
+                    )
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .alignmentGuide(.listRowSeparatorLeading) {
-                        $0[.leading]
-                    }
+                    .alignmentGuide(.listRowSeparatorLeading) { $0[.leading] }
                 }
             }
             .listStyle(.plain)
@@ -80,30 +135,41 @@ struct BlockedUsersView: View {
 
 struct BlockedUserRow: View {
     let user: BlockedUserModel
-    let isBlocked: Bool
-    let blockAction: () -> Void
+    let isProcessing: Bool
+    let unblockAction: () -> Void
     
     var body: some View {
         HStack(spacing: 16.adjusted) {
-            Circle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 60.adjusted, height: 60.adjustedH)
+            // 프로필 이미지
+            AsyncImage(url: URL(string: user.profileImageUrl)) { phase in
+                if let image = phase.image {
+                    image.resizable()
+                } else if phase.error != nil {
+                    Circle().fill(Color.gray200)
+                } else {
+                    Circle().fill(Color.gray200)
+                }
+            }
+            .frame(width: 60.adjusted, height: 60.adjustedH)
+            .clipShape(Circle())
             
+            // 유저 정보
             VStack(alignment: .leading, spacing: 2) {
                 Text(user.username)
-                    .font(.body2sb)
-                Text("서울 \(user.location) 스푼")
-                    .font(.caption1m)
-                    .foregroundColor(.black)
+                    .customFont(.body2sb)
+                    .foregroundColor(.spoonBlack)
+                
+                Text("서울 \(user.regionName) 스푼")
+                    .customFont(.caption1m)
+                    .foregroundColor(.gray600)
             }
             
             Spacer()
             
-            BlockButton(isBlocked: isBlocked) {
-                blockAction()
-            }
-            .contentShape(Rectangle())
-            .buttonStyle(.borderless)
+            // 차단 해제 버튼
+            BlockButton(isProcessing: isProcessing, action: unblockAction)
+                .contentShape(Rectangle())
+                .buttonStyle(.borderless)
         }
         .contentShape(Rectangle())
         .padding(.horizontal, 20.adjusted)
@@ -112,55 +178,32 @@ struct BlockedUserRow: View {
 }
 
 struct BlockButton: View {
-    var isBlocked: Bool
+    var isProcessing: Bool
     var action: () -> Void
     
     var body: some View {
         Button(action: action) {
-            Text(isBlocked ? "해제" : "차단")
-                .font(.body2sb)
-                .foregroundColor(isBlocked ? .gray500 : .white)
-                .padding(.horizontal, 14.adjusted)
-                .padding(.vertical, 8.adjustedH)
-                .background(
-                    Group {
-                        if isBlocked {
-                            Color(.systemGray6)
-                        } else {
-                            EllipticalGradient(
-                                stops: [
-                                    .init(color: .main400, location: 0.55),
-                                    .init(color: .main100, location: 1.0)
-                                ],
-                                center: UnitPoint(x: 1, y: 0),
-                                startRadiusFraction: 0.28,
-                                endRadiusFraction: 1.3
-                            )
-                        }
-                    }
-                )
-                .cornerRadius(12)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(isBlocked ? Color.gray100 : Color.main200, lineWidth: 1)
-                )
+            HStack(spacing: 4) {
+                if isProcessing {
+                    ProgressView()
+                        .scaleEffect(0.7)
+                        .tint(.gray500)
+                } else {
+                    Text("해제")
+                        .customFont(.body2sb)
+                        .foregroundColor(.gray500)
+                }
+            }
+            .padding(.horizontal, 14.adjusted)
+            .padding(.vertical, 8.adjustedH)
+            .background(Color.gray0)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(Color.gray100, lineWidth: 1)
+            )
         }
-    }
-}
-
-struct BlockedUserModel: Codable, Identifiable {
-    let id = UUID()
-    let userId: Int
-    let username: String
-    let location: String
-    let blockDate: Date
-    
-    static func dummyData() -> [BlockedUserModel] {
-        return [
-            BlockedUserModel(userId: 1, username: "바밥바", location: "마포구", blockDate: Date()),
-            BlockedUserModel(userId: 2, username: "수박바", location: "은평구", blockDate: Date().addingTimeInterval(-86400)),
-            BlockedUserModel(userId: 3, username: "메가톤바", location: "강남구", blockDate: Date().addingTimeInterval(-172800))
-        ]
+        .disabled(isProcessing)
     }
 }
 
