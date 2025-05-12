@@ -124,7 +124,7 @@ extension MyPageTargetType: TargetType {
                 .getProfileImages,
                 .getFollowinglist,
                 .getFollowerlist,
-                .getBlockedUsers:
+                .getBlockedUsers,
                 .deleteReview:
             return .requestPlain
         }
