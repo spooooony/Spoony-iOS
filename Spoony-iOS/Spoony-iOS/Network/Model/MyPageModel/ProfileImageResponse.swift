@@ -17,3 +17,16 @@ struct ImageResponse: Codable {
     let imageUrl: String
     let isUnlocked: Bool
 }
+
+extension ProfileImageResponse {
+    func toModel() -> [ProfileImage] {
+        return images.map {
+            ProfileImage(
+                url: $0.imageUrl,
+                imageLevel: $0.imageLevel,
+                unlockCondition: $0.unlockCondition,
+                isUnlocked: $0.isUnlocked
+            )
+        }
+    }
+}

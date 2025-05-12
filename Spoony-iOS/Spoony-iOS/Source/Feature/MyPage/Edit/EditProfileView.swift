@@ -9,6 +9,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import TCACoordinators
+import Kingfisher
 
 struct EditProfileView: View {
     @Bindable private var store: StoreOf<EditProfileFeature>
@@ -27,17 +28,27 @@ struct EditProfileView: View {
                 }
             )
             
-            sectionContainerView
+            if store.isLoading {
+                Spacer()
+                ProgressView()
+                Spacer()
+            } else {
+                sectionContainerView
+            }
         }
         .background(.white)
         .onTapGesture {
             hideKeyboard()
+            store.send(.checkNickname)
         }
         .navigationBarHidden(true)
         .sheet(isPresented: $store.isPresentProfileBottomSheet) {
-            ProfileImageBottomSheet(isPresented: $store.isPresentProfileBottomSheet)
-                .presentationDetents([.height(629.adjustedH)])
-                .presentationCornerRadius(14)
+            ProfileImageBottomSheet(
+                isPresented: $store.isPresentProfileBottomSheet,
+                profileImages: store.profileImages
+            )
+            .presentationDetents([.height(629.adjustedH)])
+            .presentationCornerRadius(14)
         }
         .task {
             store.send(.onAppear)
@@ -65,7 +76,7 @@ extension EditProfileView {
                     title: "저장",
                     disabled: $store.isDisableRegisterButton
                 ) {
-                    store.send(.didTabRegisterButton)
+                    store.send(.didTapRegisterButton)
                 }
                 .padding(.bottom, 25)
             }
@@ -81,7 +92,7 @@ extension EditProfileView {
                     .foregroundStyle(.spoonBlack)
                 
                 Button {
-                    store.send(.didTabQuesetionButton)
+                    store.send(.didTapQuesetionButton)
                 } label: {
                     Image(.icQuestionGray300)
                         .resizable()
@@ -89,7 +100,7 @@ extension EditProfileView {
                 }
             }
             .padding(.horizontal, 20)
-
+            
             profileImageList
         }
         .padding(.top, 5)
@@ -99,8 +110,13 @@ extension EditProfileView {
     private var profileImageList: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 12) {
-                ForEach(0...5, id: \.self) { i in
-                    profileImageCell(i==0)
+                ForEach(store.profileImages, id: \.self) { image in
+                    profileImageCell(image)
+                        .onTapGesture {
+                            if image.isUnlocked {
+                                store.send(.didTapProfileImage(image))
+                            }
+                        }
                 }
             }
             .padding(.horizontal, 20)
@@ -108,18 +124,36 @@ extension EditProfileView {
         .scrollIndicators(.hidden)
     }
     
-    private func profileImageCell(_ isSelected: Bool) -> some View {
-        Circle()
-            .fill(.gray200)
-            .strokeBorder(isSelected ? .main400 : .clear, lineWidth: 4.59.adjusted)
-            .frame(width: 90.adjusted, height: 90.adjustedH)
-            .overlay {
-                if !isSelected {
-                    Image(.icLock)
+    private func profileImageCell(_ image: ProfileImage) -> some View {
+        Group {
+            if image.isUnlocked {
+                if let url = URL(string: image.url) {
+                    KFImage(url)
                         .resizable()
-                        .frame(width: 23.adjusted, height: 23.adjustedH)
+                        .frame(width: 90.adjusted, height: 90.adjustedH)
+                        .clipShape(Circle())
+                        .overlay {
+                            Circle()
+                                .strokeBorder(
+                                    image.imageLevel == store.state.imageLevel ? .main400 : .clear,
+                                    lineWidth: 4.59.adjusted
+                                )
+                        }
+                } else {
+                    // TODO: - 이미지 로드 실패 아이콘 추가
+                    Text("이미지 에러")
                 }
+            } else {
+                Circle()
+                    .fill(.gray200)
+                    .frame(width: 90.adjusted, height: 90.adjustedH)
+                    .overlay {
+                        Image(.icLock)
+                            .resizable()
+                            .frame(width: 23.adjusted, height: 23.adjustedH)
+                    }
             }
+        }
     }
 }
 
@@ -135,6 +169,9 @@ extension EditProfileView {
                 text: $store.userNickname,
                 isError: $store.isNicknameError
             )
+            .onSubmit {
+                store.send(.checkNickname)
+            }
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 32)
@@ -174,8 +211,7 @@ extension EditProfileView {
                 .foregroundStyle(.spoonBlack)
             
             SpoonyLocationPicker(
-                // 서버에서 받아온 값으로 바꿔주세요!!!
-                locationList: [],
+                locationList: store.regionList,
                 selectedLocation: $store.selectedLocation,
                 selectedSubLocation: $store.selectedSubLocation
             )

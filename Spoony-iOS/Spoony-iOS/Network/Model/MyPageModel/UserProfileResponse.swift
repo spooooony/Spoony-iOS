@@ -23,18 +23,11 @@ extension UserProfileResponse {
         
         let location = LocationType.allCases.first(where: { $0.rawValue == regionNameComponents[0] })
         
-        var subLocation: SubLocationType?
-        
-        // SubLocationType -> Region 변경
-        
-        if regionNameComponents.count > 1 {
-            subLocation = SubLocationType.allCases.first(where: { $0.rawValue == regionNameComponents[1] })
-        }
-        
         return .init(
             nickname: userName,
             introduction: introduction,
             birthDate: birthDateComponents,
+            regionName: regionName,
             selectedLocation: location ?? .seoul,
             selectedSubLocation: nil,
             imageLevel: imageLevel
