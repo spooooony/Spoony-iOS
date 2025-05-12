@@ -84,13 +84,4 @@ struct ReportFeature {
     }
 }
 
-private enum ReportServiceKey: DependencyKey {
-    static let liveValue: ReportProtocol = DefaultReportService()
-}
 
-extension DependencyValues {
-    var reportService: ReportProtocol {
-        get { self[ReportServiceKey.self] }
-        set { self[ReportServiceKey.self] = newValue }
-    }
-}
