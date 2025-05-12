@@ -11,10 +11,18 @@ import ComposableArchitecture
 
 struct Report: View {
     @Bindable private var store: StoreOf<ReportFeature>
-    private let postId: Int
+    // 게시물 신고의 경우 postId를 포함시키고
+    // 유저 신고의 경우 userId를 포함시키면 됩니다.
+    private let postId: Int?
+    private let userId: Int?
     
-    init(postId: Int, store: StoreOf<ReportFeature>) {
+    init(
+        postId: Int?,
+        userId: Int?,
+        store: StoreOf<ReportFeature>
+    ) {
         self.postId = postId
+        self.userId = userId
         self.store = store
     }
 
@@ -39,7 +47,7 @@ struct Report: View {
                     disabled: $store.isError
                 ) {
                     hideKeyboard()
-                    store.send(.reportPostButtonTapped(postId))
+                    store.send(.reportPostButtonTapped)
                 }
                 .padding(.top, !store.state.isError ? 12 : 20)
                 .padding(.bottom, 20)
@@ -60,19 +68,33 @@ extension Report {
     // MARK: - Views
     private var reportTitle: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("후기를 신고하는 이유가 무엇인가요?")
+            Text(store.state.reportType.title)
                 .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 12)
             
-            ForEach(ReportType.allCases, id: \.self) { report in
-                radioButton(
-                    report: report,
-                    isSelected: store.state.selectedReport == report
-                )
-                .onTapGesture {
-                    store.send(.reportReasonButtonTapped(report))
-                    hideKeyboard()
+            switch store.state.reportType {
+            case .post:
+                ForEach(PostReportType.allCases, id: \.self) { report in
+                    radioButton(
+                        report: report,
+                        isSelected: store.state.selectedPostReport == report
+                    )
+                    .onTapGesture {
+                        store.send(.reportPostReasonButtonTapped(report))
+                        hideKeyboard()
+                    }
+                }
+            case .user:
+                ForEach(UserReportType.allCases, id: \.self) { report in
+                    radioButton(
+                        report: report,
+                        isSelected: store.state.selectedUserReport == report
+                    )
+                    .onTapGesture {
+                        store.send(.reportUserReasonButtonTapped(report))
+                        hideKeyboard()
+                    }
                 }
             }
         }
@@ -110,7 +132,7 @@ extension Report {
         .padding(.horizontal, 20)
     }
     
-    private func radioButton(report: ReportType, isSelected: Bool) -> some View {
+    private func radioButton(report: any ReportTypeProtocol, isSelected: Bool) -> some View {
         HStack(spacing: 12) {
             Image(isSelected ? .icRadioOnGray900 : .icRadioOffGray400)
             

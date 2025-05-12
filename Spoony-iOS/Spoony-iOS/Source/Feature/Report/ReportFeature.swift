@@ -16,15 +16,20 @@ struct ReportFeature {
         static let initialState = State()
         
         var postId: Int = 0
-        var selectedReport: ReportType = .advertisement
+        var targetUserId: Int = 0
+        var reportType: ReportType = .post
+        var selectedPostReport: PostReportType = .advertisement
+        var selectedUserReport: UserReportType = .advertisement
         var description: String = ""
         var isError: Bool = true
     }
     
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case reportReasonButtonTapped(ReportType)
-        case reportPostButtonTapped(Int)
+        case onAppear
+        case reportPostReasonButtonTapped(PostReportType)
+        case reportUserReasonButtonTapped(UserReportType)
+        case reportPostButtonTapped
         case routeToExploreScreen
     }
     
@@ -33,22 +38,39 @@ struct ReportFeature {
     var body: some ReducerOf<Self> {
         BindingReducer()
         
-        Reduce {
-            state,
-            action in
-            
+        Reduce { state, action in
             switch action {
-            case .reportReasonButtonTapped(let type):
-                state.selectedReport = type
+            case .onAppear:
+                if state.postId != 0 {
+                    state.reportType = .post
+                } else if state.targetUserId != 0 {
+                    state.reportType = .user
+                }
+                return .none
+            case .reportPostReasonButtonTapped(let type):
+                state.selectedPostReport = type
+                return .none
+            case .reportUserReasonButtonTapped(let type):
+                state.selectedUserReport = type
                 return .none
             case .reportPostButtonTapped:
                 return .run { [state] send in
                     do {
-                        try await reportService.reportPost(
-                            postId: state.postId,
-                            report: state.selectedReport,
-                            description: state.description
-                        )
+                        switch state.reportType {
+                        case .post:
+                            try await reportService.reportPost(
+                                postId: state.postId,
+                                report: state.selectedPostReport,
+                                description: state.description
+                            )
+                        case .user:
+                            try await reportService.reportUser(
+                                targetUserId: state.targetUserId,
+                                report: state.selectedUserReport,
+                                description: state.description
+                            )
+                        }
+                        await send(.routeToExploreScreen)
                     } catch {
                         // 에러 처리
                     }

@@ -12,14 +12,13 @@ import Moya
 protocol ReportProtocol {
     func reportPost(
         postId: Int,
-        report: ReportType,
+        report: PostReportType,
         description: String
     ) async throws
     
     func reportUser(
         targetUserId: Int,
-        // TODO: user report type으로 변경
-        report: ReportType,
+        report: UserReportType,
         description: String
     ) async throws
 }
@@ -29,7 +28,7 @@ final class DefaultReportService: ReportProtocol {
     
     func reportPost(
         postId: Int,
-        report: ReportType,
+        report: PostReportType,
         description: String
     ) async throws {
         let request = PostReportRequest(
@@ -64,7 +63,7 @@ final class DefaultReportService: ReportProtocol {
     
     func reportUser(
         targetUserId: Int,
-        report: ReportType,
+        report: UserReportType,
         description: String
     ) async throws {
         let request: UserReportRequest = .init(

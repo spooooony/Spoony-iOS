@@ -2,50 +2,27 @@
 //  ReportType.swift
 //  Spoony-iOS
 //
-//  Created by 최주리 on 5/11/25.
+//  Created by 최주리 on 5/12/25.
 //
 
 import Foundation
 
-enum ReportType: String, CaseIterable, Encodable {
-    case advertisement
-    case insult
-    case illegalInfo
-    case personalInfo
-    case duplicate
-    case other
+enum ReportType: Equatable {
+    case user
+    case post
     
     var title: String {
         switch self {
-        case .advertisement:
-            "영리 목적/홍보성 후기"
-        case .insult:
-            "욕설/인신공격"
-        case .illegalInfo:
-            "불법정보"
-        case .personalInfo:
-            "개인정보노출"
-        case .duplicate:
-            "도배"
-        case .other:
-            "기타"
-        }
-    }
-    
-    var key: String {
-        switch self {
-        case .advertisement:
-            "ADVERTISEMENT"
-        case .personalInfo:
-            "PERSONAL_INFO"
-        case .insult:
-            "INSULT"
-        case .duplicate:
-            "DUPLICATE"
-        case .illegalInfo:
-            "ILLEGAL_INFO"
-        case .other:
-            "OTHER"
+        case .user:
+            "유저를 신고하는 이유가 무엇인가요?"
+        case .post:
+            "후기를 신고하는 이유가 무엇인가요?"
         }
     }
 }
+
+protocol ReportTypeProtocol: Equatable {
+    var title: String { get }
+    var key: String { get }
+}
+

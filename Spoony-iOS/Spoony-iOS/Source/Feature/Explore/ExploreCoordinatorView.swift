@@ -36,7 +36,7 @@ struct ExploreCoordinatorView: View {
             case .detail(let store):
                 PostView(postId: store.postId, store: store)
             case .report(let store):
-                Report(postId: store.postId, store: store)
+                Report(postId: store.postId, userId: nil, store: store)
             }
             
         }
