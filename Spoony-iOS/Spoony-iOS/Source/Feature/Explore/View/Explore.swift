@@ -173,7 +173,7 @@ extension Explore {
                     .resizable()
                     .frame(width: 16.adjusted, height: 16.adjusted)
             }
-            .padding(.top, 6)
+            .padding(.vertical, 8)
             .padding(.horizontal, 14)
             .background(
                 RoundedRectangle(cornerRadius: 12)
@@ -183,6 +183,7 @@ extension Explore {
                             .strokeBorder(.gray100)
                     )
             )
+            .frame(height: 32.adjustedH)
             .onTapGesture {
                 sortIsPresented = true
             }
