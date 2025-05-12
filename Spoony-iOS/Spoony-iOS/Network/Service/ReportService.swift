@@ -9,6 +9,10 @@ import Foundation
 
 import Moya
 
+enum ReportError: Error {
+    case reportFailed
+}
+
 protocol ReportProtocol {
     func reportPost(
         postId: Int,
@@ -48,7 +52,7 @@ final class DefaultReportService: ReportProtocol {
                         if success {
                             continuation.resume()
                         } else {
-                            continuation.resume(throwing: NSError(domain: "Report Post Error", code: 0, userInfo: nil))
+                            continuation.resume(throwing: ReportError.reportFailed)
                         }
                     } catch {
                         continuation.resume(throwing: error)
