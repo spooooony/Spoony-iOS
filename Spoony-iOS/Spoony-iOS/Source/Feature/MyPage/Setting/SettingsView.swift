@@ -22,8 +22,8 @@ struct SettingsView: View {
             CustomNavigationBar(
                 style: .detail,
                 title: "설정",
-                searchText: .constant(""),
                 onBackTapped: {
+                    print("Settings back button tapped") // 디버깅용
                     store.send(.routeToPreviousScreen)
                 }
             )
@@ -58,13 +58,16 @@ struct SettingsView: View {
                 settingsRow(title: "1:1 문의", hasArrow: true) {
                     URLHelper.openURL(Config.inquiryURL)
                 }
-            Spacer()
+                Spacer()
+            }
         }
-    }
         .background(Color.white)
+        .navigationBarHidden(true)
+        .navigationBarBackButtonHidden(true)
         .task {
             store.send(.onAppear)
         }
+    }
 }
 
 private func sectionHeader(title: String) -> some View {
@@ -101,7 +104,6 @@ private func settingsRow(title: String, hasArrow: Bool = false, action: (() -> V
         .background(Color.white)
     }
     .buttonStyle(PlainButtonStyle())
-}
 }
 
 #Preview {
