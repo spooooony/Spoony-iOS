@@ -173,7 +173,7 @@ struct ProfileFeature {
                 
             case let .spoonCountResponse(.failure(error)):
                 state.isLoadingSpoonCount = false
-                state.spoonCount = 0 
+                state.spoonCount = 0
                 state.spoonCountErrorMessage = "스푼 개수를 불러오는데 실패했습니다."
                 print("Error fetching spoon count: \(error)")
                 return .none
