@@ -10,16 +10,13 @@ import ComposableArchitecture
 
 @Reducer
 struct WithdrawFeature {
-    enum WithdrawAlert: Equatable {
-        case confirmWithdraw
-    }
-    
     @ObservableState
     struct State: Equatable {
         static let initialState = State()
         
         var isAgreed: Bool = false
-        var withdrawAlert: WithdrawAlert? = nil
+        var isWithdrawing: Bool = false
+        var withdrawErrorMessage: String? = nil
     }
     
     enum Action: BindableAction {
@@ -27,10 +24,11 @@ struct WithdrawFeature {
         case routeToPreviousScreen
         case toggleAgreement
         case withdrawButtonTapped
-        case confirmWithdraw
-        case cancelWithdraw
-        case performWithdraw
+        case withdrawResult(TaskResult<Bool>)
+        case routeToLoginScreen
     }
+    
+    @Dependency(\.authService) var authService: AuthProtocol
     
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -48,18 +46,41 @@ struct WithdrawFeature {
                 return .none
                 
             case .withdrawButtonTapped:
-                state.withdrawAlert = .confirmWithdraw
+                state.isWithdrawing = true
+                state.withdrawErrorMessage = nil
+                
+                return .run { send in
+                    await send(.withdrawResult(
+                        TaskResult { try await authService.withdraw() }
+                    ))
+                }
+                
+            case let .withdrawResult(.success(isSuccess)):
+                state.isWithdrawing = false
+                if isSuccess {
+                    let _ = KeychainManager.delete(key: .accessToken)
+                    let _ = KeychainManager.delete(key: .refreshToken)
+                    
+                    UserDefaults.standard.removeObject(forKey: "userId")
+                    UserDefaults.standard.removeObject(forKey: "isTooltipPresented")
+                    
+                    UserManager.shared.userId = nil
+                    UserManager.shared.isTooltipPresented = nil
+                    UserManager.shared.recentSearches = nil
+                    UserManager.shared.exploreUserRecentSearches = nil
+                    UserManager.shared.exploreReviewRecentSearches = nil
+                    
+                    return .send(.routeToLoginScreen)
+                }
                 return .none
                 
-            case .confirmWithdraw:
-                state.withdrawAlert = nil
-                return .send(.performWithdraw)
-                
-            case .cancelWithdraw:
-                state.withdrawAlert = nil
+            case let .withdrawResult(.failure(error)):
+                state.isWithdrawing = false
+                state.withdrawErrorMessage = error.localizedDescription
+                print("회원탈퇴 실패: \(error.localizedDescription)")
                 return .none
                 
-            case .performWithdraw:
+            case .routeToLoginScreen:
                 return .none
             }
         }
