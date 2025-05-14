@@ -42,6 +42,7 @@ struct MyPageView: View {
             switch screen.case {
             case let .profile(store):
                 ProfileView(store: store)
+                    .navigationBarBackButtonHidden()
             case let .reviews(store):
                 Register(store: store)                    
             case let .follow(store):
