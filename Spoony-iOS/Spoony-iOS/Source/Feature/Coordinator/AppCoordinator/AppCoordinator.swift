@@ -29,6 +29,7 @@ struct AppCoordinator {
     
     enum Action {
         case router(IndexedRouterActionOf<AppScreen>)
+        case routeToLoginScreen
     }
     
     var body: some ReducerOf<Self> {
@@ -52,6 +53,13 @@ struct AppCoordinator {
                 
             case .router(.routeAction(id: _, action: .onboarding(.routToTabCoordinatorScreen))):
                 state.routes = [.root(.tabCoordinator(.initialState), embedInNavigationView: true)]
+                return .none
+                
+            case .router(.routeAction(id: _, action: .tabCoordinator(.routeToLoginScreen))):
+                return .send(.routeToLoginScreen)
+                
+            case .routeToLoginScreen:
+                state.routes = [.root(.auth(.initialState), embedInNavigationView: false)]
                 return .none
                 
             default:
