@@ -11,19 +11,21 @@ import Foundation
     
     var wrappedValue: T? {
         get {
-            return UserDefaults.standard.object(forKey: self.key) as? T
+            return UserDefaults.standard.object(forKey: self.key.rawValue) as? T
         }
         
         set {
             if newValue == nil {
-                UserDefaults.standard.removeObject(forKey: key)
-            } else { UserDefaults.standard.setValue(newValue, forKey: key) }
+                UserDefaults.standard.removeObject(forKey: key.rawValue)
+            } else {
+                UserDefaults.standard.setValue(newValue, forKey: key.rawValue)
+            }
         }
     }
     
-    private let key: String
+    private let key: UserDefaultsKeys
     
-    init(key: String) {
+    init(key: UserDefaultsKeys) {
         self.key = key
     }
 }

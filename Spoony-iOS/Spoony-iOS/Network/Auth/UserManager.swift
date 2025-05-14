@@ -7,13 +7,21 @@
 
 import Foundation
 
+enum UserDefaultsKeys: String, CaseIterable {
+    case userId = "userId"
+    case isTooltipPresented = "isTooltipPresented"
+    case recentSearches = "RecentSearches"
+    case exploreUserRecentSearches = "exploreUserRecentSearches"
+    case exploreReviewRecentSearches = "exploreReviewRecentSearches"
+}
+
 final class UserManager {
-    @UserDefaultWrapper<String>(key: "userId") public var userId
-    @UserDefaultWrapper<Bool>(key: "isTooltipPresented") public var isTooltipPresented
-    @UserDefaultWrapper(key: "RecentSearches") public var recentSearches: [String]?
+    @UserDefaultWrapper(key: .userId) public var userId: String?
+    @UserDefaultWrapper(key: .isTooltipPresented) public var isTooltipPresented: Bool?
+    @UserDefaultWrapper(key: .recentSearches) public var recentSearches: [String]?
     
-    @UserDefaultWrapper(key: "exploreUserRecentSearches") public var exploreUserRecentSearches: [String]?
-    @UserDefaultWrapper(key: "exploreReviewRecentSearches") public var exploreReviewRecentSearches: [String]?
+    @UserDefaultWrapper(key: .exploreUserRecentSearches) public var exploreUserRecentSearches: [String]?
+    @UserDefaultWrapper(key: .exploreReviewRecentSearches) public var exploreReviewRecentSearches: [String]?
     
     static let shared = UserManager()
     
@@ -64,6 +72,18 @@ final class UserManager {
         default:
             return
         }
+    }
+    
+    func clearAllUserDefaults() {
+        UserDefaultsKeys.allCases.forEach { key in
+            UserDefaults.standard.removeObject(forKey: key.rawValue)
+        }
+        
+        userId = nil
+        isTooltipPresented = nil
+        recentSearches = nil
+        exploreUserRecentSearches = nil
+        exploreReviewRecentSearches = nil
     }
 }
 

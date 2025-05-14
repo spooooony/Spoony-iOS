@@ -61,14 +61,7 @@ struct WithdrawFeature {
                     let _ = KeychainManager.delete(key: .accessToken)
                     let _ = KeychainManager.delete(key: .refreshToken)
                     
-                    UserDefaults.standard.removeObject(forKey: "userId")
-                    UserDefaults.standard.removeObject(forKey: "isTooltipPresented")
-                    
-                    UserManager.shared.userId = nil
-                    UserManager.shared.isTooltipPresented = nil
-                    UserManager.shared.recentSearches = nil
-                    UserManager.shared.exploreUserRecentSearches = nil
-                    UserManager.shared.exploreReviewRecentSearches = nil
+                    UserManager.shared.clearAllUserDefaults()
                     
                     return .send(.routeToLoginScreen)
                 }

@@ -83,7 +83,7 @@ struct ProfileView: View {
                 .padding(.top, 16)
             Spacer()
         }
-        .frame(height: 300)
+        .frame(height: 300.adjustedH)
     }
     
     private func errorBanner(error: String) -> some View {

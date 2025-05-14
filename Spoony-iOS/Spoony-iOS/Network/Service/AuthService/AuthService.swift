@@ -173,7 +173,7 @@ final class DefaultAuthService: AuthProtocol {
                 switch result {
                 case .success(let response):
                     do {
-                        let dto = try response.map(BaseResponse<EmptyData>.self)
+                        let dto = try response.map(BaseResponse<BlankData>.self)
                         continuation.resume(returning: dto.success)
                     } catch {
                         continuation.resume(throwing: error)
@@ -191,7 +191,7 @@ final class DefaultAuthService: AuthProtocol {
                 switch result {
                 case .success(let response):
                     do {
-                        let dto = try response.map(BaseResponse<EmptyData>.self)
+                        let dto = try response.map(BaseResponse<BlankData>.self)
                         continuation.resume(returning: dto.success)
                     } catch {
                         continuation.resume(throwing: error)
