@@ -36,6 +36,9 @@ struct MyPageCoordinator {
             case .router(.routeAction(id: _, action: .accountManagement(.routeToLoginScreen))):
                 return .send(.routeToLoginScreen)
                 
+            case .router(.routeAction(id: _, action: .withdraw(.routeToLoginScreen))):
+                return .send(.routeToLoginScreen)
+                
             case .routeToLoginScreen:
                 return .none
                 
