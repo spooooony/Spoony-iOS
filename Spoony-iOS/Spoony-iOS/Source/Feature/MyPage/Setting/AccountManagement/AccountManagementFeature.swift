@@ -21,6 +21,8 @@ struct AccountManagementFeature {
         
         var currentLoginType: LoginType
         var logoutAlert: LogoutAlert?
+        var isLoggingOut: Bool = false
+        var logoutErrorMessage: String? = nil
     }
     
     enum LogoutAlert: Equatable {
@@ -37,7 +39,11 @@ struct AccountManagementFeature {
         case withdrawButtonTapped
         case routeToWithdrawScreen
         case performLogout
+        case logoutResult(TaskResult<Bool>)
+        case routeToLoginScreen
     }
+    
+    @Dependency(\.authService) var authService: AuthProtocol
     
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -73,6 +79,33 @@ struct AccountManagementFeature {
                 return .none
                 
             case .performLogout:
+                state.isLoggingOut = true
+                state.logoutErrorMessage = nil
+                
+                return .run { send in
+                    await send(.logoutResult(
+                        TaskResult { try await authService.logout() }
+                    ))
+                }
+                
+            case let .logoutResult(.success(isSuccess)):
+                state.isLoggingOut = false
+                if isSuccess {
+                    // 토큰 삭제
+                    let _ = KeychainManager.delete(key: .accessToken)
+                    let _ = KeychainManager.delete(key: .refreshToken)
+                    return .send(.routeToLoginScreen)
+                } else {
+                    state.logoutErrorMessage = "로그아웃에 실패했습니다."
+                }
+                return .none
+                
+            case let .logoutResult(.failure(error)):
+                state.isLoggingOut = false
+                state.logoutErrorMessage = error.localizedDescription
+                return .none
+                
+            case .routeToLoginScreen:
                 return .none
             }
         }

@@ -19,6 +19,8 @@ protocol AuthProtocol {
     ) async throws -> String
     func nicknameDuplicateCheck(userName: String) async throws -> Bool
     func getRegionList() async throws -> RegionListResponse
+    func logout() async throws -> Bool
+    func withdraw() async throws -> Bool
 }
 
 final class DefaultAuthService: AuthProtocol {
@@ -142,16 +144,62 @@ final class DefaultAuthService: AuthProtocol {
     }
     
     private func saveKeychain(access: String, refresh: String) {
-        if case .failure(let error) = KeychainManager.create(
-            key: .accessToken, value: access
-        ) {
-            print("Keychain Create Error: \(error)")
+        switch KeychainManager.create(key: .accessToken, value: access) {
+        case .success:
+            print("✅ Access Token saved successfully")
+        case .failure(let error):
+            print("❌ Access Token save failed: \(error)")
         }
         
-        if case .failure(let error) = KeychainManager.create(
-            key: .refreshToken, value: refresh
-        ) {
-            print("Keychain Create Error: \(error)")
+        switch KeychainManager.create(key: .refreshToken, value: refresh) {
+        case .success:
+            print("✅ Refresh Token saved successfully")
+        case .failure(let error):
+            print("❌ Refresh Token save failed: \(error)")
+        }
+        
+        // 저장 후 바로 읽어보기 테스트
+        switch KeychainManager.read(key: .accessToken) {
+        case .success(let token):
+            print("✅ Access Token read test: \(token?.prefix(30) ?? "nil")")
+        case .failure(let error):
+            print("❌ Access Token read test failed: \(error)")
+        }
+    }
+    
+    func logout() async throws -> Bool {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.request(.logout) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let dto = try response.map(BaseResponse<BlankData>.self)
+                        continuation.resume(returning: dto.success)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    func withdraw() async throws -> Bool {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.request(.withdraw) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let dto = try response.map(BaseResponse<BlankData>.self)
+                        continuation.resume(returning: dto.success)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
         }
     }
 }
@@ -178,5 +226,13 @@ final class MockAuthService: AuthProtocol {
     
     func getRegionList() async throws -> RegionListResponse {
         return .init(regionList: [])
+    }
+    
+    func logout() async throws -> Bool {
+        return true
+    }
+    
+    func withdraw() async throws -> Bool {
+        return true
     }
 }

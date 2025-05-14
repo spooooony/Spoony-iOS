@@ -20,11 +20,28 @@ struct MyPageCoordinator {
     
     enum Action {
         case router(IndexedRouterActionOf<MyPageScreen>)
+        case routeToRegisterTab
+        case routeToLoginScreen
     }
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .router(.routeAction(id: _, action: .profile(.routeToRegisterTab))):
+                return .send(.routeToRegisterTab)
+                
+            case .routeToRegisterTab:
+                return .none
+                
+            case .router(.routeAction(id: _, action: .accountManagement(.routeToLoginScreen))):
+                return .send(.routeToLoginScreen)
+                
+            case .router(.routeAction(id: _, action: .withdraw(.routeToLoginScreen))):
+                return .send(.routeToLoginScreen)
+                
+            case .routeToLoginScreen:
+                return .none
+                
             case .router(.routeAction(id: _, action: .profile(.routeToEditReviewScreen(let postId)))):
                 state.routes.presentCover(.reviews(.init(postId: postId)))
                 return .none
@@ -72,7 +89,7 @@ struct MyPageCoordinator {
             case .router(.routeAction(id: _, action: .accountManagement(.routeToWithdrawScreen))):
                 state.routes.push(.withdraw(.initialState))
                 return .none
-              
+                
             case .router(.routeAction(id: _, action: .reviews(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .follow(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .editProfile(.routeToPreviousScreen))),

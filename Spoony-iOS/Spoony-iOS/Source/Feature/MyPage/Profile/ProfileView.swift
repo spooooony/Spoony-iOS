@@ -19,18 +19,6 @@ struct ProfileView: View {
     
     var body: some View {
         ZStack {
-            VStack(spacing: 0) {
-                navigationBar
-                
-                if store.isLoading {
-                    loadingView
-                } else if store.errorMessage != nil {
-                    errorView
-                } else {
-                    profileContentView
-                }
-            }
-            
             if store.showDeleteAlert {
                 CustomAlertView(
                     title: "정말로 리뷰를 삭제할까요?",
@@ -43,6 +31,24 @@ struct ProfileView: View {
                         store.send(.confirmDeleteReview)
                     }
                 )
+            }
+            
+            VStack(spacing: 0) {
+                navigationBar
+                
+                ScrollView {
+                    VStack(spacing: 0) {
+                        if store.isLoading {
+                            loadingView
+                        } else {
+                            // 에러가 있어도 기본 UI는 표시하되, 데이터만 기본값으로 표시
+                            profileContentView
+                        }
+                    }
+                }
+                .refreshable {
+                    store.send(.onAppear)
+                }
             }
         }
         .toolbar(store.showDeleteAlert ? .hidden : .visible, for: .tabBar)
@@ -71,39 +77,51 @@ struct ProfileView: View {
             Spacer()
             ProgressView()
                 .scaleEffect(1.5)
+            Text("프로필 정보를 불러오는 중...")
+                .customFont(.body2m)
+                .foregroundStyle(.gray600)
+                .padding(.top, 16)
             Spacer()
         }
+        .frame(height: 300.adjustedH)
     }
     
-    private var errorView: some View {
-        VStack {
-            Spacer()
-            Text("정보를 불러오는데 실패했습니다.")
-                .customFont(.body1m)
-                .foregroundStyle(.gray600)
-            Text(store.errorMessage ?? "")
+    private func errorBanner(error: String) -> some View {
+        HStack {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(.orange)
+            Text("일부 정보를 불러오지 못했습니다")
                 .customFont(.caption1m)
-                .foregroundStyle(.gray400)
-                .padding(.top, 8)
-            Button("다시 시도") {
-                store.send(.onAppear)
-            }
-            .padding(.top, 16)
+                .foregroundColor(.orange)
             Spacer()
+            Button("다시 시도") {
+                store.send(.retryFetchUserInfo)
+            }
+            .customFont(.caption1m)
+            .foregroundColor(.main400)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color.orange.opacity(0.1))
+        .cornerRadius(8)
+        .padding(.horizontal, 20)
+        .padding(.bottom, 16)
     }
     
     private var profileContentView: some View {
         VStack(spacing: 0) {
+            // 에러가 있을 경우 상단에 간단한 에러 메시지 표시
+            if let error = store.errorMessage {
+                errorBanner(error: error)
+            }
+            
             profileSection
             
             Divider()
                 .frame(height: 2)
                 .background(Color.gray0)
-                .padding(0)
             
             reviewsSection
-            Spacer()
         }
     }
     
@@ -116,19 +134,7 @@ struct ProfileView: View {
     
     private var profileHeader: some View {
         HStack(alignment: .center, spacing: 24) {
-            AsyncImage(url: URL(string: store.profileImageUrl)) { phase in
-                if case .success(let image) = phase {
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 85.adjusted, height: 85.adjustedH)
-                        .clipShape(Circle())
-                } else {
-                    Circle()
-                        .fill(Color.gray200)
-                        .frame(width: 85.adjusted, height: 85.adjustedH)
-                }
-            }
+            profileImage
             
             Spacer()
             
@@ -138,11 +144,47 @@ struct ProfileView: View {
         .padding(.bottom, 24)
     }
     
+    private var profileImage: some View {
+        Group {
+            if !store.profileImageUrl.isEmpty {
+                AsyncImage(url: URL(string: store.profileImageUrl)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    case .failure(_):
+                        defaultProfileImage
+                    case .empty:
+                        ProgressView()
+                            .frame(width: 85.adjusted, height: 85.adjustedH)
+                    @unknown default:
+                        defaultProfileImage
+                    }
+                }
+                .frame(width: 85.adjusted, height: 85.adjustedH)
+                .clipShape(Circle())
+            } else {
+                defaultProfileImage
+            }
+        }
+    }
+    
+    private var defaultProfileImage: some View {
+        Circle()
+            .fill(Color.gray200)
+            .frame(width: 85.adjusted, height: 85.adjustedH)
+            .overlay(
+                Image(systemName: "person.fill")
+                    .font(.system(size: 35))
+                    .foregroundColor(.gray400)
+            )
+    }
+    
     private var statsCounters: some View {
         HStack(spacing: 54) {
             statCounter(title: "리뷰", count: store.reviewCount) {
-                // 리뷰 누르면 이동하는 곳 없지 않나요?
-//                store.send(.routeToReviewsScreen)
+                // 리뷰 스크롤로 이동하는 로직 추가 가능
             }
             
             statCounter(title: "팔로워", count: store.followerCount) {
@@ -181,21 +223,36 @@ struct ProfileView: View {
     
     private var userInfoSection: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text("서울 \(store.location) 스푼")
-                .customFont(.body2sb)
-                .foregroundStyle(.gray600)
-                .padding(.bottom, 4)
+            // 지역 정보 표시 - 에러가 있어도 표시
+            let locationText = store.location.isEmpty || store.location == "지역 미설정" ?
+                (store.errorMessage != nil ? "지역 정보 없음" : "") : "\(store.location) 스푼"
             
-            Text(store.username)
+            if !locationText.isEmpty {
+                Text(locationText)
+                    .customFont(.body2sb)
+                    .foregroundStyle(.gray600)
+                    .padding(.bottom, 4)
+            }
+            
+            // 사용자 이름 - 에러가 있어도 표시
+            let userName = store.username.isEmpty ?
+                (store.errorMessage != nil ? "사용자" : "이름 없음") : store.username
+                
+            Text(userName)
                 .customFont(.title3sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 8)
             
-            if !store.introduction.isEmpty {
-                Text(store.introduction)
+            // 자기소개 - 에러가 있어도 표시
+            let introText = store.introduction.isEmpty ?
+                (store.errorMessage != nil ? "자기소개가 없습니다." : "") : store.introduction
+                
+            if !introText.isEmpty {
+                Text(introText)
                     .customFont(.caption1m)
                     .foregroundStyle(.gray600)
-                    .lineLimit(2)
+                    .lineLimit(nil)
+                    .multilineTextAlignment(.leading)
             }
         }
     }
@@ -250,6 +307,10 @@ struct ProfileView: View {
             ProgressView()
                 .padding(.top, 30)
                 .frame(maxWidth: .infinity)
+            Text("리뷰를 불러오는 중...")
+                .customFont(.caption1m)
+                .foregroundStyle(.gray500)
+                .padding(.top, 8)
         }
     }
     
@@ -261,31 +322,32 @@ struct ProfileView: View {
                 .multilineTextAlignment(.center)
                 .padding(.top, 30)
                 .frame(maxWidth: .infinity)
+            
+            Button("다시 시도") {
+                store.send(.fetchUserReviews)
+            }
+            .buttonStyle(.borderless)
+            .foregroundColor(.main400)
+            .padding(.top, 8)
         }
     }
     
     private func reviewListView(_ reviews: [FeedEntity]) -> some View {
-        ZStack {
-            // 리뷰 목록
-            ScrollView {
-                LazyVStack(spacing: 18) {
-                    ForEach(reviews) { review in
-                        ExploreCell(
-                            feed: review,
-                            onDelete: { postId in
-                                store.send(.deleteReview(postId))
-                            },
-                            onEdit: { feed in
-                                // 수정 기능
-                                store.send(.routeToEditReviewScreen(feed.postId))
-                            }
-                        )
-                        .padding(.horizontal, 20)
+        LazyVStack(spacing: 18) {
+            ForEach(reviews) { review in
+                ExploreCell(
+                    feed: review,
+                    onDelete: { postId in
+                        store.send(.deleteReview(postId))
+                    },
+                    onEdit: { feed in
+                        store.send(.routeToEditReviewScreen(feed.postId))
                     }
-                }
-                .padding(.top, 16)
+                )
+                .padding(.horizontal, 20)
             }
         }
+        .padding(.top, 16)
     }
     
     private var emptyReviewsView: some View {
@@ -308,7 +370,7 @@ struct ProfileView: View {
                 isIcon: false,
                 disabled: .constant(false)
             ) {
-                //TODO: 등록 탭으로 이동 로직
+                store.send(.routeToRegisterTab)
             }
             .padding(.horizontal, 20)
         }

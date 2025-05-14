@@ -42,8 +42,8 @@ struct TabCoordinator {
         case myPage(MyPageCoordinator.Action)
         case tabSelected(TabType)
         
-        // popup 버튼 클릭 시 액션
         case popupAction(PopupType)
+        case routeToLoginScreen
     }
     
     var body: some ReducerOf<Self> {
@@ -87,12 +87,14 @@ struct TabCoordinator {
             case .explore(.tabSelected(let tab)):
                 return .send(.tabSelected(tab))
                 
-            // 다른 뷰 사용 예시
-//            case let .map(.presentToast(message)):
-//                state.toast = .init(style: .gray, message: message, yOffset: 558.adjustedH)
-//                return .none
-//                
-            // 자식 Feature에서 presentPopup 호출시 팝업 생성
+            case .myPage(.routeToLoginScreen):
+                return .send(.routeToLoginScreen)
+                
+                // 다른 뷰 사용 예시
+                //            case let .map(.presentToast(message)):
+                //                state.toast = .init(style: .gray, message: message, yOffset: 558.adjustedH)
+                //                return .none
+                // 자식 Feature에서 presentPopup 호출시 팝업 생성
             case .register(\.routeToPreviousTab):
                 state.selectedTab = state.previousSelectedTab
                 return .none
@@ -102,10 +104,10 @@ struct TabCoordinator {
                 return .none
                 
                 // 다른 뷰 사용 예시
-//            case .map(\.presentPopup):
-//                state.popup = .reportSuccess
-//                return .none
-                                
+                //            case .map(\.presentPopup):
+                //                state.popup = .reportSuccess
+                //                return .none
+                
             case let .popupAction(type):
                 switch type {
                 case .useSpoon:
