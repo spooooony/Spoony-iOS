@@ -20,11 +20,18 @@ struct MyPageCoordinator {
     
     enum Action {
         case router(IndexedRouterActionOf<MyPageScreen>)
+        case routeToRegisterTab
     }
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .router(.routeAction(id: _, action: .profile(.routeToRegisterTab))):
+                return .send(.routeToRegisterTab)
+                
+            case .routeToRegisterTab:
+                return .none
+                
             case .router(.routeAction(id: _, action: .profile(.routeToEditReviewScreen(let postId)))):
                 state.routes.presentCover(.reviews(.init(postId: postId)))
                 return .none
