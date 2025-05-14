@@ -10,14 +10,14 @@ import Moya
 import Foundation
 
 struct Providers {
-    static let homeProvider = MoyaProvider<HomeTargetType>.init(withAuth: false)
-    static let explorProvider = MoyaProvider<ExploreTargetType>.init(withAuth: false)
-    static let registerProvider = MoyaProvider<RegisterTargetType>.init(withAuth: false)
-    static let detailProvider = MoyaProvider<DetailTargetType>.init(withAuth: false)
+    static let homeProvider = MoyaProvider<HomeTargetType>.init(withAuth: true)
+    static let explorProvider = MoyaProvider<ExploreTargetType>.init(withAuth: true)
+    static let registerProvider = MoyaProvider<RegisterTargetType>.init(withAuth: true)
+    static let detailProvider = MoyaProvider<DetailTargetType>.init(withAuth: true)
     static let authProvider = MoyaProvider<AuthTargetType>.init(withAuth: false)
-    static let myPageProvider = MoyaProvider<MyPageTargetType>.init(withAuth: false)
-    static let imageProvider = MoyaProvider<ImageLoadTargetType>.init(withAuth: false)
-    static let followProvider = MoyaProvider<FollowTargetType>.init(withAuth: false)
+    static let myPageProvider = MoyaProvider<MyPageTargetType>.init(withAuth: true)
+    static let imageProvider = MoyaProvider<ImageLoadTargetType>.init(withAuth: true)
+    static let followProvider = MoyaProvider<FollowTargetType>.init(withAuth: true)
 }
 
 extension MoyaProvider {

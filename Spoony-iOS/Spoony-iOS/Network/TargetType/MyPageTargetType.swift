@@ -131,6 +131,6 @@ extension MyPageTargetType: TargetType {
     }
     
     var headers: [String: String]? {
-        return Config.defaultHeader
+        return HeaderType.auth.value
     }
 }
