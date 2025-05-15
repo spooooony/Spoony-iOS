@@ -18,6 +18,8 @@ protocol MypageServiceProtocol {
     func unblockUser(userId: Int) async throws -> Bool
     func deleteReview(postId: Int) async throws -> Bool
     func editProfileInfo(request: EditProfileRequest) async throws -> Bool
+    func getOtherUserInfo(userId: Int) async throws -> UserInfoResponse
+    func getOtherUserReviews(userId: Int) async throws -> [FeedEntity]
 }
 
 final class MyPageService: MypageServiceProtocol {
@@ -142,47 +144,48 @@ final class MyPageService: MypageServiceProtocol {
     }
     
     func getBlockedUsers() async throws -> BlockedUsersResponse {
-            return try await withCheckedThrowingContinuation { continuation in
-                Providers.myPageProvider.request(.getBlockedUsers) { result in
-                    switch result {
-                    case .success(let response):
-                        do {
-                            let responseDto = try response.map(BaseResponse<BlockedUsersResponse>.self)
-                            guard let data = responseDto.data else {
-                                continuation.resume(throwing: SNError.decodeError)
-                                return
-                            }
-                            
-                            continuation.resume(returning: data)
-                        } catch {
-                            continuation.resume(throwing: error)
+        return try await withCheckedThrowingContinuation { continuation in
+            Providers.myPageProvider.request(.getBlockedUsers) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<BlockedUsersResponse>.self)
+                        guard let data = responseDto.data else {
+                            continuation.resume(throwing: SNError.decodeError)
+                            return
                         }
-                    case .failure(let error):
+                        
+                        continuation.resume(returning: data)
+                    } catch {
                         continuation.resume(throwing: error)
                     }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
                 }
             }
         }
+    }
+    
+    func unblockUser(userId: Int) async throws -> Bool {
+        let request = TargetUserRequest(targetUserId: userId)
         
-        func unblockUser(userId: Int) async throws -> Bool {
-            let request = TargetUserRequest(targetUserId: userId)
-            
-            return try await withCheckedThrowingContinuation { continuation in
-                Providers.myPageProvider.request(.unblockUser(request: request)) { result in
-                    switch result {
-                    case .success(let response):
-                        do {
-                            let responseDto = try response.map(BaseResponse<BlankData>.self)
-                            continuation.resume(returning: responseDto.success)
-                        } catch {
-                            continuation.resume(throwing: error)
-                        }
-                    case .failure(let error):
+        return try await withCheckedThrowingContinuation { continuation in
+            Providers.myPageProvider.request(.unblockUser(request: request)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<BlankData>.self)
+                        continuation.resume(returning: responseDto.success)
+                    } catch {
                         continuation.resume(throwing: error)
                     }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
                 }
             }
         }
+    }
+    
     func deleteReview(postId: Int) async throws -> Bool {
         return try await withCheckedThrowingContinuation { continuation in
             provider.request(.deleteReview(postId: postId)) { result in
@@ -211,6 +214,50 @@ final class MyPageService: MypageServiceProtocol {
                     do {
                         let responseDto = try response.map(BaseResponse<BlankData>.self)
                         continuation.resume(returning: responseDto.success)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    func getOtherUserInfo(userId: Int) async throws -> UserInfoResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.request(.getOtherInfo(userId: userId)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let dto = try response.map(BaseResponse<UserInfoResponse>.self)
+                        guard let data = dto.data else {
+                            continuation.resume(throwing: SNError.noData)
+                            return
+                        }
+                        continuation.resume(returning: data)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    func getOtherUserReviews(userId: Int) async throws -> [FeedEntity] {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.request(.getOtherReviews(userId: userId)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let dto = try response.map(BaseResponse<FeedListResponse>.self)
+                        guard let data = dto.data else {
+                            continuation.resume(throwing: SNError.noData)
+                            return
+                        }
+                        continuation.resume(returning: data.toEntity())
                     } catch {
                         continuation.resume(throwing: error)
                     }

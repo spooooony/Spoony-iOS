@@ -50,7 +50,7 @@ extension MyPageTargetType: TargetType {
         case .getOtherInfo(let userId):
             return "/user/\(userId)"
         case .getOtherReviews(let userId):
-            return "/user/\(userId)/reviews"
+            return "/user/reviews/\(userId)"
         case .getUserReviews:
             return "/user/reviews"
         case .searchUser:
@@ -115,10 +115,14 @@ extension MyPageTargetType: TargetType {
                 parameters: ["userName": query],
                 encoding: URLEncoding.default
             )
+        case .getOtherReviews:
+            return .requestParameters(
+                parameters: ["isLocalReview": false],
+                encoding: URLEncoding.queryString
+            )
         case .getProfileInfo,
                 .getUserInfo,
                 .getOtherInfo,
-                .getOtherReviews,
                 .getUserReviews,
                 .getUserRegion,
                 .getProfileImages,
