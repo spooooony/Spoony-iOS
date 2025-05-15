@@ -13,6 +13,7 @@ import TCACoordinators
 @Reducer(state: .equatable)
 enum MyPageScreen {
     case profile(ProfileFeature)
+    case otherProfile(OtherProfileFeature)
     case reviews(RegisterFeature)
     case follow(FollowFeature)
     case editProfile(EditProfileFeature)
@@ -43,8 +44,11 @@ struct MyPageView: View {
             case let .profile(store):
                 ProfileView(store: store)
                     .navigationBarBackButtonHidden()
+            case let .otherProfile(store):
+                OtherProfileView(store: store)
+                    .navigationBarBackButtonHidden()
             case let .reviews(store):
-                Register(store: store)                    
+                Register(store: store)
             case let .follow(store):
                 FollowListView(store: store)
                     .navigationBarBackButtonHidden()
