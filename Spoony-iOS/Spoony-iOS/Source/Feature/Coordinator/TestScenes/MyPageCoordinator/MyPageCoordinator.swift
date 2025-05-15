@@ -50,6 +50,10 @@ struct MyPageCoordinator {
                 state.routes.push(.follow(.initialState))
                 return .none
                 
+            case .router(.routeAction(id: _, action: .follow(.routeToUserProfileScreen(let userId)))):
+                state.routes.push(.otherProfile(.init(userId: userId)))
+                return .none
+                
             case .router(.routeAction(id: _, action: .profile(.routeToEditProfileScreen))):
                 state.routes.push(.editProfile(.initialState))
                 return .none
@@ -91,17 +95,18 @@ struct MyPageCoordinator {
                 return .none
                 
             case .router(.routeAction(id: _, action: .reviews(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .follow(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .editProfile(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .attendance(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .accountManagement(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .blockedUsers(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .termsOfService(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .privacyPolicy(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .locationServices(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .inquiry(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .withdraw(.routeToPreviousScreen))):
+                 .router(.routeAction(id: _, action: .follow(.routeToPreviousScreen))),
+                 .router(.routeAction(id: _, action: .editProfile(.routeToPreviousScreen))),
+                 .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),
+                 .router(.routeAction(id: _, action: .attendance(.routeToPreviousScreen))),
+                 .router(.routeAction(id: _, action: .otherProfile(.routeToPreviousScreen))),
+                 .router(.routeAction(id: _, action: .accountManagement(.routeToPreviousScreen))),
+                 .router(.routeAction(id: _, action: .blockedUsers(.routeToPreviousScreen))),
+                 .router(.routeAction(id: _, action: .termsOfService(.routeToPreviousScreen))),
+                 .router(.routeAction(id: _, action: .privacyPolicy(.routeToPreviousScreen))),
+                 .router(.routeAction(id: _, action: .locationServices(.routeToPreviousScreen))),
+                 .router(.routeAction(id: _, action: .inquiry(.routeToPreviousScreen))),
+                 .router(.routeAction(id: _, action: .withdraw(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
                 
