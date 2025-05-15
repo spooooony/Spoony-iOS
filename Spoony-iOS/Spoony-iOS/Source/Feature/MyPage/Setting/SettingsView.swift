@@ -23,7 +23,6 @@ struct SettingsView: View {
                 style: .detail,
                 title: "설정",
                 onBackTapped: {
-                    print("Settings back button tapped") // 디버깅용
                     store.send(.routeToPreviousScreen)
                 }
             )
@@ -63,7 +62,6 @@ struct SettingsView: View {
         }
         .background(Color.white)
         .navigationBarHidden(true)
-        .navigationBarBackButtonHidden(true)
         .task {
             store.send(.onAppear)
         }

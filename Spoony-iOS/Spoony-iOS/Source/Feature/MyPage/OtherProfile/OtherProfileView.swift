@@ -21,9 +21,7 @@ struct OtherProfileView: View {
             
             ScrollView {
                 VStack(spacing: 0) {
-                    if store.isLoading {
-                        loadingView
-                    } else if store.errorMessage != nil {
+                    if store.errorMessage != nil {
                         errorView
                     } else {
                         profileContentView
@@ -49,40 +47,6 @@ struct OtherProfileView: View {
             }
         )
         .padding(.bottom, 24)
-    }
-    
-    private var loadingView: some View {
-        VStack {
-            Spacer()
-            ProgressView()
-                .scaleEffect(1.5)
-            Text("프로필 정보를 불러오는 중...")
-                .customFont(.body2m)
-                .foregroundStyle(.gray600)
-                .padding(.top, 16)
-            Spacer()
-        }
-        .frame(height: 300)
-    }
-    
-    private var errorView: some View {
-        VStack {
-            Spacer()
-            Text("정보를 불러오는데 실패했습니다.")
-                .customFont(.body1m)
-                .foregroundStyle(.gray600)
-            Text(store.errorMessage ?? "")
-                .customFont(.caption1m)
-                .foregroundStyle(.gray400)
-                .padding(.top, 8)
-            Button("다시 시도") {
-                store.send(.onAppear)
-            }
-            .buttonStyle(.borderedProminent)
-            .padding(.top, 16)
-            Spacer()
-        }
-        .frame(height: 300)
     }
     
     private var profileContentView: some View {
