@@ -28,6 +28,9 @@ enum NavigationBarStyle {
     // 온보딩 관련
     case onboarding     // < + 오른쪽 건너뛰기 버튼
     
+    case detailWithKebab  // 뒤로가기 + 점새게
+
+    
     // 백 버튼 표시 여부
     var showsBackButton: Bool {
         switch self {
