@@ -21,11 +21,7 @@ struct OtherProfileView: View {
             
             ScrollView {
                 VStack(spacing: 0) {
-                    if store.errorMessage != nil {
-                        errorView
-                    } else {
-                        profileContentView
-                    }
+                    profileContentView
                 }
             }
             .refreshable {
