@@ -51,6 +51,7 @@ struct ExploreSearchFeature {
         case routeToEditReviewScreen(Int)
         case routeToDetailScreen(FeedEntity)
         case routeToReportScreen(Int)
+        case routeToUserProfileScreen(Int)
     }
     
     @Dependency(\.exploreService) var exploreService: ExploreProtocol
@@ -212,6 +213,8 @@ struct ExploreSearchFeature {
             case .routeToDetailScreen:
                 return .none
             case .routeToReportScreen:
+                return .none
+            case .routeToUserProfileScreen:
                 return .none
             case .binding:
                 return .none

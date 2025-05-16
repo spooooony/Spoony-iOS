@@ -51,6 +51,10 @@ struct ExploreCoordinator {
             case .router(.routeAction(id: _, action: .search(.routeToEditReviewScreen(let postId)))):
                 state.routes.presentCover(.edit(.init(postId: postId)))
                 return .none
+            case .router(.routeAction(id: _, action: .search(.routeToUserProfileScreen(let userId)))):
+                state.routes.push(.otherProfile(.init(userId: userId)))
+                return .none
+                
             // 이전 화면
             case .router(.routeAction(id: _, action: .search(.routeToExploreScreen))):
                 state.routes.goBack()
@@ -59,6 +63,9 @@ struct ExploreCoordinator {
                 state.routes.goBack()
                 return .none
             case .router(.routeAction(id: _, action: .detail(.routeToPreviousScreen))):
+                state.routes.goBack()
+                return .none
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
             case .router(.routeAction(id: _, action: .edit(.routeToPreviousScreen))):

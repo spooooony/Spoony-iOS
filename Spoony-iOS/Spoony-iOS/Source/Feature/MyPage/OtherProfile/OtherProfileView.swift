@@ -32,6 +32,7 @@ struct OtherProfileView: View {
             store.send(.onAppear)
         }
         .edgesIgnoringSafeArea(.bottom)
+        .navigationBarBackButtonHidden()
     }
     
     private var navigationBar: some View {

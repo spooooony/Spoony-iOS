@@ -158,8 +158,7 @@ extension ExploreSearchView {
                     ForEach(store.state.userResult, id: \.id) { user in
                         userCell(user)
                             .onTapGesture {
-                                // 유저 페이지로 네비게이션
-                                
+                                store.send(.routeToUserProfileScreen(user.id))
                             }
                     }
                 case .review:
