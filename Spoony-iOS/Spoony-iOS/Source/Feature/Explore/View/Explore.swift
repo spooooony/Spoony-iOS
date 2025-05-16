@@ -279,11 +279,17 @@ extension Explore {
                         }
                     }
                 }
+                
+                Rectangle()
+                    .fill(.clear)
+                    .task {
+                        store.send(.fetchFilteredFeed)
+                    }
             }
         }
         .scrollIndicators(.hidden)
         .refreshable {
-            store.send(.fetchFilteredFeed)
+            store.send(.refreshFilteredFeed)
         }
     }
     

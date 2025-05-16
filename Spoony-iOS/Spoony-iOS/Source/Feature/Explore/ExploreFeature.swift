@@ -33,6 +33,9 @@ struct ExploreFeature {
         var selectedSort: SortType = .createdAt
         
         var filterInfo: FilterInfo = .init(categories: [], locations: [])
+        
+        var nextCursor: Int64 = 0
+        var isLast: Bool = false
     }
     
     enum Action: BindableAction, Equatable {
@@ -44,9 +47,11 @@ struct ExploreFeature {
         case goButtonTapped
         
         case fetchFilteredFeed
+        case refreshFilteredFeed
+        
         case fetchFollowingFeed
         
-        case setFeed([FeedEntity])
+        case setFeed([FeedEntity], Int64)
         case setFilterInfo(category: [CategoryChip], location: [Region])
         
         case deleteMyReview(Int)
@@ -112,36 +117,54 @@ struct ExploreFeature {
                 }
             case .fetchFilteredFeed:
                 return .run { [state] send in
+                    guard !state.isLast else { return }
                     do {
-                        let list = try await exploreService.getFilteredFeedList(
+                        let result = try await exploreService.getFilteredFeedList(
                             isLocal: state.selectedFilter.selectedLocal.isEmpty ? false : true,
                             category: state.selectedFilter.selectedCategories.map { $0.id },
                             region: state.selectedFilter.selectedLocations.map { $0.id },
                             age: state.selectedFilter.selectedAges.map {
                                 AgeType.toType(from: $0.title)?.key ?? ""
                             },
-                            sort: state.selectedSort
-                        ).toEntity()
-                        await send(.setFeed(list))
+                            sort: state.selectedSort,
+                            cursor: state.nextCursor
+                        )
+                        let list = result.toEntity()
+                        let cursor = result.nextCursor
+                        print("😅cursor: \(state.nextCursor), next: \(cursor)")
+                        
+                        await send(.setFeed(list, cursor))
                     } catch {
                        // 에러처리
                     }
                 }
+            case .refreshFilteredFeed:
+                state.allList = []
+                state.nextCursor = 0
+                state.isLast = false
+                return .send(.fetchFilteredFeed)
             case .fetchFollowingFeed:
                 return .run { send in
                     do {
                         let list = try await exploreService.getFollowingFeedList().toEntity()
-                        await send(.setFeed(list))
+                        // TODO: 임시 커서값. 팔로잉 페이지네이션 시 적용
+                        await send(.setFeed(list, 0))
                     } catch {
                        // 에러처리
                     }
                 }
-            case .setFeed(let list):
+            case .setFeed(let list, let nextCursor):
                 if state.viewType == .all {
-                    state.allList = list
+                    state.allList += list
                 } else {
                     state.followingList = list
                 }
+                
+                if state.nextCursor == nextCursor {
+                    state.isLast = true
+                }
+                
+                state.nextCursor = nextCursor
                 return .none
             case .setFilterInfo(let category, let region):
                 state.filterInfo.categories = category
