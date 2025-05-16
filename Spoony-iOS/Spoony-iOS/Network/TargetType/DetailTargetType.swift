@@ -69,6 +69,7 @@ extension DetailTargetType: TargetType {
     
     var headers: [String: String]? {
         return Config.defaultHeader
+//        return HeaderType.auth.value
     }
     
     var validationType: ValidationType {

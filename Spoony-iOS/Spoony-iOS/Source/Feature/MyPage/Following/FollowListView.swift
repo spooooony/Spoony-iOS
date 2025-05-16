@@ -90,9 +90,15 @@ extension FollowListView {
         TabView(selection: $currentTab) {
             List {
                 ForEach(store.followerList, id: \.userId) { user in
-                    FollowRow(user: user) {
-                        store.send(.followButtonTapped(userId: user.userId, isFollowing: user.isFollowing))
-                    }
+                    FollowRow(
+                        user: user,
+                        onFollowTap: {
+                            store.send(.followButtonTapped(userId: user.userId, isFollowing: user.isFollowing))
+                        },
+                        onUserTap: {
+                            store.send(.routeToUserProfileScreen(userId: user.userId))
+                        }
+                    )
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .alignmentGuide(.listRowSeparatorLeading) {
                         $0[.leading]
@@ -104,9 +110,15 @@ extension FollowListView {
             
             List {
                 ForEach(store.followingList, id: \.userId) { user in
-                    FollowRow(user: user) {
-                        store.send(.followButtonTapped(userId: user.userId, isFollowing: user.isFollowing))
-                    }
+                    FollowRow(
+                        user: user,
+                        onFollowTap: {
+                            store.send(.followButtonTapped(userId: user.userId, isFollowing: user.isFollowing))
+                        },
+                        onUserTap: {
+                            store.send(.routeToUserProfileScreen(userId: user.userId))
+                        }
+                    )
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .alignmentGuide(.listRowSeparatorLeading) {
                         $0[.leading]
@@ -123,12 +135,28 @@ extension FollowListView {
 struct FollowRow: View {
     let user: FollowUserDTO
     let onFollowTap: () -> Void
+    let onUserTap: () -> Void
     
     var body: some View {
         HStack(spacing: 16.adjusted) {
-            Circle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 60.adjusted, height: 60.adjustedH)
+            AsyncImage(url: URL(string: user.profileImageUrl)) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 60.adjusted, height: 60.adjustedH)
+                        .clipShape(Circle())
+                case .failure(_), .empty:
+                    Circle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 60.adjusted, height: 60.adjustedH)
+                @unknown default:
+                    Circle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 60.adjusted, height: 60.adjustedH)
+                }
+            }
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(user.username)
@@ -144,10 +172,9 @@ struct FollowRow: View {
                 .contentShape(Rectangle())
                 .buttonStyle(.borderless)
         }
-        .contentShape(Rectangle()) // 전체 HStack을 터치영역으로
+        .contentShape(Rectangle())
         .onTapGesture {
-            print("프로필로 이동: \(user.username)")
-            // TODO: UserProfile 로직 추가
+            onUserTap()
         }
         .padding(.horizontal, 20.adjusted)
         .padding(.vertical, 14.5.adjustedH)

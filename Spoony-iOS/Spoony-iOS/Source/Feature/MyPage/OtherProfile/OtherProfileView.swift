@@ -1,57 +1,37 @@
 //
-//  ProfileView.swift
+//  OtherProfileView.swift
 //  Spoony-iOS
 //
-//  Created by 이지훈 on 4/11/25.
+//  Created by 이지훈 on 5/15/25.
 //
 
 import SwiftUI
-
 import ComposableArchitecture
-import TCACoordinators
 
-struct ProfileView: View {
-    @Bindable private var store: StoreOf<ProfileFeature>
+struct OtherProfileView: View {
+    @Bindable private var store: StoreOf<OtherProfileFeature>
     
-    init(store: StoreOf<ProfileFeature>) {
+    init(store: StoreOf<OtherProfileFeature>) {
         self.store = store
     }
     
     var body: some View {
-        ZStack {
-            if store.showDeleteAlert {
-                CustomAlertView(
-                    title: "정말로 리뷰를 삭제할까요?",
-                    cancelTitle: "아니요",
-                    confirmTitle: "네",
-                    cancelAction: {
-                        store.send(.cancelDeleteReview)
-                    },
-                    confirmAction: {
-                        store.send(.confirmDeleteReview)
-                    }
-                )
-            }
+        VStack(spacing: 0) {
+            navigationBar
             
-            VStack(spacing: 0) {
-                navigationBar
-                
-                ScrollView {
-                    VStack(spacing: 0) {
-                        if store.isLoading {
-                            loadingView
-                        } else {
-                            // 에러가 있어도 기본 UI는 표시하되, 데이터만 기본값으로 표시
-                            profileContentView
-                        }
+            ScrollView {
+                VStack(spacing: 0) {
+                    if store.errorMessage != nil {
+                        errorView
+                    } else {
+                        profileContentView
                     }
                 }
-                .refreshable {
-                    store.send(.onAppear)
-                }
+            }
+            .refreshable {
+                store.send(.onAppear)
             }
         }
-        .toolbar(store.showDeleteAlert ? .hidden : .visible, for: .tabBar)
         .task {
             store.send(.onAppear)
         }
@@ -60,61 +40,17 @@ struct ProfileView: View {
     
     private var navigationBar: some View {
         CustomNavigationBar(
-            style: .settingContent,
-            spoonCount: store.spoonCount,
-            spoonTapped: {
-                store.send(.routeToAttendanceScreen)
-            },
-            tappedAction: {
-                store.send(.routeToSettingsScreen)
+            style: .detail,
+            title: store.username.isEmpty ? "프로필" : store.username,
+            onBackTapped: {
+                store.send(.routeToPreviousScreen)
             }
         )
         .padding(.bottom, 24)
     }
     
-    private var loadingView: some View {
-        VStack {
-            Spacer()
-            ProgressView()
-                .scaleEffect(1.5)
-            Text("프로필 정보를 불러오는 중...")
-                .customFont(.body2m)
-                .foregroundStyle(.gray600)
-                .padding(.top, 16)
-            Spacer()
-        }
-        .frame(height: 300.adjustedH)
-    }
-    
-    private func errorBanner(error: String) -> some View {
-        HStack {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundColor(.orange)
-            Text("일부 정보를 불러오지 못했습니다")
-                .customFont(.caption1m)
-                .foregroundColor(.orange)
-            Spacer()
-            Button("다시 시도") {
-                store.send(.retryFetchUserInfo)
-            }
-            .customFont(.caption1m)
-            .foregroundColor(.main400)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Color.orange.opacity(0.1))
-        .cornerRadius(8)
-        .padding(.horizontal, 20)
-        .padding(.bottom, 16)
-    }
-    
     private var profileContentView: some View {
         VStack(spacing: 0) {
-            // 에러가 있을 경우 상단에 간단한 에러 메시지 표시
-            if let error = store.errorMessage {
-                errorBanner(error: error)
-            }
-            
             profileSection
             
             Divider()
@@ -183,21 +119,13 @@ struct ProfileView: View {
     
     private var statsCounters: some View {
         HStack(spacing: 54) {
-            statCounter(title: "리뷰", count: store.reviewCount) {
-                // 리뷰 스크롤로 이동하는 로직 추가 가능
-            }
-            
-            statCounter(title: "팔로워", count: store.followerCount) {
-                store.send(.routeToFollowerScreen)
-            }
-            
-            statCounter(title: "팔로잉", count: store.followingCount) {
-                store.send(.routeToFollowingScreen)
-            }
+            statCounter(title: "리뷰", count: store.reviewCount)
+            statCounter(title: "팔로워", count: store.followerCount)
+            statCounter(title: "팔로잉", count: store.followingCount)
         }
     }
     
-    private func statCounter(title: String, count: Int, action: @escaping () -> Void) -> some View {
+    private func statCounter(title: String, count: Int) -> some View {
         VStack(spacing: 8) {
             Text(title)
                 .customFont(.caption1b)
@@ -206,7 +134,6 @@ struct ProfileView: View {
                 .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
         }
-        .onTapGesture(perform: action)
     }
     
     private var profileInfo: some View {
@@ -215,7 +142,7 @@ struct ProfileView: View {
             
             Spacer()
             
-            editProfileButton
+            followButton
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 27)
@@ -223,32 +150,23 @@ struct ProfileView: View {
     
     private var userInfoSection: some View {
         VStack(alignment: .leading, spacing: 5) {
-            // 지역 정보 표시 - 에러가 있어도 표시
-            let locationText = store.location.isEmpty || store.location == "지역 미설정" ?
-                (store.errorMessage != nil ? "지역 정보 없음" : "") : "\(store.location) 스푼"
-            
-            if !locationText.isEmpty {
-                Text(locationText)
+            // 지역 정보 표시
+            if !store.location.isEmpty {
+                Text("서울 \(store.location) 스푼")
                     .customFont(.body2sb)
                     .foregroundStyle(.gray600)
                     .padding(.bottom, 4)
             }
             
-            // 사용자 이름 - 에러가 있어도 표시
-            let userName = store.username.isEmpty ?
-                (store.errorMessage != nil ? "사용자" : "이름 없음") : store.username
-                
-            Text(userName)
+            // 사용자 이름
+            Text(store.username.isEmpty ? "이름 없음" : store.username)
                 .customFont(.title3sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 8)
             
-            // 자기소개 - 에러가 있어도 표시
-            let introText = store.introduction.isEmpty ?
-                (store.errorMessage != nil ? "자기소개가 없습니다." : "") : store.introduction
-                
-            if !introText.isEmpty {
-                Text(introText)
+            // 자기소개
+            if !store.introduction.isEmpty {
+                Text(store.introduction)
                     .customFont(.caption1m)
                     .foregroundStyle(.gray600)
                     .lineLimit(nil)
@@ -257,20 +175,13 @@ struct ProfileView: View {
         }
     }
     
-    private var editProfileButton: some View {
-        Button(action: {
-            store.send(.routeToEditProfileScreen)
-        }) {
-            Text("프로필 수정")
-                .customFont(.body2sb)
-                .foregroundStyle(.white)
-                .frame(width: 103.adjusted)
-                .padding(.vertical, 10)
-                .background(
-                    RoundedRectangle(cornerRadius: 30)
-                        .fill(Color.main400)
-                )
-        }
+    private var followButton: some View {
+        FollowButton(
+            isFollowing: store.isFollowing,
+            action: {
+                store.send(.followButtonTapped)
+            }
+        )
     }
     
     private var reviewsSection: some View {
@@ -337,12 +248,8 @@ struct ProfileView: View {
             ForEach(reviews) { review in
                 ExploreCell(
                     feed: review,
-                    onDelete: { postId in
-                        store.send(.deleteReview(postId))
-                    },
-                    onEdit: { feed in
-                        store.send(.routeToEditReviewScreen(feed.postId))
-                    }
+                    onDelete: nil,
+                    onEdit: nil
                 )
                 .padding(.horizontal, 20)
             }
@@ -357,22 +264,11 @@ struct ProfileView: View {
                 .frame(width: 100, height: 100)
                 .padding(.top, 30)
             
-            Text("아직 등록한 리뷰가 없어요.\n나만의 찐맛집을 공유해 보세요!")
+            Text("아직 등록한 리뷰가 없어요")
                 .customFont(.body1m)
                 .foregroundStyle(.gray500)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, alignment: .center)
-            
-            SpoonyButton(
-                style: .primary,
-                size: .xsmall,
-                title: "등록하러가기",
-                isIcon: false,
-                disabled: .constant(false)
-            ) {
-                store.send(.routeToRegisterTab)
-            }
-            .padding(.horizontal, 20)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 20)
@@ -380,9 +276,9 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView(
-        store: Store(initialState: ProfileFeature.State()) {
-            ProfileFeature()
+    OtherProfileView(
+        store: Store(initialState: OtherProfileFeature.State(userId: 2)) {
+            OtherProfileFeature()
         }
     )
 }

@@ -18,7 +18,6 @@ struct WithdrawView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-
             CustomNavigationBar(
                 style: .detail,
                 title: "회원 탈퇴",
@@ -26,13 +25,13 @@ struct WithdrawView: View {
                     store.send(.routeToPreviousScreen)
                 }
             ).background(Color.white)
+            
             Divider()
                 .frame(height: 1)
                 .foregroundStyle(.gray100)
             
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-
                     bulletPointList
 
                     HStack {
@@ -57,21 +56,36 @@ struct WithdrawView: View {
                     SpoonyButton(
                         style: .primary,
                         size: .xlarge,
-                        title: "탈퇴하기",
-                        disabled: .init(get: { !store.isAgreed }, set: { _ in })
+                        title: store.isWithdrawing ? "탈퇴 처리 중..." : "탈퇴하기",
+                        disabled: .init(get: { !store.isAgreed || store.isWithdrawing }, set: { _ in })
                     ) {
-                        if store.isAgreed {
-                            store.send(.performWithdraw)
+                        if store.isAgreed && !store.isWithdrawing {
+                            store.send(.withdrawButtonTapped)
                         }
                     }
                     .padding(.top, 12)
                     .padding(.horizontal, 20)
+                    
+                    // 에러 메시지 표시
+                    if let errorMessage = store.withdrawErrorMessage {
+                        Text(errorMessage)
+                            .customFont(.caption1m)
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 20)
+                    }
                     
                     Spacer()
                 }
             }
         }
         .background(Color.white)
+        .overlay {
+            if store.isWithdrawing {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black.opacity(0.3))
+            }
+        }
     }
     
     private var bulletPointList: some View {

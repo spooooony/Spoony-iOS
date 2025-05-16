@@ -11,6 +11,8 @@ import Moya
 enum AuthTargetType {
     case login(platform: String, token: String)
     case signup(SignupRequest, token: String)
+    case logout
+    case withdraw
 }
 
 extension AuthTargetType: TargetType {
@@ -27,12 +29,16 @@ extension AuthTargetType: TargetType {
             return "/auth/login"
         case .signup:
             return "/auth/signup"
+        case .logout:
+            return "/auth/logout"
+        case .withdraw:
+            return "/auth/withdraw"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .login, .signup:
+        case .login, .signup, .logout, .withdraw:
             return .post
         }
     }
@@ -46,15 +52,36 @@ extension AuthTargetType: TargetType {
             )
         case .signup(let request, _):
             return .requestCustomJSONEncodable(request, encoder: JSONEncoder())
+        case .logout, .withdraw:
+            return .requestPlain
         }
     }
     
     var headers: [String: String]? {
         switch self {
         case .login(_, let token):
-            HeaderType.token(token).value
+            return [
+                "Content-Type": "application/json",
+                "Authorization": "Bearer \(token)"
+            ]
         case .signup(_, let token):
-            HeaderType.token(token).value
+            return [
+                "Content-Type": "application/json",
+                "Authorization": "Bearer \(token)"
+            ]
+        case .logout, .withdraw:
+            var headers = ["Content-Type": "application/json"]
+            
+            switch KeychainManager.read(key: .accessToken) {
+            case .success(let token):
+                if let token = token {
+                    headers["Authorization"] = "Bearer \(token)"
+                }
+            case .failure(let error):
+                print("Failed to read access token: \(error)")
+            }
+            
+            return headers
         }
     }
 }
