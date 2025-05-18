@@ -12,9 +12,7 @@ struct PostView: View {
     
     // MARK: - Properties
     
-    @EnvironmentObject private var navigationManager: NavigationManager
-    
-    let store: StoreOf<PostFeature>
+    @Bindable private var store: StoreOf<PostFeature>
     
     let postId: Int
     
@@ -47,6 +45,8 @@ struct PostView: View {
                         imageSection
                         reviewSection
                         placeInfoSection
+                        howGoodFeelSection
+                        hmmJustOneThingSection
                     }
                 }
                 .simultaneousGesture(dragGesture)
@@ -153,7 +153,6 @@ extension PostView {
             RemoteImageView(urlString: imageList[0])
                 .scaledToFill()
                 .frame(width: 335.adjusted, height: 335.adjustedH)
-                .blur(radius: (store.isScoop || store.isMine) ? 0 : 12)
                 .cornerRadius(11.16)
                 .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
         } else {
@@ -163,47 +162,36 @@ extension PostView {
                         RemoteImageView(urlString: imageList[index])
                             .scaledToFill()
                             .frame(width: 278.adjusted, height: 278.adjustedH)
-                            .blur(radius: (store.isScoop || store.isMine) ? 0 : 12)
                             .cornerRadius(11.16)
                     }
                 }
-                .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
+                .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 18.adjustedH, trailing: 20.adjusted))
             }
         }
     }
     
     private var reviewSection: some View {
-        VStack(alignment: .leading, spacing: 8.adjustedH) {
+        VStack(alignment: .leading, spacing: 18.adjustedH) {
             
-            IconChip(
-                chip: store.categoryColorResponse.toEntity()
-            )
-            
-            Text("여기 없어질거")
-                .customFont(.title2)
-                .foregroundStyle(.black)
-            
-            Text(store.date)
-                .customFont(.caption1m)
-                .foregroundStyle(.gray400)
-            
-            Spacer()
-                .frame(height: 16.adjustedH)
-            
-            Text(
-                (store.isScoop || store.isMine)
-                ? store.description.splitZeroWidthSpace()
-                : (store.description.count > 120
-                   ? "\(store.description.prefix(120))...".splitZeroWidthSpace()
-                   : store.description.splitZeroWidthSpace())
+            Text((store.isScoop || store.isMine)
+                 ? store.description.splitZeroWidthSpace()
+                 : (
+                    store.description.count > 120
+                    ? "\(store.description.prefix(120))...".splitZeroWidthSpace()
+                    : store.description.splitZeroWidthSpace()
+                 )
             )
             .customFont(.body2m)
             .frame(width: 335.adjusted, alignment: .leading)
             .foregroundStyle(.black)
             
+            Text(store.date.toKoreanDateString)
+                .customFont(.caption1m)
+                .foregroundStyle(.gray400)
         }
-        .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 32.adjustedH, trailing: 20.adjusted))
+        .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 18.adjustedH, trailing: 20.adjusted))
         .frame(maxWidth: .infinity, alignment: .leading)
+        
     }
     
     private var placeInfoSection: some View {
@@ -237,6 +225,61 @@ extension PostView {
             
         }
         .padding(.horizontal, 20.adjusted)
+        .padding(.bottom, 18.adjustedH)
+    }
+    
+    // 만족도
+    private var howGoodFeelSection: some View {
+        VStack(alignment: .leading, spacing: 20.adjustedH) {
+            Text("가격 대비 만족도는 어땠나요?")
+                .font(.body1sb)
+                .foregroundStyle(.spoonBlack)
+            
+            SpoonySlider(.constant(store.value))
+        }
+        .padding(.horizontal, 20.adjusted)
+        .padding(.bottom, 18.adjustedH)
+    }
+    
+    // 흠 아쉬워요 섹션
+    private var hmmJustOneThingSection: some View {
+        ZStack(alignment: .center) {
+            baseHmmSection
+            
+            Group {
+                if !(store.isScoop || store.isMine) {
+                    SpoonyButton(style: .primary, size: .minusSpoon, title: "스푼 1개 써서 확인하기", isIcon: true, disabled: .constant(false)) {
+                        print("스푼 1개 써서 확인하는 로직 추가 해야함")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                }
+            }
+        }
+    }
+    
+    private var baseHmmSection: some View {
+        VStack(alignment: .leading, spacing: 16.adjustedH) {
+            Text("이거 딱 하나 아쉬워요!")
+                .font(.body1b)
+                .foregroundStyle(.spoonBlack)
+            
+            Text("여기...사장님이 레전드 불친절하심. 사장님이 사람을 안좋아하셔서 사장님 눈빛이 매서워요...ㄷㄷ")
+                .font(.body2m)
+                .foregroundStyle(.gray900)
+        }
+        .padding(EdgeInsets(
+            top: 20.adjustedH,
+            leading: 16.adjusted,
+            bottom: 8.8.adjustedH,
+            trailing: 20.adjusted
+        ))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background {
+            Color.gray0
+                .cornerRadius(20, corners: [.topLeft, .topRight])
+        }
+        .padding(.horizontal, 20.adjusted)
+        .padding(.bottom, 12.adjustedH)
         .blur(radius: (store.isScoop || store.isMine) ? 0 : 12)
     }
     
@@ -247,6 +290,7 @@ extension PostView {
                 .foregroundStyle(.spoonBlack)
             menuList(menus: store.menuList)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(EdgeInsets(top: 20.adjustedH, leading: 16.adjusted, bottom: 28.adjustedH, trailing: 20.adjusted))
     }
     
@@ -281,22 +325,24 @@ extension PostView {
         HStack(spacing: 0) {
             SpoonyButton(
                 style: .secondary,
-                size: (store.isScoop) ? .medium : .xlarge,
-                title: (store.isScoop || store.isMine) ? "길찾기" : "떠먹기",
-                isIcon: (store.isScoop || store.isMine) ? false : true,
+                size: (store.isMine) ? .xlarge : .medium,
+                title: "길찾기",
+                isIcon: false,
                 disabled: .constant(false)
             ) {
-                if store.isScoop {
-                    print("🔥네이버 지도로 이동")
-                    //                    store.send(.pushNaverMaps)
+                
+                let appName: String = "Spoony"
+                guard let url = URL(string: "nmap://place?lat=\(store.latitude)&lng=\(store.longitude)&name=\(store.placeName)&appname=\(appName)") else { return }
+                let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
+                
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url)
                 } else {
-//                    navigationManager.popup = .useSpoon(action: {
-//                        store.send(.scoopButtonTapped)
-//                    })
+                    UIApplication.shared.open(appStoreURL)
                 }
             }
             
-            if store.isScoop {
+            if !store.isMine {
                 Spacer()
                 
                 PostScrapButton(store: store)
@@ -312,7 +358,7 @@ extension PostView {
                     items: ["신고하기"],
                     isPresented: $isPresented
                 ) { _ in
-                    navigationManager.push(.report(postId: postId))
+                    print("신고하기로 이동")
                 }
                 .frame(alignment: .topTrailing)
                 .padding(.top, 48.adjustedH)
@@ -350,13 +396,11 @@ struct PostScrapButton: View {
 }
 
 #Preview {
-    @Previewable @StateObject var navigationManager = NavigationManager()
     
-    PostView(
-        postId: 20, store: StoreOf<PostFeature>(initialState: PostFeature.State(), reducer: {
-            PostFeature()
-        })
-    )
-    .environmentObject(navigationManager)
-//    .popup(popup: $navigationManager.popup)
+    let store = Store(initialState: PostFeature.State()) {
+        PostFeature()
+            .dependency(\.detailUseCase, DetailUseCaseKey.testValue)
+    }
+    
+    return PostView(postId: 20, store: store)
 }
