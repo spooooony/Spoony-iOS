@@ -124,18 +124,35 @@ extension PostView {
                     .customFont(.caption1m)
                     .foregroundStyle(.gray400)
             }
-            
+
             Spacer()
-            
+
             if !store.isMine {
+                // 내 글이 아니면: 팔로우 버튼 + 메뉴
+                HStack(spacing: 11.adjusted) {
+                    FollowButton(
+                        isFollowing: true, // TODO: 실제 값으로 바인딩
+                        action: {
+                            // TODO: 팔로잉 로직 추가
+                            print("팔로우 버튼 탭됨")
+                        }
+                    )
+                    
+                    Image(.icMenu)
+                        .onTapGesture {
+                            isPresented.toggle()
+                        }
+                }
+            } else {
+                // 내 글이면: 메뉴 버튼만
                 Image(.icMenu)
                     .onTapGesture {
                         isPresented.toggle()
                     }
             }
-            
         }
-        .padding(EdgeInsets(top: 8.adjustedH, leading: 20.adjusted, bottom: 8.adjustedH, trailing: 20.adjusted))
+        .padding(.vertical, 8.adjustedH)
+        .padding(.horizontal, 20.adjustedH)
         .padding(.bottom, 24.adjustedH)
     }
     
@@ -356,11 +373,26 @@ extension PostView {
         Group {
             if isPresented {
                 DropDownMenu(
-                    items: ["신고하기"],
+                    items: store.isMine
+                    ? ["수정하기", "삭제하기"]
+                    : ["신고하기"],
                     isPresented: $isPresented
-                ) { _ in
-                    // TODO: 신고하기 이동
-                    print("❌❌ 신고하기로 이동 시켜야함")
+                ) { selected in
+                    if store.isMine {
+                        switch selected {
+                        case "수정하기":
+                            // TODO: 수정 액션
+                            print("수정하기 탭됨")
+                        case "삭제하기":
+                            // TODO: 삭제 액션
+                            print("삭제하기 탭됨")
+                        default:
+                            break
+                        }
+                    } else {
+                        // 신고하기
+                        print("신고하기 탭됨")
+                    }
                 }
                 .frame(alignment: .topTrailing)
                 .padding(.top, 48.adjustedH)
