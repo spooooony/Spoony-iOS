@@ -188,7 +188,7 @@ struct PostFeature {
         state.postId = data.postId
         state.userName = data.userName
         state.photoUrlList = data.photoUrlList
-        state.date = data.date.toFormattedDateString()
+        state.date = data.date
         state.menuList = data.menuList
         state.description = data.description
         state.placeName = data.placeName
