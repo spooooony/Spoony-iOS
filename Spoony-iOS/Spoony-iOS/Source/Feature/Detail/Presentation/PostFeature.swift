@@ -37,6 +37,7 @@ struct PostFeature {
         var successService: Bool = true
         var toast: Toast?
         
+        var userId: Int = 0
         var postId: Int = 0
         var userName: String = ""
         var photoUrlList: [String] = []
@@ -57,6 +58,7 @@ struct PostFeature {
         var regionName: String = ""
         var value: Double = 0.0
         var cons: String = ""
+        var isFollowing: Bool = false
     }
     
     enum Action {
@@ -68,6 +70,9 @@ struct PostFeature {
         
         case zzimButtonTapped(isZzim: Bool)
         case zzimButtonResponse(isScrap: Bool)
+        
+        case followButtonTapped(userId: Int, isFollowing: Bool)
+        case followActionResponse(Result<Void, Error>)
         
         case showToast(String)
         case dismissToast
@@ -81,6 +86,7 @@ struct PostFeature {
     }
     
     @Dependency(\.detailUseCase) var detailUseCase: DetailUseCaseProtocol
+    @Dependency(\.followUseCase) var followUseCase: FollowUseCase
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -145,6 +151,26 @@ struct PostFeature {
                     return .send(.showToast("내 지도에서 삭제되었어요."))
                 }
                 
+            case .followButtonTapped(let userId, let isFollowing):
+                return .run { send in
+                    do {
+                        try await followUseCase.toggleFollow(userId: userId, isFollowing: isFollowing)
+                        await send(.followActionResponse(.success(())))
+                    } catch {
+                        await send(.followActionResponse(.failure(error)))
+                    }
+                }
+                
+            case .followActionResponse(let result):
+                switch result {
+                case .success:
+                    print("✅ 팔로우 로직 성공")
+                    return .none
+                case .failure(let error):
+                    print("❌ 팔로우 로직 실패 : \(error.localizedDescription)")
+                    return .none
+                }
+                
             case .scoopButtonTappedResponse(let isSuccess):
                 if isSuccess {
                     state.isScoop.toggle()
@@ -203,5 +229,6 @@ struct PostFeature {
         state.regionName = data.regionName
         state.value = data.value
         state.cons = data.cons
+        state.isFollowing = data.isFollowing
     }
 }

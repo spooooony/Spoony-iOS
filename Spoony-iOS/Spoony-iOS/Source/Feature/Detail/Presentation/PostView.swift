@@ -124,17 +124,21 @@ extension PostView {
                     .customFont(.caption1m)
                     .foregroundStyle(.gray400)
             }
-
+            
             Spacer()
-
+            
             if !store.isMine {
                 // 내 글이 아니면: 팔로우 버튼 + 메뉴
                 HStack(spacing: 11.adjusted) {
                     FollowButton(
-                        isFollowing: true, // TODO: 실제 값으로 바인딩
+                        isFollowing: store.isFollowing,
                         action: {
-                            // TODO: 팔로잉 로직 추가
-                            print("팔로우 버튼 탭됨")
+                            store.send(
+                                .followButtonTapped(
+                                    userId: store.userId,
+                                    isFollowing: store.isFollowing
+                                )
+                            )
                         }
                     )
                     
@@ -433,7 +437,7 @@ struct PostScrapButton: View {
     
     let store = Store(initialState: PostFeature.State()) {
         PostFeature()
-            .dependency(\.detailUseCase, DetailUseCaseKey.testValue)
+            .dependency(\.detailUseCase, DetailUseCaseKey.liveValue)
     }
     
     return PostView(postId: 20, store: store)
