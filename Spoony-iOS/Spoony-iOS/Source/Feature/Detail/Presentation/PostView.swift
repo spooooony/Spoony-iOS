@@ -249,7 +249,8 @@ extension PostView {
             Group {
                 if !(store.isScoop || store.isMine) {
                     SpoonyButton(style: .primary, size: .minusSpoon, title: "스푼 1개 써서 확인하기", isIcon: true, disabled: .constant(false)) {
-                        print("스푼 1개 써서 확인하는 로직 추가 해야함")
+                        // TODO: 팝업 띄우기 !!
+                        print("❌❌ 스푼 1개 써서 확인하는 로직 추가 해야함")
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
@@ -358,7 +359,8 @@ extension PostView {
                     items: ["신고하기"],
                     isPresented: $isPresented
                 ) { _ in
-                    print("신고하기로 이동")
+                    // TODO: 신고하기 이동
+                    print("❌❌ 신고하기로 이동 시켜야함")
                 }
                 .frame(alignment: .topTrailing)
                 .padding(.top, 48.adjustedH)
