@@ -207,6 +207,7 @@ struct PostFeature {
     }
     
     private func updateState(_ state: inout State, with data: ReviewDetailModel) {
+        state.userId = data.userId
         state.isZzim = data.isZzim
         state.isScoop = data.isScoop
         state.spoonCount = data.spoonCount
