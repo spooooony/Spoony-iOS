@@ -116,7 +116,7 @@ final class DetailViewStore: ObservableObject {
             postId: data.postId,
             userName: data.userName,
             photoUrlList: data.photoUrlList,
-            date: data.date.toFormattedDateString(),
+            date: data.date,
             menuList: data.menuList,
             description: data.description,
             placeName: data.placeName,
