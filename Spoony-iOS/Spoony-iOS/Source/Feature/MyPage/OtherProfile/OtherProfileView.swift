@@ -16,16 +16,62 @@ struct OtherProfileView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            navigationBar
-            
-            ScrollView {
-                VStack(spacing: 0) {
-                    profileContentView
+        ZStack {
+            VStack(spacing: 0) {
+                navigationBar
+                
+                ScrollView {
+                    VStack(spacing: 0) {
+                        profileContentView
+                    }
+                }
+                .refreshable {
+                    store.send(.onAppear)
                 }
             }
-            .refreshable {
-                store.send(.onAppear)
+            .onTapGesture {
+                // 화면을 터치하면 메뉴를 닫는다
+                if store.isMenuPresented {
+                    store.send(.dismissMenu)
+                }
+            }
+            
+            // 드롭다운 메뉴를 별도 오버레이로 배치
+            if store.isMenuPresented {
+                VStack {
+                    HStack {
+                        Spacer()
+                        DropDownMenu(
+                            items: ["차단하기", "신고하기"],
+                            isPresented: Binding(
+                                get: { store.isMenuPresented },
+                                set: { _ in store.send(.dismissMenu) }
+                            )
+                        ) { item in
+                            store.send(.menuItemSelected(item))
+                        }
+                        .offset(x:-5)
+                    }
+                    .padding(.top, 36)
+                    .padding(.trailing, 16)
+                    Spacer()
+                }
+            }
+            
+
+            // TODO: 진짜차단뷰로 수정
+            if store.showBlockAlert {
+                CustomAlertView(
+                    title: "차단하실? 쫄?.",
+                    cancelTitle: "아니요",
+                    confirmTitle: "네",
+                    cancelAction: {
+                        store.send(.cancelBlock)
+                    },
+                    confirmAction: {
+                        store.send(.confirmBlock)
+                    }
+                )
             }
         }
         .task {
@@ -36,13 +82,14 @@ struct OtherProfileView: View {
     }
     
     private var navigationBar: some View {
-        CustomNavigationBar(
-            style: .detail,
-            title: store.username.isEmpty ? "프로필" : store.username,
-            onBackTapped: {
-                store.send(.routeToPreviousScreen)
-            }
-        )
+        CustomNavigationBar(style: .detailWithKebab,
+                            title: store.username,
+                            onBackTapped: {
+                                store.send(.routeToPreviousScreen)
+                            },
+                            onKebabTapped: {
+                                store.send(.kebabMenuTapped)
+                            })
         .padding(.bottom, 24)
     }
     

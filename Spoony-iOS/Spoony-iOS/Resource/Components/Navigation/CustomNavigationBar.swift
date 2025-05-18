@@ -18,6 +18,7 @@ struct CustomNavigationBar: View {
     private var spoonCount: Int = 0
     private var onBackTapped: (() -> Void)?
     private var spoonTapped: (() -> Void)?
+    private var onKebabTapped: (() -> Void)?
     
     init(
         style: NavigationBarStyle,
@@ -28,7 +29,9 @@ struct CustomNavigationBar: View {
         onBackTapped: (() -> Void)? = nil,
         spoonTapped: (() -> Void)? = nil,
         tappedAction: (() -> Void)? = nil,
-        onClearTapped: (() -> Void)? = nil
+        onClearTapped: (() -> Void)? = nil,
+        onKebabTapped: (() -> Void)? = nil
+        
     ) {
         self.style = style
         self.title = title
@@ -39,6 +42,7 @@ struct CustomNavigationBar: View {
         self.spoonTapped = spoonTapped
         self.tappedAction = tappedAction
         self.onClearTapped = onClearTapped
+        self.onKebabTapped = onKebabTapped
     }
     
     var body: some View {
@@ -70,6 +74,8 @@ struct CustomNavigationBar: View {
                 searchBar
             case .onboarding:
                 onboarding
+            case .detailWithKebab:
+                detailWithKebab
             }
         }
         .frame(height: 56.adjusted)
@@ -109,7 +115,7 @@ struct CustomNavigationBar: View {
     }
     
     private var searchContent: some View {
-        HStack(spacing: 12) {            
+        HStack(spacing: 12) {
             HStack(spacing: 8) {
                 Image(.icSearchGray600)
                 
@@ -270,6 +276,26 @@ struct CustomNavigationBar: View {
                 }
         }
     }
+    
+    private var detailWithKebab: some View {
+        HStack {
+            Spacer()
+            Text(title ?? "프로필")
+                .customFont(.title3b)
+                .multilineTextAlignment(.center)
+                .lineLimit(1)
+            Spacer()
+            
+            Button(action: {
+                onKebabTapped?()
+            }) {
+                Image(.icMenu)
+                    .resizable()
+                    .frame(width: 20, height: 20)
+            }
+            .padding(.trailing, 16)
+        }
+    }
 }
 
 struct CustomNavigationBar_Previews: PreviewProvider {
@@ -342,8 +368,15 @@ struct CustomNavigationBar_Previews: PreviewProvider {
                 onBackTapped: {}
             )
             .border(.gray)
-        }
-        .padding()
-        .previewLayout(.sizeThatFits)
+            
+            CustomNavigationBar(
+                style: .detailWithKebab,
+                title: "프로필",
+                onBackTapped: {},
+                onKebabTapped: {}
+            )
+            .border(.gray)
+        }.padding()
+            .previewLayout(.sizeThatFits)
     }
 }
