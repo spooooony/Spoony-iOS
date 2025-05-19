@@ -254,7 +254,7 @@ extension Explore {
                     .frame(height: 16.5.adjustedH)
                 
                 ForEach(list) { feed in
-                    if !feed.isMine {
+                    if feed.isMine {
                         ExploreCell(
                             feed: feed,
                             onDelete: { _ in
