@@ -54,6 +54,9 @@ struct ExploreCoordinator {
             case .router(.routeAction(id: _, action: .search(.routeToUserProfileScreen(let userId)))):
                 state.routes.push(.otherProfile(.init(userId: userId)))
                 return .none
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToReportScreen(let userId)))):
+                state.routes.push(.report(ReportFeature.State(targetUserId: userId)))
+                return .none
                 
             // 이전 화면
             case .router(.routeAction(id: _, action: .search(.routeToExploreScreen))):

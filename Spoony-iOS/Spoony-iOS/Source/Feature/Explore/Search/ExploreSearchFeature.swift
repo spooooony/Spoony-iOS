@@ -18,7 +18,6 @@ struct ExploreSearchFeature {
         var showDeleteAlert: Bool = false
         var deleteReviewID: Int = -1
         
-        
         var viewType: ExploreSearchViewType = .user
         var searchState: ExploreSearchState = .beforeSearch
         var searchText: String = ""
@@ -63,6 +62,12 @@ struct ExploreSearchFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
+                if !state.userResult.isEmpty {
+                    return .none
+                }
+                if !state.reviewResult.isEmpty {
+                    return .none
+                }
                 return .send(.updateSearchStateFromRecentSearches)
             case .onSubmit:
                 return .send(.setRecentSearchList)

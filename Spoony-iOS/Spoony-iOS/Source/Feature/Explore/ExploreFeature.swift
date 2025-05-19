@@ -224,6 +224,7 @@ struct ExploreFeature {
                 }
                 return .send(.fetchFilteredFeed)
             case .binding(\.selectedSort):
+                state.isLast = false
                 return .send(.fetchFilteredFeed)
             case .binding:
                 return .none
