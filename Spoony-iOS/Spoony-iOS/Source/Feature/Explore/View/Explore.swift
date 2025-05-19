@@ -66,7 +66,7 @@ struct Explore: View {
                 )
             }
         }
-        .toolbar(store.state.showDeleteAlert ? .hidden : .visible, for: .tabBar)
+        .toolbar(store.showDeleteAlert ? .hidden : .visible, for: .tabBar)
         .onAppear {
             store.send(.viewOnAppear)
         }

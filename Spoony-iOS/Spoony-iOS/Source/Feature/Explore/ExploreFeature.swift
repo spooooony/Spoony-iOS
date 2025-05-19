@@ -57,7 +57,6 @@ struct ExploreFeature {
         case deleteMyReview(Int)
         case cancelDeleteReview
         case confirmDeleteReview
-        
         case deleteReviewResult(Bool)
         
         // MARK: - Navigation

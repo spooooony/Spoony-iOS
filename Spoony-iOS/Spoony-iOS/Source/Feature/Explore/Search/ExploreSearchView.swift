@@ -18,61 +18,78 @@ struct ExploreSearchView: View {
     }
     
     var body: some View {
-        VStack {
-            CustomNavigationBar(
-                style: .search(showBackButton: true),
-                placeholder: store.state.viewType.placeholder,
-                searchText: $store.searchText,
-                onBackTapped: {
-                    store.send(.routeToExploreScreen)
-                }, tappedAction: {
-                    store.send(.onSubmit)
-                }
-            )
-            
-            HStack(spacing: 0) {
-                ForEach(ExploreSearchViewType.allCases, id: \.self) { type in
-                    VStack(spacing: 0) {
-                        Text(type.title)
-                            .foregroundStyle(store.state.viewType == type ? .main400 : .gray400)
-                            .onTapGesture {
-                                store.send(
-                                    .changeViewType(type),
-                                    animation: .spring(response: 0.3, dampingFraction: 0.7)
-                                )
-                            }
-                            .frame(maxWidth: .infinity)
-                        
-                        Rectangle()
-                            .fill(.main400)
-                            .frame(height: 2.adjustedH)
-                            .isHidden(store.state.viewType != type)
-                            .matchedGeometryEffect(id: "underline", in: namespace)
-                            .padding(.top, 9)
-                        
-                        Rectangle()
-                            .fill(.gray100)
-                            .frame(height: 6.adjustedH)
+        ZStack {
+            VStack {
+                CustomNavigationBar(
+                    style: .search(showBackButton: true),
+                    placeholder: store.state.viewType.placeholder,
+                    searchText: $store.searchText,
+                    onBackTapped: {
+                        store.send(.routeToExploreScreen)
+                    }, tappedAction: {
+                        store.send(.onSubmit)
+                    }
+                )
+                
+                HStack(spacing: 0) {
+                    ForEach(ExploreSearchViewType.allCases, id: \.self) { type in
+                        VStack(spacing: 0) {
+                            Text(type.title)
+                                .foregroundStyle(store.state.viewType == type ? .main400 : .gray400)
+                                .onTapGesture {
+                                    store.send(
+                                        .changeViewType(type),
+                                        animation: .spring(response: 0.3, dampingFraction: 0.7)
+                                    )
+                                }
+                                .frame(maxWidth: .infinity)
+                            
+                            Rectangle()
+                                .fill(.main400)
+                                .frame(height: 2.adjustedH)
+                                .isHidden(store.state.viewType != type)
+                                .matchedGeometryEffect(id: "underline", in: namespace)
+                                .padding(.top, 9)
+                            
+                            Rectangle()
+                                .fill(.gray100)
+                                .frame(height: 6.adjustedH)
+                        }
                     }
                 }
+                .customFont(.body1sb)
+                .frame(maxWidth: .infinity)
+                
+                switch store.state.searchState {
+                case .beforeSearch:
+                    beforeSearchView
+                case .recentSearch:
+                    recentSearchTextView
+                case .searching:
+                    Spacer()
+                case .searchResult:
+                    searchResultView
+                case .noResult:
+                    noResultView
+                }
+                
             }
-            .customFont(.body1sb)
-            .frame(maxWidth: .infinity)
             
-            switch store.state.searchState {
-            case .beforeSearch:
-                beforeSearchView
-            case .recentSearch:
-                recentSearchTextView
-            case .searching:
-                Spacer()
-            case .searchResult:
-                searchResultView
-            case .noResult:
-                noResultView
+            if store.showDeleteAlert {
+                CustomAlertView(
+                    title: "정말로 리뷰를 삭제할까요?",
+                    cancelTitle: "아니요",
+                    confirmTitle: "네",
+                    cancelAction: {
+                        store.send(.cancelDeleteReview)
+                    },
+                    confirmAction: {
+                        store.send(.confirmDeleteReview)
+                    }
+                )
             }
-            
         }
+        .toolbar(store.showDeleteAlert ? .hidden : .visible, for: .tabBar)
         .navigationBarBackButtonHidden()
         .onAppear {
             // 여기서 키보드 올리기 어떻게 하는지 모르겠다...
@@ -163,7 +180,7 @@ extension ExploreSearchView {
                     }
                 case .review:
                     ForEach(store.state.reviewResult, id: \.id) { feed in
-                        if feed.isMine {
+                        if !feed.isMine {
                             myExploreCell(feed)
                                 .onTapGesture {
                                     store.send(.routeToDetailScreen(feed))
