@@ -127,7 +127,7 @@ struct Home: View {
                         .padding(.bottom, 12)
                         .transition(.move(edge: .bottom))
                     } else {
-                        if !store.filteredPickList.isEmpty {  
+                        if !store.filteredPickList.isEmpty {
                             BottomSheetListView(
                                 store: store,
                                 currentStyle: Binding(
@@ -145,12 +145,49 @@ struct Home: View {
                     }
                 }
             }
-            .navigationBarHidden(true)
-            .task {
-                checkPermissions()
-                store.send(.fetchSpoonCount)
-                store.send(.fetchPickList)
-                store.send(.fetchCategories)
+            
+            #if DEBUG
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        store.send(.setShowDailySpoonPopup(true))
+                    }) {
+                        Text("스푼 뽑기 테스트")
+                            .font(.caption1b)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(Color.main400)
+                            .cornerRadius(20)
+                    }
+                    .padding(.trailing, 16)
+                    .padding(.bottom, store.bottomSheetHeight + 16)
+                }
+            }
+            #endif
+        }
+        .navigationBarHidden(true)
+        .toolbar(store.showDailySpoonPopup ? .hidden : .visible, for: .tabBar)
+        .task {
+            checkPermissions()
+            store.send(.fetchSpoonCount)
+            store.send(.fetchPickList)
+            store.send(.fetchCategories)
+            store.send(.checkDailyVisit)
+        }
+        .overlay {
+            if store.showDailySpoonPopup {
+                SpoonDrawPopupView(
+                    isPresented: Binding(
+                        get: { store.showDailySpoonPopup },
+                        set: { store.send(.setShowDailySpoonPopup($0)) }
+                    ),
+                    onDrawSpoon: {
+                        store.send(.drawDailySpoon)
+                    }
+                )
             }
         }
     }
