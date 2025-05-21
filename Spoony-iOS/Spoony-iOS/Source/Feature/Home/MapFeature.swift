@@ -35,8 +35,10 @@ struct MapFeature {
         var searchText: String = ""
         
         var showDailySpoonPopup: Bool = false
+        var isDrawingSpoon: Bool = false
+        var drawnSpoon: SpoonDrawResponse? = nil
+        var spoonDrawError: String? = nil
         
-        // CLLocation은 자동으로 Equatable을 준수하지 않으므로 직접 구현
         static func == (lhs: State, rhs: State) -> Bool {
             lhs.pickList == rhs.pickList &&
             lhs.filteredPickList == rhs.filteredPickList &&
@@ -56,7 +58,10 @@ struct MapFeature {
             lhs.currentBottomSheetStyle == rhs.currentBottomSheetStyle &&
             lhs.bottomSheetHeight == rhs.bottomSheetHeight &&
             lhs.searchText == rhs.searchText &&
-            lhs.showDailySpoonPopup == rhs.showDailySpoonPopup
+            lhs.showDailySpoonPopup == rhs.showDailySpoonPopup &&
+            lhs.isDrawingSpoon == rhs.isDrawingSpoon &&
+            lhs.drawnSpoon == rhs.drawnSpoon &&
+            lhs.spoonDrawError == rhs.spoonDrawError
         }
     }
     
@@ -88,8 +93,8 @@ struct MapFeature {
         
         case checkDailyVisit
         case setShowDailySpoonPopup(Bool)
-        case dismissDailySpoonPopup
         case drawDailySpoon
+        case spoonDrawResponse(TaskResult<SpoonDrawResponse>)
     }
     
     @Dependency(\.homeService) var homeService
@@ -106,18 +111,34 @@ struct MapFeature {
                 
             case let .setShowDailySpoonPopup(show):
                 state.showDailySpoonPopup = show
-                return .none
-                
-            case .dismissDailySpoonPopup:
-                state.showDailySpoonPopup = false
+                if !show {
+                    state.drawnSpoon = nil
+                    state.spoonDrawError = nil
+                    state.isDrawingSpoon = false
+                }
                 return .none
                 
             case .drawDailySpoon:
+                state.isDrawingSpoon = true
+                state.spoonDrawError = nil
+                
                 return .run { send in
-                    try await Task.sleep(nanoseconds: 1_000_000_000)
-                    await send(.fetchSpoonCount)
+                    let result = await TaskResult { try await homeService.drawDailySpoon() }
+                    await send(.spoonDrawResponse(result))
                 }
                 
+            case let .spoonDrawResponse(.success(response)):
+                state.isDrawingSpoon = false
+                state.drawnSpoon = response
+                
+                return .send(.fetchSpoonCount)
+                
+            case let .spoonDrawResponse(.failure(error)):
+                state.isDrawingSpoon = false
+                state.spoonDrawError = error.localizedDescription
+                print("스푼 뽑기 오류: \(error.localizedDescription)")
+                return .none
+            
             case .routToSearchScreen, .routToExploreTab, .routToDetailView:
                 return .none
                 
@@ -131,7 +152,6 @@ struct MapFeature {
             case let .pickListResponse(.success(response)):
                 state.isLoading = false
                 state.pickList = response.zzimCardResponses
-                // 초기에는 필터링 없이 모든 목록 표시
                 state.filteredPickList = response.zzimCardResponses
                 return .none
                 
@@ -170,7 +190,6 @@ struct MapFeature {
             case let .locationListResponse(.success(response)):
                 state.isLoading = false
                 state.pickList = response.zzimCardResponses
-                // 필터링 적용
                 state.filteredPickList = filterPickList(state.pickList, with: state.selectedCategories)
                 if let firstPlace = state.filteredPickList.first {
                     state.selectedLocation = (firstPlace.latitude, firstPlace.longitude)
@@ -314,9 +333,6 @@ struct MapFeature {
             case let .focusedPlaceResponse(.failure(error)):
                 state.isLoading = false
                 print("포커스 장소 조회 실패: \(error)")
-                return .none
-                
-            case let .routToDetailView(postId):
                 return .none
             }
         }

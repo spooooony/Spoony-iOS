@@ -41,6 +41,9 @@ struct Home: View {
                     style: .searchContent,
                     searchText: $store.searchText.sending(\.setSearchText),
                     spoonCount: store.spoonCount,
+                    spoonTapped: {
+                        store.send(.setShowDailySpoonPopup(true))
+                    },
                     tappedAction: {
                         store.send(.routToSearchScreen)
                     }
@@ -186,7 +189,10 @@ struct Home: View {
                     ),
                     onDrawSpoon: {
                         store.send(.drawDailySpoon)
-                    }
+                    },
+                    isDrawing: store.isDrawingSpoon,
+                    drawnSpoon: store.drawnSpoon,
+                    errorMessage: store.spoonDrawError
                 )
             }
         }
@@ -214,10 +220,4 @@ class LocationManagerDelegate: NSObject, CLLocationManagerDelegate, ObservableOb
             onLocationUpdate(location)
         }
     }
-}
-
-#Preview {
-    Home(store: Store(initialState: .initialState) {
-        MapFeature()
-    })
 }
