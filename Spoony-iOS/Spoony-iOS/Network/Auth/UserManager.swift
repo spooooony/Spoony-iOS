@@ -96,19 +96,6 @@ final class UserManager {
     func updateLastVisitDate() {
         lastAppVisitDate = Calendar.current.startOfDay(for: Date())
     }
-    
-    func clearAllUserDefaults() {
-        UserDefaultsKeys.allCases.forEach { key in
-            UserDefaults.standard.removeObject(forKey: key.rawValue)
-        }
-        
-        userId = nil
-        isTooltipPresented = nil
-        recentSearches = nil
-        exploreUserRecentSearches = nil
-        exploreReviewRecentSearches = nil
-        lastAppVisitDate = nil
-    }
 }
 
 enum SearchType {
