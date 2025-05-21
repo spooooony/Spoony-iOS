@@ -7,7 +7,22 @@
 
 import Foundation
 
-// 스푼 뽑기 응답 모델
+struct SpoonDrawResponseWrapper: Codable, Equatable {
+    let success: Bool
+    let data: SpoonDrawData?
+    let error: APIError?
+    
+    struct SpoonDrawData: Codable, Equatable {
+        let spoonDrawResponseDTOList: [SpoonDrawResponse]
+        let spoonBalance: Int
+        let weeklyBalance: Int
+    }
+    
+    struct APIError: Codable, Equatable {
+        let message: String
+    }
+}
+
 struct SpoonDrawResponse: Codable, Equatable {
     let drawId: Int
     let spoonType: SpoonType
@@ -16,7 +31,6 @@ struct SpoonDrawResponse: Codable, Equatable {
     let createdAt: String
 }
 
-// 스푼 타입 모델
 struct SpoonType: Codable, Equatable {
     let spoonTypeId: Int
     let spoonName: String
@@ -25,7 +39,6 @@ struct SpoonType: Codable, Equatable {
     let spoonImage: String
 }
 
-// 이미 있는 스푼 카운트 응답 모델과 이름을 다르게 설정 (충돌 해결)
 struct SpoonCountResponse: Codable {
     let spoonAmount: Int
 }
