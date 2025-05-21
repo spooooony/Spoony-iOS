@@ -14,7 +14,7 @@ struct AttendanceFeature {
     @ObservableState
     struct State: Equatable {
         var selectedDays: Set<String> = ["월", "화"]
-        let dateRange = "2025. 03. 24 (월) ~ 2025. 03. 30 (일)"
+        let dateRange: String
         let weekdays = ["월", "화", "수", "목", "금", "토", "일"]
         let noticeItems = [
             "출석체크는 매일 자정에 리셋 되어요",
@@ -22,9 +22,38 @@ struct AttendanceFeature {
             "신규 가입 시 5개의 스푼을 적립해 드려요"
         ]
         
-        static let initialState = State()
+        static let initialState = State(
+            dateRange: Self.getCurrentWeekDateRange()
+        )
+        
+        static func getCurrentWeekDateRange() -> String {
+            let calendar = Calendar.current
+            let today = Date()
+            
+            let weekday = calendar.component(.weekday, from: today)
+            let daysToMonday = (weekday + 5) % 7
+            
+            guard let monday = calendar.date(byAdding: .day, value: -daysToMonday, to: today),
+                  let sunday = calendar.date(byAdding: .day, value: 6 - daysToMonday, to: today) else {
+                return "날짜를 가져올 수 없습니다"
+            }
+            
+            let koreanWeekdays = ["일", "월", "화", "수", "목", "금", "토"]
+            let mondayWeekday = koreanWeekdays[calendar.component(.weekday, from: monday) - 1]
+            let sundayWeekday = koreanWeekdays[calendar.component(.weekday, from: sunday) - 1]
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy. MM. dd"
+            dateFormatter.locale = Locale(identifier: "ko_KR")
+            dateFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+            
+            let mondayString = dateFormatter.string(from: monday)
+            let sundayString = dateFormatter.string(from: sunday)
+            
+            return "\(mondayString) (\(mondayWeekday)) ~ \(sundayString) (\(sundayWeekday))"
+        }
     }
-    
+
     enum Action {
         case routeToPreviousScreen
         case toggleDay(String)
