@@ -393,8 +393,9 @@ extension PostView {
                             break
                         }
                     } else {
-                        // 신고하기
-                        print("신고하기 탭됨")
+                        
+                        if selected == "신고하기" {                            store.send(.routeToReportScreen(store.postId))
+                        }
                     }
                 }
                 .frame(alignment: .topTrailing)
@@ -439,5 +440,5 @@ struct PostScrapButton: View {
             .dependency(\.detailUseCase, DetailUseCaseKey.liveValue)
     }
     
-    return PostView(postId: 20, store: store)
+    return PostView(postId: 53, store: store)
 }
