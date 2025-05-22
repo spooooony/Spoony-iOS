@@ -9,7 +9,7 @@ import Foundation
 
 struct FilteredFeedResponse: Codable {
     let filteredFeedResponseDTOList: [FeedResponse]
-    let nextCursor: Int64
+    let nextCursor: Int
 }
 
 extension FilteredFeedResponse {

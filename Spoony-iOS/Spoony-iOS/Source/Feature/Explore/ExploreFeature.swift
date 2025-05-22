@@ -9,6 +9,10 @@ import Foundation
 
 import ComposableArchitecture
 
+enum ExploreError: Error, Equatable {
+    case networkError
+}
+
 @Reducer
 struct ExploreFeature {
     @ObservableState
@@ -34,8 +38,10 @@ struct ExploreFeature {
         
         var filterInfo: FilterInfo = .init(categories: [], locations: [])
         
-        var nextCursor: Int64 = 0
+        var nextCursor: Int = 0
         var isLast: Bool = false
+        
+        var isLoading: Bool = false
     }
     
     enum Action: BindableAction, Equatable {
@@ -51,13 +57,15 @@ struct ExploreFeature {
         
         case fetchFollowingFeed
         
-        case setFeed([FeedEntity], Int64)
+        case setFeed([FeedEntity], Int)
         case setFilterInfo(category: [CategoryChip], location: [Region])
         
         case deleteMyReview(Int)
         case cancelDeleteReview
         case confirmDeleteReview
         case deleteReviewResult(Bool)
+        
+        case handleError(ExploreError)
         
         // MARK: - Navigation
         case routeToExploreSearchScreen
@@ -115,8 +123,10 @@ struct ExploreFeature {
                     return .send(.routeToExploreSearchScreen)
                 }
             case .fetchFilteredFeed:
+                state.isLoading = true
                 return .run { [state] send in
-                    guard !state.isLast else { return }
+                    // TODO: throttle 공부하고 적용
+                    guard !state.isLast && state.isLoading else { return }
                     do {
                         let result = try await exploreService.getFilteredFeedList(
                             isLocal: state.selectedFilter.selectedLocal.isEmpty ? false : true,
@@ -134,7 +144,7 @@ struct ExploreFeature {
                         
                         await send(.setFeed(list, cursor))
                     } catch {
-                       // 에러처리
+                        await send(.handleError(.networkError))
                     }
                 }
             case .refreshFilteredFeed:
@@ -163,6 +173,7 @@ struct ExploreFeature {
                     state.isLast = true
                 }
                 
+                state.isLoading = false
                 state.nextCursor = nextCursor
                 return .none
             case .setFilterInfo(let category, let region):
@@ -227,8 +238,9 @@ struct ExploreFeature {
                 return .send(.fetchFilteredFeed)
             case .binding:
                 return .none
+            case .handleError(let error):
+                return .none
             }
-            
         }
     }
     
