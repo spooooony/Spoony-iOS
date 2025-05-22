@@ -66,6 +66,8 @@ extension FollowTargetType: TargetType {
     }
     
     var headers: [String: String]? {
-        return HeaderType.auth.value 
+//        return HeaderType.auth.value
+        return Config.defaultHeader
+        
     }
 }

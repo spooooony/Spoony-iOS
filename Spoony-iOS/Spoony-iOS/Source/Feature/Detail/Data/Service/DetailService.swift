@@ -10,7 +10,8 @@ protocol DetailServiceProtocol {
     func scrapReview(postId: Int) async throws
     func unScrapReview(postId: Int) async throws
     func scoopReview(postId: Int) async throws -> Bool
-    func getUserInfo() async throws -> UserInfoResponseDTO
+    func getMyUserInfo() async throws -> UserInfoResponseDTO
+    func getOtherUserInfo(userId: Int) async throws -> UserInfoResponseDTO
 }
 
 extension DetailServiceProtocol {
@@ -62,9 +63,18 @@ extension DetailServiceProtocol {
         }
     }
     
-    func getUserInfo() async throws -> UserInfoResponseDTO {
+    func getMyUserInfo() async throws -> UserInfoResponseDTO {
+        return try await requestUserInfo(targetType: .getMyUserInfo)
+    }
+
+    func getOtherUserInfo(userId: Int) async throws -> UserInfoResponseDTO {
+        return try await requestUserInfo(targetType: .getOtherUserInfo(userId: userId))
+    }
+
+    // 공용 로직
+    private func requestUserInfo(targetType: DetailTargetType) async throws -> UserInfoResponseDTO {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.detailProvider.request(.getUserInfo) { result in
+            Providers.detailProvider.request(targetType) { result in
                 switch result {
                 case .success(let response):
                     do {
@@ -78,7 +88,7 @@ extension DetailServiceProtocol {
                         continuation.resume(throwing: error)
                     }
                 case .failure(let error):
-                    continuation.resume(throwing: error)
+                    continuation.resume(throwing: PostError.userError)
                 }
             }
         }
