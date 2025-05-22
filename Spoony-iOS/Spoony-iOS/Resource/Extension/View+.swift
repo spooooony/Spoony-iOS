@@ -12,6 +12,10 @@ extension View {
         self.modifier(ToastModifier(toast: toast))
     }
     
+    func alertView(alertType: Binding<AlertType?>, alert: Alert?, confirmAction: (() -> Void)?) -> some View {
+        self.modifier(AlertModifier(alertType: alertType, alert: alert, confirmAction: confirmAction))
+    }
+    
     func popup(popup: Binding<PopupType?>, confirmAction: @escaping ((PopupType) -> Void)) -> some View {
         modifier(PopupModifier(popup: popup, confirmAction: confirmAction))
     }
