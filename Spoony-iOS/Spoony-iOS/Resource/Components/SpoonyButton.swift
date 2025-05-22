@@ -96,12 +96,13 @@ public enum SpoonyButtonSize {
     case small
     case xsmall
     case bottomSheet
+    case minusSpoon
     
     var font: Font {
         switch self {
         case .xlarge:
             return .body1b
-        case .large, .medium, .small, .xsmall, .bottomSheet:
+        case .large, .medium, .small, .xsmall, .bottomSheet, .minusSpoon:
             return .body2b
         }
     }
@@ -110,7 +111,7 @@ public enum SpoonyButtonSize {
         switch self {
         case .xlarge:
             return 8
-        case .large, .medium, .small, .xsmall, .bottomSheet:
+        case .large, .medium, .small, .xsmall, .bottomSheet, .minusSpoon:
             return 10
         }
     }
@@ -127,6 +128,9 @@ public enum SpoonyButtonSize {
             return 216.adjusted
         case .xsmall:
             return 141.adjusted
+        case .minusSpoon:
+            return 194.adjusted
+            
         }
     }
     
@@ -134,7 +138,7 @@ public enum SpoonyButtonSize {
         switch self {
         case .xlarge, .bottomSheet, .large, .medium, .small:
             return 56.adjustedH
-        case .xsmall:
+        case .xsmall, .minusSpoon:
             return 44.adjustedH
         }
     }

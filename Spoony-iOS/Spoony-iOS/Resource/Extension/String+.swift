@@ -8,6 +8,15 @@
 import Foundation
 
 extension String {
+    
+    var toKoreanDateString: String {
+        guard let date = DateFormatterProvider.customISOFormatter.date(from: self) else {
+            return self
+        }
+        
+        return DateFormatterProvider.koreanDisplayFormatter.string(from: date)
+    }
+    
     func splitZeroWidthSpace() -> String {
         return self.split(separator: "").joined(separator: "\u{200B}")
     }
@@ -25,10 +34,5 @@ extension String {
         guard let regex = try? Regex(regexString) else { return self }
         
         return self.replacing(regex, with: "")
-    }
-    
-    /// 날짜 문자열에서 yyyy-MM-dd 형식으로 변환하는 함수 (DataFormmatter 사용하는 것보다 효과적이라 적용함)
-    func toFormattedDateString() -> String {
-        return String(self.prefix(10))
     }
 }

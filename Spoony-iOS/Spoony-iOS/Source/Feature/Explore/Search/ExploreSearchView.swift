@@ -16,7 +16,7 @@ struct ExploreSearchView: View {
     init(store: StoreOf<ExploreSearchFeature>) {
         self.store = store
     }
-
+    
     var body: some View {
         VStack {
             CustomNavigationBar(
@@ -55,27 +55,42 @@ struct ExploreSearchView: View {
                             .frame(height: 6.adjustedH)
                     }
                 }
+                .customFont(.body1sb)
+                .frame(maxWidth: .infinity)
+                
+                switch store.state.searchState {
+                case .beforeSearch:
+                    beforeSearchView
+                case .recentSearch:
+                    recentSearchTextView
+                case .searching:
+                    Spacer()
+                case .searchResult:
+                    searchResultView
+                case .noResult:
+                    noResultView
+                }
+                
             }
-            .customFont(.body1sb)
-            .frame(maxWidth: .infinity)
             
-            switch store.state.searchState {
-            case .beforeSearch:
-                beforeSearchView
-            case .recentSearch:
-                recentSearchTextView
-            case .searching:
-                Spacer()
-            case .searchResult:
-                searchResultView
-            case .noResult:
-                noResultView
+            if store.showDeleteAlert {
+                CustomAlertView(
+                    title: "정말로 리뷰를 삭제할까요?",
+                    cancelTitle: "아니요",
+                    confirmTitle: "네",
+                    cancelAction: {
+                        store.send(.cancelDeleteReview)
+                    },
+                    confirmAction: {
+                        store.send(.confirmDeleteReview)
+                    }
+                )
             }
-        
         }
+        .toolbar(store.showDeleteAlert ? .hidden : .visible, for: .tabBar)
         .navigationBarBackButtonHidden()
         .onAppear {
-            // 여기서 키보드 올리기 어떻게 하는지 모르겠다... 
+            // 여기서 키보드 올리기 어떻게 하는지 모르겠다...
             store.send(.onAppear)
         }
     }
@@ -152,15 +167,29 @@ extension ExploreSearchView {
     
     private var searchResultView: some View {
         ScrollView {
-            LazyVStack(spacing: 0) {
-                if store.state.viewType == .user {
+            LazyVStack(spacing: 18) {
+                switch store.state.viewType {
+                case .user:
                     ForEach(store.state.userResult, id: \.id) { user in
                         userCell(user)
+                            .onTapGesture {
+                                store.send(.routeToUserProfileScreen(user.id))
+                            }
                     }
-                } else {
+                case .review:
                     ForEach(store.state.reviewResult, id: \.id) { feed in
-                        ExploreCell(feed: feed)
-                            .padding(.bottom, 16)
+                        if feed.isMine {
+                            myExploreCell(feed)
+                                .onTapGesture {
+                                    store.send(.routeToDetailScreen(feed))
+                                }
+                        } else {
+                            otherExploreCell(feed)
+                                .onTapGesture {
+                                    store.send(.routeToDetailScreen(feed))
+                                }
+                        }
+                        
                     }
                 }
                 
@@ -168,7 +197,6 @@ extension ExploreSearchView {
             }
         }
         .scrollIndicators(.hidden)
-        .padding(.top, 24)
         .padding(.horizontal, 20)
     }
     
@@ -212,6 +240,27 @@ extension ExploreSearchView {
             Spacer()
         }
         .frame(maxWidth: .infinity)
+    }
+    
+    private func myExploreCell(_ feed: FeedEntity) -> some View {
+        ExploreCell(
+            feed: feed,
+            onDelete: { _ in
+                store.send(.deleteMyReview(feed.postId))
+            },
+            onEdit: { feed in
+                store.send(.routeToEditReviewScreen(feed.postId))
+            }
+        )
+    }
+    
+    private func otherExploreCell(_ feed: FeedEntity) -> some View {
+        ExploreCell(
+            feed: feed,
+            onReport: { feed in
+                store.send(.routeToReportScreen(feed.postId))
+            }
+        )
     }
 }
 

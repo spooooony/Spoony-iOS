@@ -37,7 +37,7 @@ extension DefaultDetailUseCase: DetailUseCaseProtocol {
 
             print("🔍 2. get reviewDetail")
             let reviewDetail = try await detailRepository.fetchReviewDetail(postId: postId)
-            print("✅ 2. reviewDetail =")
+            print("✅ 2. reviewDetail = \(reviewDetail)")
 
             print("🔍 3. get userInfo")
             let userInfo = try await detailRepository.fetchUserInfo()

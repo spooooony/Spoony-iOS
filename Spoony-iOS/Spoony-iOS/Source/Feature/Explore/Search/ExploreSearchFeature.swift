@@ -15,6 +15,9 @@ struct ExploreSearchFeature {
     struct State: Equatable {
         static let initialState = State()
         
+        var showDeleteAlert: Bool = false
+        var deleteReviewID: Int = -1
+        
         var viewType: ExploreSearchViewType = .user
         var searchState: ExploreSearchState = .beforeSearch
         var searchText: String = ""
@@ -36,12 +39,23 @@ struct ExploreSearchFeature {
         case recentDeleteButtonTapped(String)
         case searchByRecentSearch(String)
         
+        // TODO: 겹치는 로직 한 번에 처리하도록 리팩하기 ..
+        case deleteMyReview(Int)
+        case cancelDeleteReview
+        case confirmDeleteReview
+        case deleteReviewResult(Bool)
+        
         // MARK: - Navigation
         case routeToPreviousScreen
         case presentAlert(AlertType, Alert, AlertAction)
+        case routeToEditReviewScreen(Int)
+        case routeToDetailScreen(FeedEntity)
+        case routeToReportScreen(Int)
+        case routeToUserProfileScreen(Int)
     }
     
     @Dependency(\.exploreService) var exploreService: ExploreProtocol
+    @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
     
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -49,6 +63,12 @@ struct ExploreSearchFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
+                if !state.userResult.isEmpty {
+                    return .none
+                }
+                if !state.reviewResult.isEmpty {
+                    return .none
+                }
                 return .send(.updateSearchStateFromRecentSearches)
             case .onSubmit:
                 return .send(.setRecentSearchList)
@@ -162,6 +182,30 @@ struct ExploreSearchFeature {
                         }
                     }
                 }
+                
+            case .deleteMyReview(let postId):
+                state.deleteReviewID = postId
+                state.showDeleteAlert = true
+                return .none
+            case .cancelDeleteReview:
+                state.showDeleteAlert = false
+                return .none
+            case .confirmDeleteReview:
+                return .run { [state] send in
+                    do {
+                        let success = try await myPageService.deleteReview(postId: state.deleteReviewID)
+                        
+                        await send(.deleteReviewResult(success))
+                    } catch {
+                        // 에러처리
+                    }
+                }
+            case .deleteReviewResult(let success):
+                // TODO: 성공, 실패 처리
+                state.showDeleteAlert = false
+                return .none
+            case .routeToEditReviewScreen:
+                return .none
             case .binding(\.searchText):
                 let trimmedText = state.searchText.replacingOccurrences(of: " ", with: "")
                 if !trimmedText.isEmpty {
@@ -173,6 +217,12 @@ struct ExploreSearchFeature {
             case .routeToPreviousScreen:
                 return .none
             case .presentAlert:
+                return .none
+            case .routeToDetailScreen:
+                return .none
+            case .routeToReportScreen:
+                return .none
+            case .routeToUserProfileScreen:
                 return .none
             case .binding:
                 return .none

@@ -29,7 +29,6 @@ struct OtherProfileFeature {
         var reviewsErrorMessage: String? = nil
         
         var isMenuPresented: Bool = false
-        var showReportAlert: Bool = false
         var showBlockAlert: Bool = false
         
         init(userId: Int) {
@@ -54,6 +53,8 @@ struct OtherProfileFeature {
         case confirmBlock
         case cancelBlock
         case blockActionResponse(TaskResult<Void>)
+        
+        case routeToReportScreen(Int)
     }
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
@@ -150,9 +151,7 @@ struct OtherProfileFeature {
                 return .none
                 
             case .reportUser:
-                state.showReportAlert = true
-                // TODO: 신고 화면으로 이동하는 로직을 주리가 추가할겁니다 주리야여기야!!!@@@###$$$
-                return .none
+                return .send(.routeToReportScreen(state.userId))
                 
             case .confirmBlock:
                 state.showBlockAlert = false
@@ -195,6 +194,8 @@ struct OtherProfileFeature {
                 return .none
                 
             case .routeToPreviousScreen:
+                return .none
+            case .routeToReportScreen:
                 return .none
             }
         }

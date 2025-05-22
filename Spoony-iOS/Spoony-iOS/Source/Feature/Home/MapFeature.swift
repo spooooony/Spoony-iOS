@@ -34,6 +34,8 @@ struct MapFeature {
         
         var searchText: String = ""
         
+        var showDailySpoonPopup: Bool = false
+        
         // CLLocation은 자동으로 Equatable을 준수하지 않으므로 직접 구현
         static func == (lhs: State, rhs: State) -> Bool {
             lhs.pickList == rhs.pickList &&
@@ -53,7 +55,8 @@ struct MapFeature {
             lhs.spoonCount == rhs.spoonCount &&
             lhs.currentBottomSheetStyle == rhs.currentBottomSheetStyle &&
             lhs.bottomSheetHeight == rhs.bottomSheetHeight &&
-            lhs.searchText == rhs.searchText
+            lhs.searchText == rhs.searchText &&
+            lhs.showDailySpoonPopup == rhs.showDailySpoonPopup
         }
     }
     
@@ -82,6 +85,11 @@ struct MapFeature {
         case setBottomSheetStyle(BottomSheetStyle)
         case setSearchText(String)
         case applyFilters
+        
+        case checkDailyVisit
+        case setShowDailySpoonPopup(Bool)
+        case dismissDailySpoonPopup
+        case drawDailySpoon
     }
     
     @Dependency(\.homeService) var homeService
@@ -90,6 +98,26 @@ struct MapFeature {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .checkDailyVisit:
+                if UserManager.shared.isFirstVisitOfDay() {
+                    return .send(.setShowDailySpoonPopup(true))
+                }
+                return .none
+                
+            case let .setShowDailySpoonPopup(show):
+                state.showDailySpoonPopup = show
+                return .none
+                
+            case .dismissDailySpoonPopup:
+                state.showDailySpoonPopup = false
+                return .none
+                
+            case .drawDailySpoon:
+                return .run { send in
+                    try await Task.sleep(nanoseconds: 1_000_000_000)
+                    await send(.fetchSpoonCount)
+                }
+                
             case .routToSearchScreen, .routToExploreTab, .routToDetailView:
                 return .none
                 

@@ -47,6 +47,7 @@ struct ReportFeature {
                 } else if state.targetUserId != -1 {
                     state.reportType = .user
                 }
+                print("report type: \(state.reportType)")
                 return .none
             case .reportPostReasonButtonTapped(let type):
                 state.selectedPostReport = type

@@ -13,6 +13,7 @@ enum UserDefaultsKeys: String, CaseIterable {
     case recentSearches = "RecentSearches"
     case exploreUserRecentSearches = "exploreUserRecentSearches"
     case exploreReviewRecentSearches = "exploreReviewRecentSearches"
+    case lastAppVisitDate = "lastAppVisitDate"
 }
 
 final class UserManager {
@@ -22,6 +23,7 @@ final class UserManager {
     
     @UserDefaultWrapper(key: .exploreUserRecentSearches) public var exploreUserRecentSearches: [String]?
     @UserDefaultWrapper(key: .exploreReviewRecentSearches) public var exploreReviewRecentSearches: [String]?
+    @UserDefaultWrapper(key: .lastAppVisitDate) public var lastAppVisitDate: Date?
     
     static let shared = UserManager()
     
@@ -74,6 +76,27 @@ final class UserManager {
         }
     }
     
+    func isFirstVisitOfDay() -> Bool {
+        let today = Calendar.current.startOfDay(for: Date())
+        
+        if let lastVisitDate = lastAppVisitDate {
+            let lastVisitDay = Calendar.current.startOfDay(for: lastVisitDate)
+            
+            if lastVisitDay < today {
+                lastAppVisitDate = today
+                return true
+            }
+            return false
+        } else {
+            lastAppVisitDate = today
+            return true
+        }
+    }
+    
+    func updateLastVisitDate() {
+        lastAppVisitDate = Calendar.current.startOfDay(for: Date())
+    }
+    
     func clearAllUserDefaults() {
         UserDefaultsKeys.allCases.forEach { key in
             UserDefaults.standard.removeObject(forKey: key.rawValue)
@@ -84,6 +107,7 @@ final class UserManager {
         recentSearches = nil
         exploreUserRecentSearches = nil
         exploreReviewRecentSearches = nil
+        lastAppVisitDate = nil
     }
 }
 

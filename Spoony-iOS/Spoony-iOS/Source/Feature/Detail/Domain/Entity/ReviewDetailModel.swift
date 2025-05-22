@@ -8,6 +8,7 @@
 import Foundation
 
 struct ReviewDetailModel: Codable {
+    let userId: Int
     let postId: Int
     let photoUrlList: [String]
     let date: String
@@ -28,8 +29,10 @@ struct ReviewDetailModel: Codable {
     let regionName: String
     let value: Double
     let cons: String
+    let isFollowing: Bool
     
     public init(reviewDetail: ReviewDetailResponseDTO, userInfo: UserInfoResponseDTO, spoonCount: Int) {
+        self.userId = userInfo.userId
         self.postId = reviewDetail.postId
         self.photoUrlList = reviewDetail.photoUrlList
         self.date = reviewDetail.date
@@ -50,5 +53,6 @@ struct ReviewDetailModel: Codable {
         self.spoonCount = spoonCount
         self.value = reviewDetail.value
         self.cons = reviewDetail.cons
+        self.isFollowing = userInfo.isFollowing
     }
 }

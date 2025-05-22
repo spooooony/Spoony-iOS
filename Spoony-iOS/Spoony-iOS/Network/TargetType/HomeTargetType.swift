@@ -73,6 +73,11 @@ extension HomeTargetType: TargetType {
     }
     
     var headers: [String: String]? {
-        return HeaderType.auth.value
+        switch self {
+        case .getSpoonCount:
+            return Config.defaultHeader
+        default:
+            return HeaderType.auth.value
+        }
     }
 }
