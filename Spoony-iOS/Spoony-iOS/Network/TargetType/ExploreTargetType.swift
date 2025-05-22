@@ -14,7 +14,7 @@ enum ExploreTargetType {
     
     case getCategories
     
-    case getFilteredFeedList(FeedFilteredRequest)
+    case getFilteredFeedList(FilteredFeedRequest)
     case getFollowingFeedList
     
     case searchPost(query: String)

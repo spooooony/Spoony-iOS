@@ -16,6 +16,9 @@ enum ExploreScreen {
     case search(ExploreSearchFeature)
     case detail(PostFeature)
     case report(ReportFeature)
+    case edit(RegisterFeature)
+//    case profile(ProfileFeature)
+    case otherProfile(OtherProfileFeature)
 }
 
 struct ExploreCoordinatorView: View {
@@ -37,6 +40,12 @@ struct ExploreCoordinatorView: View {
                 PostView(postId: store.postId, store: store)
             case .report(let store):
                 Report(postId: store.postId, userId: nil, store: store)
+            case .edit(let store):
+                Register(store: store)
+            case .otherProfile(let store):
+                OtherProfileView(store: store)
+//            case .profile(let store):
+//                ProfileView(store: store)
             }
             
         }

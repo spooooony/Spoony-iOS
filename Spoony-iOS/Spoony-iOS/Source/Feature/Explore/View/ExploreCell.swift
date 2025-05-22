@@ -51,6 +51,13 @@ struct ExploreCell: View {
         .overlay(alignment: .topTrailing, content: {
             dropDownView
         })
+        .simultaneousGesture(
+            DragGesture()
+                .onChanged { _ in
+                    isDropdown = false
+                    showOptions = false
+                }
+        )
     }
 }
 
