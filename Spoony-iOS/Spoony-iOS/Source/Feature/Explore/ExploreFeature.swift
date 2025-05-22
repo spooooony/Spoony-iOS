@@ -51,6 +51,7 @@ struct ExploreFeature {
         case routeToDetailScreen(FeedEntity)
         case routeToReportScreen(Int)
         case tabSelected(TabType)
+        case presentAlert(AlertType, Alert, AlertAction)
     }
     
     @Dependency(\.exploreService) var exploreService: ExploreProtocol
@@ -167,6 +168,8 @@ struct ExploreFeature {
                     state.selectedFilterButton.append(.filter)
                 }
                 return .send(.fetchFilteredFeed)
+            case .presentAlert:
+                return .none
             case .binding(\.selectedSort):
                 return .send(.fetchFilteredFeed)
             case .binding:

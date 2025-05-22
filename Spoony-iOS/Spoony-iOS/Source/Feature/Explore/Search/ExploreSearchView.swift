@@ -24,7 +24,7 @@ struct ExploreSearchView: View {
                 placeholder: store.state.viewType.placeholder,
                 searchText: $store.searchText,
                 onBackTapped: {
-                    store.send(.routeToExploreScreen)
+                    store.send(.routeToPreviousScreen)
                 }, tappedAction: {
                     store.send(.onSubmit)
                 }

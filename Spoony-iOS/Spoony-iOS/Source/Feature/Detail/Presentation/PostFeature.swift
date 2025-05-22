@@ -77,7 +77,7 @@ struct PostFeature {
         
         case error(PostError)
         
-        case routeToExploreScreen
+        case routeToPreviousScreen
     }
     
     @Dependency(\.detailUseCase) var detailUseCase: DetailUseCaseProtocol
@@ -174,7 +174,7 @@ struct PostFeature {
             case let .navigateToReport(postId):
                 return .none
                 
-            case .routeToExploreScreen:
+            case .routeToPreviousScreen:
                 return .none
             }
         }
