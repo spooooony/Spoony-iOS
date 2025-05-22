@@ -46,6 +46,9 @@ struct TabCoordinatorView: View {
             }            
         }
         .toastView(toast: $store.toast)
+        .alertView(alertType: $store.alertType, alert: store.alert, confirmAction: {
+            store.send(.alertConfirmAction(store.alertAction))
+        })
         .popup(popup: $store.popup) { popup in
             store.send(.popupAction(popup))
         }

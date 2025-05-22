@@ -37,7 +37,8 @@ struct ExploreSearchFeature {
         case searchByRecentSearch(String)
         
         // MARK: - Navigation
-        case routeToExploreScreen
+        case routeToPreviousScreen
+        case presentAlert(AlertType, Alert, AlertAction)
     }
     
     @Dependency(\.exploreService) var exploreService: ExploreProtocol
@@ -169,7 +170,9 @@ struct ExploreSearchFeature {
                     return .send(.updateSearchStateFromRecentSearches)
                 }
                 return .none
-            case .routeToExploreScreen:
+            case .routeToPreviousScreen:
+                return .none
+            case .presentAlert:
                 return .none
             case .binding:
                 return .none

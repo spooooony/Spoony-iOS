@@ -32,7 +32,7 @@ struct Report: View {
                 style: .detail,
                 title: "신고하기",
                 onBackTapped: {
-                    store.send(.routeToExploreScreen)
+                    store.send(.routeToPreviousScreen)
                 }
             )
             Divider()

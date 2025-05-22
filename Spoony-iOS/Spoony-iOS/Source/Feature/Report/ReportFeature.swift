@@ -30,7 +30,8 @@ struct ReportFeature {
         case reportPostReasonButtonTapped(PostReportType)
         case reportUserReasonButtonTapped(UserReportType)
         case reportPostButtonTapped
-        case routeToExploreScreen
+        case routeToPreviousScreen
+        case presentAlert(AlertType, Alert, AlertAction)
     }
     
     @Dependency(\.reportService) var reportService: ReportProtocol
@@ -63,6 +64,18 @@ struct ReportFeature {
                                 report: state.selectedPostReport,
                                 description: state.description
                             )
+                            await send(
+                                .presentAlert(
+                                    .normalButtonOne,
+                                    Alert(
+                                        title: "신고가 접수되었어요",
+                                        confirmButtonTitle: "확인",
+                                        cancelButtonTitle: nil,
+                                        imageString: nil
+                                    ),
+                                    .reportSuccess
+                                )
+                            )
                         case .user:
                             try await reportService.reportUser(
                                 targetUserId: state.targetUserId,
@@ -70,12 +83,14 @@ struct ReportFeature {
                                 description: state.description
                             )
                         }
-                        await send(.routeToExploreScreen)
+                        await send(.routeToPreviousScreen)
                     } catch {
                         // 에러 처리
                     }
                 }
-            case .routeToExploreScreen:
+            case .routeToPreviousScreen:
+                return .none
+            case .presentAlert:
                 return .none
             case .binding:
                 return .none
@@ -83,5 +98,3 @@ struct ReportFeature {
         }
     }
 }
-
-

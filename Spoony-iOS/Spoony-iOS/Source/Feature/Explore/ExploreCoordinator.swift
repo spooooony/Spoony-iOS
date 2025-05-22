@@ -22,6 +22,8 @@ struct ExploreCoordinator {
     enum Action {
         case router(IndexedRouterActionOf<ExploreScreen>)
         case tabSelected(TabType)
+        case presentAlert(AlertType, Alert, AlertAction)
+        case routeToPreviousScreen
     }
     
     var body: some ReducerOf<Self> {
@@ -37,19 +39,27 @@ struct ExploreCoordinator {
             case let .router(.routeAction(id: _, action: .explore(.routeToReportScreen(postId)))):
                 state.routes.push(.report(ReportFeature.State(postId: postId)))
                 return .none
+            
+            // popup
+            case let .router(.routeAction(id: _, action: .report(.presentAlert(type, alert, action)))):
+                return .send(.presentAlert(type, alert, action))
+                
             // 이전 화면
-            case .router(.routeAction(id: _, action: .search(.routeToExploreScreen))):
+            case .router(.routeAction(id: _, action: .search(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
-            case .router(.routeAction(id: _, action: .report(.routeToExploreScreen))):
+            case .router(.routeAction(id: _, action: .report(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
-            case .router(.routeAction(id: _, action: .detail(.routeToExploreScreen))):
+            case .router(.routeAction(id: _, action: .detail(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
             // 탭
             case .router(.routeAction(id: _, action: .explore(.tabSelected(let tab)))):
                 return .send(.tabSelected(tab))
+                
+            case .routeToPreviousScreen:
+                return .none
             default:
                 return .none
             }
