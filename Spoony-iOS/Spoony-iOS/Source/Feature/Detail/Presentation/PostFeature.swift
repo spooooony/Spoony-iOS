@@ -167,7 +167,6 @@ struct PostFeature {
             case .followActionResponse(let result):
                 switch result {
                 case .success:
-                    print("✅ 팔로우 로직 성공")
                     state.isFollowing.toggle() // ✅ follow 상태 변경
                     return .none
                 case .failure(let error):
