@@ -80,5 +80,6 @@ extension HomeTargetType: TargetType {
     
     var headers: [String: String]? {
         return HeaderType.auth.value
+//        return Config.defaultHeader
     }
 }

@@ -11,6 +11,7 @@ enum PostError: Error {
     case noData
     case zzimError
     case spoonError
+    case userError
     
     var description: String {
         switch self {
@@ -20,6 +21,8 @@ enum PostError: Error {
             return "스크랩에 실패했습니다."
         case .spoonError:
             return "떠먹기에 실패 했습니다."
+        case .userError:
+            return "해당 유저를 불러올 수 없습니다."
         }
     }
 }
@@ -77,12 +80,12 @@ struct PostFeature {
         case showToast(String)
         case dismissToast
         
-        case navigateToReport(postId: Int)
         case goBack
         
         case error(PostError)
         
         case routeToPreviousScreen
+        case routeToReportScreen(Int)
     }
     
     @Dependency(\.detailUseCase) var detailUseCase: DetailUseCaseProtocol
@@ -99,7 +102,7 @@ struct PostFeature {
                         let data = try await detailUseCase.fetchInitialDetail(postId: postId)
                         await send(.fetchInitialResponse(.success(data)))
                     } catch {
-                        await send(.fetchInitialResponse(.failure(.noData)))
+                        await send(.fetchInitialResponse(.failure(.userError)))
                     }
                 }
                 
@@ -109,9 +112,9 @@ struct PostFeature {
                 case .success(let data):
                     state.successService = true
                     updateState(&state, with: data)
-                case .failure:
+                case .failure(let error):
                     state.successService = false
-                    return .send(.showToast("데이터를 불러오는데 실패했습니다."))
+                    return .send(.showToast("\(error.description)"))
                 }
                 return .none
                 
@@ -164,7 +167,7 @@ struct PostFeature {
             case .followActionResponse(let result):
                 switch result {
                 case .success:
-                    print("✅ 팔로우 로직 성공")
+                    state.isFollowing.toggle() // ✅ follow 상태 변경
                     return .none
                 case .failure(let error):
                     print("❌ 팔로우 로직 실패 : \(error.localizedDescription)")
@@ -197,7 +200,7 @@ struct PostFeature {
             case .goBack:
                 return .none
                 
-            case let .navigateToReport(postId):
+            case let .routeToReportScreen(postId):
                 return .none
                 
             case .routeToPreviousScreen:
