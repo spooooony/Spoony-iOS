@@ -88,7 +88,7 @@ struct PostFeature {
         case routeToReportScreen(Int)
     }
     
-    @Dependency(\.detailUseCase) var detailUseCase: DetailUseCaseProtocol
+    @Dependency(\.detailUseCase) var detailUseCase: DetailUseCase
     @Dependency(\.followUseCase) var followUseCase: FollowUseCase
     
     var body: some ReducerOf<Self> {

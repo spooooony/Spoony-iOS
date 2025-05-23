@@ -5,7 +5,7 @@
 //  Created by 이명진 on 2/7/25.
 //
 
-protocol DetailUseCaseProtocol {
+protocol DetailUseCase {
     func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel
     func scrapReview(postId: Int) async throws
     func unScrapReview(postId: Int) async throws
@@ -14,7 +14,7 @@ protocol DetailUseCaseProtocol {
     func getOtherUserInfo(userId: Int) async throws -> UserInfoResponseDTO
 }
 
-struct DefaultDetailUseCase {
+struct DetailUseCaseImpl {
     private let detailRepository: DetailRepositoryInterface
     private let homeService: HomeServiceType
     
@@ -28,7 +28,7 @@ struct DefaultDetailUseCase {
     }
 }
 
-extension DefaultDetailUseCase: DetailUseCaseProtocol {
+extension DetailUseCaseImpl: DetailUseCase {
     
     func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel {
         do {

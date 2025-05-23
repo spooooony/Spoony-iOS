@@ -8,6 +8,6 @@
 import Dependencies
 
 enum DetailUseCaseKey: DependencyKey {
-    static let liveValue: DetailUseCaseProtocol = DefaultDetailUseCase()
-    static let testValue: DetailUseCaseProtocol = MockDetailUseCase()
+    static let liveValue: DetailUseCase = DetailUseCaseImpl()
+    static let testValue: DetailUseCase = MockDetailUseCase()
 }
