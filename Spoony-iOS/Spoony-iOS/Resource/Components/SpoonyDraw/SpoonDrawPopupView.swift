@@ -44,7 +44,7 @@ struct SpoonDrawPopupView: View {
                     .font(.title1)
                     .padding(.top, 0)
                 
-                Text("'스푼 뽑기' 버튼을 누르면\n오늘의 스폰을 획득할 수 있어요.")
+                Text("'스푼 뽑기' 버튼을 누르면\n오늘의 스푼을 획득할 수 있어요.")
                     .font(.body2sb)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.gray600)
@@ -92,7 +92,7 @@ struct SpoonDrawPopupView: View {
                                 .font(.title3sb)
                                 .foregroundColor(.gray600)
                             
-                            Text(error.contains("이미 스폰 뽑기를 진행한 사용자")
+                            Text(error.contains("이미 스푼 뽑기를 진행한 사용자")
                                  ? "오늘 이미 스푼을 뽑았어요!\n내일 다시 시도해주세요."
                                  : "스푼 뽑기에 실패했어요.\n다시 시도해주세요.")
                                 .font(.body2m)
