@@ -21,6 +21,7 @@ struct FeedResponse: Codable {
     let categoryColorResponse: CategoryColorResponse
     let zzimCount: Int
     let photoUrlList: [String]
+    let isMine: Bool?
 }
 
 struct CategoryColorResponse: Codable, Hashable {
@@ -43,7 +44,8 @@ extension FeedListResponse {
                     categorColorResponse: feed.categoryColorResponse,
                     zzimCount: feed.zzimCount,
                     photoURLList: feed.photoUrlList,
-                    createAt: feed.createdAt
+                    createAt: feed.createdAt,
+                    isMine: feed.isMine != nil ? feed.isMine! : false
                 )
         }
     }
@@ -63,7 +65,8 @@ extension FeedListResponse {
             iconBackgroundColor: "hexa code"
         ),
         zzimCount: 1,
-        photoUrlList: []
+        photoUrlList: [],
+        isMine: false
     )
 }
 
