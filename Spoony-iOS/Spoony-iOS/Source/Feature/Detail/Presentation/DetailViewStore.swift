@@ -60,10 +60,10 @@ final class DetailViewStore: ObservableObject {
     
     @Published private(set) var entity = DetailEntity()
     
-    private let detailUseCase: DetailUseCaseProtocol
+    private let detailUseCase: DetailUseCase
     
     // TDOO: HomeService 리팩토링 되면 코드 수정
-    init(detailUseCase: DetailUseCaseProtocol = DefaultDetailUseCase(detailRepository: DefaultDetailRepository(),
+    init(detailUseCase: DetailUseCase = DetailUseCaseImpl(detailRepository: DefaultDetailRepository(),
                                                                      homeService: DefaultHomeService())) {
         self.detailUseCase = detailUseCase
     }

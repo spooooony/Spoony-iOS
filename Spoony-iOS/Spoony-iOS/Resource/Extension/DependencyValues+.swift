@@ -13,7 +13,7 @@ extension DependencyValues {
         set { self[MyPageServiceKey.self] = newValue }
     }
     
-    var detailUseCase: DetailUseCaseProtocol {
+    var detailUseCase: DetailUseCase {
         get { self[DetailUseCaseKey.self] }
         set { self[DetailUseCaseKey.self] = newValue }
     }

@@ -33,7 +33,7 @@ struct PostFeature {
     @ObservableState
     struct State: Equatable {
         var isZzim: Bool = false
-        var isScoop: Bool = true
+        var isScoop: Bool = false
         var spoonCount: Int = 0
         var zzimCount: Int = 0
         var isLoading: Bool = false
@@ -62,6 +62,8 @@ struct PostFeature {
         var value: Double = 0.0
         var cons: String = ""
         var isFollowing: Bool = false
+        
+        var isUseSpoonPopupVisible: Bool = false
     }
     
     enum Action {
@@ -86,9 +88,13 @@ struct PostFeature {
         
         case routeToPreviousScreen
         case routeToReportScreen(Int)
+        
+        case showUseSpoonPopup
+        case confirmUseSpoonPopup
+        case dismissUseSpoonPopup
     }
     
-    @Dependency(\.detailUseCase) var detailUseCase: DetailUseCaseProtocol
+    @Dependency(\.detailUseCase) var detailUseCase: DetailUseCase
     @Dependency(\.followUseCase) var followUseCase: FollowUseCase
     
     var body: some ReducerOf<Self> {
@@ -204,6 +210,22 @@ struct PostFeature {
                 return .none
                 
             case .routeToPreviousScreen:
+                return .none
+                
+            case .showUseSpoonPopup:
+                state.isUseSpoonPopupVisible = true
+                return .none
+
+            case .confirmUseSpoonPopup:
+                
+                //TODO: 서버 연결 달기~
+                state.isScoop = true
+                state.spoonCount -= 1
+                state.isUseSpoonPopupVisible = false
+                return .none
+
+            case .dismissUseSpoonPopup:
+                state.isUseSpoonPopupVisible = false
                 return .none
             }
         }
