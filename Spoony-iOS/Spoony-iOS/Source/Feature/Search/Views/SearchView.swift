@@ -23,8 +23,7 @@ struct SearchView: View {
                     style: .search(showBackButton: true),
                     searchText: $store.searchText.sending(\.updateSearchText),
                     onBackTapped: {
-                        store.send(.clearSearch)
-                        store.send(.routeToPreviousScreen)
+                        store.send(.goBack) 
                     },
                     tappedAction: {
                         store.send(.search)

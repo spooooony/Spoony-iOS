@@ -15,6 +15,7 @@ enum HomeTargetType {
     case getSearchResultList(query: String)
     case getSearchResultLocation(locationId: Int)
     case getLocationList(locationId: Int)
+    case drawSpoon  
 }
 
 extension HomeTargetType: TargetType {
@@ -40,28 +41,33 @@ extension HomeTargetType: TargetType {
             return "/post/zzim/location/\(locationId)"
         case .getLocationList(let locationId):
             return "/post/zzim/location/\(locationId)"
+        case .drawSpoon:
+            return "/spoon/draw"
         }
     }
     
     var method: Moya.Method {
         switch self {
         case .getSpoonCount,
-                .getMapList,
-                .getMapFocus,
-                .getSearchResultList,
-                .getLocationList,
-                .getSearchResultLocation:
+             .getMapList,
+             .getMapFocus,
+             .getSearchResultList,
+             .getLocationList,
+             .getSearchResultLocation:
             return .get
+        case .drawSpoon:
+            return .post
         }
     }
     
     var task: Moya.Task {
         switch self {
         case .getSpoonCount,
-                .getMapList,
-                .getMapFocus,
-                .getLocationList,
-                .getSearchResultLocation:
+             .getMapList,
+             .getMapFocus,
+             .getLocationList,
+             .getSearchResultLocation,
+             .drawSpoon:
             return .requestPlain
             
         case .getSearchResultList(let query):
@@ -73,11 +79,6 @@ extension HomeTargetType: TargetType {
     }
     
     var headers: [String: String]? {
-        switch self {
-        case .getSpoonCount:
-            return Config.defaultHeader
-        default:
-            return HeaderType.auth.value
-        }
+        return HeaderType.auth.value
     }
 }
