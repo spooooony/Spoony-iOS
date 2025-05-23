@@ -21,6 +21,7 @@ struct OtherProfileFeature {
         var followingCount: Int = 0
         var followerCount: Int = 0
         var isFollowing: Bool = false
+        var isBlocked: Bool = false
         var isLoading: Bool = false
         var errorMessage: String? = nil
         
@@ -31,6 +32,9 @@ struct OtherProfileFeature {
         var isMenuPresented: Bool = false
         var showReportAlert: Bool = false
         var showBlockAlert: Bool = false
+        var showUnblockAlert: Bool = false
+        
+        var toast: Toast? = nil
         
         init(userId: Int) {
             self.userId = userId
@@ -50,10 +54,16 @@ struct OtherProfileFeature {
         case menuItemSelected(String)
         case dismissMenu
         case blockUser
+        case unblockUser // 차단 해제 액션 추가
         case reportUser
         case confirmBlock
+        case confirmUnblock
         case cancelBlock
+        case cancelUnblock
         case blockActionResponse(TaskResult<Void>)
+        case unblockActionResponse(TaskResult<Void>)
+        
+        case hideToast
     }
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
@@ -94,6 +104,12 @@ struct OtherProfileFeature {
                 return .none
                 
             case .fetchUserReviews:
+                if state.isBlocked {
+                    state.isLoadingReviews = false
+                    state.reviews = []
+                    return .none
+                }
+                
                 state.isLoadingReviews = true
                 return .run { [userId = state.userId] send in
                     await send(.userReviewsResponse(
@@ -113,6 +129,10 @@ struct OtherProfileFeature {
                 return .none
                 
             case .followButtonTapped:
+                if state.isBlocked {
+                    return .send(.unblockUser)
+                }
+                
                 return .run { [userId = state.userId, isFollowing = state.isFollowing] send in
                     await send(.followActionResponse(
                         TaskResult { try await followUseCase.toggleFollow(userId: userId, isFollowing: isFollowing) }
@@ -149,6 +169,10 @@ struct OtherProfileFeature {
                 state.showBlockAlert = true
                 return .none
                 
+            case .unblockUser:
+                state.showUnblockAlert = true
+                return .none
+                
             case .reportUser:
                 state.showReportAlert = true
                 // TODO: 신고 화면으로 이동하는 로직을 주리가 추가할겁니다 주리야여기야!!!@@@###$$$
@@ -183,15 +207,69 @@ struct OtherProfileFeature {
                     ))
                 }
                 
+            case .confirmUnblock:
+                state.showUnblockAlert = false
+                return .run { [userId = state.userId] send in
+                    await send(.unblockActionResponse(
+                        TaskResult {
+                            try await withCheckedThrowingContinuation { continuation in
+                                let request = TargetUserRequest(targetUserId: userId)
+                                myPageProvider.request(.unblockUser(request: request)) { result in
+                                    switch result {
+                                    case .success(let response):
+                                        do {
+                                            let dto = try response.map(BaseResponse<BlankData>.self)
+                                            if dto.success {
+                                                continuation.resume()
+                                            } else {
+                                                continuation.resume(throwing: SNError.etc)
+                                            }
+                                        } catch {
+                                            continuation.resume(throwing: error)
+                                        }
+                                    case .failure(let error):
+                                        continuation.resume(throwing: error)
+                                    }
+                                }
+                            }
+                        }
+                    ))
+                }
+                
             case .cancelBlock:
                 state.showBlockAlert = false
                 return .none
                 
+            case .cancelUnblock:
+                state.showUnblockAlert = false
+                return .none
+                
             case .blockActionResponse(.success):
-                return .send(.routeToPreviousScreen)
+                state.isBlocked = true
+                state.isFollowing = false
+                state.reviews = []
+                state.toast = Toast(style: .gray, message: "사용자를 차단했습니다", yOffset: UIScreen.main.bounds.height - 200)
+                //여기 위치조정 이게 맞아요?
+
+                return .run { send in
+                    try await Task.sleep(nanoseconds: 2_000_000_000)
+                    await send(.hideToast)
+                }
                 
             case let .blockActionResponse(.failure(error)):
                 print("Block action failed: \(error.localizedDescription)")
+                return .none
+                
+            case .unblockActionResponse(.success):
+                state.isBlocked = false
+                return .send(.fetchUserReviews)
+                
+            case let .unblockActionResponse(.failure(error)):
+                print("Unblock action failed: \(error.localizedDescription)")
+                return .none
+                
+            case .hideToast:
+                state.toast = nil
                 return .none
                 
             case .routeToPreviousScreen:
