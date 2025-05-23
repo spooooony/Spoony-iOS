@@ -27,6 +27,9 @@ struct AttendanceView: View {
             AttendanceInfoSheetView()
                 .presentationDetents([.medium])
         }
+        .task {
+            store.send(.onAppear)
+        }
     }
     
     private var backgroundView: some View {
@@ -86,7 +89,7 @@ struct AttendanceView: View {
             
             Text(store.dateRange)
                 .font(.body2m)
-                .foregroundColor(.gray)
+                .foregroundColor(.gray400)
         }
     }
     
@@ -101,9 +104,11 @@ struct AttendanceView: View {
             ForEach(store.weekdays, id: \.self) { day in
                 SpoonAttendanceView(
                     day: day,
-                    isSelected: store.selectedDays.contains(day),
+                    isSelected: store.attendedWeekdays.keys.contains(day),
                     action: {
-                        store.send(.toggleDay(day))
+                        if !store.attendedWeekdays.keys.contains(day) {
+                            store.send(.drawSpoon(weekday: day))
+                        }
                     }
                 )
             }
