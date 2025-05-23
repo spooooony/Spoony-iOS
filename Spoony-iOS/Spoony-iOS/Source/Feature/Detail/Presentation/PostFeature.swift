@@ -33,7 +33,7 @@ struct PostFeature {
     @ObservableState
     struct State: Equatable {
         var isZzim: Bool = false
-        var isScoop: Bool = true
+        var isScoop: Bool = false
         var spoonCount: Int = 0
         var zzimCount: Int = 0
         var isLoading: Bool = false
