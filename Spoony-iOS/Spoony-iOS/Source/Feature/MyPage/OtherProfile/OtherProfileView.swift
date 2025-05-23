@@ -86,7 +86,6 @@ struct OtherProfileView: View {
         }
     }
     
-    // MARK: - Alert Views
     private var alertViews: some View {
         Group {
             if store.showBlockAlert { blockAlert }
@@ -114,7 +113,6 @@ struct OtherProfileView: View {
         )
     }
     
-    // MARK: - Profile Section
     private var profileSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             profileHeader

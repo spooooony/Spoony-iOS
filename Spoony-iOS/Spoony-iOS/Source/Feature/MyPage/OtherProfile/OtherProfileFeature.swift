@@ -53,7 +53,7 @@ struct OtherProfileFeature {
         case menuItemSelected(String)
         case dismissMenu
         case blockUser
-        case unblockUser // 차단 해제 액션 추가
+        case unblockUser 
         case reportUser
         case confirmBlock
         case confirmUnblock
