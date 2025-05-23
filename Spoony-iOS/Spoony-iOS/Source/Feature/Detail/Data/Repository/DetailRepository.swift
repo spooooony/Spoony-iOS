@@ -67,7 +67,7 @@ extension DefaultDetailRepository {
         return try await requestUserInfo(targetType: .getOtherUserInfo(userId: userId))
     }
     
-    // DetailService의 공용 로직들을 여기에 추가
+    // 공용 로직들을 여기에 추가
     private func requestUserInfo(targetType: DetailTargetType) async throws -> UserInfoResponseDTO {
         return try await withCheckedThrowingContinuation { continuation in
             Providers.detailProvider.request(targetType) { result in
