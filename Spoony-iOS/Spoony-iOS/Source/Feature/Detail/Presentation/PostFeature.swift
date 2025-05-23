@@ -62,6 +62,8 @@ struct PostFeature {
         var value: Double = 0.0
         var cons: String = ""
         var isFollowing: Bool = false
+        
+        var isUseSpoonPopupVisible: Bool = false
     }
     
     enum Action {
@@ -86,6 +88,10 @@ struct PostFeature {
         
         case routeToPreviousScreen
         case routeToReportScreen(Int)
+        
+        case showUseSpoonPopup
+        case confirmUseSpoonPopup
+        case dismissUseSpoonPopup
     }
     
     @Dependency(\.detailUseCase) var detailUseCase: DetailUseCase
@@ -204,6 +210,22 @@ struct PostFeature {
                 return .none
                 
             case .routeToPreviousScreen:
+                return .none
+                
+            case .showUseSpoonPopup:
+                state.isUseSpoonPopupVisible = true
+                return .none
+
+            case .confirmUseSpoonPopup:
+                
+                //TODO: 서버 연결 달기~
+                state.isScoop = true
+                state.spoonCount -= 1
+                state.isUseSpoonPopupVisible = false
+                return .none
+
+            case .dismissUseSpoonPopup:
+                state.isUseSpoonPopupVisible = false
                 return .none
             }
         }
