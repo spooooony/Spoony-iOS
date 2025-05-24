@@ -32,10 +32,6 @@ struct TabCoordinator {
         
         var toast: Toast?
         var popup: PopupType?
-        
-        var alertType: AlertType?
-        var alert: Alert?
-        var alertAction: AlertAction = .reportSuccess
     }
     
     enum Action: BindableAction {
@@ -47,7 +43,6 @@ struct TabCoordinator {
         case tabSelected(TabType)
         
         case popupAction(PopupType)
-        case alertConfirmAction(AlertAction)
         case routeToLoginScreen
     }
     
@@ -74,7 +69,6 @@ struct TabCoordinator {
             switch action {
             case .binding:
                 return .none
-                
             case let .tabSelected(tab):
                 if state.selectedTab != tab {
                     state.toast = nil
@@ -82,12 +76,6 @@ struct TabCoordinator {
                 
                 state.previousSelectedTab = state.selectedTab
                 state.selectedTab = tab
-                
-                return .none
-            case let .explore(.presentAlert(type, alert, action)):
-                state.alertType = type
-                state.alert = alert
-                state.alertAction = action
                 return .none
             case let .register(.presentToast(message)):
                 state.toast = .init(style: .gray, message: message, yOffset: 558.adjustedH)
@@ -116,16 +104,7 @@ struct TabCoordinator {
                 //            case .map(\.presentPopup):
                 //                state.popup = .reportSuccess
                 //                return .none
-                
-            // 액션을 여기서 처리해야 할 것 같은데 다른 방법이 있다면 알려주십사...
-            case let .alertConfirmAction(action):
-                switch action {
-                case .reportSuccess:
-                    return .none
-                case .block:
-                    return .none
-                }
-                
+                              
             case let .popupAction(type):
                 switch type {
                 case .useSpoon:
