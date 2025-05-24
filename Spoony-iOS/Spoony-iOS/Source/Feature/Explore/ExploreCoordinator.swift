@@ -22,7 +22,6 @@ struct ExploreCoordinator {
     enum Action {
         case router(IndexedRouterActionOf<ExploreScreen>)
         case tabSelected(TabType)
-        case presentAlert(AlertType, Alert, AlertAction)
         case routeToPreviousScreen
     }
     
@@ -39,10 +38,6 @@ struct ExploreCoordinator {
             case let .router(.routeAction(id: _, action: .explore(.routeToReportScreen(postId)))):
                 state.routes.push(.report(ReportFeature.State(postId: postId)))
                 return .none
-
-            // popup
-            case let .router(.routeAction(id: _, action: .report(.presentAlert(type, alert, action)))):
-                return .send(.presentAlert(type, alert, action))
             case .router(.routeAction(id: _, action: .explore(.routeToEditReviewScreen(let postId)))):
                 state.routes.presentCover(.edit(.init(postId: postId)))
                 return .none

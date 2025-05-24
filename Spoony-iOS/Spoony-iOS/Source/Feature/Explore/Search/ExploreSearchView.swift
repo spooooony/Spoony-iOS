@@ -57,42 +57,35 @@ struct ExploreSearchView: View {
                 }
                 .customFont(.body1sb)
                 .frame(maxWidth: .infinity)
-                
-                switch store.state.searchState {
-                case .beforeSearch:
-                    beforeSearchView
-                case .recentSearch:
-                    recentSearchTextView
-                case .searching:
-                    Spacer()
-                case .searchResult:
-                    searchResultView
-                case .noResult:
-                    noResultView
-                }
-                
             }
             
-            if store.showDeleteAlert {
-                CustomAlertView(
-                    title: "정말로 리뷰를 삭제할까요?",
-                    cancelTitle: "아니요",
-                    confirmTitle: "네",
-                    cancelAction: {
-                        store.send(.cancelDeleteReview)
-                    },
-                    confirmAction: {
-                        store.send(.confirmDeleteReview)
-                    }
-                )
+            switch store.state.searchState {
+            case .beforeSearch:
+                beforeSearchView
+            case .recentSearch:
+                recentSearchTextView
+            case .searching:
+                Spacer()
+            case .searchResult:
+                searchResultView
+            case .noResult:
+                noResultView
             }
+            
         }
-        .toolbar(store.showDeleteAlert ? .hidden : .visible, for: .tabBar)
         .navigationBarBackButtonHidden()
         .onAppear {
             // 여기서 키보드 올리기 어떻게 하는지 모르겠다...
             store.send(.onAppear)
         }
+        .alertView(
+            isPresented: $store.isAlertPresented,
+            alertType: store.alertType,
+            alert: store.alert,
+            confirmAction: {
+                store.send(.confirmDeleteReview)
+            }
+        )
     }
 }
 
@@ -178,7 +171,7 @@ extension ExploreSearchView {
                     }
                 case .review:
                     ForEach(store.state.reviewResult, id: \.id) { feed in
-                        if feed.isMine {
+                        if !feed.isMine {
                             myExploreCell(feed)
                                 .onTapGesture {
                                     store.send(.routeToDetailScreen(feed))

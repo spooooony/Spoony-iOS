@@ -21,52 +21,34 @@ struct Explore: View {
     }
     
     var body: some View {
-        ZStack {
-            VStack(spacing: 0) {
-                customNavigationBar
-                    .padding(.bottom, 20)
-                    .padding(.horizontal, 20)
-                
-                VStack(spacing: 18) {
-                    if store.state.viewType == .all {
-                        filterView
-                            .padding(.leading, -20)
-                    }
-                    
-                    if store.state.viewType == .all {
-                        if store.state.allList.isEmpty {
-                            emptyView
-                        } else {
-                            filteredListView(store.state.allList)
-                                .padding(.horizontal, 20)
-                        }
-                    } else {
-                        if store.state.followingList.isEmpty {
-                            emptyView
-                        } else {
-                            followingListView(store.state.followingList)
-                                .padding(.horizontal, 20)
-                        }
-                    }
+        VStack(spacing: 0) {
+            customNavigationBar
+                .padding(.bottom, 20)
+                .padding(.horizontal, 20)
+            
+            VStack(spacing: 18) {
+                if store.state.viewType == .all {
+                    filterView
+                        .padding(.leading, -20)
                 }
                 
-            }
-            
-            if store.showDeleteAlert {
-                CustomAlertView(
-                    title: "정말로 리뷰를 삭제할까요?",
-                    cancelTitle: "아니요",
-                    confirmTitle: "네",
-                    cancelAction: {
-                        store.send(.cancelDeleteReview)
-                    },
-                    confirmAction: {
-                        store.send(.confirmDeleteReview)
+                if store.state.viewType == .all {
+                    if store.state.allList.isEmpty {
+                        emptyView
+                    } else {
+                        filteredListView(store.state.allList)
+                            .padding(.horizontal, 20)
                     }
-                )
+                } else {
+                    if store.state.followingList.isEmpty {
+                        emptyView
+                    } else {
+                        followingListView(store.state.followingList)
+                            .padding(.horizontal, 20)
+                    }
+                }
             }
         }
-        .toolbar(store.showDeleteAlert ? .hidden : .visible, for: .tabBar)
         .onAppear {
             store.send(.viewOnAppear)
         }
@@ -88,6 +70,14 @@ struct Explore: View {
             .presentationDetents([.height(240.adjustedH)])
             .presentationCornerRadius(16)
         }
+        .alertView(
+            isPresented: $store.isAlertPresented,
+            alertType: store.alertType,
+            alert: store.alert,
+            confirmAction: {
+                store.send(.confirmDeleteReview)
+            }
+        )
     }
 }
 
