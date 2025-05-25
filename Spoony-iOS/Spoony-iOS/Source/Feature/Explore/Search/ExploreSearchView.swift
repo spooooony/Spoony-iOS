@@ -175,7 +175,7 @@ extension ExploreSearchView {
                     }
                 case .review:
                     ForEach(store.state.reviewResult, id: \.id) { feed in
-                        if !feed.isMine {
+                        if feed.isMine {
                             myExploreCell(feed)
                                 .onTapGesture {
                                     store.send(.routeToDetailScreen(feed))
