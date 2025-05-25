@@ -201,10 +201,11 @@ extension ExploreSearchView {
             VStack(alignment: .leading, spacing: 4) {
                 Text(user.userName)
                     .customFont(.body2m)
-                Text("\(user.regionName) 스푼")
-                    .customFont(.caption1m)
-                    .foregroundStyle(.gray400)
-                
+                if let region = user.regionName {
+                    Text("\(region) 스푼")
+                        .customFont(.caption1m)
+                        .foregroundStyle(.gray400)
+                }
             }
             
             Spacer()
