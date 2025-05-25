@@ -13,6 +13,6 @@ struct FilteredFeedRequest: Codable {
     let regionIds: [Int]
     let ageGroups: [String]
     let sortBy: String
-    let cursor: Int
+    let cursor: Int?
     let size: Int
 }

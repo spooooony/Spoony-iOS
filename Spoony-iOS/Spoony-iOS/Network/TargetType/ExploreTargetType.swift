@@ -88,15 +88,22 @@ extension ExploreTargetType: TargetType {
                 let joinedString = request.ageGroups.joined(separator: ",")
                 params["ageGroups"] = joinedString
             }
-            
+
             params["sortBy"] = request.sortBy
+            
+            if let cursor = request.cursor {
+                params["cursor"] = cursor
+            }
+            
+            params["size"] = request.size
+            
             return .requestParameters(parameters: params, encoding: URLEncoding.default)
         }
     }
 
     var headers: [String: String]? {
-//        return HeaderType.auth.value
-        return Config.defaultHeader
+        return HeaderType.auth.value
+//        return Config.defaultHeader
     }
     
     var validationType: ValidationType {
