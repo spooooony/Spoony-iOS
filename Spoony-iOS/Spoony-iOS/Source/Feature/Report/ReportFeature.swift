@@ -22,6 +22,10 @@ struct ReportFeature {
         var selectedUserReport: UserReportType = .advertisement
         var description: String = ""
         var isError: Bool = true
+        
+        var isAlertPresented: Bool = false
+        var alertType: AlertType?
+        var alert: Alert?
     }
     
     enum Action: BindableAction, Equatable {
@@ -31,7 +35,7 @@ struct ReportFeature {
         case reportUserReasonButtonTapped(UserReportType)
         case reportPostButtonTapped
         case routeToPreviousScreen
-        case presentAlert(AlertType, Alert, AlertAction)
+        case presentAlert(AlertType, Alert)
     }
     
     @Dependency(\.reportService) var reportService: ReportProtocol
@@ -73,8 +77,7 @@ struct ReportFeature {
                                         confirmButtonTitle: "확인",
                                         cancelButtonTitle: nil,
                                         imageString: nil
-                                    ),
-                                    .reportSuccess
+                                    )
                                 )
                             )
                         case .user:
@@ -84,14 +87,17 @@ struct ReportFeature {
                                 description: state.description
                             )
                         }
-                        await send(.routeToPreviousScreen)
+                        
                     } catch {
                         // 에러 처리
                     }
                 }
             case .routeToPreviousScreen:
                 return .none
-            case .presentAlert:
+            case let .presentAlert(type, alert):
+                state.alertType = type
+                state.alert = alert
+                state.isAlertPresented = true
                 return .none
             case .binding:
                 return .none

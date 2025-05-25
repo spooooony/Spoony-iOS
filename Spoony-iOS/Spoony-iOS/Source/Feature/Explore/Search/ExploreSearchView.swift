@@ -84,8 +84,12 @@ struct ExploreSearchView: View {
             alert: store.alert,
             confirmAction: {
                 store.send(.confirmDeleteReview)
-            }
+            },
+            afterAction: nil
         )
+        .transaction {
+            $0.disablesAnimations = true
+        }
     }
 }
 

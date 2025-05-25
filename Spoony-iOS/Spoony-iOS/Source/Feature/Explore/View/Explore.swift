@@ -76,7 +76,8 @@ struct Explore: View {
             alert: store.alert,
             confirmAction: {
                 store.send(.confirmDeleteReview)
-            }
+            },
+            afterAction: nil
         )
     }
 }

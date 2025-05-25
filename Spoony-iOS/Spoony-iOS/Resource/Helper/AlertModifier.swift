@@ -16,6 +16,7 @@ struct AlertModifier: ViewModifier {
     let alertType: AlertType?
     let alert: Alert?
     let confirmAction: (() -> Void)?
+    let afterAction: (() -> Void)?
     
     func body(content: Content) -> some View {
         
@@ -23,18 +24,17 @@ struct AlertModifier: ViewModifier {
             .fullScreenCover(isPresented: $isPresented) {
                 ZStack {
                     if alertType != nil,
-                       alert != nil,
-                       confirmAction != nil {
+                       alert != nil {
                         Color.black.opacity(0.6)
                             .ignoresSafeArea(.all)
                         
                         AlertView(
                             isPresented: $isPresented,
                             alertType: alertType,
-                            alert: alert!
-                        ) {
-                            confirmAction!()
-                        }
+                            alert: alert!,
+                            confirmAction: confirmAction,
+                            afterAction: afterAction
+                        )
                     }
                 }
                 .background(BackgroundClearView())
@@ -53,12 +53,6 @@ enum AlertType: Equatable {
     case imageButtonTwo
 }
 
-enum AlertAction: Equatable {
-    case reportSuccess
-    case block
-    case deleteReview
-}
-
 struct Alert: Equatable {
     let title: String
     let confirmButtonTitle: String
@@ -70,7 +64,8 @@ struct AlertView: View {
     @Binding var isPresented: Bool
     let alertType: AlertType?
     let alert: Alert
-    let confirmAction: () -> Void
+    let confirmAction: (() -> Void)?
+    let afterAction: (() -> Void)?
     
     var body: some View {
         VStack(spacing: 20) {
@@ -111,8 +106,13 @@ struct AlertView: View {
                     title: alert.confirmButtonTitle,
                     disabled: .constant(false)
                 ) {
-                    confirmAction()
+                    if let confirmAction {
+                        confirmAction()
+                    }
                     isPresented = false
+                    if let afterAction {
+                        afterAction()
+                    }
                 }
             }
         }

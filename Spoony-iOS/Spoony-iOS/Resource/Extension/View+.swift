@@ -16,14 +16,16 @@ extension View {
         isPresented: Binding<Bool>,
         alertType: AlertType?,
         alert: Alert?,
-        confirmAction: (() -> Void)?
+        confirmAction: (() -> Void)?,
+        afterAction: (() -> Void)?
     ) -> some View {
         self.modifier(
             AlertModifier(
                 isPresented: isPresented,
                 alertType: alertType,
                 alert: alert,
-                confirmAction: confirmAction
+                confirmAction: confirmAction,
+                afterAction: afterAction
             )
         )
     }

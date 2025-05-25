@@ -63,6 +63,15 @@ struct Report: View {
             store.send(.onAppear)
         }
         .navigationBarBackButtonHidden()
+        .alertView(
+            isPresented: $store.isAlertPresented,
+            alertType: store.alertType,
+            alert: store.alert,
+            confirmAction: nil,
+            afterAction: {
+                store.send(.routeToPreviousScreen)
+            }
+        )
     }
 }
 

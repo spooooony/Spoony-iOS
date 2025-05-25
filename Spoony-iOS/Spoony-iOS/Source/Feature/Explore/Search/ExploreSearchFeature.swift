@@ -25,7 +25,6 @@ struct ExploreSearchFeature {
         
         var alertType: AlertType?
         var alert: Alert?
-        var alertAction: AlertAction = .deleteReview
         var isAlertPresented: Bool = false
     }
     

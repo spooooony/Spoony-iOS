@@ -37,7 +37,7 @@ struct ExploreFeature {
         
         var filterInfo: FilterInfo = .init(categories: [], locations: [])
         
-        var nextCursor: Int = 0
+        var nextCursor: Int?
         var isLast: Bool = false
         
         var isLoading: Bool = false
@@ -45,7 +45,6 @@ struct ExploreFeature {
         var isAlertPresented: Bool = false
         var alertType: AlertType?
         var alert: Alert?
-        var alertAction: AlertAction = .reportSuccess
     }
     
     enum Action: BindableAction, Equatable {
@@ -76,7 +75,7 @@ struct ExploreFeature {
         case routeToReportScreen(Int)
         case routeToEditReviewScreen(Int)
         case tabSelected(TabType)
-        case presentAlert(AlertType, Alert, AlertAction)
+        case presentAlert(AlertType, Alert)
     }
     
     @Dependency(\.exploreService) var exploreService: ExploreProtocol
@@ -144,7 +143,7 @@ struct ExploreFeature {
                         )
                         let list = result.toEntity()
                         let cursor = result.nextCursor
-                        print("😅cursor: \(state.nextCursor), next: \(cursor)")
+//                        print("😅cursor: \(state.nextCursor), next: \(cursor)")
                         
                         await send(.setFeed(list, cursor))
                     } catch {
@@ -196,8 +195,7 @@ struct ExploreFeature {
                             confirmButtonTitle: "네",
                             cancelButtonTitle: "아니요",
                             imageString: nil
-                        ),
-                        .deleteReview
+                        )
                     )
                 )
             case .confirmDeleteReview:
@@ -244,10 +242,9 @@ struct ExploreFeature {
                     state.selectedFilterButton.append(.filter)
                 }
                 return .send(.fetchFilteredFeed)
-            case let .presentAlert(type, alert, action):
+            case let .presentAlert(type, alert):
                 state.alertType = type
                 state.alert = alert
-                state.alertAction = action
                 state.isAlertPresented = true
                 return .none
             case .binding(\.selectedSort):
