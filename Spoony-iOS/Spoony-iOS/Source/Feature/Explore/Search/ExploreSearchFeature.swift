@@ -48,7 +48,7 @@ struct ExploreSearchFeature {
         
         // MARK: - Navigation
         case routeToPreviousScreen
-        case presentAlert(AlertType, Alert, AlertAction)
+        case presentAlert(AlertType, Alert)
         case routeToEditReviewScreen(Int)
         case routeToDetailScreen(FeedEntity)
         case routeToReportScreen(Int)
@@ -61,9 +61,7 @@ struct ExploreSearchFeature {
     var body: some ReducerOf<Self> {
         BindingReducer()
         
-        Reduce {
-            state,
-            action in
+        Reduce { state, action in
             switch action {
             case .onAppear:
                 if !state.userResult.isEmpty {
@@ -196,8 +194,7 @@ struct ExploreSearchFeature {
                             confirmButtonTitle: "네",
                             cancelButtonTitle: "아니요",
                             imageString: nil
-                        ),
-                        .deleteReview
+                        )
                     )
                 )
             case .confirmDeleteReview:
@@ -225,10 +222,9 @@ struct ExploreSearchFeature {
                 return .none
             case .routeToPreviousScreen:
                 return .none
-            case let .presentAlert(type, alert, action):
+            case let .presentAlert(type, alert):
                 state.alertType = type
                 state.alert = alert
-                state.alertAction = action
                 state.isAlertPresented = true
                 return .none
             case .routeToDetailScreen:
