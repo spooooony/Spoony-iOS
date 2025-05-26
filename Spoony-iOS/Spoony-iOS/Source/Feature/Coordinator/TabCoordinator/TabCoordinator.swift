@@ -93,7 +93,7 @@ struct TabCoordinator {
                 state.selectedTab = .register
                 return .none
                 
-            case .map(.router(.routeAction(id: _, action: .map(.routToExploreTab)))):
+            case .map(.router(.routeAction(id: _, action: .map(.routeToExploreTab)))):
                 return .send(.switchToExploreTab)
                 
             case .myPage(.router(.routeAction(id: _, action: .profile(.routeToRegisterTab)))):
