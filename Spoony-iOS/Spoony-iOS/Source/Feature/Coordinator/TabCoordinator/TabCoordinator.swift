@@ -43,7 +43,11 @@ struct TabCoordinator {
         case tabSelected(TabType)
         
         case popupAction(PopupType)
+        
         case routeToLoginScreen
+        
+        case switchToExploreTab
+        case switchToRegisterTab
     }
     
     var body: some ReducerOf<Self> {
@@ -80,6 +84,21 @@ struct TabCoordinator {
                 
                 return .none
                 
+            // 탭 이동 액션들
+            case .switchToExploreTab:
+                state.selectedTab = .explore
+                return .none
+                
+            case .switchToRegisterTab:
+                state.selectedTab = .register
+                return .none
+                
+            case .map(.router(.routeAction(id: _, action: .map(.routeToExploreTab)))):
+                return .send(.switchToExploreTab)
+                
+            case .myPage(.router(.routeAction(id: _, action: .profile(.routeToRegisterTab)))):
+                return .send(.switchToRegisterTab)
+                
             case let .register(.presentToast(message)):
                 state.toast = .init(style: .gray, message: message, yOffset: 558.adjustedH)
                 return .none
@@ -90,11 +109,12 @@ struct TabCoordinator {
             case .myPage(.routeToLoginScreen):
                 return .send(.routeToLoginScreen)
                 
-                // 다른 뷰 사용 예시
-                //            case let .map(.presentToast(message)):
-                //                state.toast = .init(style: .gray, message: message, yOffset: 558.adjustedH)
-                //                return .none
-                // 자식 Feature에서 presentPopup 호출시 팝업 생성
+            // 다른 뷰 사용 예시
+//            case let .map(.presentToast(message)):
+//                state.toast = .init(style: .gray, message: message, yOffset: 558.adjustedH)
+//                return .none
+                
+            // 자식 Feature에서 presentPopup 호출시 팝업 생성
             case .register(\.routeToPreviousTab):
                 state.selectedTab = state.previousSelectedTab
                 return .none
@@ -103,10 +123,10 @@ struct TabCoordinator {
                 state.popup = .registerSuccess
                 return .none
                 
-                // 다른 뷰 사용 예시
-                //            case .map(\.presentPopup):
-                //                state.popup = .reportSuccess
-                //                return .none
+            // 다른 뷰 사용 예시
+//            case .map(\.presentPopup):
+//                state.popup = .reportSuccess
+//                return .none
                 
             case let .popupAction(type):
                 switch type {
@@ -122,6 +142,9 @@ struct TabCoordinator {
                     // ex) return .send(.register(.test))
                     return .none
                 }
+                
+            case .routeToLoginScreen:
+                return .none
                 
             default:
                 return .none

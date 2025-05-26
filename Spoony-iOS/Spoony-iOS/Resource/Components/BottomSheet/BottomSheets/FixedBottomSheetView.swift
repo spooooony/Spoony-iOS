@@ -48,7 +48,7 @@ struct FixedBottomSheetView: View {
                         title: "떠먹으러 가기",
                         disabled: $isDisabled
                     ) {
-                        store.send(.routToExploreTab)
+                        store.send(.routeToExploreTab)
                     }
                     .padding(.top, 8)
                 }
