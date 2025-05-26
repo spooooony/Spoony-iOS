@@ -30,22 +30,9 @@
 		78C002082D1D9FC400DA101C /* Spoony-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Spoony-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		CBA199EF2DB0DD4400FCEA85 /* Exceptions for "Spoony-iOS" folder in "Spoony-iOS" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Source/Feature/Coordinator/TestScenes/ExploreCoordinator/ExploreCoordinator.swift,
-			);
-			target = 78C002072D1D9FC400DA101C /* Spoony-iOS */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		78C0020A2D1D9FC400DA101C /* Spoony-iOS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				CBA199EF2DB0DD4400FCEA85 /* Exceptions for "Spoony-iOS" folder in "Spoony-iOS" target */,
-			);
 			path = "Spoony-iOS";
 			sourceTree = "<group>";
 		};

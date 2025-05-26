@@ -23,8 +23,13 @@ struct ExploreSearchFeature {
         var userResult: [SimpleUser] = []
         var reviewResult: [FeedEntity] = []
         
-        var alertType: AlertType?
-        var alert: Alert?
+        var alertType: AlertType = .normalButtonOne
+        var alert: Alert = .init(
+            title: "테스트",
+            confirmButtonTitle: "테스트",
+            cancelButtonTitle: "테스트",
+            imageString: nil
+        )
         var isAlertPresented: Bool = false
     }
     
