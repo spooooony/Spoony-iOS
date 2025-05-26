@@ -17,122 +17,129 @@ struct OtherProfileView: View {
     
     var body: some View {
         ZStack {
-            VStack(spacing: 0) {
-                navigationBar
-                
-                ScrollView {
-                    VStack(spacing: 0) {
-                        profileContentView
-                    }
-                }
-                .refreshable {
-                    store.send(.onAppear)
-                }
-            }
-            .onTapGesture {
-                // 화면을 터치하면 메뉴를 닫는다
-                if store.isMenuPresented {
-                    store.send(.dismissMenu)
-                }
-            }
-            
-            // 드롭다운 메뉴를 별도 오버레이로 배치
-            if store.isMenuPresented {
-                VStack {
-                    HStack {
-                        Spacer()
-                        DropDownMenu(
-                            items: ["차단하기", "신고하기"],
-                            isPresented: Binding(
-                                get: { store.isMenuPresented },
-                                set: { _ in store.send(.dismissMenu) }
-                            )
-                        ) { item in
-                            store.send(.menuItemSelected(item))
-                        }
-                        .offset(x:-5)
-                    }
-                    .padding(.top, 36)
-                    .padding(.trailing, 16)
-                    Spacer()
-                }
-            }
-            
-
-            // TODO: 진짜차단뷰로 수정
-            if store.showBlockAlert {
-                CustomAlertView(
-                    title: "차단하실? 쫄?.",
-                    cancelTitle: "아니요",
-                    confirmTitle: "네",
-                    cancelAction: {
-                        store.send(.cancelBlock)
-                    },
-                    confirmAction: {
-                        store.send(.confirmBlock)
-                    }
-                )
-            }
+            mainContent
+            overlayContent
+            alertViews
         }
-        .task {
-            store.send(.onAppear)
-        }
+        .task { store.send(.onAppear) }
         .edgesIgnoringSafeArea(.bottom)
-        .navigationBarBackButtonHidden()
+        .toastView(toast: Binding(get: { store.toast }, set: { _ in }))
+    }
+}
+
+private extension OtherProfileView {
+    var mainContent: some View {
+        VStack(spacing: 0) {
+            navigationBar
+            scrollableContent
+        }
     }
     
-    private var navigationBar: some View {
-        CustomNavigationBar(style: .detailWithKebab,
-                            title: store.username,
-                            onBackTapped: {
-                                store.send(.routeToPreviousScreen)
-                            },
-                            onKebabTapped: {
-                                store.send(.kebabMenuTapped)
-                            })
+    var scrollableContent: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                profileSection
+                Divider().frame(height: 2).background(Color.gray0)
+                reviewsSection
+            }
+        }
+        .refreshable { store.send(.onAppear) }
+    }
+    
+    var navigationBar: some View {
+        CustomNavigationBar(
+            style: store.isBlocked ? .detail : .detailWithKebab,
+            title: store.username,
+            onBackTapped: { store.send(.routeToPreviousScreen) },
+            onKebabTapped: store.isBlocked ? nil : { store.send(.kebabMenuTapped) }
+        )
         .padding(.bottom, 24)
     }
-    
-    private var profileContentView: some View {
-        VStack(spacing: 0) {
-            profileSection
-            
-            Divider()
-                .frame(height: 2)
-                .background(Color.gray0)
-            
-            reviewsSection
+}
+
+private extension OtherProfileView {
+    var overlayContent: some View {
+        Group {
+            if store.isMenuPresented && !store.isBlocked {
+                dropdownMenu
+            }
         }
     }
     
-    private var profileSection: some View {
+    var dropdownMenu: some View {
+        VStack {
+            HStack {
+                Spacer()
+                DropDownMenu(
+                    items: ["차단하기", "신고하기"],
+                    isPresented: Binding(
+                        get: { store.isMenuPresented },
+                        set: { _ in store.send(.dismissMenu) }
+                    )
+                ) { item in
+                    store.send(.menuItemSelected(item))
+                }
+                .offset(x: -5)
+            }
+            .padding(.top, 36)
+            .padding(.trailing, 16)
+            Spacer()
+        }
+    }
+    
+    var alertViews: some View {
+        Group {
+            if store.showBlockAlert { blockAlert }
+            if store.showUnblockAlert { unblockAlert }
+        }
+    }
+    
+    var blockAlert: some View {
+        CustomAlertView(
+            title: "\(store.username)님을\n 차단하시겠습니까?",
+            cancelTitle: "아니요",
+            confirmTitle: "네",
+            cancelAction: { store.send(.cancelBlock) },
+            confirmAction: { store.send(.confirmBlock) }
+        )
+    }
+    
+    var unblockAlert: some View {
+        CustomAlertView(
+            title: "차단을 해제하시겠습니까?",
+            cancelTitle: "아니요",
+            confirmTitle: "네",
+            cancelAction: { store.send(.cancelUnblock) },
+            confirmAction: { store.send(.confirmUnblock) }
+        )
+    }
+}
+
+private extension OtherProfileView {
+    var profileSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             profileHeader
             profileInfo
         }
     }
     
-    private var profileHeader: some View {
+    var profileHeader: some View {
         HStack(alignment: .center, spacing: 24) {
             profileImage
-            
             Spacer()
-            
             statsCounters
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 24)
     }
     
-    private var profileImage: some View {
+    var profileImage: some View {
         Group {
-            if !store.profileImageUrl.isEmpty {
+            if !store.profileImageUrl.isEmpty && !store.isBlocked {
                 AsyncImage(url: URL(string: store.profileImageUrl)) { phase in
                     switch phase {
                     case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
+                        image.resizable().aspectRatio(contentMode: .fill)
                     case .failure(_):
                         defaultProfileImage
                     case .empty:
@@ -150,7 +157,7 @@ struct OtherProfileView: View {
         }
     }
     
-    private var defaultProfileImage: some View {
+    var defaultProfileImage: some View {
         Circle()
             .fill(Color.gray200)
             .frame(width: 85.adjusted, height: 85.adjustedH)
@@ -161,40 +168,33 @@ struct OtherProfileView: View {
             )
     }
     
-    private var statsCounters: some View {
+    var statsCounters: some View {
         HStack(spacing: 54) {
-            statCounter(title: "리뷰", count: store.reviewCount)
-            statCounter(title: "팔로워", count: store.followerCount)
-            statCounter(title: "팔로잉", count: store.followingCount)
+            statCounter(title: "리뷰", count: store.isBlocked ? 0 : store.reviewCount)
+            statCounter(title: "팔로워", count: store.isBlocked ? 0 : store.followerCount)
+            statCounter(title: "팔로잉", count: store.isBlocked ? 0 : store.followingCount)
         }
     }
     
-    private func statCounter(title: String, count: Int) -> some View {
+    func statCounter(title: String, count: Int) -> some View {
         VStack(spacing: 8) {
-            Text(title)
-                .customFont(.caption1b)
-                .foregroundStyle(.gray400)
-            Text("\(count)")
-                .customFont(.body1sb)
-                .foregroundStyle(.spoonBlack)
+            Text(title).customFont(.caption1b).foregroundStyle(.gray400)
+            Text("\(count)").customFont(.body1sb).foregroundStyle(.spoonBlack)
         }
     }
     
-    private var profileInfo: some View {
+    var profileInfo: some View {
         HStack(alignment: .center, spacing: 0) {
             userInfoSection
-            
             Spacer()
-            
-            followButton
+            actionButton
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 27)
     }
     
-    private var userInfoSection: some View {
+    var userInfoSection: some View {
         VStack(alignment: .leading, spacing: 5) {
-            // 지역 정보 표시
             if !store.location.isEmpty {
                 Text("서울 \(store.location) 스푼")
                     .customFont(.body2sb)
@@ -202,13 +202,11 @@ struct OtherProfileView: View {
                     .padding(.bottom, 4)
             }
             
-            // 사용자 이름
             Text(store.username.isEmpty ? "이름 없음" : store.username)
                 .customFont(.title3sb)
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 8)
             
-            // 자기소개
             if !store.introduction.isEmpty {
                 Text(store.introduction)
                     .customFont(.caption1m)
@@ -219,20 +217,68 @@ struct OtherProfileView: View {
         }
     }
     
-    private var followButton: some View {
-        FollowButton(
-            isFollowing: store.isFollowing,
-            action: {
-                store.send(.followButtonTapped)
+    var actionButton: some View {
+        Group {
+            if store.isBlocked {
+                unblockButton
+            } else {
+                FollowButton(
+                    isFollowing: store.isFollowing,
+                    action: { store.send(.followButtonTapped) }
+                )
             }
-        )
+        }
     }
     
-    private var reviewsSection: some View {
+    var unblockButton: some View {
+        Button(action: { store.send(.followButtonTapped) }) {
+            Text("차단 해제")
+                .font(.body2sb)
+                .foregroundColor(.white)
+                .padding(.horizontal, 14.adjusted)
+                .padding(.vertical, 8.adjustedH)
+                .background(
+                    EllipticalGradient(
+                        stops: [
+                            .init(color: .main400, location: 0.55),
+                            .init(color: .main100, location: 1.0)
+                        ],
+                        center: UnitPoint(x: 1, y: 0),
+                        startRadiusFraction: 0.28,
+                        endRadiusFraction: 1.3
+                    )
+                )
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .strokeBorder(.main200, lineWidth: 1)
+                )
+        }
+    }
+}
+
+private extension OtherProfileView {
+    var reviewsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             reviewsHeader
-            
-            if store.isLoadingReviews {
+            reviewsContent
+        }
+    }
+    
+    var reviewsHeader: some View {
+        HStack {
+            Text("리뷰").customFont(.body1b).foregroundStyle(.spoonBlack)
+            Text("\(store.isBlocked ? 0 : store.reviewCount)개").customFont(.body2m).foregroundStyle(.gray400)
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 19)
+    }
+    
+    var reviewsContent: some View {
+        Group {
+            if store.isBlocked {
+                blockedUserReviewsView
+            } else if store.isLoadingReviews {
                 reviewsLoadingView
             } else if let error = store.reviewsErrorMessage {
                 reviewsErrorView(error)
@@ -244,64 +290,66 @@ struct OtherProfileView: View {
         }
     }
     
-    private var reviewsHeader: some View {
-        HStack {
-            Text("리뷰")
-                .customFont(.body1b)
-                .foregroundStyle(.spoonBlack)
-            Text("\(store.reviewCount)개")
-                .customFont(.body2m)
-                .foregroundStyle(.gray400)
+    var blockedUserReviewsView: some View {
+        VStack(spacing: 16) {
+            Image(.imageGoToList)
+                .resizable()
+                .frame(width: 100, height: 100)
+                .padding(.top, 30)
+            
+            VStack(spacing: 8) {
+                Text("차단된 사용자예요.")
+                    .customFont(.body2b)
+                    .foregroundStyle(.gray400)
+                
+                Text("지금은 프로필을 볼 수 없지만, \n 원하시면 차단을 해제할 수 있어요.")
+                    .customFont(.body2m)
+                    .foregroundStyle(.gray500)
+            }
+            .multilineTextAlignment(.center)
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 19)
+        .frame(maxWidth: .infinity)
+        .padding(.top, 20)
     }
     
-    private var reviewsLoadingView: some View {
+    var reviewsLoadingView: some View {
         VStack {
-            ProgressView()
-                .padding(.top, 30)
-                .frame(maxWidth: .infinity)
+            ProgressView().padding(.top, 30)
             Text("리뷰를 불러오는 중...")
                 .customFont(.caption1m)
                 .foregroundStyle(.gray500)
                 .padding(.top, 8)
         }
+        .frame(maxWidth: .infinity)
     }
     
-    private func reviewsErrorView(_ error: String) -> some View {
+    func reviewsErrorView(_ error: String) -> some View {
         VStack {
             Text("리뷰를 불러오는데 실패했습니다.")
                 .customFont(.body2m)
                 .foregroundStyle(.gray600)
                 .multilineTextAlignment(.center)
                 .padding(.top, 30)
-                .frame(maxWidth: .infinity)
             
-            Button("다시 시도") {
-                store.send(.fetchUserReviews)
-            }
-            .buttonStyle(.borderless)
-            .foregroundColor(.main400)
-            .padding(.top, 8)
+            Button("다시 시도") { store.send(.fetchUserReviews) }
+                .buttonStyle(.borderless)
+                .foregroundColor(.main400)
+                .padding(.top, 8)
         }
+        .frame(maxWidth: .infinity)
     }
     
-    private func reviewListView(_ reviews: [FeedEntity]) -> some View {
+    func reviewListView(_ reviews: [FeedEntity]) -> some View {
         LazyVStack(spacing: 18) {
             ForEach(reviews) { review in
-                ExploreCell(
-                    feed: review,
-                    onDelete: nil,
-                    onEdit: nil
-                )
-                .padding(.horizontal, 20)
+                ExploreCell(feed: review, onDelete: nil, onEdit: nil)
+                    .padding(.horizontal, 20)
             }
         }
         .padding(.top, 16)
     }
     
-    private var emptyReviewsView: some View {
+    var emptyReviewsView: some View {
         VStack(spacing: 16) {
             Image(.imageGoToList)
                 .resizable()
@@ -312,7 +360,6 @@ struct OtherProfileView: View {
                 .customFont(.body1m)
                 .foregroundStyle(.gray500)
                 .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, alignment: .center)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 20)

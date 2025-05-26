@@ -60,7 +60,7 @@ struct MyPageView: View {
                 AttendanceView(store: store)
                     .navigationBarBackButtonHidden()
                     .toolbar(.hidden, for: .tabBar)
-                
+                    
                 // 설정 관련 화면들 추가
             case let .accountManagement(store):
                 AccountManagementView(store: store)

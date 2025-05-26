@@ -5,15 +5,16 @@
 //  Created by 이명진 on 2/7/25.
 //
 
-protocol DetailUseCaseProtocol {
+protocol DetailUseCase {
     func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel
     func scrapReview(postId: Int) async throws
     func unScrapReview(postId: Int) async throws
     func scoopReview(postId: Int) async throws -> Bool
-    func getUserInfo() async throws -> UserInfoResponseDTO
+    func getMyUserInfo() async throws -> UserInfoResponseDTO
+    func getOtherUserInfo(userId: Int) async throws -> UserInfoResponseDTO
 }
 
-struct DefaultDetailUseCase {
+struct DetailUseCaseImpl {
     private let detailRepository: DetailRepositoryInterface
     private let homeService: HomeServiceType
     
@@ -27,7 +28,7 @@ struct DefaultDetailUseCase {
     }
 }
 
-extension DefaultDetailUseCase: DetailUseCaseProtocol {
+extension DetailUseCaseImpl: DetailUseCase {
     
     func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel {
         do {
@@ -40,7 +41,7 @@ extension DefaultDetailUseCase: DetailUseCaseProtocol {
             print("✅ 2. reviewDetail = \(reviewDetail)")
 
             print("🔍 3. get userInfo")
-            let userInfo = try await detailRepository.fetchUserInfo()
+            let userInfo = try await detailRepository.getOtherUserInfo(userId: reviewDetail.userId)
             print("✅ 3. userInfo =", userInfo.userName)
 
             return ReviewDetailModel(reviewDetail: reviewDetail, userInfo: userInfo, spoonCount: spoonCount)
@@ -62,7 +63,12 @@ extension DefaultDetailUseCase: DetailUseCaseProtocol {
         return try await detailRepository.scoopReview(postId: postId)
     }
     
-    func getUserInfo() async throws -> UserInfoResponseDTO {
-        return try await detailRepository.fetchUserInfo()
+    func getMyUserInfo() async throws -> UserInfoResponseDTO {
+        return try await detailRepository.getMyUserInfo()
     }
+    
+    func getOtherUserInfo(userId: Int) async throws -> UserInfoResponseDTO {
+        return try await detailRepository.getOtherUserInfo(userId: userId)
+    }
+    
 }

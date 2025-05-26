@@ -10,11 +10,16 @@ import ComposableArchitecture
 
 @Reducer
 struct WithdrawFeature {
+    enum WithdrawAlert: Equatable {
+        case confirmWithdraw
+    }
+    
     @ObservableState
     struct State: Equatable {
         static let initialState = State()
         
         var isAgreed: Bool = false
+        var withdrawAlert: WithdrawAlert? = nil
         var isWithdrawing: Bool = false
         var withdrawErrorMessage: String? = nil
     }
@@ -24,6 +29,9 @@ struct WithdrawFeature {
         case routeToPreviousScreen
         case toggleAgreement
         case withdrawButtonTapped
+        case confirmWithdraw
+        case cancelWithdraw
+        case performWithdraw
         case withdrawResult(TaskResult<Bool>)
         case routeToLoginScreen
     }
@@ -46,9 +54,22 @@ struct WithdrawFeature {
                 return .none
                 
             case .withdrawButtonTapped:
+                state.withdrawAlert = .confirmWithdraw
+                return .none
+                
+            case .confirmWithdraw:
+                state.withdrawAlert = nil
+                return .send(.performWithdraw)
+                
+            case .cancelWithdraw:
+                state.withdrawAlert = nil
+                return .none
+                
+            case .performWithdraw:
                 state.isWithdrawing = true
                 state.withdrawErrorMessage = nil
                 
+                // 실제 회원탈퇴 API 호출
                 return .run { send in
                     await send(.withdrawResult(
                         TaskResult { try await authService.withdraw() }
@@ -58,10 +79,21 @@ struct WithdrawFeature {
             case let .withdrawResult(.success(isSuccess)):
                 state.isWithdrawing = false
                 if isSuccess {
+                    // 회원탈퇴 성공 시 모든 데이터 클리어
                     let _ = KeychainManager.delete(key: .accessToken)
                     let _ = KeychainManager.delete(key: .refreshToken)
                     
-                    UserManager.shared.clearAllUserDefaults()
+                    // UserDefaults 클리어
+                    UserDefaults.standard.removeObject(forKey: "userId")
+                    UserDefaults.standard.removeObject(forKey: "isTooltipPresented")
+                    
+                    // UserManager의 데이터 클리어
+                    UserManager.shared.userId = nil
+                    UserManager.shared.isTooltipPresented = nil
+                    UserManager.shared.recentSearches = nil
+                    UserManager.shared.exploreUserRecentSearches = nil
+                    UserManager.shared.exploreReviewRecentSearches = nil
+                    UserManager.shared.lastAppVisitDate = nil
                     
                     return .send(.routeToLoginScreen)
                 }
