@@ -24,8 +24,13 @@ struct ReportFeature {
         var isError: Bool = true
         
         var isAlertPresented: Bool = false
-        var alertType: AlertType?
-        var alert: Alert?
+        var alertType: AlertType = .normalButtonOne
+        var alert: Alert = .init(
+            title: "테스트",
+            confirmButtonTitle: "테스트",
+            cancelButtonTitle: "테스트",
+            imageString: nil
+        )
     }
     
     enum Action: BindableAction, Equatable {
