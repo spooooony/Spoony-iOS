@@ -52,4 +52,10 @@ extension DependencyValues {
         get { self[ReportServiceKey.self] }
         set { self[ReportServiceKey.self] = newValue }
     }
+    
+    // 새로 추가된 BlockService
+    var blockService: BlockServiceProtocol {
+        get { self[BlockServiceKey.self] }
+        set { self[BlockServiceKey.self] = newValue }
+    }
 }

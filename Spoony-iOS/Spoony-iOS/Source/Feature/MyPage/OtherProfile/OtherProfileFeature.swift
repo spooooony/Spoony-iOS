@@ -53,7 +53,7 @@ struct OtherProfileFeature {
         case menuItemSelected(String)
         case dismissMenu
         case blockUser
-        case unblockUser 
+        case unblockUser
         case reportUser
         case confirmBlock
         case confirmUnblock
@@ -68,8 +68,7 @@ struct OtherProfileFeature {
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
     @Dependency(\.followUseCase) var followUseCase: FollowUseCase
-    
-    private let myPageProvider = Providers.myPageProvider
+    @Dependency(\.blockService) var blockService: BlockServiceProtocol
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -180,28 +179,7 @@ struct OtherProfileFeature {
                 state.showBlockAlert = false
                 return .run { [userId = state.userId] send in
                     await send(.blockActionResponse(
-                        TaskResult {
-                            try await withCheckedThrowingContinuation { continuation in
-                                let request = TargetUserRequest(targetUserId: userId)
-                                myPageProvider.request(.blockUser(request: request)) { result in
-                                    switch result {
-                                    case .success(let response):
-                                        do {
-                                            let dto = try response.map(BaseResponse<BlankData>.self)
-                                            if dto.success {
-                                                continuation.resume()
-                                            } else {
-                                                continuation.resume(throwing: SNError.etc)
-                                            }
-                                        } catch {
-                                            continuation.resume(throwing: error)
-                                        }
-                                    case .failure(let error):
-                                        continuation.resume(throwing: error)
-                                    }
-                                }
-                            }
-                        }
+                        TaskResult { try await blockService.blockUser(userId: userId) }
                     ))
                 }
                 
@@ -209,28 +187,7 @@ struct OtherProfileFeature {
                 state.showUnblockAlert = false
                 return .run { [userId = state.userId] send in
                     await send(.unblockActionResponse(
-                        TaskResult {
-                            try await withCheckedThrowingContinuation { continuation in
-                                let request = TargetUserRequest(targetUserId: userId)
-                                myPageProvider.request(.unblockUser(request: request)) { result in
-                                    switch result {
-                                    case .success(let response):
-                                        do {
-                                            let dto = try response.map(BaseResponse<BlankData>.self)
-                                            if dto.success {
-                                                continuation.resume()
-                                            } else {
-                                                continuation.resume(throwing: SNError.etc)
-                                            }
-                                        } catch {
-                                            continuation.resume(throwing: error)
-                                        }
-                                    case .failure(let error):
-                                        continuation.resume(throwing: error)
-                                    }
-                                }
-                            }
-                        }
+                        TaskResult { try await blockService.unblockUser(userId: userId) }
                     ))
                 }
                 
@@ -246,8 +203,11 @@ struct OtherProfileFeature {
                 state.isBlocked = true
                 state.isFollowing = false
                 state.reviews = []
-                state.toast = Toast(style: .gray, message: "사용자를 차단했습니다", yOffset: UIScreen.main.bounds.height - 200)
-                //여기 위치조정 이게 맞아요?
+                state.toast = Toast(
+                    style: .gray,
+                    message: "사용자를 차단했습니다",
+                    yOffset: UIScreen.main.bounds.height - 200
+                )
 
                 return .run { send in
                     try await Task.sleep(nanoseconds: 2_000_000_000)

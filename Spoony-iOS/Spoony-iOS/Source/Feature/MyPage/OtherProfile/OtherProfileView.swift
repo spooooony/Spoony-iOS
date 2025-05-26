@@ -25,16 +25,17 @@ struct OtherProfileView: View {
         .edgesIgnoringSafeArea(.bottom)
         .toastView(toast: Binding(get: { store.toast }, set: { _ in }))
     }
-    
-    // MARK: - Main Content
-    private var mainContent: some View {
+}
+
+private extension OtherProfileView {
+    var mainContent: some View {
         VStack(spacing: 0) {
             navigationBar
             scrollableContent
         }
     }
     
-    private var scrollableContent: some View {
+    var scrollableContent: some View {
         ScrollView {
             VStack(spacing: 0) {
                 profileSection
@@ -45,8 +46,7 @@ struct OtherProfileView: View {
         .refreshable { store.send(.onAppear) }
     }
     
-    // MARK: - Navigation
-    private var navigationBar: some View {
+    var navigationBar: some View {
         CustomNavigationBar(
             style: store.isBlocked ? .detail : .detailWithKebab,
             title: store.username,
@@ -55,9 +55,10 @@ struct OtherProfileView: View {
         )
         .padding(.bottom, 24)
     }
-    
-    // MARK: - Overlay Content
-    private var overlayContent: some View {
+}
+
+private extension OtherProfileView {
+    var overlayContent: some View {
         Group {
             if store.isMenuPresented && !store.isBlocked {
                 dropdownMenu
@@ -65,7 +66,7 @@ struct OtherProfileView: View {
         }
     }
     
-    private var dropdownMenu: some View {
+    var dropdownMenu: some View {
         VStack {
             HStack {
                 Spacer()
@@ -86,14 +87,14 @@ struct OtherProfileView: View {
         }
     }
     
-    private var alertViews: some View {
+    var alertViews: some View {
         Group {
             if store.showBlockAlert { blockAlert }
             if store.showUnblockAlert { unblockAlert }
         }
     }
     
-    private var blockAlert: some View {
+    var blockAlert: some View {
         CustomAlertView(
             title: "\(store.username)님을\n 차단하시겠습니까?",
             cancelTitle: "아니요",
@@ -103,7 +104,7 @@ struct OtherProfileView: View {
         )
     }
     
-    private var unblockAlert: some View {
+    var unblockAlert: some View {
         CustomAlertView(
             title: "차단을 해제하시겠습니까?",
             cancelTitle: "아니요",
@@ -112,15 +113,17 @@ struct OtherProfileView: View {
             confirmAction: { store.send(.confirmUnblock) }
         )
     }
-    
-    private var profileSection: some View {
+}
+
+private extension OtherProfileView {
+    var profileSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             profileHeader
             profileInfo
         }
     }
     
-    private var profileHeader: some View {
+    var profileHeader: some View {
         HStack(alignment: .center, spacing: 24) {
             profileImage
             Spacer()
@@ -130,7 +133,7 @@ struct OtherProfileView: View {
         .padding(.bottom, 24)
     }
     
-    private var profileImage: some View {
+    var profileImage: some View {
         Group {
             if !store.profileImageUrl.isEmpty && !store.isBlocked {
                 AsyncImage(url: URL(string: store.profileImageUrl)) { phase in
@@ -154,7 +157,7 @@ struct OtherProfileView: View {
         }
     }
     
-    private var defaultProfileImage: some View {
+    var defaultProfileImage: some View {
         Circle()
             .fill(Color.gray200)
             .frame(width: 85.adjusted, height: 85.adjustedH)
@@ -165,7 +168,7 @@ struct OtherProfileView: View {
             )
     }
     
-    private var statsCounters: some View {
+    var statsCounters: some View {
         HStack(spacing: 54) {
             statCounter(title: "리뷰", count: store.isBlocked ? 0 : store.reviewCount)
             statCounter(title: "팔로워", count: store.isBlocked ? 0 : store.followerCount)
@@ -173,14 +176,14 @@ struct OtherProfileView: View {
         }
     }
     
-    private func statCounter(title: String, count: Int) -> some View {
+    func statCounter(title: String, count: Int) -> some View {
         VStack(spacing: 8) {
             Text(title).customFont(.caption1b).foregroundStyle(.gray400)
             Text("\(count)").customFont(.body1sb).foregroundStyle(.spoonBlack)
         }
     }
     
-    private var profileInfo: some View {
+    var profileInfo: some View {
         HStack(alignment: .center, spacing: 0) {
             userInfoSection
             Spacer()
@@ -190,7 +193,7 @@ struct OtherProfileView: View {
         .padding(.bottom, 27)
     }
     
-    private var userInfoSection: some View {
+    var userInfoSection: some View {
         VStack(alignment: .leading, spacing: 5) {
             if !store.location.isEmpty {
                 Text("서울 \(store.location) 스푼")
@@ -214,7 +217,7 @@ struct OtherProfileView: View {
         }
     }
     
-    private var actionButton: some View {
+    var actionButton: some View {
         Group {
             if store.isBlocked {
                 unblockButton
@@ -227,7 +230,7 @@ struct OtherProfileView: View {
         }
     }
     
-    private var unblockButton: some View {
+    var unblockButton: some View {
         Button(action: { store.send(.followButtonTapped) }) {
             Text("차단 해제")
                 .font(.body2sb)
@@ -252,16 +255,17 @@ struct OtherProfileView: View {
                 )
         }
     }
-    
-    // MARK: - Reviews Section
-    private var reviewsSection: some View {
+}
+
+private extension OtherProfileView {
+    var reviewsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             reviewsHeader
             reviewsContent
         }
     }
     
-    private var reviewsHeader: some View {
+    var reviewsHeader: some View {
         HStack {
             Text("리뷰").customFont(.body1b).foregroundStyle(.spoonBlack)
             Text("\(store.isBlocked ? 0 : store.reviewCount)개").customFont(.body2m).foregroundStyle(.gray400)
@@ -270,7 +274,7 @@ struct OtherProfileView: View {
         .padding(.top, 19)
     }
     
-    private var reviewsContent: some View {
+    var reviewsContent: some View {
         Group {
             if store.isBlocked {
                 blockedUserReviewsView
@@ -286,7 +290,7 @@ struct OtherProfileView: View {
         }
     }
     
-    private var blockedUserReviewsView: some View {
+    var blockedUserReviewsView: some View {
         VStack(spacing: 16) {
             Image(.imageGoToList)
                 .resizable()
@@ -308,7 +312,7 @@ struct OtherProfileView: View {
         .padding(.top, 20)
     }
     
-    private var reviewsLoadingView: some View {
+    var reviewsLoadingView: some View {
         VStack {
             ProgressView().padding(.top, 30)
             Text("리뷰를 불러오는 중...")
@@ -319,7 +323,7 @@ struct OtherProfileView: View {
         .frame(maxWidth: .infinity)
     }
     
-    private func reviewsErrorView(_ error: String) -> some View {
+    func reviewsErrorView(_ error: String) -> some View {
         VStack {
             Text("리뷰를 불러오는데 실패했습니다.")
                 .customFont(.body2m)
@@ -335,7 +339,7 @@ struct OtherProfileView: View {
         .frame(maxWidth: .infinity)
     }
     
-    private func reviewListView(_ reviews: [FeedEntity]) -> some View {
+    func reviewListView(_ reviews: [FeedEntity]) -> some View {
         LazyVStack(spacing: 18) {
             ForEach(reviews) { review in
                 ExploreCell(feed: review, onDelete: nil, onEdit: nil)
@@ -345,7 +349,7 @@ struct OtherProfileView: View {
         .padding(.top, 16)
     }
     
-    private var emptyReviewsView: some View {
+    var emptyReviewsView: some View {
         VStack(spacing: 16) {
             Image(.imageGoToList)
                 .resizable()
