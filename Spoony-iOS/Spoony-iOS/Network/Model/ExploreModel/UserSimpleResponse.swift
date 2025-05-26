@@ -15,7 +15,7 @@ extension UserSimpleListResponse {
     struct UserSimpleResponse: Codable {
         let userId: Int
         let username: String
-        let regionName: String
+        let regionName: String?
         let profileImageUrl: String
     }
 }

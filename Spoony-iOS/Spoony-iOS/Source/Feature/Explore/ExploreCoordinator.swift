@@ -22,6 +22,7 @@ struct ExploreCoordinator {
     enum Action {
         case router(IndexedRouterActionOf<ExploreScreen>)
         case tabSelected(TabType)
+        case routeToPreviousScreen
     }
     
     var body: some ReducerOf<Self> {
@@ -59,10 +60,10 @@ struct ExploreCoordinator {
                 return .none
                 
             // 이전 화면
-            case .router(.routeAction(id: _, action: .search(.routeToExploreScreen))):
+            case .router(.routeAction(id: _, action: .search(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
-            case .router(.routeAction(id: _, action: .report(.routeToExploreScreen))):
+            case .router(.routeAction(id: _, action: .report(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
             case .router(.routeAction(id: _, action: .detail(.routeToPreviousScreen))):
@@ -78,6 +79,9 @@ struct ExploreCoordinator {
             // 탭
             case .router(.routeAction(id: _, action: .explore(.tabSelected(let tab)))):
                 return .send(.tabSelected(tab))
+                
+            case .routeToPreviousScreen:
+                return .none
             default:
                 return .none
             }

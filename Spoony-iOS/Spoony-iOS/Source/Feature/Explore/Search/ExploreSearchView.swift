@@ -18,82 +18,77 @@ struct ExploreSearchView: View {
     }
     
     var body: some View {
-        ZStack {
-            VStack {
-                CustomNavigationBar(
-                    style: .search(showBackButton: true),
-                    placeholder: store.state.viewType.placeholder,
-                    searchText: $store.searchText,
-                    onBackTapped: {
-                        store.send(.routeToExploreScreen)
-                    }, tappedAction: {
-                        store.send(.onSubmit)
-                    }
-                )
-                
-                HStack(spacing: 0) {
-                    ForEach(ExploreSearchViewType.allCases, id: \.self) { type in
-                        VStack(spacing: 0) {
-                            Text(type.title)
-                                .foregroundStyle(store.state.viewType == type ? .main400 : .gray400)
-                                .onTapGesture {
-                                    store.send(
-                                        .changeViewType(type),
-                                        animation: .spring(response: 0.3, dampingFraction: 0.7)
-                                    )
-                                }
-                                .frame(maxWidth: .infinity)
-                            
-                            Rectangle()
-                                .fill(.main400)
-                                .frame(height: 2.adjustedH)
-                                .isHidden(store.state.viewType != type)
-                                .matchedGeometryEffect(id: "underline", in: namespace)
-                                .padding(.top, 9)
-                            
-                            Rectangle()
-                                .fill(.gray100)
-                                .frame(height: 6.adjustedH)
-                        }
+        VStack {
+            CustomNavigationBar(
+                style: .search(showBackButton: true),
+                placeholder: store.state.viewType.placeholder,
+                searchText: $store.searchText,
+                onBackTapped: {
+                    store.send(.routeToPreviousScreen)
+                }, tappedAction: {
+                    store.send(.onSubmit)
+                }
+            )
+            
+            HStack(spacing: 0) {
+                ForEach(ExploreSearchViewType.allCases, id: \.self) { type in
+                    VStack(spacing: 0) {
+                        Text(type.title)
+                            .foregroundStyle(store.state.viewType == type ? .main400 : .gray400)
+                            .onTapGesture {
+                                store.send(
+                                    .changeViewType(type),
+                                    animation: .spring(response: 0.3, dampingFraction: 0.7)
+                                )
+                            }
+                            .frame(maxWidth: .infinity)
+                        
+                        Rectangle()
+                            .fill(.main400)
+                            .frame(height: 2.adjustedH)
+                            .isHidden(store.state.viewType != type)
+                            .matchedGeometryEffect(id: "underline", in: namespace)
+                            .padding(.top, 9)
+                        
+                        Rectangle()
+                            .fill(.gray100)
+                            .frame(height: 6.adjustedH)
                     }
                 }
                 .customFont(.body1sb)
                 .frame(maxWidth: .infinity)
-                
-                switch store.state.searchState {
-                case .beforeSearch:
-                    beforeSearchView
-                case .recentSearch:
-                    recentSearchTextView
-                case .searching:
-                    Spacer()
-                case .searchResult:
-                    searchResultView
-                case .noResult:
-                    noResultView
-                }
-                
             }
             
-            if store.showDeleteAlert {
-                CustomAlertView(
-                    title: "정말로 리뷰를 삭제할까요?",
-                    cancelTitle: "아니요",
-                    confirmTitle: "네",
-                    cancelAction: {
-                        store.send(.cancelDeleteReview)
-                    },
-                    confirmAction: {
-                        store.send(.confirmDeleteReview)
-                    }
-                )
+            switch store.state.searchState {
+            case .beforeSearch:
+                beforeSearchView
+            case .recentSearch:
+                recentSearchTextView
+            case .searching:
+                Spacer()
+            case .searchResult:
+                searchResultView
+            case .noResult:
+                noResultView
             }
+            
         }
-        .toolbar(store.showDeleteAlert ? .hidden : .visible, for: .tabBar)
         .navigationBarBackButtonHidden()
         .onAppear {
             // 여기서 키보드 올리기 어떻게 하는지 모르겠다...
             store.send(.onAppear)
+        }
+        .alertView(
+            isPresented: $store.isAlertPresented,
+            alertType: store.alertType,
+            alert: store.alert,
+            confirmAction: {
+                store.send(.confirmDeleteReview)
+            },
+            afterAction: nil
+        )
+        .transaction {
+            $0.disablesAnimations = true
         }
     }
 }
@@ -210,10 +205,11 @@ extension ExploreSearchView {
             VStack(alignment: .leading, spacing: 4) {
                 Text(user.userName)
                     .customFont(.body2m)
-                Text("\(user.regionName) 스푼")
-                    .customFont(.caption1m)
-                    .foregroundStyle(.gray400)
-                
+                if let region = user.regionName {
+                    Text("\(region) 스푼")
+                        .customFont(.caption1m)
+                        .foregroundStyle(.gray400)
+                }
             }
             
             Spacer()

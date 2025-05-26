@@ -22,6 +22,10 @@ struct ReportFeature {
         var selectedUserReport: UserReportType = .advertisement
         var description: String = ""
         var isError: Bool = true
+        
+        var isAlertPresented: Bool = false
+        var alertType: AlertType?
+        var alert: Alert?
     }
     
     enum Action: BindableAction, Equatable {
@@ -30,7 +34,8 @@ struct ReportFeature {
         case reportPostReasonButtonTapped(PostReportType)
         case reportUserReasonButtonTapped(UserReportType)
         case reportPostButtonTapped
-        case routeToExploreScreen
+        case routeToPreviousScreen
+        case presentAlert(AlertType, Alert)
     }
     
     @Dependency(\.reportService) var reportService: ReportProtocol
@@ -64,6 +69,17 @@ struct ReportFeature {
                                 report: state.selectedPostReport,
                                 description: state.description
                             )
+                            await send(
+                                .presentAlert(
+                                    .normalButtonOne,
+                                    Alert(
+                                        title: "신고가 접수되었어요",
+                                        confirmButtonTitle: "확인",
+                                        cancelButtonTitle: nil,
+                                        imageString: nil
+                                    )
+                                )
+                            )
                         case .user:
                             try await reportService.reportUser(
                                 targetUserId: state.targetUserId,
@@ -71,12 +87,17 @@ struct ReportFeature {
                                 description: state.description
                             )
                         }
-                        await send(.routeToExploreScreen)
+                        
                     } catch {
                         // 에러 처리
                     }
                 }
-            case .routeToExploreScreen:
+            case .routeToPreviousScreen:
+                return .none
+            case let .presentAlert(type, alert):
+                state.alertType = type
+                state.alert = alert
+                state.isAlertPresented = true
                 return .none
             case .binding:
                 return .none
@@ -84,5 +105,3 @@ struct ReportFeature {
         }
     }
 }
-
-

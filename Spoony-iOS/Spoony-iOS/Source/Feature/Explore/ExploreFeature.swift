@@ -21,7 +21,6 @@ struct ExploreFeature {
         
         var isFilterPresented: Bool = false
         var isSortFilterPresented: Bool = false
-        var showDeleteAlert: Bool = false
         
         var deleteReviewID: Int = -1
         
@@ -38,10 +37,14 @@ struct ExploreFeature {
         
         var filterInfo: FilterInfo = .init(categories: [], locations: [])
         
-        var nextCursor: Int = 0
+        var nextCursor: Int?
         var isLast: Bool = false
         
         var isLoading: Bool = false
+    
+        var isAlertPresented: Bool = false
+        var alertType: AlertType?
+        var alert: Alert?
     }
     
     enum Action: BindableAction, Equatable {
@@ -61,7 +64,6 @@ struct ExploreFeature {
         case setFilterInfo(category: [CategoryChip], location: [Region])
         
         case deleteMyReview(Int)
-        case cancelDeleteReview
         case confirmDeleteReview
         case deleteReviewResult(Bool)
         
@@ -73,6 +75,7 @@ struct ExploreFeature {
         case routeToReportScreen(Int)
         case routeToEditReviewScreen(Int)
         case tabSelected(TabType)
+        case presentAlert(AlertType, Alert)
     }
     
     @Dependency(\.exploreService) var exploreService: ExploreProtocol
@@ -140,7 +143,7 @@ struct ExploreFeature {
                         )
                         let list = result.toEntity()
                         let cursor = result.nextCursor
-                        print("😅cursor: \(state.nextCursor), next: \(cursor)")
+//                        print("😅cursor: \(state.nextCursor), next: \(cursor)")
                         
                         await send(.setFeed(list, cursor))
                     } catch {
@@ -159,7 +162,7 @@ struct ExploreFeature {
                         // TODO: 임시 커서값. 팔로잉 페이지네이션 시 적용
                         await send(.setFeed(list, 0))
                     } catch {
-                       // 에러처리
+                        // 에러처리
                     }
                 }
             case .setFeed(let list, let nextCursor):
@@ -183,11 +186,18 @@ struct ExploreFeature {
                 return .none
             case .deleteMyReview(let postId):
                 state.deleteReviewID = postId
-                state.showDeleteAlert = true
-                return .none
-            case .cancelDeleteReview:
-                state.showDeleteAlert = false
-                return .none
+                
+                return .send(
+                    .presentAlert(
+                        .normalButtonTwo,
+                        Alert(
+                            title: "정말로 리뷰를 삭제하시겠어요?",
+                            confirmButtonTitle: "네",
+                            cancelButtonTitle: "아니요",
+                            imageString: nil
+                        )
+                    )
+                )
             case .confirmDeleteReview:
                 return .run { [state] send in
                     do {
@@ -200,7 +210,6 @@ struct ExploreFeature {
                 }
             case .deleteReviewResult(let success):
                 // TODO: 성공, 실패 처리
-                state.showDeleteAlert = false
                 return .none
             case .routeToEditReviewScreen:
                 return .none
@@ -233,6 +242,11 @@ struct ExploreFeature {
                     state.selectedFilterButton.append(.filter)
                 }
                 return .send(.fetchFilteredFeed)
+            case let .presentAlert(type, alert):
+                state.alertType = type
+                state.alert = alert
+                state.isAlertPresented = true
+                return .none
             case .binding(\.selectedSort):
                 state.isLast = false
                 return .send(.fetchFilteredFeed)

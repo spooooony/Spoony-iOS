@@ -14,8 +14,7 @@ struct ExploreSearchFeature {
     @ObservableState
     struct State: Equatable {
         static let initialState = State()
-        
-        var showDeleteAlert: Bool = false
+
         var deleteReviewID: Int = -1
         
         var viewType: ExploreSearchViewType = .user
@@ -23,6 +22,10 @@ struct ExploreSearchFeature {
         var searchText: String = ""
         var userResult: [SimpleUser] = []
         var reviewResult: [FeedEntity] = []
+        
+        var alertType: AlertType?
+        var alert: Alert?
+        var isAlertPresented: Bool = false
     }
     
     enum Action: BindableAction, Equatable {
@@ -39,14 +42,13 @@ struct ExploreSearchFeature {
         case recentDeleteButtonTapped(String)
         case searchByRecentSearch(String)
         
-        // TODO: 겹치는 로직 한 번에 처리하도록 리팩하기 ..
         case deleteMyReview(Int)
-        case cancelDeleteReview
         case confirmDeleteReview
         case deleteReviewResult(Bool)
         
         // MARK: - Navigation
-        case routeToExploreScreen
+        case routeToPreviousScreen
+        case presentAlert(AlertType, Alert)
         case routeToEditReviewScreen(Int)
         case routeToDetailScreen(FeedEntity)
         case routeToReportScreen(Int)
@@ -184,11 +186,17 @@ struct ExploreSearchFeature {
                 
             case .deleteMyReview(let postId):
                 state.deleteReviewID = postId
-                state.showDeleteAlert = true
-                return .none
-            case .cancelDeleteReview:
-                state.showDeleteAlert = false
-                return .none
+                return .send(
+                    .presentAlert(
+                        .normalButtonTwo,
+                        Alert(
+                            title: "정말로 리뷰를 삭제하시겠어요?",
+                            confirmButtonTitle: "네",
+                            cancelButtonTitle: "아니요",
+                            imageString: nil
+                        )
+                    )
+                )
             case .confirmDeleteReview:
                 return .run { [state] send in
                     do {
@@ -199,9 +207,8 @@ struct ExploreSearchFeature {
                         // 에러처리
                     }
                 }
-            case .deleteReviewResult(let success):
+            case .deleteReviewResult:
                 // TODO: 성공, 실패 처리
-                state.showDeleteAlert = false
                 return .none
             case .routeToEditReviewScreen:
                 return .none
@@ -213,7 +220,12 @@ struct ExploreSearchFeature {
                     return .send(.updateSearchStateFromRecentSearches)
                 }
                 return .none
-            case .routeToExploreScreen:
+            case .routeToPreviousScreen:
+                return .none
+            case let .presentAlert(type, alert):
+                state.alertType = type
+                state.alert = alert
+                state.isAlertPresented = true
                 return .none
             case .routeToDetailScreen:
                 return .none

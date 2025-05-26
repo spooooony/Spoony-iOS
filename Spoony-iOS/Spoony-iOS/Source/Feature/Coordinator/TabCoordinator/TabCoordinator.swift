@@ -73,7 +73,6 @@ struct TabCoordinator {
             switch action {
             case .binding:
                 return .none
-                
             case let .tabSelected(tab):
                 if state.selectedTab != tab {
                     state.toast = nil
@@ -81,7 +80,6 @@ struct TabCoordinator {
                 
                 state.previousSelectedTab = state.selectedTab
                 state.selectedTab = tab
-                
                 return .none
                 
             // 탭 이동 액션들
@@ -122,7 +120,7 @@ struct TabCoordinator {
             case .register(\.presentPopup):
                 state.popup = .registerSuccess
                 return .none
-                
+                     
             // 다른 뷰 사용 예시
 //            case .map(\.presentPopup):
 //                state.popup = .reportSuccess

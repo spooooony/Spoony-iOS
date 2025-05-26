@@ -10,6 +10,6 @@ import Foundation
 struct SimpleUser: Identifiable, Hashable {
     let id: Int
     let userName: String
-    let regionName: String
+    let regionName: String?
     let profileImage: String
 }

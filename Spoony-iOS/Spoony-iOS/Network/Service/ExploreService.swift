@@ -16,7 +16,7 @@ protocol ExploreProtocol {
         region: [Int],
         age: [String],
         sort: SortType,
-        cursor: Int
+        cursor: Int?
     ) async throws -> FilteredFeedResponse
     func getFollowingFeedList() async throws -> FeedListResponse
     
@@ -39,7 +39,7 @@ final class DefaultExploreService: ExploreProtocol {
         region: [Int],
         age: [String],
         sort: SortType,
-        cursor: Int
+        cursor: Int?
     ) async throws -> FilteredFeedResponse {
         return try await withCheckedThrowingContinuation { continuation in
             let request: FilteredFeedRequest = .init(
@@ -179,11 +179,11 @@ final class MockExploreService: ExploreProtocol {
         region: [Int],
         age: [String],
         sort: SortType,
-        cursor: Int
+        cursor: Int?
     ) async throws -> FilteredFeedResponse {
         return .init(
             filteredFeedResponseDTOList: [],
-            nextCursor: cursor
+            nextCursor: 0
         )
     }
 

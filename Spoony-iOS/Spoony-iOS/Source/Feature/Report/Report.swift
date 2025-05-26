@@ -32,7 +32,7 @@ struct Report: View {
                 style: .detail,
                 title: "신고하기",
                 onBackTapped: {
-                    store.send(.routeToExploreScreen)
+                    store.send(.routeToPreviousScreen)
                 }
             )
             Divider()
@@ -63,6 +63,15 @@ struct Report: View {
             store.send(.onAppear)
         }
         .navigationBarBackButtonHidden()
+        .alertView(
+            isPresented: $store.isAlertPresented,
+            alertType: store.alertType,
+            alert: store.alert,
+            confirmAction: nil,
+            afterAction: {
+                store.send(.routeToPreviousScreen)
+            }
+        )
     }
 }
 
