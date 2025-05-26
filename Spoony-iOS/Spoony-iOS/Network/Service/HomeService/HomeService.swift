@@ -13,6 +13,7 @@ protocol HomeServiceType {
     func fetchSpoonCount() async throws -> Int
     func fetchFocusedPlace(placeId: Int) async throws -> MapFocusResponse
     func fetchLocationList(locationId: Int) async throws -> ResturantpickListResponse
+    func drawDailySpoon() async throws -> SpoonDrawResponse
 }
 
 final class DefaultHomeService: HomeServiceType {
@@ -45,7 +46,7 @@ final class DefaultHomeService: HomeServiceType {
                 switch result {
                 case let .success(response):
                     do {
-                        let baseResponse = try response.map(BaseResponse<SpoonResponse>.self)
+                        let baseResponse = try response.map(BaseResponse<SpoonCountResponse>.self)
                         if baseResponse.success, let data = baseResponse.data {
                             continuation.resume(returning: data.spoonAmount)
                         } else {
@@ -96,6 +97,34 @@ final class DefaultHomeService: HomeServiceType {
                             throw NSError(domain: "HomeService", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data available"])
                         }
                         continuation.resume(returning: data)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    func drawDailySpoon() async throws -> SpoonDrawResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.request(.drawSpoon) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let baseResponse = try response.map(BaseResponse<SpoonDrawResponse>.self)
+                        if baseResponse.success, let data = baseResponse.data {
+                            continuation.resume(returning: data)
+                        } else if let error = baseResponse.error as? [String: String], let message = error["message"] {
+                            continuation.resume(throwing: NSError(
+                                domain: "SpoonService",
+                                code: response.statusCode,
+                                userInfo: [NSLocalizedDescriptionKey: message]
+                            ))
+                        } else {
+                            continuation.resume(throwing: SNError.noData)
+                        }
                     } catch {
                         continuation.resume(throwing: error)
                     }

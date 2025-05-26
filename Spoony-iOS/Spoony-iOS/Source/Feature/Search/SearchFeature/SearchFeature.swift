@@ -50,6 +50,7 @@ struct SearchFeature {
         case searchCompletedSuccess([SearchResult])
         case searchCompletedFailure(String)
         case routeToPreviousScreen
+        case goBack
     }
     
     var body: some ReducerOf<Self> {
@@ -112,7 +113,7 @@ struct SearchFeature {
                 
             case let .selectLocation(result):
                 state.isSearching = false
-                   return .none
+                return .none
                 
             case let .selectRecentSearch(searchText):
                 state.searchText = searchText
@@ -154,6 +155,12 @@ struct SearchFeature {
             case let .setFirstAppear(isFirst):
                 state.isFirstAppear = isFirst
                 return .none
+                
+            case .goBack:
+                state.searchText = ""
+                state.searchResults = []
+                state.errorMessage = nil
+                return .send(.routeToPreviousScreen)
                 
             }
         }

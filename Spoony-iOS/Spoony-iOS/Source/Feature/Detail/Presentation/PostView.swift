@@ -71,6 +71,7 @@ struct PostView: View {
                 bottomView
                     .frame(height: 80.adjustedH)
             }
+
             .toolbar(.hidden, for: .tabBar)
             
             if store.isLoading {
@@ -82,6 +83,19 @@ struct PostView: View {
                 .animation(.easeInOut, value: store.isLoading)
             }
         }
+        .popup(
+            popup: Binding(
+                get: { store.isUseSpoonPopupVisible ? .useSpoon : nil },
+                set: { newValue in
+                    if newValue == nil {
+                        store.send(.dismissUseSpoonPopup)
+                    }
+                }
+            ),
+            confirmAction: { _ in
+                store.send(.confirmUseSpoonPopup)
+            }
+        )
         .navigationBarBackButtonHidden()
     }
 }
@@ -157,6 +171,9 @@ extension PostView {
         .padding(.vertical, 8.adjustedH)
         .padding(.horizontal, 20.adjustedH)
         .padding(.bottom, 24.adjustedH)
+        .onTapGesture {
+            print("유저 프로필 탭")
+        }
     }
     
     @ViewBuilder
@@ -269,8 +286,7 @@ extension PostView {
             Group {
                 if !(store.isScoop || store.isMine) {
                     SpoonyButton(style: .primary, size: .minusSpoon, title: "스푼 1개 써서 확인하기", isIcon: true, disabled: .constant(false)) {
-                        // TODO: 팝업 띄우기 !!
-                        print("❌❌ 스푼 1개 써서 확인하는 로직 추가 해야함")
+                        store.send(.showUseSpoonPopup)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
@@ -393,14 +409,33 @@ extension PostView {
                             break
                         }
                     } else {
-                        // 신고하기
-                        print("신고하기 탭됨")
+                        
+                        if selected == "신고하기" {                            store.send(.routeToReportScreen(store.postId))
+                        }
                     }
                 }
                 .frame(alignment: .topTrailing)
                 .padding(.top, 48.adjustedH)
                 .padding(.trailing, 20.adjusted)
             }
+        }
+    }
+    
+    private func reviewsErrorView(_ error: String) -> some View {
+        VStack {
+            Text("리뷰를 불러오는데 실패했습니다.")
+                .customFont(.body2m)
+                .foregroundStyle(.gray600)
+                .multilineTextAlignment(.center)
+                .padding(.top, 30)
+                .frame(maxWidth: .infinity)
+            
+            Button("다시 시도") {
+                store.send(.viewAppear(postId: postId))
+            }
+            .buttonStyle(.borderless)
+            .foregroundColor(.main400)
+            .padding(.top, 8)
         }
     }
 }
@@ -439,5 +474,5 @@ struct PostScrapButton: View {
             .dependency(\.detailUseCase, DetailUseCaseKey.liveValue)
     }
     
-    return PostView(postId: 20, store: store)
+    return PostView(postId: 53, store: store)
 }
