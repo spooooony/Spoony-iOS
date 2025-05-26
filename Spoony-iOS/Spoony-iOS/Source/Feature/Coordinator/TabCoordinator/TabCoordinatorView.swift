@@ -32,7 +32,7 @@ struct TabCoordinatorView: View {
                             .navigationTitle("")
                             .toolbar(.hidden, for: .tabBar)
                     case .myPage:
-                        MyPageView(store: store.scope(state: \.myPage, action: \.myPage))
+                        MyPageCoordinatorView(store: store.scope(state: \.myPage, action: \.myPage))
                             .navigationBarBackButtonHidden()
                     }
                 }

@@ -31,7 +31,7 @@ enum MyPageScreen {
     case withdraw(WithdrawFeature)
 }
 
-struct MyPageView: View {
+struct MyPageCoordinatorView: View {
     @Bindable private var store: StoreOf<MyPageCoordinator>
     
     init(store: StoreOf<MyPageCoordinator>) {
