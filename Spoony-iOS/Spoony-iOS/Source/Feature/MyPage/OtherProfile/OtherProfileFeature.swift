@@ -206,7 +206,7 @@ struct OtherProfileFeature {
                 state.toast = Toast(
                     style: .gray,
                     message: "사용자를 차단했습니다",
-                    yOffset: UIScreen.main.bounds.height - 200
+                    yOffset: UIScreen.main.bounds.height - 200.adjustedH
                 )
 
                 return .run { send in
