@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MockDetailUseCase: DetailUseCaseProtocol {
+struct MockDetailUseCase: DetailUseCase {
     
     func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel {
         return MockData.reviewDetail
