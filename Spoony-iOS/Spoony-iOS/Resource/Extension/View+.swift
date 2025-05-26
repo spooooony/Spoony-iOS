@@ -14,8 +14,8 @@ extension View {
     
     func alertView(
         isPresented: Binding<Bool>,
-        alertType: AlertType?,
-        alert: Alert?,
+        alertType: AlertType,
+        alert: Alert,
         confirmAction: (() -> Void)?,
         afterAction: (() -> Void)?
     ) -> some View {

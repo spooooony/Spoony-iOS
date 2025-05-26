@@ -13,8 +13,8 @@ import Lottie
 
 struct AlertModifier: ViewModifier {
     @Binding var isPresented: Bool
-    let alertType: AlertType?
-    let alert: Alert?
+    let alertType: AlertType
+    let alert: Alert
     let confirmAction: (() -> Void)?
     let afterAction: (() -> Void)?
     
@@ -23,19 +23,16 @@ struct AlertModifier: ViewModifier {
         content
             .fullScreenCover(isPresented: $isPresented) {
                 ZStack {
-                    if alertType != nil,
-                       alert != nil {
-                        Color.black.opacity(0.6)
-                            .ignoresSafeArea(.all)
-                        
-                        AlertView(
-                            isPresented: $isPresented,
-                            alertType: alertType,
-                            alert: alert!,
-                            confirmAction: confirmAction,
-                            afterAction: afterAction
-                        )
-                    }
+                    Color.black.opacity(0.6)
+                        .ignoresSafeArea(.all)
+                    
+                    AlertView(
+                        isPresented: $isPresented,
+                        alertType: alertType,
+                        alert: alert,
+                        confirmAction: confirmAction,
+                        afterAction: afterAction
+                    )
                 }
                 .background(BackgroundClearView())
             }
@@ -62,7 +59,7 @@ struct Alert: Equatable {
 
 struct AlertView: View {
     @Binding var isPresented: Bool
-    let alertType: AlertType?
+    let alertType: AlertType
     let alert: Alert
     let confirmAction: (() -> Void)?
     let afterAction: (() -> Void)?
