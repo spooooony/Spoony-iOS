@@ -21,6 +21,7 @@ struct OtherProfileFeature {
         var followingCount: Int = 0
         var followerCount: Int = 0
         var isFollowing: Bool = false
+        var isBlocked: Bool = false
         var isLoading: Bool = false
         var errorMessage: String? = nil
         
@@ -30,6 +31,9 @@ struct OtherProfileFeature {
         
         var isMenuPresented: Bool = false
         var showBlockAlert: Bool = false
+        var showUnblockAlert: Bool = false
+        
+        var toast: Toast? = nil
         
         init(userId: Int) {
             self.userId = userId
@@ -49,18 +53,22 @@ struct OtherProfileFeature {
         case menuItemSelected(String)
         case dismissMenu
         case blockUser
+        case unblockUser
         case reportUser
         case confirmBlock
+        case confirmUnblock
         case cancelBlock
+        case cancelUnblock
         case blockActionResponse(TaskResult<Void>)
+        case unblockActionResponse(TaskResult<Void>)
         
+        case hideToast
         case routeToReportScreen(Int)
     }
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
     @Dependency(\.followUseCase) var followUseCase: FollowUseCase
-    
-    private let myPageProvider = Providers.myPageProvider
+    @Dependency(\.blockService) var blockService: BlockServiceProtocol
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -95,6 +103,12 @@ struct OtherProfileFeature {
                 return .none
                 
             case .fetchUserReviews:
+                if state.isBlocked {
+                    state.isLoadingReviews = false
+                    state.reviews = []
+                    return .none
+                }
+                
                 state.isLoadingReviews = true
                 return .run { [userId = state.userId] send in
                     await send(.userReviewsResponse(
@@ -114,6 +128,10 @@ struct OtherProfileFeature {
                 return .none
                 
             case .followButtonTapped:
+                if state.isBlocked {
+                    return .send(.unblockUser)
+                }
+                
                 return .run { [userId = state.userId, isFollowing = state.isFollowing] send in
                     await send(.followActionResponse(
                         TaskResult { try await followUseCase.toggleFollow(userId: userId, isFollowing: isFollowing) }
@@ -150,6 +168,10 @@ struct OtherProfileFeature {
                 state.showBlockAlert = true
                 return .none
                 
+            case .unblockUser:
+                state.showUnblockAlert = true
+                return .none
+                
             case .reportUser:
                 return .send(.routeToReportScreen(state.userId))
                 
@@ -157,28 +179,15 @@ struct OtherProfileFeature {
                 state.showBlockAlert = false
                 return .run { [userId = state.userId] send in
                     await send(.blockActionResponse(
-                        TaskResult {
-                            try await withCheckedThrowingContinuation { continuation in
-                                let request = TargetUserRequest(targetUserId: userId)
-                                myPageProvider.request(.blockUser(request: request)) { result in
-                                    switch result {
-                                    case .success(let response):
-                                        do {
-                                            let dto = try response.map(BaseResponse<BlankData>.self)
-                                            if dto.success {
-                                                continuation.resume()
-                                            } else {
-                                                continuation.resume(throwing: SNError.etc)
-                                            }
-                                        } catch {
-                                            continuation.resume(throwing: error)
-                                        }
-                                    case .failure(let error):
-                                        continuation.resume(throwing: error)
-                                    }
-                                }
-                            }
-                        }
+                        TaskResult { try await blockService.blockUser(userId: userId) }
+                    ))
+                }
+                
+            case .confirmUnblock:
+                state.showUnblockAlert = false
+                return .run { [userId = state.userId] send in
+                    await send(.unblockActionResponse(
+                        TaskResult { try await blockService.unblockUser(userId: userId) }
                     ))
                 }
                 
@@ -186,11 +195,39 @@ struct OtherProfileFeature {
                 state.showBlockAlert = false
                 return .none
                 
+            case .cancelUnblock:
+                state.showUnblockAlert = false
+                return .none
+                
             case .blockActionResponse(.success):
-                return .send(.routeToPreviousScreen)
+                state.isBlocked = true
+                state.isFollowing = false
+                state.reviews = []
+                state.toast = Toast(
+                    style: .gray,
+                    message: "사용자를 차단했습니다",
+                    yOffset: UIScreen.main.bounds.height - 200.adjustedH
+                )
+
+                return .run { send in
+                    try await Task.sleep(nanoseconds: 2_000_000_000)
+                    await send(.hideToast)
+                }
                 
             case let .blockActionResponse(.failure(error)):
                 print("Block action failed: \(error.localizedDescription)")
+                return .none
+                
+            case .unblockActionResponse(.success):
+                state.isBlocked = false
+                return .send(.fetchUserReviews)
+                
+            case let .unblockActionResponse(.failure(error)):
+                print("Unblock action failed: \(error.localizedDescription)")
+                return .none
+                
+            case .hideToast:
+                state.toast = nil
                 return .none
                 
             case .routeToPreviousScreen:

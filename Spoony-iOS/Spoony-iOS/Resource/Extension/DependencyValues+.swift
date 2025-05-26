@@ -53,8 +53,14 @@ extension DependencyValues {
         set { self[ReportServiceKey.self] = newValue }
     }
     
+
+    var blockService: BlockServiceProtocol {
+        get { self[BlockServiceKey.self] }
+        set { self[BlockServiceKey.self] = newValue }
+
     var spoonDrawService: SpoonDrawServiceProtocol {
         get { self[SpoonDrawServiceKey.self] }
         set { self[SpoonDrawServiceKey.self] = newValue }
+
     }
 }
