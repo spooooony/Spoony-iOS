@@ -115,6 +115,10 @@ struct TabRootCoordinator {
                 state.routes.push(.registerAndEdit(.init(postId: postId)))
                 return .none
                 
+            case .router(.routeAction(id: _, action: .detail(.routeToReportScreen(let postId)))):
+                state.routes.push(.report(ReportFeature.State(postId: postId)))
+                return .none
+                
             case .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .accountManagement(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .blockedUsers(.routeToPreviousScreen))),

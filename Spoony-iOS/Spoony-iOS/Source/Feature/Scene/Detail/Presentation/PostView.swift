@@ -410,8 +410,8 @@ extension PostView {
                             break
                         }
                     } else {
-                        
-                        if selected == "신고하기" {                            store.send(.routeToReportScreen(store.postId))
+                        if selected == "신고하기" {
+                            store.send(.routeToReportScreen(store.postId))
                         }
                     }
                 }
