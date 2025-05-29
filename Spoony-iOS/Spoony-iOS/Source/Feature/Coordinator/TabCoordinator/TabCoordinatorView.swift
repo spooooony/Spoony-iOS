@@ -27,13 +27,9 @@ struct TabCoordinatorView: View {
                     case .explore:
                         ExploreCoordinatorView(store: store.scope(state: \.explore, action: \.explore))
                     case .register:
-                        Register(store: store.scope(state: \.register, action: \.register))
-                            .navigationBarHidden(true)
-                            .navigationTitle("")
-                            .toolbar(.hidden, for: .tabBar)
+                        Color.clear
                     case .myPage:
                         MyPageCoordinatorView(store: store.scope(state: \.myPage, action: \.myPage))
-                            .navigationBarBackButtonHidden()
                     }
                 }
                 .tabItem {
