@@ -79,15 +79,16 @@ struct PostFeature {
         case followButtonTapped(userId: Int, isFollowing: Bool)
         case followActionResponse(Result<Void, Error>)
         
+        case editButtonTapped
+        
         case showToast(String)
         case dismissToast
-        
-        case goBack
         
         case error(PostError)
         
         case routeToPreviousScreen
         case routeToReportScreen(Int)
+        case routeToEditReviewScreen(Int)
         
         case showUseSpoonPopup
         case confirmUseSpoonPopup
@@ -197,19 +198,23 @@ struct PostFeature {
                 )
                 
                 return .none
+                
+            case .editButtonTapped:
+                return .send(.routeToEditReviewScreen(state.postId))
+                
             case .dismissToast:
                 state.toast = nil
                 return .none
             case .error(let error):
                 return .send(.showToast(error.description))
                 
-            case .goBack:
-                return .none
-                
             case let .routeToReportScreen(postId):
                 return .none
                 
             case .routeToPreviousScreen:
+                return .none
+                
+            case .routeToEditReviewScreen(_):
                 return .none
                 
             case .showUseSpoonPopup:
