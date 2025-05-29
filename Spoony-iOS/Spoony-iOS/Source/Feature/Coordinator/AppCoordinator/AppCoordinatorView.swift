@@ -29,8 +29,8 @@ struct AppCoordinatorView: View {
             case let .onboarding(store):
                 OnboardingView(store: store)
                 
-            case let .tabCoordinator(store):
-                TabCoordinatorView(store: store)
+            case let .tabRootCoordinator(store):
+                TabRootCoordinatorView(store: store)
             }
         }
     }
