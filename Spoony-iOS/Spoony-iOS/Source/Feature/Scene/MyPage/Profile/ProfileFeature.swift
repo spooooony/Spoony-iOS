@@ -51,7 +51,7 @@ struct ProfileFeature {
         case routeToAttendanceScreen
         case routeToEditProfileScreen
         case routeToEditReviewScreen(Int)
-        case routeToRegisterTab
+        case routeToRegister
         
         case deleteReview(Int)
         case confirmDeleteReview
@@ -72,18 +72,19 @@ struct ProfileFeature {
                 state.isLoading = true
                 state.errorMessage = nil
                 
-                switch KeychainManager.read(key: .accessToken) {
-                case .success(let token):
-                    if token == nil {
-                        state.isLoading = false
-                        state.errorMessage = "로그인이 필요합니다."
-                        return .none
-                    }
-                case .failure(let error):
-                    state.isLoading = false
-                    state.errorMessage = "인증 정보를 불러올 수 없습니다: \(error.localizedDescription)"
-                    return .none
-                }
+                // TODO: - 주석 지워야됨
+//                switch KeychainManager.read(key: .accessToken) {
+//                case .success(let token):
+//                    if token == nil {
+//                        state.isLoading = false
+//                        state.errorMessage = "로그인이 필요합니다."
+//                        return .none
+//                    }
+//                case .failure(let error):
+//                    state.isLoading = false
+//                    state.errorMessage = "인증 정보를 불러올 수 없습니다: \(error.localizedDescription)"
+//                    return .none
+//                }
                 
                 return .merge(
                     .run { send in
@@ -227,7 +228,7 @@ struct ProfileFeature {
                 state.reviewToDeleteId = nil
                 return .none
 
-            case .routeToFollowingScreen, .routeToFollowerScreen, .routeToEditProfileScreen, .routeToSettingsScreen, .routeToAttendanceScreen, .routeToEditReviewScreen, .routeToRegisterTab:
+            case .routeToFollowingScreen, .routeToFollowerScreen, .routeToEditProfileScreen, .routeToSettingsScreen, .routeToAttendanceScreen, .routeToEditReviewScreen, .routeToRegister:
                 return .none
             }
         }
