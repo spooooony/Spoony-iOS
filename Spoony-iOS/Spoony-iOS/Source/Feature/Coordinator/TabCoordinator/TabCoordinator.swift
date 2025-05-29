@@ -17,18 +17,14 @@ struct TabCoordinator {
         static let initialState = State(
             map: .initialState,
             explore: .initialState,
-            register: .initialState,
             myPage: .initialState,
-            selectedTab: .map,
-            previousSelectedTab: .map
+            selectedTab: .map
         )
         
         var map: MapCoordinator.State
         var explore: ExploreCoordinator.State
-        var register: RegisterFeature.State
         var myPage: MyPageCoordinator.State
         var selectedTab: TabType
-        var previousSelectedTab: TabType
         
         var toast: Toast?
         var popup: PopupType?
@@ -38,7 +34,6 @@ struct TabCoordinator {
         case binding(BindingAction<State>)
         case map(MapCoordinator.Action)
         case explore(ExploreCoordinator.Action)
-        case register(RegisterFeature.Action)
         case myPage(MyPageCoordinator.Action)
         case tabSelected(TabType)
         
@@ -48,6 +43,14 @@ struct TabCoordinator {
         
         case switchToExploreTab
         case switchToRegisterTab
+        
+        case routeToRegister
+        case routeToEditReview(Int)
+        case routeToSettings
+        case routeToAttendance
+        case routeToEditProfile
+        case routeToDetail(Int)
+        case routeToReport(Int)
     }
     
     var body: some ReducerOf<Self> {
@@ -61,10 +64,6 @@ struct TabCoordinator {
             ExploreCoordinator()
         }
         
-        Scope(state: \.register, action: \.register) {
-            RegisterFeature()
-        }
-        
         Scope(state: \.myPage, action: \.myPage) {
             MyPageCoordinator()
         }
@@ -74,11 +73,10 @@ struct TabCoordinator {
             case .binding:
                 return .none
             case let .tabSelected(tab):
-                if state.selectedTab != tab {
-                    state.toast = nil
+                if tab == .register {
+                    return .send(.routeToRegister)
                 }
                 
-                state.previousSelectedTab = state.selectedTab
                 state.selectedTab = tab
                 return .none
                 
@@ -90,41 +88,45 @@ struct TabCoordinator {
             case .switchToRegisterTab:
                 state.selectedTab = .register
                 return .none
-                
+                            
+            // map 관련
             case .map(.router(.routeAction(id: _, action: .map(.routeToExploreTab)))):
                 return .send(.switchToExploreTab)
                 
-            case .myPage(.router(.routeAction(id: _, action: .profile(.routeToRegisterTab)))):
-                return .send(.switchToRegisterTab)
-                
-            case let .register(.presentToast(message)):
-                state.toast = .init(style: .gray, message: message, yOffset: 558.adjustedH)
-                return .none
-                
+            case .map(.routeToDetailScreen(let postId)):
+                return .send(.routeToDetail(postId))
+            
+            // explore 관련
             case .explore(.tabSelected(let tab)):
                 return .send(.tabSelected(tab))
                 
+            case .explore(.routeToDetailScreen(let post)):
+                return .send(.routeToDetail(post))
+                
+            case .explore(.routeToReportScreen(let postId)):
+                return .send(.routeToReport(postId))
+                
+            case .explore(.routeToEditReviewScreen(let postId)):
+                return .send(.routeToEditReview(postId))
+            
+            // mypage 관련
+            case .myPage(.router(.routeAction(id: _, action: .profile(.routeToRegister)))):
+                return .send(.routeToRegister)
+                
+            case .myPage(.router(.routeAction(id: _, action: .profile(.routeToEditReviewScreen(let postId))))):
+                return .send(.routeToEditReview(postId))
+                
+            case .myPage(.router(.routeAction(id: _, action: .profile(.routeToSettingsScreen)))):
+                return .send(.routeToSettings)
+                
+            case .myPage(.router(.routeAction(id: _, action: .profile(.routeToAttendanceScreen)))):
+                return .send(.routeToAttendance)
+                
+            case .myPage(.router(.routeAction(id: _, action: .profile(.routeToEditProfileScreen)))):
+                return .send(.routeToEditProfile)
+                
             case .myPage(.routeToLoginScreen):
                 return .send(.routeToLoginScreen)
-                
-            // 다른 뷰 사용 예시
-//            case let .map(.presentToast(message)):
-//                state.toast = .init(style: .gray, message: message, yOffset: 558.adjustedH)
-//                return .none
-                
-            // 자식 Feature에서 presentPopup 호출시 팝업 생성
-            case .register(\.routeToPreviousTab):
-                state.selectedTab = state.previousSelectedTab
-                return .none
-                
-            case .register(\.presentPopup):
-                state.popup = .registerSuccess
-                return .none
-                     
-            // 다른 뷰 사용 예시
-//            case .map(\.presentPopup):
-//                state.popup = .reportSuccess
-//                return .none
                 
             case let .popupAction(type):
                 switch type {
