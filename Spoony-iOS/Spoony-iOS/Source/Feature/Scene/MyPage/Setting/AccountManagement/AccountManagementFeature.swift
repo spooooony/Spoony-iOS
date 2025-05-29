@@ -82,11 +82,12 @@ struct AccountManagementFeature {
                 state.isLoggingOut = true
                 state.logoutErrorMessage = nil
                 
-                return .run { send in
-                    await send(.logoutResult(
-                        TaskResult { try await authService.logout() }
-                    ))
-                }
+                return .send(.routeToLoginScreen)
+//                return .run { send in
+//                    await send(.logoutResult(
+//                        TaskResult { try await authService.logout() }
+//                    ))
+//                }
                 
             case let .logoutResult(.success(isSuccess)):
                 state.isLoggingOut = false
