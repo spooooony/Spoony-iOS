@@ -401,6 +401,7 @@ extension PostView {
                         switch selected {
                         case "수정하기":
                             // TODO: 수정 액션
+                            store.send(.routeToEditReviewScreen(store.postId))
                             print("수정하기 탭됨")
                         case "삭제하기":
                             // TODO: 삭제 액션
