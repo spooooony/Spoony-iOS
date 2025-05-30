@@ -25,9 +25,6 @@ struct TabCoordinator {
         var explore: ExploreCoordinator.State
         var myPage: MyPageCoordinator.State
         var selectedTab: TabType
-        
-        var toast: Toast?
-        var popup: PopupType?
     }
     
     enum Action: BindableAction {
@@ -37,12 +34,9 @@ struct TabCoordinator {
         case myPage(MyPageCoordinator.Action)
         case tabSelected(TabType)
         
-        case popupAction(PopupType)
-        
         case routeToLoginScreen
         
         case switchToExploreTab
-        case switchToRegisterTab
         
         case routeToRegister
         case routeToEditReview(Int)
@@ -84,11 +78,7 @@ struct TabCoordinator {
             case .switchToExploreTab:
                 state.selectedTab = .explore
                 return .none
-                
-            case .switchToRegisterTab:
-                state.selectedTab = .register
-                return .none
-                            
+         
             // map 관련
             case .map(.router(.routeAction(id: _, action: .map(.routeToExploreTab)))):
                 return .send(.switchToExploreTab)
@@ -127,21 +117,6 @@ struct TabCoordinator {
                 
             case .myPage(.routeToLoginScreen):
                 return .send(.routeToLoginScreen)
-                
-            case let .popupAction(type):
-                switch type {
-                case .useSpoon:
-                    return .none
-                case .reportSuccess:
-                    return .none
-                case .registerSuccess:
-                    // popup 버튼 클릭시 탭 전환이 필요한 경우
-                    state.selectedTab = .map
-                    
-                    // 자식 Feature에서 추가 로직 필요시
-                    // ex) return .send(.register(.test))
-                    return .none
-                }
                 
             case .routeToLoginScreen:
                 return .none
