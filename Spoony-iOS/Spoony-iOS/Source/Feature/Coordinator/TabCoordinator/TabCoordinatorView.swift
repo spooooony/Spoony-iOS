@@ -41,10 +41,6 @@ struct TabCoordinatorView: View {
                 .tag(tab)
             }            
         }
-        .toastView(toast: $store.toast)
-        .popup(popup: $store.popup) { popup in
-            store.send(.popupAction(popup))
-        }
     }
 }
 
