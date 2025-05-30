@@ -57,5 +57,17 @@ struct TabRootCoordinatorView: View {
                 Report(postId: store.postId, userId: nil, store: store)
             }
         }
+        .toastView(
+            toast: Binding(
+                get: { store.toast },
+                set: { store.send(.updateToast($0)) }
+            )
+        )
+        .popup(popup: Binding(
+                get: { store.popup },
+                set: { store.send(.updatePopup($0))}
+            )) { popup in
+                store.send(.popupAction(popup))
+        }
     }
 }
