@@ -13,6 +13,7 @@ enum AuthTargetType {
     case signup(SignupRequest, token: String)
     case logout
     case withdraw
+    case refresh(token: String)
 }
 
 extension AuthTargetType: TargetType {
@@ -33,12 +34,14 @@ extension AuthTargetType: TargetType {
             return "/auth/logout"
         case .withdraw:
             return "/auth/withdraw"
+        case .refresh:
+            return "/auth/refresh"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .login, .signup, .logout, .withdraw:
+        case .login, .signup, .logout, .withdraw, .refresh:
             return .post
         }
     }
@@ -52,14 +55,14 @@ extension AuthTargetType: TargetType {
             )
         case .signup(let request, _):
             return .requestCustomJSONEncodable(request, encoder: JSONEncoder())
-        case .logout, .withdraw:
+        case .logout, .withdraw, .refresh:
             return .requestPlain
         }
     }
     
     var headers: [String: String]? {
         switch self {
-        case .login(_, let token):
+        case .login(_, let token), .refresh(let token):
             return [
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(token)"
