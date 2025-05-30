@@ -39,11 +39,18 @@ struct TabRootCoordinator {
         static let initialState = State(routes: [.root(.tab(.initialState), embedInNavigationView: true)])
         
         var routes: [Route<TabRootScreen.State>]
+        
+        var toast: Toast?
+        var popup: PopupType?
     }
     
     enum Action {
         case router(IndexedRouterActionOf<TabRootScreen>)
         
+        case popupAction(PopupType)
+        
+        case updateToast(Toast?)
+        case updatePopup(PopupType?)
         case routeToLogin
     }
     
@@ -129,6 +136,38 @@ struct TabRootCoordinator {
                     .router(.routeAction(id: _, action: .report(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
+                
+            // toast
+            case .updateToast(let toast):
+                state.toast = toast
+                return .none
+                
+            case .router(.routeAction(id: _, action: .registerAndEdit(.presentToast(message: let message)))):
+                state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH  )
+                return .none
+                
+            // popup
+            case .popupAction(let type):
+                switch type {
+                case .useSpoon:
+                    return .none
+                case .reportSuccess:
+                    state.routes.goBack()
+                    return .none
+                case .registerSuccess:
+                    state.routes.goBack()
+                    return .none
+                }
+                
+            case .updatePopup(let popup):
+                state.popup = popup
+                return .none
+                
+            case .router(.routeAction(id: _, action: .registerAndEdit(.presentPopup))):
+                state.popup = .registerSuccess
+                return .none
+                
+//            case .router(.routeAction(id: _, action: .registerAndEdit(.presentPopup)))
                 
             default: return .none
             }
