@@ -51,7 +51,7 @@ struct ProfileFeature {
         case routeToAttendanceScreen
         case routeToEditProfileScreen
         case routeToEditReviewScreen(Int)
-        case routeToRegisterTab
+        case routeToRegister
         
         case deleteReview(Int)
         case confirmDeleteReview
@@ -227,7 +227,7 @@ struct ProfileFeature {
                 state.reviewToDeleteId = nil
                 return .none
 
-            case .routeToFollowingScreen, .routeToFollowerScreen, .routeToEditProfileScreen, .routeToSettingsScreen, .routeToAttendanceScreen, .routeToEditReviewScreen, .routeToRegisterTab:
+            case .routeToFollowingScreen, .routeToFollowerScreen, .routeToEditProfileScreen, .routeToSettingsScreen, .routeToAttendanceScreen, .routeToEditReviewScreen, .routeToRegister:
                 return .none
             }
         }

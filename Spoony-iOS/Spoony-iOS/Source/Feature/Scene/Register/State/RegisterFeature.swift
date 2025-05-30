@@ -38,7 +38,7 @@ struct RegisterFeature {
         case onAppear
         case updateIsLoading(Bool)
         case updateStep(RegisterStep)
-        case resetState
+//        case resetState
         case registrationSuccessful
         case onDisappear
         case registerPostRequest(_ selectedPlace: PlaceInfo, _ selectedCategory: CategoryChip)
@@ -53,8 +53,8 @@ struct RegisterFeature {
         case presentPopup
         case presentToast(message: String)
         
+        case routeToDetailScreen(Int)
         case routeToPreviousScreen
-        case routeToPreviousTab
     }
         
     @Dependency(\.registerService) var network: RegisterServiceType
@@ -134,14 +134,7 @@ struct RegisterFeature {
             case .reviewStepAction(.movePreviousView):
                 state.currentStep = .start
                 return .none
-            case .resetState:
-                state.currentStep = .start
-                state.isRegistrationSuccess = false
-                var infoStepNewState: InfoStepFeature.State = .initialState
-                infoStepNewState.isToolTipPresented = false
-                state.infoStepState = infoStepNewState
-                state.reviewStepState = .initialState
-                return .none
+
             case let .registerPostRequest(selectedPlace, selectedCategory):
                 let request = RegisterPostRequest(
                     title: "",
@@ -216,13 +209,14 @@ struct RegisterFeature {
                 state.isRegistrationSuccess = true
                 
                 if state.reviewStepState.isEditMode {
-                    // TODO: - 디테일 화면으로 이동
-                    return .send(.routeToPreviousScreen)
+                    guard let postId = state.postId else {
+                        // 여기 뭐로 분기하지
+                        return .send(.routeToPreviousScreen)
+                    }
+                    return .send(.routeToDetailScreen(postId))
                 } else {
                     return .send(.presentPopup)
                 }
-            case .onDisappear:
-                return .send(.resetState)
             default: return .none
             }
         }

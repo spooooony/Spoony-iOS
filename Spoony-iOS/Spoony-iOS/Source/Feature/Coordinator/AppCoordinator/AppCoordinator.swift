@@ -15,7 +15,7 @@ enum AppScreen {
     case auth(LoginFeature)
     case termsOfService(AgreeFeature)
     case onboarding(OnboardingFeature)
-    case tabCoordinator(TabCoordinator)
+    case tabRootCoordinator(TabRootCoordinator)
 }
 
 @Reducer
@@ -44,7 +44,7 @@ struct AppCoordinator {
                 return .none
                 
             case .router(.routeAction(id: _, action: .auth(.routToTabCoordinatorScreen))):
-                state.routes = [.root(.tabCoordinator(.initialState), embedInNavigationView: true)]
+                state.routes = [.root(.tabRootCoordinator(.initialState), embedInNavigationView: false)]
                 return .none
                 
             case .router(.routeAction(id: _, action: .termsOfService(.routToOnboardingScreen))):
@@ -52,11 +52,13 @@ struct AppCoordinator {
                 return .none
                 
             case .router(.routeAction(id: _, action: .onboarding(.routToTabCoordinatorScreen))):
-                state.routes = [.root(.tabCoordinator(.initialState), embedInNavigationView: true)]
+                state.routes = [.root(.tabRootCoordinator(.initialState), embedInNavigationView: false)]
                 return .none
                 
-            case .router(.routeAction(id: _, action: .tabCoordinator(.routeToLoginScreen))):
-                return .send(.routeToLoginScreen)
+            case .router(.routeAction(id: _, action: .tabRootCoordinator(.routeToLogin))):
+                return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
+                    $0 = [.root(.auth(.initialState), embedInNavigationView: false)]
+                }
                 
             case .routeToLoginScreen:
                 state.routes = [.root(.auth(.initialState), embedInNavigationView: false)]

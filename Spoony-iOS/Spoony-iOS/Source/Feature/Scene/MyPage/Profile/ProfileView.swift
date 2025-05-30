@@ -370,7 +370,7 @@ struct ProfileView: View {
                 isIcon: false,
                 disabled: .constant(false)
             ) {
-                store.send(.routeToRegisterTab)
+                store.send(.routeToRegister)
             }
             .padding(.horizontal, 20)
         }

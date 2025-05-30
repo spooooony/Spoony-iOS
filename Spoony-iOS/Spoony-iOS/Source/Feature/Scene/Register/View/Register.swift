@@ -52,11 +52,6 @@ struct Register: View {
         .onAppear {
             store.send(.onAppear)
         }
-        .onDisappear {
-            if !store.state.infoStepState.isEditMode {
-                store.send(.onDisappear)
-            }
-        }
     }
 }
 
@@ -66,11 +61,7 @@ extension Register {
             HStack(spacing: 0) {
                 Button {
                     if store.state.currentStep == .start {
-                        if store.state.infoStepState.isEditMode {
-                            store.send(.routeToPreviousScreen)
-                        } else {
-                            store.send(.routeToPreviousTab)
-                        }
+                        store.send(.routeToPreviousScreen)
                     } else {
                         store.send(.reviewStepAction(.movePreviousView))
                     }
