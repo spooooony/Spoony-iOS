@@ -5,6 +5,7 @@
 //  Created by 이명진 on 1/20/25.
 //
 
+import Alamofire
 import Moya
 
 import Foundation
@@ -24,13 +25,21 @@ struct Providers {
 extension MoyaProvider {
     convenience init(withAuth: Bool) {
         if withAuth {
-            // TODO: - Interceptor, Logger 구현
+            let accessToken = try? KeychainManager.read(key: .accessToken).get()
+            let refreshToken = try? KeychainManager.read(key: .refreshToken).get()
+            
+            let credential = TokenCredential(
+                accessToken: accessToken ?? "",
+                refreshToken: refreshToken ?? ""
+            )
+            let authenticator = TokenAuthenticator(refreshService: DefaultRefreshService.shared)
+            let interceptor = AuthenticationInterceptor(authenticator: authenticator, credential: credential)
+            
             self.init(
-                session: Session(),
+                session: Session(interceptor: interceptor),
                 plugins: [SpoonyLoggingPlugin()]
             )
         } else {
-            // TODO: - Interceptor, Logger 구현
             self.init(plugins: [SpoonyLoggingPlugin()])
         }
     }
