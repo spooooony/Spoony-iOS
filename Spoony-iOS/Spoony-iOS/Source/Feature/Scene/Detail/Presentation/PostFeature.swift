@@ -208,13 +208,13 @@ struct PostFeature {
             case .error(let error):
                 return .send(.showToast(error.description))
                 
-            case let .routeToReportScreen(postId):
+            case .routeToReportScreen:
                 return .none
                 
             case .routeToPreviousScreen:
                 return .none
                 
-            case .routeToEditReviewScreen(_):
+            case .routeToEditReviewScreen:
                 return .none
                 
             case .showUseSpoonPopup:
