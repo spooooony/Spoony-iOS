@@ -10,6 +10,7 @@ import Foundation
 enum KeychainType: String {
     case accessToken
     case refreshToken
+    case socialType
 }
 
 enum KeychainError: Error {

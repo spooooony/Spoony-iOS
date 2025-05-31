@@ -95,6 +95,7 @@ struct AccountManagementFeature {
                     // 토큰 삭제
                     let _ = KeychainManager.delete(key: .accessToken)
                     let _ = KeychainManager.delete(key: .refreshToken)
+                    let _ = KeychainManager.delete(key: .socialType)
                     return .send(.routeToLoginScreen)
                 } else {
                     state.logoutErrorMessage = "로그아웃에 실패했습니다."

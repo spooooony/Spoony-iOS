@@ -82,6 +82,7 @@ struct WithdrawFeature {
                     // 회원탈퇴 성공 시 모든 데이터 클리어
                     let _ = KeychainManager.delete(key: .accessToken)
                     let _ = KeychainManager.delete(key: .refreshToken)
+                    let _ = KeychainManager.delete(key: .socialType)
                     
                     // UserDefaults 클리어
                     UserDefaults.standard.removeObject(forKey: "userId")

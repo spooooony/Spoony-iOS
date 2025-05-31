@@ -12,6 +12,10 @@ import ComposableArchitecture
 enum SocialType: String {
     case KAKAO
     case APPLE
+    
+    static func from(rawValue: String) -> SocialType? {
+        return SocialType(rawValue: rawValue)
+    }
 }
 
 enum LoginError: Error {
@@ -57,9 +61,9 @@ struct LoginFeature {
             case .tempHomeButtonTapped:
                 return .send(.routToTabCoordinatorScreen)
             case .onAppear:
-                //자동 로그인시
-//                return .send(.routToTabCoordinatorScreen)
-                return .none
+                guard let (type, token) = authenticationManager.checkAutoLogin() else { return .none }
+                
+                return .send(.routToTabCoordinatorScreen)
             case .kakaoLoginButtonTapped:
                 state.isLoading = true
                 

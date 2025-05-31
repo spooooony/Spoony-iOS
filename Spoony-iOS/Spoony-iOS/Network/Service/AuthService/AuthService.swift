@@ -46,7 +46,8 @@ final class DefaultAuthService: AuthProtocol {
                         if let token = data.jwtTokenDto {
                             self.saveKeychain(
                                 access: token.accessToken,
-                                refresh: token.refreshToken
+                                refresh: token.refreshToken,
+                                platform: platform
                             )
                         }
                         continuation.resume(returning: data.exists)
@@ -143,7 +144,7 @@ final class DefaultAuthService: AuthProtocol {
         }
     }
     
-    private func saveKeychain(access: String, refresh: String) {
+    private func saveKeychain(access: String, refresh: String, platform: String) {
         switch KeychainManager.create(key: .accessToken, value: access) {
         case .success:
             print("✅ Access Token saved successfully")
@@ -156,6 +157,13 @@ final class DefaultAuthService: AuthProtocol {
             print("✅ Refresh Token saved successfully")
         case .failure(let error):
             print("❌ Refresh Token save failed: \(error)")
+        }
+        
+        switch KeychainManager.create(key: .socialType, value: platform) {
+        case .success:
+            print("✅ Social Type saved successfully")
+        case .failure(let error):
+            print("❌ Social Type save failed: \(error)")
         }
         
         // 저장 후 바로 읽어보기 테스트
