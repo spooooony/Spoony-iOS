@@ -187,10 +187,12 @@ extension EditProfileView {
             Text("생년월일을 입력해 주세요")
                 .font(.body1sb)
                 .foregroundStyle(.spoonBlack)
+                .unredacted()
             
             SpoonyDatePicker(selectedDate: $store.birthDate)
+                .frame(maxWidth: .infinity)
         }
-        .unredacted()
+        .padding(.horizontal, 20)
         .padding(.bottom, 32)
     }
     
@@ -199,6 +201,7 @@ extension EditProfileView {
             Text("주로 활동하는 지역을 설정해주세요")
                 .font(.body1sb)
                 .foregroundStyle(.spoonBlack)
+                .unredacted()
             
             SpoonyLocationPicker(
                 locationList: store.regionList,
@@ -206,7 +209,6 @@ extension EditProfileView {
                 selectedSubLocation: $store.selectedSubLocation
             )
         }
-        .unredacted()
         .padding(.horizontal, 20)
         .padding(.bottom, 35)
     }
