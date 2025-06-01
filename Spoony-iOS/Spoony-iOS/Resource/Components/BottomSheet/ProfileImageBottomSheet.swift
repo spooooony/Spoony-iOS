@@ -69,35 +69,52 @@ extension ProfileImageBottomSheet {
     
     private var imageListView: some View {
         VStack(spacing: 0) {
-            // TODO: - 나중에 정해지면 다시
             ForEach(profileImages, id: \.self) { image in
-                imageCell(image: image)
+                ProfileImageCell(image: image)
             }
         }
     }
+}
+
+private struct ProfileImageCell: View {
+    @State private var isFail: Bool = false
+    private let image: ProfileImage
     
-    private func imageCell(image: ProfileImage) -> some View {
+    init(image: ProfileImage) {
+        self.image = image
+    }
+    
+    var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 20) {
-                if image.isUnlocked {
-                    if let url = URL(string: image.url) {
-                        KFImage(url)
-                            .resizable()
-                            .frame(width: 60.adjusted, height: 60.adjustedH)
-                            .clipShape(Circle())
-                            .padding(.leading, 22)
-                    } else {
-                        // TODO: - 이미지 로드 실패 아이콘 추가
-                        Text("이미지 에러")
-                    }
+                if let url = URL(string: image.url) {
+                    KFImage(url)
+                        .placeholder({ _ in
+                            Circle()
+                                .fill(.gray200)
+                        })
+                        .onFailure({ _ in
+                            isFail = true
+                        })
+                        .resizable()
+                        .frame(width: 60.adjusted, height: 60.adjustedH)
+                        .overlay {
+                            if isFail {
+                                Image(.icImageFail)
+                                    .resizable()
+                                    .frame(width: 18.adjusted, height: 18.adjustedH)
+                            }
+                        }
+                        .clipShape(Circle())
+                        .padding(.leading, 22)
                 } else {
                     Circle()
                         .fill(.gray200)
                         .frame(width: 60.adjusted, height: 60.adjustedH)
                         .overlay {
-                            Image(.icLock)
+                            Image(.icImageFail)
                                 .resizable()
-                                .frame(width: 23.adjusted, height: 23.adjustedH)
+                                .frame(width: 18.adjusted, height: 18.adjustedH)
                         }
                         .padding(.leading, 22)
                 }
@@ -122,7 +139,7 @@ extension ProfileImageBottomSheet {
                 .fill(.gray100)
                 .frame(height: 1)
                 .frame(maxWidth: .infinity)
-        }        
+        }
     }
 }
 
