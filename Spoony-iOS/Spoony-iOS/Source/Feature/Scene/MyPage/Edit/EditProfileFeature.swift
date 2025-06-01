@@ -18,6 +18,7 @@ struct EditProfileFeature {
         var isLoading: Bool = false
         var imageLevel: Int = 1
         var profileImages: [ProfileImage] = []
+        var savedNickname: String = ""
         var userNickname: String = ""
         var introduction: String = ""
         var birthDate: [String] = ["", "", ""]
@@ -26,6 +27,8 @@ struct EditProfileFeature {
         var selectedSubLocation: Region?
         var isNicknameError: Bool = false
         var isDisableRegisterButton: Bool = false
+        var isLoadError: Bool = false
+        var isChangeNickname: Bool = false
         
         // 나중에 삭제
         var nicknameErrorState: NicknameTextFieldErrorState = .initial
@@ -46,9 +49,17 @@ struct EditProfileFeature {
         case regionsResponse([Region])
         case didTapProfileImage(ProfileImage)
         case checkNickname
+        case updateLoadError
         
-        // MARK: - MyPageCoordinator Action
+        // MARK: - TabRootCoordinator Action
         case routeToPreviousScreen
+        case presentToast(message: String)
+    }
+    
+    private enum CancelID {
+        case profileLoad
+        case editProfile
+        case nicknameCheck
     }
     
     @Dependency(\.myPageService) var mypageService: MypageServiceProtocol
@@ -66,6 +77,10 @@ struct EditProfileFeature {
                     state.isDisableRegisterButton = false
                 }
                 return .none
+            case .binding(\.userNickname):
+                state.isChangeNickname = true
+                return .none
+                
             case .binding: return .none
             case .onAppear:
                 state.isLoading = true
@@ -81,10 +96,14 @@ struct EditProfileFeature {
                         await send(.regionsResponse(regions))
                         await send(.profileInfoResponse(info))
                     } catch {
-                        print("실패")
+                        await send(.updateLoadError)
+                        await send(.presentToast(message: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요."))
                     }
                 }
+                .cancellable(id: CancelID.profileLoad, cancelInFlight: true)
+
             case .profileInfoResponse(let profileInfo):
+                state.savedNickname = profileInfo.nickname
                 state.userNickname = profileInfo.nickname
                 state.birthDate = profileInfo.birthDate
                 state.introduction = profileInfo.introduction
@@ -106,6 +125,10 @@ struct EditProfileFeature {
                 
             case .setNicknameError(let error):
                 state.nicknameErrorState = error
+                if error == .duplicateNicknameError {
+                    state.isDisableRegisterButton = true
+                }
+                
                 return .none
                 
             case .didTapRegisterButton:
@@ -123,31 +146,42 @@ struct EditProfileFeature {
                     if success {
                         await send(.routeToPreviousScreen)
                     } else {
-                        print("실패")
-                        return
+                        await send(.presentToast(message: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요."))
                     }
                 }
+                .cancellable(id: CancelID.editProfile, cancelInFlight: true)
                 
             case .checkNickname:
-                if state.nicknameErrorState == .noError {
-                    return .run { [state] send in
-                        do {
-                            let isDuplicated = try await authService.nicknameDuplicateCheck(userName: state.userNickname)
-                            
-                            if isDuplicated {
-                                await send(.setNicknameError(.duplicateNicknameError))
-                            } else {
-                                await send(.setNicknameError(.avaliableNickname))
+                if state.isChangeNickname {
+                    if state.savedNickname == state.userNickname {
+                        state.isNicknameError = false
+                        state.isDisableRegisterButton = false
+                        return .none
+                    }
+                    
+                    if state.nicknameErrorState == .noError {
+                        return .run { [state] send in
+                            do {
+                                let isDuplicated = try await authService.nicknameDuplicateCheck(userName: state.userNickname)
+                                
+                                if isDuplicated {
+                                    await send(.setNicknameError(.duplicateNicknameError))
+                                } else {
+                                    await send(.setNicknameError(.avaliableNickname))
+                                }
                             }
                         }
+                        .cancellable(id: CancelID.nicknameCheck, cancelInFlight: true)
                     }
-                }
-                
-                if state.nicknameErrorState == .avaliableNickname {
-                    state.isNicknameError = false
-                    state.isDisableRegisterButton = false
-                } else {
-                    state.isDisableRegisterButton = true
+                    
+                    if state.nicknameErrorState == .avaliableNickname || state.nicknameErrorState == .initial {
+                        state.isNicknameError = false
+                        state.isDisableRegisterButton = false
+                    } else {
+                        state.isDisableRegisterButton = true
+                    }
+                    
+                    state.isChangeNickname = false
                 }
                 return .none
                 
@@ -160,6 +194,19 @@ struct EditProfileFeature {
                 return .none
                 
             case .routeToPreviousScreen:
+                return .merge(
+                    .cancel(id: CancelID.profileLoad),
+                    .cancel(id: CancelID.editProfile),
+                    .cancel(id: CancelID.nicknameCheck)
+                )
+                
+            case .presentToast:
+                state.isLoading = false
+                return .none
+                
+            case .updateLoadError:
+                state.isLoadError = true
+                state.isDisableRegisterButton = true
                 return .none
             }
         }
