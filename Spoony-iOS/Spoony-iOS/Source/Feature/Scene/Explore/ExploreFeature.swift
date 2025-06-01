@@ -157,7 +157,7 @@ struct ExploreFeature {
                 }
             case .refreshFilteredFeed:
                 state.allList = []
-                state.nextCursor = 0
+                state.nextCursor = nil
                 state.isLast = false
                 return .send(.fetchFilteredFeed)
             case .fetchFollowingFeed:
@@ -246,13 +246,15 @@ struct ExploreFeature {
                 if !state.selectedFilterButton.isEmpty {
                     state.selectedFilterButton.append(.filter)
                 }
-                return .send(.fetchFilteredFeed)
+                return .send(.refreshFilteredFeed)
             case let .presentAlert(type, alert):
                 state.alertType = type
                 state.alert = alert
                 state.isAlertPresented = true
                 return .none
             case .binding(\.selectedSort):
+                state.allList = []
+                state.nextCursor = nil
                 state.isLast = false
                 return .send(.fetchFilteredFeed)
             case .binding:
