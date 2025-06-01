@@ -105,6 +105,9 @@ struct AccountManagementView: View {
                 )
             }
         }
+        .task {
+            store.send(.onAppear)
+        }
     }
     
     private var loginTypeText: String {
@@ -113,6 +116,8 @@ struct AccountManagementView: View {
             return "애플 로그인 사용 중"
         case .kakao:
             return "카카오 로그인 사용 중"
+        case .unknown:
+            return "알수 없는 오류입니다"
         }
     }
 }
