@@ -33,5 +33,11 @@ struct AppCoordinatorView: View {
                 TabRootCoordinatorView(store: store)
             }
         }
+        .toastView(
+            toast: Binding(
+                get: { store.toast },
+                set: { store.send(.updateToast($0)) }
+            )
+        )
     }
 }

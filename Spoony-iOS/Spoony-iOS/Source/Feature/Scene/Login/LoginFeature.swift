@@ -43,8 +43,8 @@ struct LoginFeature {
         
         // MARK: Navigation Action
         case routToTermsOfServiceScreen
-        case routToOnboardingScreen
         case routToTabCoordinatorScreen
+        case presentToast(message: String)
     }
         
     private let authenticationManager = AuthenticationManager.shared
@@ -98,20 +98,22 @@ struct LoginFeature {
                     }
                 }
             case .error(let error):
+                #if DEBUG
                 print(error.localizedDescription)
-                state.isLoading = false
-                return .none
+                #endif
                 
-            // 로그인 성공시(약관 동의 안한 경우)
+                state.isLoading = false
+                return .send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
+                
+            // 회원 가입 Flow
             case .routToTermsOfServiceScreen:
                 state.isLoading = false
                 return .none
-            // 로그인 완료시(앱 삭제 후 다시 로그인한 경우? 삭제하면 어차피 약관 동의도 다시 하지 않나 필요없을지도)
-            case .routToOnboardingScreen:
-                return .none
-            // 로그인 성공시
+            // 로그인 성공
             case .routToTabCoordinatorScreen:
                 state.isLoading = false
+                return .none
+            case .presentToast:
                 return .none
             }
         }
