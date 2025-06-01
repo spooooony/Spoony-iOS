@@ -33,14 +33,18 @@ struct Explore: View {
                 }
                 
                 if store.state.viewType == .all {
-                    if store.state.allList.isEmpty {
+                    if store.state.isLoading {
+                        loadingView
+                    } else if store.state.allList.isEmpty {
                         emptyView
                     } else {
                         filteredListView(store.state.allList)
                             .padding(.horizontal, 20)
                     }
                 } else {
-                    if store.state.followingList.isEmpty {
+                    if store.state.isLoading {
+                        loadingView
+                    } else if store.state.followingList.isEmpty {
                         emptyView
                     } else {
                         followingListView(store.state.followingList)
@@ -180,6 +184,13 @@ extension Explore {
             }
             .spoonyShadow(style: .shadow500)
             .padding(.trailing, 20)
+        }
+    }
+    
+    private var loadingView: some View {
+        VStack {
+            EmptyView()
+            Spacer()
         }
     }
     

@@ -65,7 +65,7 @@ struct ExploreFeature {
         
         case fetchFollowingFeed
         
-        case setFeed([FeedEntity], Int)
+        case setFeed([FeedEntity], Int?)
         case setFilterInfo(category: [CategoryChip], location: [Region])
         
         case deleteMyReview(Int)
@@ -148,8 +148,7 @@ struct ExploreFeature {
                         )
                         let list = result.toEntity()
                         let cursor = result.nextCursor
-//                        print("😅cursor: \(state.nextCursor), next: \(cursor)")
-                        
+                        print("list: \(list), cursor: \(cursor)")
                         await send(.setFeed(list, cursor))
                     } catch {
                         await send(.handleError(.networkError))
@@ -164,8 +163,7 @@ struct ExploreFeature {
                 return .run { send in
                     do {
                         let list = try await exploreService.getFollowingFeedList().toEntity()
-                        // TODO: 임시 커서값. 팔로잉 페이지네이션 시 적용
-                        await send(.setFeed(list, 0))
+                        await send(.setFeed(list, nil))
                     } catch {
                         // 에러처리
                     }
@@ -260,6 +258,7 @@ struct ExploreFeature {
             case .binding:
                 return .none
             case .handleError(let error):
+                state.isLoading = false
                 return .none
             }
         }
