@@ -17,7 +17,9 @@ struct EditProfileFeature {
         
         var isLoading: Bool = false
         var imageLevel: Int = 1
-        var profileImages: [ProfileImage] = []
+        var profileImages: [ProfileImage] = [
+            .init(url: "", imageLevel: 1, unlockCondition: "", isUnlocked: true)
+        ]
         var savedNickname: String = ""
         var userNickname: String = ""
         var introduction: String = ""
@@ -97,7 +99,7 @@ struct EditProfileFeature {
                         await send(.profileInfoResponse(info))
                     } catch {
                         await send(.updateLoadError)
-                        await send(.presentToast(message: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요."))
+                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
                     }
                 }
                 .cancellable(id: CancelID.profileLoad, cancelInFlight: true)
@@ -146,7 +148,8 @@ struct EditProfileFeature {
                     if success {
                         await send(.routeToPreviousScreen)
                     } else {
-                        await send(.presentToast(message: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요."))
+                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
+                        await send(.routeToPreviousScreen)
                     }
                 }
                 .cancellable(id: CancelID.editProfile, cancelInFlight: true)
