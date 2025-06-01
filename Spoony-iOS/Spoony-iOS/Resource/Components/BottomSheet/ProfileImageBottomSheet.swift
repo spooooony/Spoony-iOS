@@ -77,7 +77,7 @@ extension ProfileImageBottomSheet {
 }
 
 private struct ProfileImageCell: View {
-    @State private var isfail: Bool = false
+    @State private var isFail: Bool = false
     private let image: ProfileImage
     
     init(image: ProfileImage) {
@@ -94,12 +94,12 @@ private struct ProfileImageCell: View {
                                 .fill(.gray200)
                         })
                         .onFailure({ _ in
-                            isfail = true
+                            isFail = true
                         })
                         .resizable()
                         .frame(width: 60.adjusted, height: 60.adjustedH)
                         .overlay {
-                            if isfail {
+                            if isFail {
                                 Image(.icImageFail)
                                     .resizable()
                                     .frame(width: 18.adjusted, height: 18.adjustedH)
