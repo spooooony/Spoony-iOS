@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Lottie
 
 struct SpoonDrawPopupView: View {
     @Binding var isPresented: Bool
@@ -15,134 +16,195 @@ struct SpoonDrawPopupView: View {
     let drawnSpoon: SpoonDrawResponse?
     let errorMessage: String?
     
+    @State private var showLottieScreen = false
+    @State private var showResultScreen = false
+    
     var body: some View {
         ZStack {
             if isPresented {
                 Color.black.opacity(0.4)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        if !isDrawing && (drawnSpoon != nil || errorMessage != nil) {
+                        if !isDrawing && !showLottieScreen {
                             isPresented = false
                         }
                     }
             }
             
-            VStack(spacing: 0) {
-                // 닫기 버튼 영역
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        isPresented = false
-                    }) {
-                        Image(.icCloseGray400)
-                            .padding(.top, 15)
-                            .padding(.trailing, 20)
-                    }
-                }
-                
-                Text("오늘의 스푼 뽑기")
-                    .font(.title1)
-                    .padding(.top, 0)
-                
-                Text("'스푼 뽑기' 버튼을 누르면\n오늘의 스푼을 획득할 수 있어요.")
-                    .font(.body2sb)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.gray600)
-                    .padding(.top, 16)
-                
-                // 로띠 영역 또는 스푼 이미지 영역
-                ZStack {
-                    Rectangle()
-                        .aspectRatio(1, contentMode: .fit)
-                        .padding(.horizontal, 36)
-                        .padding(.vertical, 20)
-                        .foregroundColor(.gray100)
-                        
-                    if isDrawing {
-                        // 로딩 상태
-                        VStack(spacing: 16) {
-                            ProgressView()
-                                .scaleEffect(2.0)
-                            
-                            Text("스푼을 뽑는 중...")
-                                .font(.body1sb)
-                                .foregroundColor(.gray500)
-                        }
-                    } else if let spoon = drawnSpoon {
-                        // 스푼 뽑기 성공 상태
-                        VStack {
-                            Image("ic_spoon_main")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 80, height: 80)
-                            
-                            Text("+\(spoon.spoonType.spoonAmount) 스푼")
-                                .font(.title3sb)
-                                .foregroundStyle(.main400)
-                                .padding(.top, 16)
-                        }
-                    } else if let error = errorMessage {
-                        // 에러 상태
-                        VStack(spacing: 12) {
-                            Image(systemName: "exclamationmark.circle")
-                                .font(.system(size: 40))
-                                .foregroundColor(.gray400)
-                            
-                            Text("스푼 뽑기 실패")
-                                .font(.title3sb)
-                                .foregroundColor(.gray600)
-                            
-                            Text(error.contains("이미 스푼 뽑기를 진행한 사용자")
-                                 ? "오늘 이미 스푼을 뽑았어요!\n내일 다시 시도해주세요."
-                                 : "스푼 뽑기에 실패했어요.\n다시 시도해주세요.")
-                                .font(.body2m)
-                                .multilineTextAlignment(.center)
-                                .foregroundColor(.gray400)
-                        }
-                    } else {
-                        // 초기 상태
-                        Image("ic_spoon_main")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 80, height: 80)
-                            .opacity(0.6)
-                    }
-                }
-            
-                SpoonyButton(
-                    style: .primary,
-                    size: .medium,
-                    title: getButtonTitle(),
-                    isIcon: false,
-                    disabled: .constant(isDrawing)
-                ) {
-                    if drawnSpoon != nil || errorMessage != nil {
-                        isPresented = false
-                    } else if !isDrawing {
-                        onDrawSpoon()
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 20)
+            if showLottieScreen {
+                lottieOnlyView
+            } else if showResultScreen {
+                resultView
+            } else {
+                initialPopupView
             }
-            .background(Color.white)
-            .cornerRadius(16)
-            .padding(.horizontal, 36)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .edgesIgnoringSafeArea(.bottom)
+        }
+        .onChange(of: isDrawing) { oldValue, newValue in
+            if newValue && !oldValue {
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    showLottieScreen = true
+                }
+            }
+        }
+        
+        .onDisappear {
+            resetStates()
         }
     }
     
-    private func getButtonTitle() -> String {
-        if drawnSpoon != nil {
-            return "확인"
-        } else if errorMessage != nil {
-            return "닫기"
-        } else if isDrawing {
-            return "뽑는 중..."
-        } else {
-            return "스푼 뽑기"
+    private var initialPopupView: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                Button(action: {
+                    isPresented = false
+                }) {
+                    Image(.icCloseGray400)
+                        .padding(.top, 15)
+                        .padding(.trailing, 20)
+                }
+            }
+            
+            Text("출석체크 이벤트")
+                .font(.title1)
+                .padding(.top, 0)
+            
+            Text("'스푼 뽑기' 버튼을 누르면\n오늘의 스푼을 획득할 수 있어요.")
+                .font(.body2m)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.gray600)
+                .padding(.top, 16)
+      
+            VStack(spacing: 2) {
+                Image("iOS_Image_Pick")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 263, height: 200)
+            }
+            
+            SpoonyButton(
+                style: .secondary,
+                size: .medium,
+                title: "스푼 뽑기",
+                isIcon: false,
+                disabled: .constant(false)
+            ) {
+                onDrawSpoon()
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 20)
         }
+        .background(Color.white)
+        .cornerRadius(16)
+        .padding(.horizontal, 36)
+        .transition(.opacity.combined(with: .scale))
+    }
+    
+    private var lottieOnlyView: some View {
+        VStack {
+            Text("스푼을 뽑고있어요...")
+                .font(.body1sb)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.gray900)
+                .padding(.top, 24)
+                .padding(.top, 16)
+
+            LottieView(animation: .named("iOS_Lottie_Shake"))
+                .playing(loopMode: .repeat(2))
+                .animationSpeed(1.0)
+                .frame(width: 303.adjusted, height: 240.adjustedH)
+            
+            Spacer()
+        }
+        .frame(width: 303.adjusted, height: 303.adjustedH)
+        .background(Color.white)
+        .cornerRadius(16)
+        .transition(.opacity.combined(with: .scale))
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                handleLottieCompleted()
+            }
+        }
+    }
+    
+    private var resultView: some View {
+        VStack(spacing: 0) {
+            if let spoon = drawnSpoon {
+                successTicketView(spoon: spoon)
+            } 
+        }
+        .transition(.opacity.combined(with: .scale))
+    }
+    
+    private func successTicketView(spoon: SpoonDrawResponse) -> some View {
+        VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                Button(action: {
+                    isPresented = false
+                }) {
+                    Image(.icCloseGray400)
+                        .padding(.top, 15)
+                        .padding(.trailing, 20)
+                }
+            }
+            
+            Text("\(spoon.spoonType.spoonName) 획득")
+                .font(.title1)
+                .padding(.top, 0)
+            
+            Text("축하해요!\n총 \(spoon.spoonType.spoonAmount)개의 스푼을 적립했어요.")
+                .font(.body2m)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.gray600)
+                .padding(.vertical, 16)
+      
+            VStack(spacing: 2) {
+                AsyncImage(url: URL(string: spoon.spoonType.spoonImage)) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 263.adjusted, height: 200.adjustedH)
+                } placeholder: {
+                    
+                    // TODO: 서버에서 값 날아오면 지우기
+                    Image(.testImage1)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 263, height: 200)
+                }
+            }
+            
+            SpoonyButton(
+                style: .secondary,
+                size: .medium,
+                title: "확인",
+                isIcon: false,
+                disabled: .constant(false)
+            ) {
+                isPresented = false
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 20)
+        }
+        .background(Color.white)
+        .cornerRadius(16)
+        .padding(.horizontal, 36)
+        .transition(.opacity.combined(with: .scale))
+    }
+    
+    private func handleLottieCompleted() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            showLottieScreen = false
+            showResultScreen = true
+        }
+    }
+    
+    private func resetStates() {
+        showLottieScreen = false
+        showResultScreen = false
     }
 }
 
@@ -151,7 +213,19 @@ struct SpoonDrawPopupView: View {
         isPresented: .constant(true),
         onDrawSpoon: {},
         isDrawing: false,
-        drawnSpoon: nil,
+        drawnSpoon: SpoonDrawResponse(
+            drawId: 34,
+            spoonType: SpoonType(
+                spoonTypeId: 1,
+                spoonName: "tea",
+                spoonAmount: 1,
+                probability: 40,
+                spoonImage: "test_image"
+            ),
+            localDate: "2025-06-01",
+            weekStartDate: "2025-05-26",
+            createdAt: "2025-06-01T13:45:54.81992"
+        ),
         errorMessage: nil
     )
 }
