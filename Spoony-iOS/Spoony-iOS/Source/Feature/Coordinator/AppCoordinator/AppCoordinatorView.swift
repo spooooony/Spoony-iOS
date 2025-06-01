@@ -34,6 +34,12 @@ struct AppCoordinatorView: View {
                 TabRootCoordinatorView(store: store)
             }
         }
+        .toastView(
+            toast: Binding(
+                get: { store.toast },
+                set: { store.send(.updateToast($0)) }
+            )
+        )
         .onChange(of: authManager.authenticationState) {
             if authManager.authenticationState == .unAuthenticated {
                 store.send(.routeToLoginScreen)

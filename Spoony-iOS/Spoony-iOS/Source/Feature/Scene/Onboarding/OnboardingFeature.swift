@@ -15,10 +15,6 @@ enum OnboardingStep: Int {
     case finish
 }
 
-enum OnboardingError: Error {
-    case networkError
-}
-
 @Reducer
 struct OnboardingFeature {
     @ObservableState
@@ -41,6 +37,8 @@ struct OnboardingFeature {
         var introduceError: Bool = true
         
         var userNickname: String = ""
+        
+        var isLoading: Bool = false
     }
     
     enum Action: BindableAction {
@@ -62,6 +60,7 @@ struct OnboardingFeature {
         
         // MARK: - Navigation
         case routToTabCoordinatorScreen
+        case presentToast(message: String)
     }
     
     private let authenticationManager = AuthenticationManager.shared
@@ -84,7 +83,6 @@ struct OnboardingFeature {
                 case .finish:
                     return .send(.routToTabCoordinatorScreen)
                 }
-                print("\(state.currentStep)")
                 return .none
                 
             case .tappedBackButton:
@@ -122,7 +120,7 @@ struct OnboardingFeature {
                         let list = try await authService.getRegionList().toEntity()
                         await send(.setRegion(list))
                     } catch {
-                        print("error: \(error.localizedDescription)")
+                        await send(.error(SNError.networkFail))
                     }
                 }
             case .checkNickname:
@@ -136,6 +134,8 @@ struct OnboardingFeature {
                             } else {
                                 await send(.setNicknameError(.avaliableNickname))
                             }
+                        } catch {
+                            await send(.error(SNError.networkFail))
                         }
                     }
                 }
@@ -151,6 +151,7 @@ struct OnboardingFeature {
                 state.regionList = list
                 return .none
             case .signup:
+                state.isLoading = true
                 return .run { [state] send in
                     var birthString = ""
                     if !state.birth[0].isEmpty {
@@ -174,16 +175,17 @@ struct OnboardingFeature {
                         
                         await send(.setUserNickname(user))
                     } catch {
-                        await send(.error(error))
+                        await send(.error(SNError.networkFail))
                     }
                 }
             case .setUserNickname(let nickname):
+                state.isLoading = false
                 state.userNickname = nickname
                 state.currentStep = .finish
                 return .none
-            case .error(let error):
-                // 토스트 에러
-                return .none
+            case .error:
+                state.isLoading = false
+                return .send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
             case .routToTabCoordinatorScreen:
                 return .none
             case .binding(\.subRegion):
@@ -199,6 +201,8 @@ struct OnboardingFeature {
                 }
                 return .none
             case .binding:
+                return .none
+            case .presentToast:
                 return .none
             }
         }

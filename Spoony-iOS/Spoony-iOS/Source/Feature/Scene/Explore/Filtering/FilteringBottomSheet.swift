@@ -16,7 +16,6 @@ struct FilteringBottomSheet: View {
     @Binding var currentFilter: Int
     
     @State private var isSegmentTapped = false
-    @State private var isDisabled = true
     
     init(
         filters: Binding<FilterInfo>,
@@ -64,7 +63,7 @@ struct FilteringBottomSheet: View {
                     style: .primary,
                     size: .xlarge,
                     title: "필터 적용하기",
-                    disabled: $isDisabled
+                    disabled: .constant(false)
                 ) {
                     selectedFilter = tempFilter
                     isPresented = false
@@ -81,16 +80,6 @@ struct FilteringBottomSheet: View {
         }
         .onAppear {
             tempFilter = selectedFilter
-        }
-        .onChange(of: tempFilter) {
-            if !tempFilter.selectedAges.isEmpty ||
-               !tempFilter.selectedLocations.isEmpty ||
-               !tempFilter.selectedCategories.isEmpty ||
-               !tempFilter.selectedLocal.isEmpty {
-                isDisabled = false
-            } else {
-                isDisabled = true
-            }
         }
     }
 }

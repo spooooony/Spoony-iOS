@@ -25,11 +25,14 @@ struct AppCoordinator {
         static let initialState = State(routes: [.root(.auth(.initialState), embedInNavigationView: false)])
         
         var routes: [Route<AppScreen.State>]
+        
+        var toast: Toast?
     }
     
     enum Action {
         case router(IndexedRouterActionOf<AppScreen>)
         case routeToLoginScreen
+        case updateToast(Toast?)
     }
     
     var body: some ReducerOf<Self> {
@@ -37,10 +40,6 @@ struct AppCoordinator {
             switch action {
             case .router(.routeAction(id: _, action: .auth(.routToTermsOfServiceScreen))):
                 state.routes = [.root(.termsOfService(.initialState), embedInNavigationView: false)]
-                return .none
-                
-            case .router(.routeAction(id: _, action: .auth(.routToOnboardingScreen))):
-                state.routes = [.root(.onboarding(.initialState), embedInNavigationView: false)]
                 return .none
                 
             case .router(.routeAction(id: _, action: .auth(.routToTabCoordinatorScreen))):
@@ -62,6 +61,19 @@ struct AppCoordinator {
                 
             case .routeToLoginScreen:
                 state.routes = [.root(.auth(.initialState), embedInNavigationView: false)]
+                return .none
+                
+            // toast
+            case .updateToast(let toast):
+                state.toast = toast
+                return .none
+                
+            case .router(.routeAction(id: _, action: .auth(.presentToast(message: let message)))):
+                state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH  )
+                return .none
+                
+            case .router(.routeAction(id: _, action: .onboarding(.presentToast(message: let message)))):
+                state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH  )
                 return .none
                 
             default:

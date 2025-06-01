@@ -34,6 +34,8 @@ struct ExploreCoordinator {
         case routeToDetailScreen(Int)
         case routeToReportScreen(Int)
         case routeToEditReviewScreen(Int)
+        
+        case presentToast(message: String)
     }
     
     var body: some ReducerOf<Self> {
@@ -86,6 +88,15 @@ struct ExploreCoordinator {
                 
             case .routeToPreviousScreen:
                 return .none
+            
+            // toast
+            case .router(.routeAction(id: _, action: .explore(.presentToast(let message)))):
+                return .send(.presentToast(message: message))
+            case .router(.routeAction(id: _, action: .search(.presentToast(let message)))):
+                return .send(.presentToast(message: message))
+            case .presentToast:
+                return .none
+            
             default:
                 return .none
             }

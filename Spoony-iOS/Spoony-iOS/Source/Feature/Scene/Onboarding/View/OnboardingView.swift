@@ -48,6 +48,7 @@ struct OnboardingView: View {
                     store.send(.checkNickname)
                 }
             }
+            .allowsHitTesting(store.state.isLoading)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }

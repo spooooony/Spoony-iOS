@@ -9,10 +9,6 @@ import Foundation
 
 import ComposableArchitecture
 
-enum ExploreError: Error, Equatable {
-    case networkError
-}
-
 @Reducer
 struct ExploreFeature {
     @ObservableState
@@ -65,14 +61,14 @@ struct ExploreFeature {
         
         case fetchFollowingFeed
         
-        case setFeed([FeedEntity], Int)
+        case setFeed([FeedEntity], Int?)
         case setFilterInfo(category: [CategoryChip], location: [Region])
         
         case deleteMyReview(Int)
         case confirmDeleteReview
         case deleteReviewResult(Bool)
         
-        case handleError(ExploreError)
+        case error(SNError)
         
         // MARK: - Navigation
         case routeToExploreSearchScreen
@@ -81,6 +77,7 @@ struct ExploreFeature {
         case routeToEditReviewScreen(Int)
         case tabSelected(TabType)
         case presentAlert(AlertType, Alert)
+        case presentToast(message: String)
     }
     
     @Dependency(\.exploreService) var exploreService: ExploreProtocol
@@ -92,8 +89,9 @@ struct ExploreFeature {
         Reduce { state, action in
             switch action {
             case .viewOnAppear:
+                state.isLoading = true
                 if state.viewType == .all {
-                    return .send(.fetchFilteredFeed)
+                    return .send(.refreshFilteredFeed)
                 } else {
                     return .send(.fetchFollowingFeed)
                 }
@@ -101,7 +99,7 @@ struct ExploreFeature {
                 state.viewType = type
                 switch type {
                 case .all:
-                    return .send(.fetchFilteredFeed)
+                    return .send(.refreshFilteredFeed)
                 case .following:
                     return .send(.fetchFollowingFeed)
                 }
@@ -118,6 +116,8 @@ struct ExploreFeature {
                         let locations = try await exploreService.getRegionList().toEntity()
                         
                         await send(.setFilterInfo(category: categories, location: locations))
+                    } catch {
+                        await send(.error(SNError.networkFail))
                     }
                 }
             case .routeToDetailScreen:
@@ -131,10 +131,9 @@ struct ExploreFeature {
                     return .send(.routeToExploreSearchScreen)
                 }
             case .fetchFilteredFeed:
-                state.isLoading = true
                 return .run { [state] send in
                     // TODO: throttle 공부하고 적용
-                    guard !state.isLast && state.isLoading else { return }
+                    guard !state.isLast else { return }
                     do {
                         let result = try await exploreService.getFilteredFeedList(
                             isLocal: state.selectedFilter.selectedLocal.isEmpty ? false : true,
@@ -148,26 +147,25 @@ struct ExploreFeature {
                         )
                         let list = result.toEntity()
                         let cursor = result.nextCursor
-//                        print("😅cursor: \(state.nextCursor), next: \(cursor)")
                         
                         await send(.setFeed(list, cursor))
                     } catch {
-                        await send(.handleError(.networkError))
+                        await send(.error(SNError.networkFail))
                     }
                 }
             case .refreshFilteredFeed:
+                state.isLoading = true
                 state.allList = []
-                state.nextCursor = 0
+                state.nextCursor = nil
                 state.isLast = false
                 return .send(.fetchFilteredFeed)
             case .fetchFollowingFeed:
                 return .run { send in
                     do {
                         let list = try await exploreService.getFollowingFeedList().toEntity()
-                        // TODO: 임시 커서값. 팔로잉 페이지네이션 시 적용
-                        await send(.setFeed(list, 0))
+                        await send(.setFeed(list, nil))
                     } catch {
-                        // 에러처리
+                        await send(.error(SNError.networkFail))
                     }
                 }
             case .setFeed(let list, let nextCursor):
@@ -210,11 +208,13 @@ struct ExploreFeature {
                         
                         await send(.deleteReviewResult(success))
                     } catch {
-                        // 에러처리
+                        await send(.error(SNError.networkFail))
                     }
                 }
             case .deleteReviewResult(let success):
-                // TODO: 성공, 실패 처리
+                if !success {
+                    return .send(.error(SNError.networkFail))
+                }
                 return .none
             case .routeToEditReviewScreen:
                 return .none
@@ -246,18 +246,20 @@ struct ExploreFeature {
                 if !state.selectedFilterButton.isEmpty {
                     state.selectedFilterButton.append(.filter)
                 }
-                return .send(.fetchFilteredFeed)
+                return .send(.refreshFilteredFeed)
             case let .presentAlert(type, alert):
                 state.alertType = type
                 state.alert = alert
                 state.isAlertPresented = true
                 return .none
             case .binding(\.selectedSort):
-                state.isLast = false
-                return .send(.fetchFilteredFeed)
+                return .send(.refreshFilteredFeed)
             case .binding:
                 return .none
-            case .handleError(let error):
+            case .error:
+                state.isLoading = false
+                return .send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
+            case .presentToast:
                 return .none
             }
         }

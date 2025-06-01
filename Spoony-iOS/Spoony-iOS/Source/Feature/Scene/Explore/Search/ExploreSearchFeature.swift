@@ -51,6 +51,8 @@ struct ExploreSearchFeature {
         case confirmDeleteReview
         case deleteReviewResult(Bool)
         
+        case error(SNError)
+        
         // MARK: - Navigation
         case routeToPreviousScreen
         case presentAlert(AlertType, Alert)
@@ -58,6 +60,7 @@ struct ExploreSearchFeature {
         case routeToDetailScreen(FeedEntity)
         case routeToReportScreen(Int)
         case routeToUserProfileScreen(Int)
+        case presentToast(message: String)
     }
     
     @Dependency(\.exploreService) var exploreService: ExploreProtocol
@@ -153,6 +156,8 @@ struct ExploreSearchFeature {
                             UserManager.shared.setSearches(.user, searchText)
                             let list = try await exploreService.searchUser(keyword: searchText).toEntity()
                             await send(.updateSearchStateFromSearchResult(reviewList: nil, userList: list))
+                        } catch {
+                            await send(.error(SNError.networkFail))
                         }
                     }
                 case .review:
@@ -161,6 +166,8 @@ struct ExploreSearchFeature {
                             UserManager.shared.setSearches(.review, searchText)
                             let list = try await exploreService.searchReview(keyword: searchText).toEntity()
                             await send(.updateSearchStateFromSearchResult(reviewList: list, userList: nil))
+                        } catch {
+                            await send(.error(SNError.networkFail))
                         }
                     }
                 }
@@ -174,7 +181,7 @@ struct ExploreSearchFeature {
                             let list = try await exploreService.searchUser(keyword: text).toEntity()
                             await send(.updateSearchStateFromSearchResult(reviewList: nil, userList: list))
                         } catch {
-                            
+                            await send(.error(SNError.networkFail))
                         }
                     }
                 case .review:
@@ -184,7 +191,7 @@ struct ExploreSearchFeature {
                             let list = try await exploreService.searchReview(keyword: text).toEntity()
                             await send(.updateSearchStateFromSearchResult(reviewList: list, userList: nil))
                         } catch {
-                            
+                            await send(.error(SNError.networkFail))
                         }
                     }
                 }
@@ -209,11 +216,13 @@ struct ExploreSearchFeature {
                         
                         await send(.deleteReviewResult(success))
                     } catch {
-                        // 에러처리
+                        await send(.error(SNError.networkFail))
                     }
                 }
-            case .deleteReviewResult:
-                // TODO: 성공, 실패 처리
+            case .deleteReviewResult(let success):
+                if !success {
+                    return .send(.error(SNError.networkFail))
+                }
                 return .none
             case .routeToEditReviewScreen:
                 return .none
@@ -239,6 +248,10 @@ struct ExploreSearchFeature {
             case .routeToUserProfileScreen:
                 return .none
             case .binding:
+                return .none
+            case .error:
+                return .send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
+            case .presentToast:
                 return .none
             }
         }

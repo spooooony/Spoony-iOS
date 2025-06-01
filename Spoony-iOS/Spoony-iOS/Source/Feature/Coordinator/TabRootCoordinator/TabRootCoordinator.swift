@@ -143,7 +143,8 @@ struct TabRootCoordinator {
                 return .none
                 
             case .router(.routeAction(id: _, action: .registerAndEdit(.presentToast(message: let message)))),
-                    .router(.routeAction(id: _, action: .editProfile(.presentToast(message: let message)))):
+                    .router(.routeAction(id: _, action: .editProfile(.presentToast(message: let message)))),
+                    .router(.routeAction(id: _, action: .tab(.presentToast(message: let message)))):
                 state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH  )
                 return .none
                 
