@@ -17,9 +17,7 @@ struct EditProfileFeature {
         
         var isLoading: Bool = false
         var imageLevel: Int = 1
-        var profileImages: [ProfileImage] = [
-            .init(url: "", imageLevel: 1, unlockCondition: "", isUnlocked: true)
-        ]
+        var profileImages: [ProfileImage] = []
         var savedNickname: String = ""
         var userNickname: String = ""
         var introduction: String = ""
@@ -210,6 +208,7 @@ struct EditProfileFeature {
             case .updateLoadError:
                 state.isLoadError = true
                 state.isDisableRegisterButton = true
+                state.profileImages = [.init(url: "", imageLevel: 1, unlockCondition: "", isUnlocked: true)]
                 return .none
             }
         }

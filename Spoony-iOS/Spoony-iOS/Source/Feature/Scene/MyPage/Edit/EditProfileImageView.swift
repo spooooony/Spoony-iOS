@@ -53,8 +53,10 @@ struct EditProfileImageView: View {
         case .lock, .fail:
             Circle().fill(.gray200)
                 .onAppear {
-                    if type != .lock {
-                        store.send(.presentToast(message: "이미지 로드에 실패했습니다!"))
+                    if case .fail = type {
+                        if !store.isLoadError {
+                            store.send(.presentToast(message: "이미지 로드에 실패했습니다!"))
+                        }
                     }
                 }
         }
