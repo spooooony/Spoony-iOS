@@ -34,6 +34,7 @@ struct EditProfileView: View {
                 Spacer()
             } else {
                 sectionContainerView
+                    
             }
         }
         .background(.white)
@@ -51,7 +52,7 @@ struct EditProfileView: View {
             .presentationCornerRadius(14)
         }
         .task {
-            store.send(.onAppear)
+            await store.send(.onAppear).finish()
         }
     }
 }
@@ -78,8 +79,11 @@ extension EditProfileView {
                 ) {
                     store.send(.didTapRegisterButton)
                 }
+                .unredacted()
                 .padding(.bottom, 25)
             }
+            .disabled(store.state.isLoadError)
+            .redacted(reason: store.state.isLoadError ? .placeholder : [])
         }
         .scrollIndicators(.hidden)
     }
@@ -100,6 +104,7 @@ extension EditProfileView {
                 }
             }
             .padding(.horizontal, 20)
+            .unredacted()
             
             profileImageList
         }
@@ -128,30 +133,12 @@ extension EditProfileView {
         Group {
             if image.isUnlocked {
                 if let url = URL(string: image.url) {
-                    KFImage(url)
-                        .resizable()
-                        .frame(width: 90.adjusted, height: 90.adjustedH)
-                        .clipShape(Circle())
-                        .overlay {
-                            Circle()
-                                .strokeBorder(
-                                    image.imageLevel == store.state.imageLevel ? .main400 : .clear,
-                                    lineWidth: 4.59.adjusted
-                                )
-                        }
+                    EditProfileImageView(store: store, type: .success(url, image.imageLevel))
                 } else {
-                    // TODO: - 이미지 로드 실패 아이콘 추가
-                    Text("이미지 에러")
+                    EditProfileImageView(store: store, type: .fail(image.imageLevel))
                 }
             } else {
-                Circle()
-                    .fill(.gray200)
-                    .frame(width: 90.adjusted, height: 90.adjustedH)
-                    .overlay {
-                        Image(.icLock)
-                            .resizable()
-                            .frame(width: 23.adjusted, height: 23.adjustedH)
-                    }
+                EditProfileImageView(store: store, type: .lock)
             }
         }
     }
@@ -163,6 +150,7 @@ extension EditProfileView {
             Text("닉네임을 입력해 주세요")
                 .font(.body1sb)
                 .foregroundStyle(.spoonBlack)
+                .unredacted()
             
             NicknameTextField(
                 errorState: $store.nicknameErrorState,
@@ -182,6 +170,7 @@ extension EditProfileView {
             Text("간단한 자기소개를 입력해 주세요")
                 .font(.body1sb)
                 .foregroundStyle(.spoonBlack)
+                .unredacted()
             
             SpoonyTextEditor(
                 text: $store.introduction,
@@ -201,6 +190,7 @@ extension EditProfileView {
             
             SpoonyDatePicker(selectedDate: $store.birthDate)
         }
+        .unredacted()
         .padding(.bottom, 32)
     }
     
@@ -216,6 +206,7 @@ extension EditProfileView {
                 selectedSubLocation: $store.selectedSubLocation
             )
         }
+        .unredacted()
         .padding(.horizontal, 20)
         .padding(.bottom, 35)
     }
