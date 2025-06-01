@@ -118,6 +118,12 @@ struct TabRootCoordinator {
             case .router(.routeAction(id: _, action: .accountManagement(.routeToLoginScreen))):
                 return .send(.routeToLogin)
                 
+            case .router(.routeAction(id: _, action: .withdraw(.routeToLoginScreen))):
+                 return .send(.routeToLogin)
+                
+            case .routeToLogin:
+                return .none
+
             case .router(.routeAction(id: _, action: .detail(.routeToEditReviewScreen(let postId)))):
                 state.routes.push(.registerAndEdit(.init(postId: postId)))
                 return .none

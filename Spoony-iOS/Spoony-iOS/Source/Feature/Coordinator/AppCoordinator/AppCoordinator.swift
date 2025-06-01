@@ -55,7 +55,9 @@ struct AppCoordinator {
                 return .none
                 
             case .router(.routeAction(id: _, action: .tabRootCoordinator(.routeToLogin))):
+                print("🔄 AppCoordinator: TabRootCoordinator에서 routeToLogin 받음")
                 return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
+                    print("🔄 AppCoordinator: 로그인 화면으로 라우팅 실행")
                     $0 = [.root(.auth(.initialState), embedInNavigationView: false)]
                 }
                 
@@ -69,11 +71,11 @@ struct AppCoordinator {
                 return .none
                 
             case .router(.routeAction(id: _, action: .auth(.presentToast(message: let message)))):
-                state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH  )
+                state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH)
                 return .none
                 
             case .router(.routeAction(id: _, action: .onboarding(.presentToast(message: let message)))):
-                state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH  )
+                state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH)
                 return .none
                 
             default:
