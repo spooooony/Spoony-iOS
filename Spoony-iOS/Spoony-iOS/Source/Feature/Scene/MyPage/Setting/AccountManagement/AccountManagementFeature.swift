@@ -43,6 +43,7 @@ struct AccountManagementFeature {
         case routeToLoginScreen
     }
     
+    private let authManager = AuthenticationManager.shared
     @Dependency(\.authService) var authService: AuthProtocol
     
     var body: some ReducerOf<Self> {
@@ -96,6 +97,7 @@ struct AccountManagementFeature {
                     let _ = KeychainManager.delete(key: .accessToken)
                     let _ = KeychainManager.delete(key: .refreshToken)
                     let _ = KeychainManager.delete(key: .socialType)
+                    AuthenticationManager.shared.handleTokenExpired()
                     return .send(.routeToLoginScreen)
                 } else {
                     state.logoutErrorMessage = "로그아웃에 실패했습니다."

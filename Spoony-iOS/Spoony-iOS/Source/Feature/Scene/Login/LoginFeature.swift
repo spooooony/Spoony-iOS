@@ -61,9 +61,11 @@ struct LoginFeature {
             case .tempHomeButtonTapped:
                 return .send(.routToTabCoordinatorScreen)
             case .onAppear:
-                guard let (type, token) = authenticationManager.checkAutoLogin() else { return .none }
-                
-                return .send(.routToTabCoordinatorScreen)
+                if authenticationManager.checkAutoLogin() {
+                    return .send(.routToTabCoordinatorScreen)
+                } else {
+                    return .none
+                }
             case .kakaoLoginButtonTapped:
                 state.isLoading = true
                 
@@ -93,6 +95,7 @@ struct LoginFeature {
                     do {
                         let isExists = try await authService.login(platform: type.rawValue, token: token)
                         if isExists {
+                            authenticationManager.setAuthenticationState()
                             await send(.routToTabCoordinatorScreen)
                         } else {
                             await send(.routToTermsOfServiceScreen)

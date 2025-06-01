@@ -14,11 +14,12 @@ enum AuthenticationState {
     case unAuthenticated
 }
 
-final class AuthenticationManager {
+final class AuthenticationManager: ObservableObject {
     static let shared = AuthenticationManager()
     
     private init() { }
     
+    // 로그아웃, 회원탈퇴 시에 unAuthenticated로 바꿔주기
     @Published private(set) var authenticationState: AuthenticationState = .unAuthenticated
     private(set) var socialToken: String?
     private(set) var socialType: SocialType = .KAKAO
@@ -28,25 +29,34 @@ final class AuthenticationManager {
         self.socialToken = token
     }
     
-    func checkAutoLogin() -> (SocialType, String)? {
+    func setAuthenticationState() {
+        authenticationState = .authenticated
+    }
+    
+    func checkAutoLogin() -> Bool {
         switch KeychainManager.read(key: .socialType) {
         case .success(let type):
-            guard let type else { return nil }
+            guard let type else { return false }
             self.socialType = SocialType.from(rawValue: type) ?? .KAKAO
         case .failure:
             print("⛔️ 자동 로그인 실패")
-            return nil
+            return false
         }
         
         switch KeychainManager.read(key: .accessToken) {
         case .success(let token):
-            guard let token else { return nil }
+            guard let token else { return false }
             self.socialToken = token
         case .failure:
             print("⛔️ 자동 로그인 실패")
-            return nil
+            return false
         }
         
-        return (self.socialType, self.socialToken ?? "")
+        self.authenticationState = .unAuthenticated
+        return true
+    }
+    
+    func handleTokenExpired() {
+        authenticationState = .unAuthenticated
     }
 }

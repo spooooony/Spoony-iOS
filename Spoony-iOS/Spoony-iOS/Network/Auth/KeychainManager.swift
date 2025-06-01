@@ -78,4 +78,35 @@ struct KeychainManager {
             return .failure(.failedToDelete)
         }
     }
+    
+    static func saveKeychain(access: String, refresh: String, platform: String) {
+        switch KeychainManager.create(key: .accessToken, value: access) {
+        case .success:
+            print("✅ Access Token saved successfully")
+        case .failure(let error):
+            print("❌ Access Token save failed: \(error)")
+        }
+        
+        switch KeychainManager.create(key: .refreshToken, value: refresh) {
+        case .success:
+            print("✅ Refresh Token saved successfully")
+        case .failure(let error):
+            print("❌ Refresh Token save failed: \(error)")
+        }
+        
+        switch KeychainManager.create(key: .socialType, value: platform) {
+        case .success:
+            print("✅ Refresh Token saved successfully")
+        case .failure(let error):
+            print("❌ Refresh Token save failed: \(error)")
+        }
+        
+        // 저장 후 바로 읽어보기 테스트
+        switch KeychainManager.read(key: .accessToken) {
+        case .success(let token):
+            print("✅ Access Token read test: \(token?.prefix(30) ?? "nil")")
+        case .failure(let error):
+            print("❌ Access Token read test failed: \(error)")
+        }
+    }
 }

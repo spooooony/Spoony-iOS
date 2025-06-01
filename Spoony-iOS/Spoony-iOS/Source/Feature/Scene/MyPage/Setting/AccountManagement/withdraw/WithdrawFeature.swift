@@ -96,6 +96,8 @@ struct WithdrawFeature {
                     UserManager.shared.exploreReviewRecentSearches = nil
                     UserManager.shared.lastAppVisitDate = nil
                     
+                    AuthenticationManager.shared.handleTokenExpired()
+                    
                     return .send(.routeToLoginScreen)
                 }
                 return .none
