@@ -52,6 +52,11 @@ struct EditProfileImageView: View {
                 .fade(duration: 0.3)
         case .lock, .fail:
             Circle().fill(.gray200)
+                .onAppear {
+                    if type != .lock {
+                        store.send(.presentToast(message: "이미지 로드에 실패했습니다!"))
+                    }
+                }
         }
     }
 
