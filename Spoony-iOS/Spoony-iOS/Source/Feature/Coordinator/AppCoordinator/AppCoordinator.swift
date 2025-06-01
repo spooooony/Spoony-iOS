@@ -72,6 +72,10 @@ struct AppCoordinator {
                 state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH  )
                 return .none
                 
+            case .router(.routeAction(id: _, action: .onboarding(.presentToast(message: let message)))):
+                state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH  )
+                return .none
+                
             default:
                 return .none
             }
