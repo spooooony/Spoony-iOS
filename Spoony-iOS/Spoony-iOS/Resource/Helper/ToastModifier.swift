@@ -39,8 +39,8 @@ struct ToastView: View {
         HStack(alignment: .center, spacing: 12) {
             Text(message)
                 .foregroundStyle(.white)
+                .padding(.vertical, 12)
         }
-        .frame(height: 40.adjustedH)
         .frame(minWidth: 0, maxWidth: width)
         .background(style.themeColor)
         .cornerRadius(10)
