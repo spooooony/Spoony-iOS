@@ -45,6 +45,8 @@ struct TabCoordinator {
         case routeToEditProfile
         case routeToDetail(Int)
         case routeToReport(Int)
+        
+        case presentToast(message: String)
     }
     
     var body: some ReducerOf<Self> {
@@ -98,6 +100,9 @@ struct TabCoordinator {
                 
             case .explore(.routeToEditReviewScreen(let postId)):
                 return .send(.routeToEditReview(postId))
+                
+            case .explore(.presentToast(let message)):
+                return .send(.presentToast(message: message))
             
             // mypage 관련
             case .myPage(.router(.routeAction(id: _, action: .profile(.routeToRegister)))):
@@ -121,7 +126,10 @@ struct TabCoordinator {
             case .routeToLoginScreen:
                 return .none
                 
-            default:
+            case .presentToast:
+                return .none
+                
+            default:    
                 return .none
             }
         }

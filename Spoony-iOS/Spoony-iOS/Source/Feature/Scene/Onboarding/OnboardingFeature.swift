@@ -180,7 +180,7 @@ struct OnboardingFeature {
                 state.userNickname = nickname
                 state.currentStep = .finish
                 return .none
-            case .error(let error):
+            case .error:
                 state.isLoading = false
                 return .send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
             case .routToTabCoordinatorScreen:
