@@ -174,7 +174,7 @@ extension Explore {
                             .strokeBorder(.gray100)
                     )
             )
-            .frame(height: 32.adjustedH)
+            .frame(width: 44.adjusted, height: 32.adjusted)
             .onTapGesture {
                 sortIsPresented = true
             }
