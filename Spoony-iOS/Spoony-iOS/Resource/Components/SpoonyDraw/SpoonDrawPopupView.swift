@@ -107,9 +107,8 @@ struct SpoonDrawPopupView: View {
                 .font(.body1sb)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.gray900)
-                .padding(.top, 24)
-                .padding(.top, 16)
-
+                .padding(.top, 40)
+            
             LottieView(animation: .named("iOS_Lottie_Shake"))
                 .playing(loopMode: .repeat(2))
                 .animationSpeed(1.0)
