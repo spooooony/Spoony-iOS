@@ -12,6 +12,7 @@ import TCACoordinators
 
 struct AppCoordinatorView: View {
     private let store: StoreOf<AppCoordinator>
+    @StateObject private var authManager = AuthenticationManager.shared
     
     init(store: StoreOf<AppCoordinator>) {
         self.store = store
@@ -39,5 +40,10 @@ struct AppCoordinatorView: View {
                 set: { store.send(.updateToast($0)) }
             )
         )
+        .onChange(of: authManager.authenticationState) {
+            if authManager.authenticationState == .unAuthenticated {
+                store.send(.routeToLoginScreen)
+            }
+        }
     }
 }

@@ -38,7 +38,6 @@ struct RegisterFeature {
         case onAppear
         case updateIsLoading(Bool)
         case updateStep(RegisterStep)
-//        case resetState
         case registrationSuccessful
         case onDisappear
         case registerPostRequest(_ selectedPlace: PlaceInfo, _ selectedCategory: CategoryChip)
@@ -83,7 +82,7 @@ struct RegisterFeature {
                             let reviewInfo = try await network.getReviewInfo(postId: postId).toModel()
                             await send(.reviewInfoResponse(reviewInfo))
                         } catch {
-                            await send(.presentToast(message: "네트워크 에러!"))
+                            await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
                         }
                     }
                 }
@@ -168,7 +167,7 @@ struct RegisterFeature {
                     if success {
                         await send(.registrationSuccessful)
                     } else {
-                        await send(.presentToast(message: "네트워크 오류!"))
+                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
                     }
                 }
             case let .editPostRequest(selectedCategory):
@@ -201,7 +200,7 @@ struct RegisterFeature {
                     if success {
                         await send(.registrationSuccessful)
                     } else {
-                        await send(.presentToast(message: "네트워크 오류!"))
+                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
                     }
                 }
             case .registrationSuccessful:
