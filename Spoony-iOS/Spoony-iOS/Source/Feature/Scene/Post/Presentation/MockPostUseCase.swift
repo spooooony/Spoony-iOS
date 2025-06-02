@@ -10,7 +10,7 @@ import Foundation
 struct MockPostUseCase: PostUseCase {
     
     func getPost(postId: Int) async throws -> PostModel {
-        return MockData.reviewDetail
+        return MockData.postDetail
     }
     
     func scrapPost(postId: Int) async throws {
@@ -41,7 +41,7 @@ struct MockPostUseCase: PostUseCase {
 
 struct MockData {
     
-    static let reviewDetailResponse: PostResponseDTO = PostResponseDTO(
+    static let postResponse: PostResponseDTO = PostResponseDTO(
         postId: 20,
         userId: 30,
         photoUrlList: [
@@ -90,8 +90,8 @@ struct MockData {
     static let spoonCount: Int = 5623
     
     // 최종적으로 사용될 Mock PostModel
-    static let reviewDetail: PostModel = PostModel(
-        postDto: reviewDetailResponse,
+    static let postDetail: PostModel = PostModel(
+        postDto: postResponse,
         userInfo: userInfo,
         spoonCount: spoonCount
     )

@@ -37,7 +37,7 @@ extension PostUseCaseImpl: PostUseCase {
             let spoonCount = try await homeService.fetchSpoonCount()
             print("✅ 1. spoonCount =", spoonCount)
             
-            print("🔍 2. get reviewDetail")
+            print("🔍 2. getPost 함수 실행")
             let postData = try await postRepository.getPost(postId: postId)
             print("✅ 2. postData = \(postData)")
             

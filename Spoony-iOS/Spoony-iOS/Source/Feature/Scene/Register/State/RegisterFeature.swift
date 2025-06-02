@@ -52,7 +52,7 @@ struct RegisterFeature {
         case presentPopup
         case presentToast(message: String)
         
-        case routeToDetailScreen(Int)
+        case routeToPostScreen(Int)
         case routeToPreviousScreen
     }
         
@@ -212,7 +212,7 @@ struct RegisterFeature {
                         // 여기 뭐로 분기하지
                         return .send(.routeToPreviousScreen)
                     }
-                    return .send(.routeToDetailScreen(postId))
+                    return .send(.routeToPostScreen(postId))
                 } else {
                     return .send(.presentPopup)
                 }

@@ -72,7 +72,7 @@ struct MapFeature {
     enum Action {
         case routToSearchScreen
         case routeToExploreTab
-        case routToDetailView(postId: Int)
+        case routeToPostView(postId: Int)
         
         case fetchPickList
         case pickListResponse(TaskResult<ResturantpickListResponse>)
@@ -159,7 +159,7 @@ struct MapFeature {
                 print("스푼 뽑기 오류: \(error.localizedDescription)")
                 return .none
             
-            case .routToSearchScreen, .routeToExploreTab, .routToDetailView:
+            case .routToSearchScreen, .routeToExploreTab, .routeToPostView:
                 return .none
                 
             case .fetchPickList:

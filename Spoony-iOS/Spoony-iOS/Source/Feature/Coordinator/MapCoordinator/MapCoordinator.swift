@@ -31,14 +31,14 @@ struct MapCoordinator {
         case router(IndexedRouterActionOf<MapScreen>)
         case locationSelected(Int)
         
-        case routeToDetailScreen(Int)
+        case routeToPostScreen(Int)
     }
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case let .router(.routeAction(id: _, action: .map(.routToDetailView(postId: postId)))):
-                return .send(.routeToDetailScreen(postId))
+            case let .router(.routeAction(id: _, action: .map(.routeToPostView(postId: postId)))):
+                return .send(.routeToPostScreen(postId))
                 
             case .router(.routeAction(id: _, action: .map(.routToSearchScreen))):
                 state.routes.push(.search(.initialState))

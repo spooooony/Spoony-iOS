@@ -72,7 +72,7 @@ struct ExploreFeature {
         
         // MARK: - Navigation
         case routeToExploreSearchScreen
-        case routeToDetailScreen(FeedEntity)
+        case routeToPostScreen(FeedEntity)
         case routeToReportScreen(Int)
         case routeToEditReviewScreen(Int)
         case tabSelected(TabType)
@@ -120,7 +120,7 @@ struct ExploreFeature {
                         await send(.error(SNError.networkFail))
                     }
                 }
-            case .routeToDetailScreen:
+            case .routeToPostScreen:
                 return .none
             case .searchButtonTapped:
                 return .send(.routeToExploreSearchScreen)

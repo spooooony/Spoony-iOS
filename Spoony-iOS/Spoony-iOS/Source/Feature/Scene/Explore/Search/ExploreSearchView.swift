@@ -178,12 +178,12 @@ extension ExploreSearchView {
                         if feed.isMine {
                             myExploreCell(feed)
                                 .onTapGesture {
-                                    store.send(.routeToDetailScreen(feed))
+                                    store.send(.routeToPostScreen(feed))
                                 }
                         } else {
                             otherExploreCell(feed)
                                 .onTapGesture {
-                                    store.send(.routeToDetailScreen(feed))
+                                    store.send(.routeToPostScreen(feed))
                                 }
                         }
                         

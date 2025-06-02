@@ -31,7 +31,7 @@ struct ExploreCoordinator {
         case tabSelected(TabType)
         case routeToPreviousScreen
         
-        case routeToDetailScreen(Int)
+        case routeToPostScreen(Int)
         case routeToReportScreen(Int)
         case routeToEditReviewScreen(Int)
         
@@ -45,16 +45,16 @@ struct ExploreCoordinator {
             case .router(.routeAction(id: _, action: .explore(.routeToExploreSearchScreen))):
                 state.routes.push(.search(.initialState))
                 return .none
-            case .router(.routeAction(id: _, action: .explore(.routeToDetailScreen(let post)))):
-                return .send(.routeToDetailScreen(post.postId))
+            case .router(.routeAction(id: _, action: .explore(.routeToPostScreen(let post)))):
+                return .send(.routeToPostScreen(post.postId))
             case .router(.routeAction(id: _, action: .explore(.routeToReportScreen(let postId)))):
                 return .send(.routeToReportScreen(postId))
             case .router(.routeAction(id: _, action: .explore(.routeToEditReviewScreen(let postId)))):
                 return .send(.routeToEditReviewScreen(postId))
                 
             // 검색에서 네비게이션
-            case .router(.routeAction(id: _, action: .search(.routeToDetailScreen(let post)))):
-                return .send(.routeToDetailScreen(post.postId))
+            case .router(.routeAction(id: _, action: .search(.routeToPostScreen(let post)))):
+                return .send(.routeToPostScreen(post.postId))
             case let .router(.routeAction(id: _, action: .search(.routeToReportScreen(postId)))):
                 return .send(.routeToReportScreen(postId))
             case .router(.routeAction(id: _, action: .search(.routeToEditReviewScreen(let postId)))):
@@ -72,7 +72,7 @@ struct ExploreCoordinator {
 //            case .router(.routeAction(id: _, action: .report(.routeToPreviousScreen))):
 //                state.routes.goBack()
 //                return .none
-//            case .router(.routeAction(id: _, action: .detail(.routeToPreviousScreen))):
+//            case .router(.routeAction(id: _, action: .post(.routeToPreviousScreen))):
 //                state.routes.goBack()
 //                return .none
             case .router(.routeAction(id: _, action: .otherProfile(.routeToPreviousScreen))):
