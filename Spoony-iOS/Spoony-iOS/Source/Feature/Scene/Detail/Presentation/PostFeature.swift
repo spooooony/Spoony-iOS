@@ -184,12 +184,12 @@ struct PostFeature {
                 
             case .scoopButtonTappedResponse(let isSuccess):
                 if isSuccess {
-                    state.isScoop.toggle()
-                    state.spoonCount -= 1
+                    state.isScoop = true
+                    state.spoonCount = max(0, state.spoonCount - 1)
+                    return .send(.showToast("떠먹기에 성공했어요!"))
                 } else {
-                    return .send(.showToast("떠먹기 실패했습니다."))
+                    return .send(.showToast("남은 스푼이 없어요 ㅠ.ㅠ"))
                 }
-                return .none
                 
             case .showToast(let message):
                 state.toast = Toast(
@@ -224,15 +224,18 @@ struct PostFeature {
             case .showUseSpoonPopup:
                 state.isUseSpoonPopupVisible = true
                 return .none
-
-            case .confirmUseSpoonPopup:
                 
-                //TODO: 서버 연결 달기~
-                state.isScoop = true
-                state.spoonCount -= 1
+            case .confirmUseSpoonPopup:
                 state.isUseSpoonPopupVisible = false
-                return .none
-
+                return .run { [postId = state.postId] send in
+                    do {
+                        let isSuccess = try await detailUseCase.scoopReview(postId: postId)
+                        await send(.scoopButtonTappedResponse(isSuccess: isSuccess))
+                    } catch {
+                        await send(.error(.spoonError))
+                    }
+                }
+                
             case .dismissUseSpoonPopup:
                 state.isUseSpoonPopupVisible = false
                 return .none
