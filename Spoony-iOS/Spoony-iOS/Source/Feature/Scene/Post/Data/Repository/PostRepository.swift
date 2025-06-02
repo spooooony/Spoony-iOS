@@ -34,16 +34,16 @@ extension DefaultPostRepository {
     }
     
     public func scrapPost(postId: Int) async throws {
-        try await requestPostAction(targetType: .scrapReview(postId: postId))
+        try await requestPostAction(targetType: .scrapPost(postId: postId))
     }
     
     public func unScrapPost(postId: Int) async throws {
-        try await requestPostAction(targetType: .unScrapReview(postId: postId))
+        try await requestPostAction(targetType: .unScrapPost(postId: postId))
     }
     
     public func scoopPost(postId: Int) async throws -> Bool {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.postProvider.request(.scoopReview(postId: postId)) { result in
+            Providers.postProvider.request(.scoopPost(postId: postId)) { result in
                 switch result {
                 case .success(let response):
                     do {
@@ -85,7 +85,6 @@ extension DefaultPostRepository {
         }
     }
     
-    
     // MARK: - 공통 로직
     
     // 공용 로직들을 여기에 추가
@@ -104,7 +103,7 @@ extension DefaultPostRepository {
                     } catch {
                         continuation.resume(throwing: error)
                     }
-                case .failure(let error):
+                case .failure:
                     continuation.resume(throwing: PostError.userError)
                 }
             }
