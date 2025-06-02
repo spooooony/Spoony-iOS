@@ -112,7 +112,7 @@ struct PostFeature {
                 state.isLoading = true
                 return .run { [postId] send in
                     do {
-                        let data = try await detailUseCase.fetchInitialDetail(postId: postId)
+                        let data = try await detailUseCase.getPost(postId: postId)
                         await send(.fetchInitialResponse(.success(data)))
                     } catch {
                         await send(.fetchInitialResponse(.failure(.userError)))
@@ -134,7 +134,7 @@ struct PostFeature {
             case .scoopButtonTapped:
                 return .run { [postId = state.postId] send in
                     do {
-                        let data = try await detailUseCase.scoopReview(postId: postId)
+                        let data = try await detailUseCase.scoopPost(postId: postId)
                         await send(.scoopButtonTappedResponse(isSuccess: data))
                     } catch {
                         await send(.error(.spoonError))
@@ -145,10 +145,10 @@ struct PostFeature {
                 return .run { [postId = state.postId, isZzim] send in
                     do {
                         if isZzim {
-                            try await detailUseCase.unScrapReview(postId: postId)
+                            try await detailUseCase.unScrapPost(postId: postId)
                             await send(.zzimButtonResponse(isScrap: false))
                         } else {
-                            try await detailUseCase.scrapReview(postId: postId)
+                            try await detailUseCase.scrapPost(postId: postId)
                             await send(.zzimButtonResponse(isScrap: true))
                         }
                     } catch {
@@ -234,7 +234,7 @@ struct PostFeature {
                 state.isUseSpoonPopupVisible = false
                 return .run { [postId = state.postId] send in
                     do {
-                        let isSuccess = try await detailUseCase.scoopReview(postId: postId)
+                        let isSuccess = try await detailUseCase.scoopPost(postId: postId)
                         await send(.scoopButtonTappedResponse(isSuccess: isSuccess))
                     } catch {
                         await send(.error(.spoonError))
@@ -253,7 +253,7 @@ struct PostFeature {
                 state.isDeletePopupVisible = false
                 return .run { [postId = state.postId] send in
                     do {
-                        try await detailUseCase.deleteReview(postId: postId)
+                        try await detailUseCase.deletePost(postId: postId)
                         await send(.showToast("삭제가 완료되었어요."))
                         await send(.routeToPreviousScreen)
                     } catch {

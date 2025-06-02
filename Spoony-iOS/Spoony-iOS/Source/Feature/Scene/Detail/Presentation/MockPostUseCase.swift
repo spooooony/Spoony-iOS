@@ -9,19 +9,19 @@ import Foundation
 
 struct MockPostUseCase: PostUseCase {
     
-    func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel {
+    func getPost(postId: Int) async throws -> ReviewDetailModel {
         return MockData.reviewDetail
     }
     
-    func scrapReview(postId: Int) async throws {
+    func scrapPost(postId: Int) async throws {
         print("스크랩")
     }
     
-    func unScrapReview(postId: Int) async throws {
+    func unScrapPost(postId: Int) async throws {
         print("스크랩 취소")
     }
     
-    func scoopReview(postId: Int) async throws -> Bool {
+    func scoopPost(postId: Int) async throws -> Bool {
         print("떠먹기 기능")
         return true
     }
@@ -34,7 +34,7 @@ struct MockPostUseCase: PostUseCase {
         return MockData.userInfo
     }
     
-    func deleteReview(postId: Int) async throws {
+    func deletePost(postId: Int) async throws {
         return
     }
 }

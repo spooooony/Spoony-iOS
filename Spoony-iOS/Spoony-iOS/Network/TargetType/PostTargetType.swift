@@ -1,5 +1,5 @@
 //
-//  DetatilTargetType.swift
+//  PostTargetType.swift
 //  Spoony-iOS
 //
 //  Created by 이명진 on 1/20/25.
@@ -8,8 +8,8 @@
 import Foundation
 import Moya
 
-enum DetailTargetType {
-    case getDetailReview(postId: Int)
+enum PostTargetType {
+    case getPost(postId: Int)
     case scoopReview(postId: Int)
     case scrapReview(postId: Int)
     case unScrapReview(postId: Int)
@@ -18,7 +18,7 @@ enum DetailTargetType {
     case deletePost(postId: Int)
 }
 
-extension DetailTargetType: TargetType {
+extension PostTargetType: TargetType {
     
     var baseURL: URL {
         guard let url = URL(string: Config.baseURL) else {
@@ -29,7 +29,7 @@ extension DetailTargetType: TargetType {
     
     var path: String {
         switch self {
-        case .getDetailReview(let postId):
+        case .getPost(let postId):
             return "/post/\(postId)"
         case .scoopReview:
             return "/post/scoop"
@@ -48,7 +48,7 @@ extension DetailTargetType: TargetType {
     
     var method: Moya.Method {
         switch self {
-        case .getDetailReview, .getMyUserInfo, .getOtherUserInfo:
+        case .getPost, .getMyUserInfo, .getOtherUserInfo:
             return .get
         case .scoopReview, .scrapReview:
             return .post
@@ -59,7 +59,7 @@ extension DetailTargetType: TargetType {
     
     var task: Moya.Task {
         switch self {
-        case .getDetailReview, .getMyUserInfo, .getOtherUserInfo:
+        case .getPost, .getMyUserInfo, .getOtherUserInfo:
             return .requestPlain
         case .scoopReview(let postId), .scrapReview(let postId):
             return .requestParameters(

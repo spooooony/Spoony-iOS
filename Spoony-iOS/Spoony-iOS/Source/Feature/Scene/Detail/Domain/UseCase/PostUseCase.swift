@@ -6,74 +6,74 @@
 //
 
 protocol PostUseCase {
-    func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel
-    func scrapReview(postId: Int) async throws
-    func unScrapReview(postId: Int) async throws
-    func scoopReview(postId: Int) async throws -> Bool
+    func getPost(postId: Int) async throws -> ReviewDetailModel
+    func scrapPost(postId: Int) async throws
+    func unScrapPost(postId: Int) async throws
+    func scoopPost(postId: Int) async throws -> Bool
     func getMyUserInfo() async throws -> UserInfoResponseDTO
     func getOtherUserInfo(userId: Int) async throws -> UserInfoResponseDTO
-    func deleteReview(postId: Int) async throws
+    func deletePost(postId: Int) async throws
 }
 
 struct PostUseCaseImpl {
-    private let detailRepository: DetailRepositoryInterface
+    private let postRepository: PostRepositoryInterface
     private let homeService: HomeServiceType
     
     // TDOO: HomeService 리팩토링 되면 코드 수정
     init(
-        detailRepository: DetailRepositoryInterface = DefaultDetailRepository(),
+        postRepository: PostRepositoryInterface = DefaultPostRepository(),
         homeService: HomeServiceType = DefaultHomeService()
     ) {
-        self.detailRepository = detailRepository
+        self.postRepository = postRepository
         self.homeService = homeService // 다른 팀원의 파일이기 때문에 service로 어쩔 수 없이 주입해서 사용
     }
 }
 
 extension PostUseCaseImpl: PostUseCase {
     
-    func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel {
+    func getPost(postId: Int) async throws -> ReviewDetailModel {
         do {
             print("🔍 1. get spoonCount")
             let spoonCount = try await homeService.fetchSpoonCount()
             print("✅ 1. spoonCount =", spoonCount)
-
+            
             print("🔍 2. get reviewDetail")
-            let reviewDetail = try await detailRepository.fetchReviewDetail(postId: postId)
-            print("✅ 2. reviewDetail = \(reviewDetail)")
-
+            let postData = try await postRepository.getPost(postId: postId)
+            print("✅ 2. postData = \(postData)")
+            
             print("🔍 3. get userInfo")
-            let userInfo = try await detailRepository.getOtherUserInfo(userId: reviewDetail.userId)
+            let userInfo = try await postRepository.getOtherUserInfo(userId: postData.userId)
             print("✅ 3. userInfo =", userInfo.userName)
-
-            return ReviewDetailModel(reviewDetail: reviewDetail, userInfo: userInfo, spoonCount: spoonCount)
+            
+            return ReviewDetailModel(reviewDetail: postData, userInfo: userInfo, spoonCount: spoonCount)
         } catch {
-            print("❌ fetchInitialDetail error:", error)
+            print("❌ getPost error:", error)
             throw error
         }
     }
     
-    func scrapReview(postId: Int) async throws {
-        try await detailRepository.scrapReview(postId: postId)
+    func scrapPost(postId: Int) async throws {
+        try await postRepository.scrapPost(postId: postId)
     }
     
-    func unScrapReview(postId: Int) async throws {
-        try await detailRepository.unScrapReview(postId: postId)
+    func unScrapPost(postId: Int) async throws {
+        try await postRepository.unScrapPost(postId: postId)
     }
     
-    func scoopReview(postId: Int) async throws -> Bool {
-        return try await detailRepository.scoopReview(postId: postId)
+    func scoopPost(postId: Int) async throws -> Bool {
+        return try await postRepository.scoopPost(postId: postId)
     }
     
     func getMyUserInfo() async throws -> UserInfoResponseDTO {
-        return try await detailRepository.getMyUserInfo()
+        return try await postRepository.getMyUserInfo()
     }
     
     func getOtherUserInfo(userId: Int) async throws -> UserInfoResponseDTO {
-        return try await detailRepository.getOtherUserInfo(userId: userId)
+        return try await postRepository.getOtherUserInfo(userId: userId)
     }
     
-    func deleteReview(postId: Int) async throws {
-        try await detailRepository.deleteReview(postId: postId)
+    func deletePost(postId: Int) async throws {
+        try await postRepository.deletePost(postId: postId)
     }
-
+    
 }
