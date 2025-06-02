@@ -61,11 +61,12 @@ struct LoginFeature {
             case .tempHomeButtonTapped:
                 return .send(.routToTabCoordinatorScreen)
             case .onAppear:
-                if authenticationManager.checkAutoLogin() {
-                    return .send(.routToTabCoordinatorScreen)
-                } else {
-                    return .none
-                }
+//                if authenticationManager.checkAutoLogin() {
+//                    return .send(.routToTabCoordinatorScreen)
+//                } else {
+//                    return .none
+//                }
+                return .none
             case .kakaoLoginButtonTapped:
                 state.isLoading = true
                 
