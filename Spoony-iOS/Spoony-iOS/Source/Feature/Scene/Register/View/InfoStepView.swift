@@ -251,17 +251,18 @@ extension InfoStepView {
                 }
             }
             .overlay(alignment: .top) {
-                ToolTipView()
-                    .padding(.top, 5)
-                    .opacity(store.state.isToolTipPresented ? 1 : 0)
-                    .task {
-                        do {
-                            try await Task.sleep(for: .seconds(3))
-                            store.send(.updateToolTipState)
-                        } catch {
-                            
+                if store.state.isToolTipPresented {
+                    ToolTipView()
+                        .offset(y: -25.adjustedH)
+                        .task {
+                            do {
+                                try await Task.sleep(for: .seconds(2))
+                                store.send(.updateToolTipState)
+                            } catch {
+                                
+                            }
                         }
-                    }
+                }
             }
         }
     }
