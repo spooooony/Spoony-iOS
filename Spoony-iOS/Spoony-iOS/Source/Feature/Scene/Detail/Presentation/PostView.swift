@@ -85,15 +85,35 @@ struct PostView: View {
         }
         .popup(
             popup: Binding(
-                get: { store.isUseSpoonPopupVisible ? .useSpoon : nil },
+                get: {
+                    if store.isUseSpoonPopupVisible {
+                        return .useSpoon
+                    } else if store.isDeletePopupVisible {
+                        return .delete
+                    } else {
+                        return nil
+                    }
+                },
                 set: { newValue in
                     if newValue == nil {
-                        store.send(.dismissUseSpoonPopup)
+                        if store.isUseSpoonPopupVisible {
+                            store.send(.dismissUseSpoonPopup)
+                        }
+                        if store.isDeletePopupVisible {
+                            store.send(.dismissDeletePopup)
+                        }
                     }
                 }
             ),
-            confirmAction: { _ in
-                store.send(.confirmUseSpoonPopup)
+            confirmAction: { popup in
+                switch popup {
+                case .useSpoon:
+                    store.send(.confirmUseSpoonPopup)
+                case .delete:
+                    store.send(.confirmDeletePopup)
+                default:
+                    break
+                }
             }
         )
         .navigationBarBackButtonHidden()
@@ -411,7 +431,7 @@ extension PostView {
                             store.send(.routeToEditReviewScreen(store.postId))
                             print("수정하기 탭됨")
                         case "삭제하기":
-                            // TODO: 삭제 액션
+                            store.send(.showDeletePopup)
                             print("삭제하기 탭됨")
                         default:
                             break

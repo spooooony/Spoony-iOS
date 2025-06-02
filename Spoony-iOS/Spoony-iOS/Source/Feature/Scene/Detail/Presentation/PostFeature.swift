@@ -64,6 +64,7 @@ struct PostFeature {
         var isFollowing: Bool = false
         
         var isUseSpoonPopupVisible: Bool = false
+        var isDeletePopupVisible: Bool = false
     }
     
     enum Action {
@@ -94,6 +95,10 @@ struct PostFeature {
         case showUseSpoonPopup
         case confirmUseSpoonPopup
         case dismissUseSpoonPopup
+        
+        case showDeletePopup
+        case confirmDeletePopup
+        case dismissDeletePopup
     }
     
     @Dependency(\.detailUseCase) var detailUseCase: DetailUseCase
@@ -236,8 +241,28 @@ struct PostFeature {
                     }
                 }
                 
+            case .showDeletePopup:
+                state.isDeletePopupVisible = true
+                return .none
+                
             case .dismissUseSpoonPopup:
                 state.isUseSpoonPopupVisible = false
+                return .none
+                
+            case .confirmDeletePopup:
+                state.isDeletePopupVisible = false
+                return .run { [postId = state.postId] send in
+                    do {
+                        try await detailUseCase.deleteReview(postId: postId)
+                        await send(.showToast("삭제가 완료되었어요."))
+                        await send(.routeToPreviousScreen)
+                    } catch {
+                        await send(.showToast("삭제에 실패했어요. 다시 시도해주세요."))
+                    }
+                }
+                
+            case .dismissDeletePopup:
+                state.isDeletePopupVisible = false
                 return .none
             }
         }
