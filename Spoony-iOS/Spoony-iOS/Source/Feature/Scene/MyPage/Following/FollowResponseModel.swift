@@ -15,7 +15,7 @@ struct FollowListDTO: Codable, Equatable {
 struct FollowUserDTO: Codable, Equatable {
     let userId: Int
     let username: String
-    let regionName: String
+    let regionName: String?
     let isFollowing: Bool
     let profileImageUrl: String
 }

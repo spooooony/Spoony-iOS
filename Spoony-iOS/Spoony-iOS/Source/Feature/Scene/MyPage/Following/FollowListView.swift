@@ -161,7 +161,7 @@ struct FollowRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(user.username)
                     .font(.body2sb)
-                Text("서울 \(user.regionName) 스푼")
+                Text("서울 \(user.regionName ?? "") 스푼")
                     .font(.caption1m)
                     .foregroundColor(.black)
             }
