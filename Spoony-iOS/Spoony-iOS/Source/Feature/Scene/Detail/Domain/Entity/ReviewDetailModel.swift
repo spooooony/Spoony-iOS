@@ -49,7 +49,7 @@ struct ReviewDetailModel: Codable {
         self.isMine = reviewDetail.isMine
         self.userName = userInfo.userName
         self.profileImageUrl = userInfo.profileImageUrl
-        self.regionName = userInfo.regionName
+        self.regionName = userInfo.regionName ?? ""
         self.spoonCount = spoonCount
         self.value = reviewDetail.value
         self.cons = reviewDetail.cons
