@@ -11,13 +11,13 @@ struct DefaultPostRepository: PostRepositoryInterface { }
 
 extension DefaultPostRepository {
     
-    public func getPost(postId: Int) async throws -> ReviewDetailResponseDTO {
+    public func getPost(postId: Int) async throws -> PostResponseDTO {
         return try await withCheckedThrowingContinuation { continuation in
             Providers.postProvider.request(.getPost(postId: postId)) { result in
                 switch result {
                 case .success(let response):
                     do {
-                        let responseDto = try response.map(BaseResponse<ReviewDetailResponseDTO>.self)
+                        let responseDto = try response.map(BaseResponse<PostResponseDTO>.self)
                         if let data = responseDto.data {
                             continuation.resume(returning: data)
                         } else {

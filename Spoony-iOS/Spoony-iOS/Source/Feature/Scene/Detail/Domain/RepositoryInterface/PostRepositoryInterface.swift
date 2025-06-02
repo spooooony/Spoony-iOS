@@ -6,7 +6,7 @@
 //
 
 protocol PostRepositoryInterface {
-    func getPost(postId: Int) async throws -> ReviewDetailResponseDTO
+    func getPost(postId: Int) async throws -> PostResponseDTO
     func scrapPost(postId: Int) async throws
     func unScrapPost(postId: Int) async throws
     func scoopPost(postId: Int) async throws -> Bool

@@ -6,7 +6,7 @@
 //
 
 protocol PostUseCase {
-    func getPost(postId: Int) async throws -> ReviewDetailModel
+    func getPost(postId: Int) async throws -> PostModel
     func scrapPost(postId: Int) async throws
     func unScrapPost(postId: Int) async throws
     func scoopPost(postId: Int) async throws -> Bool
@@ -31,7 +31,7 @@ struct PostUseCaseImpl {
 
 extension PostUseCaseImpl: PostUseCase {
     
-    func getPost(postId: Int) async throws -> ReviewDetailModel {
+    func getPost(postId: Int) async throws -> PostModel {
         do {
             print("🔍 1. get spoonCount")
             let spoonCount = try await homeService.fetchSpoonCount()
@@ -45,7 +45,7 @@ extension PostUseCaseImpl: PostUseCase {
             let userInfo = try await postRepository.getOtherUserInfo(userId: postData.userId)
             print("✅ 3. userInfo =", userInfo.userName)
             
-            return ReviewDetailModel(reviewDetail: postData, userInfo: userInfo, spoonCount: spoonCount)
+            return PostModel(postDto: postData, userInfo: userInfo, spoonCount: spoonCount)
         } catch {
             print("❌ getPost error:", error)
             throw error

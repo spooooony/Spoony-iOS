@@ -69,7 +69,7 @@ struct PostFeature {
     
     enum Action {
         case viewAppear(postId: Int)
-        case fetchInitialResponse(Result<ReviewDetailModel, PostError>)
+        case fetchInitialResponse(Result<PostModel, PostError>)
         
         case scoopButtonTapped
         case scoopButtonTappedResponse(isSuccess: Bool)
@@ -268,7 +268,7 @@ struct PostFeature {
         }
     }
     
-    private func updateState(_ state: inout State, with data: ReviewDetailModel) {
+    private func updateState(_ state: inout State, with data: PostModel) {
         state.userId = data.userId
         state.isZzim = data.isZzim
         state.isScoop = data.isScoop
