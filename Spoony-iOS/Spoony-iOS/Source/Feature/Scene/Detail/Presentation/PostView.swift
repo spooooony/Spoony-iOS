@@ -468,6 +468,36 @@ extension PostView {
     }
 }
 
+struct menuList: View {
+    var menus: [String] = ["고등어봉초밥", "고등어봉초밥", "고등어봉초밥"]
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(0..<menus.count, id: \.self) { index in
+                HStack(spacing: 4) {
+                    Image(.icSpoonGray600)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20.adjusted, height: 20.adjustedH)
+                    Text(menus[index])
+                        .customFont(.body2m)
+                        .lineLimit(2)
+                    Spacer()
+                }
+            }
+        }
+    }
+}
+
+struct Line: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: 0, y: 0))
+        path.addLine(to: CGPoint(x: rect.width, y: 0))
+        return path
+    }
+}
+
 struct PostScrapButton: View {
     
     private var store: StoreOf<PostFeature>
