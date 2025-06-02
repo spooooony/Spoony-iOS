@@ -12,6 +12,24 @@ extension View {
         self.modifier(ToastModifier(toast: toast))
     }
     
+    func alertView(
+        isPresented: Binding<Bool>,
+        alertType: AlertType,
+        alert: Alert,
+        confirmAction: (() -> Void)?,
+        afterAction: (() -> Void)?
+    ) -> some View {
+        self.modifier(
+            AlertModifier(
+                isPresented: isPresented,
+                alertType: alertType,
+                alert: alert,
+                confirmAction: confirmAction,
+                afterAction: afterAction
+            )
+        )
+    }
+    
     func popup(popup: Binding<PopupType?>, confirmAction: @escaping ((PopupType) -> Void)) -> some View {
         modifier(PopupModifier(popup: popup, confirmAction: confirmAction))
     }
@@ -50,5 +68,9 @@ extension View {
         } else {
             self
         }
+    }
+
+    func spoonyShadow(style: ShadowStyle) -> some View {
+        self.modifier(ShadowModifier(style: style))
     }
 }

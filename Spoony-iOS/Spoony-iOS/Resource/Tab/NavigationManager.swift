@@ -31,15 +31,12 @@ final class NavigationManager: ObservableObject {
                 PostFeature()
             }))
         case .report(let postId):
-            Report(postId: postId)
+//            Report(postId: postId)
+            EmptyView()
         case .searchLocationView(locationId: let locationId, locationTitle: let locationTitle):
-            SearchLocation(
-                locationId: locationId,
-                locationTitle: locationTitle,
-                store: Store(initialState: .initialState, reducer: {
-                    MapFeature()
-                })
-            )
+            Home(store: Store(initialState: MapFeature.State.initialState) {
+                   MapFeature()
+               })
         }
     }
     

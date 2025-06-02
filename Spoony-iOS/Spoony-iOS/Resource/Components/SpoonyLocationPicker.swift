@@ -8,9 +8,20 @@
 import SwiftUI
 
 struct SpoonyLocationPicker: View {
+    private let locationList: [Region]
     @State var isPresented: Bool = false
     @Binding var selectedLocation: LocationType
-    @Binding var selectedSubLocation: SubLocationType?
+    @Binding var selectedSubLocation: Region?
+    
+    init(
+        locationList: [Region],
+        selectedLocation: Binding<LocationType>,
+        selectedSubLocation: Binding<Region?>
+    ) {
+        self.locationList = locationList
+        self._selectedLocation = selectedLocation
+        self._selectedSubLocation = selectedSubLocation
+    }
     
     var body: some View {
         HStack(spacing: 22) {
@@ -27,7 +38,8 @@ struct SpoonyLocationPicker: View {
             LocationPickerBottomSheet(
                 isPresented: $isPresented,
                 selectedLocation: $selectedLocation,
-                selectedSubLocation: $selectedSubLocation
+                selectedSubLocation: $selectedSubLocation,
+                regionList: locationList
             )
             .presentationDetents([.height(542.adjustedH)])
             .presentationCornerRadius(16)
@@ -36,11 +48,11 @@ struct SpoonyLocationPicker: View {
 }
 
 extension SpoonyLocationPicker {
-    private func placeholderWithImageView(_ location: LocationType, _ subLocation: SubLocationType?) -> some View {
+    private func placeholderWithImageView(_ location: LocationType, _ subLocation: Region?) -> some View {
         let locationTitle = location.rawValue
         var subLocationTitle: String {
-            if let subLocation = subLocation {
-                subLocation.rawValue
+            if let subLocation {
+                subLocation.regionName
             } else {
                 "마포구"
             }
@@ -66,5 +78,5 @@ extension SpoonyLocationPicker {
 }
 
 #Preview {
-    SpoonyLocationPicker(selectedLocation: .constant(.busan), selectedSubLocation: .constant(nil))
+    SpoonyLocationPicker(locationList: [], selectedLocation: .constant(.busan), selectedSubLocation: .constant(nil))
 }

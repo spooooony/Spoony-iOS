@@ -7,12 +7,99 @@
 
 import Foundation
 
+enum UserDefaultsKeys: String, CaseIterable {
+    case userId = "userId"
+    case isTooltipPresented = "isTooltipPresented"
+    case recentSearches = "RecentSearches"
+    case exploreUserRecentSearches = "exploreUserRecentSearches"
+    case exploreReviewRecentSearches = "exploreReviewRecentSearches"
+    case lastAppVisitDate = "lastAppVisitDate"
+}
+
 final class UserManager {
-    @UserDefaultWrapper<String>(key: "userId") public var userId
+    @UserDefaultWrapper(key: .userId) public var userId: String?
+    @UserDefaultWrapper(key: .isTooltipPresented) public var isTooltipPresented: Bool?
+    @UserDefaultWrapper(key: .recentSearches) public var recentSearches: [String]?
     
-    @UserDefaultWrapper(key: "RecentSearches") public var recentSearches: [String]?
+    @UserDefaultWrapper(key: .exploreUserRecentSearches) public var exploreUserRecentSearches: [String]?
+    @UserDefaultWrapper(key: .exploreReviewRecentSearches) public var exploreReviewRecentSearches: [String]?
+    @UserDefaultWrapper(key: .lastAppVisitDate) public var lastAppVisitDate: Date?
     
     static let shared = UserManager()
     
     private init() { }
+    
+    func setSearches(_ key: SearchType, _ text: String) {
+        var list: [String]?
+        
+        switch key {
+        case .user:
+            list = exploreUserRecentSearches ?? []
+        case .review:
+            list = exploreReviewRecentSearches ?? []
+        default:
+            return
+        }
+        
+        if let index = list?.firstIndex(of: text) {
+            list?.remove(at: index)
+        } else if list?.count == 6 {
+            list?.removeLast()
+        }
+        
+        list?.insert(text, at: 0)
+        
+        switch key {
+        case .user:
+            exploreUserRecentSearches = list
+        case .review:
+            exploreReviewRecentSearches = list
+        default:
+            return
+        }
+    }
+    
+    func deleteRecent(_ key: SearchType, _ text: String) {
+        switch key {
+        case .user:
+            guard let index = exploreUserRecentSearches?.firstIndex(of: text)
+            else { return }
+            
+            exploreUserRecentSearches?.remove(at: index)
+        case .review:
+            guard let index = exploreReviewRecentSearches?.firstIndex(of: text)
+            else { return }
+            
+            exploreReviewRecentSearches?.remove(at: index)
+        default:
+            return
+        }
+    }
+    
+    func isFirstVisitOfDay() -> Bool {
+        let today = Calendar.current.startOfDay(for: Date())
+        
+        if let lastVisitDate = lastAppVisitDate {
+            let lastVisitDay = Calendar.current.startOfDay(for: lastVisitDate)
+            
+            if lastVisitDay < today {
+                lastAppVisitDate = today
+                return true
+            }
+            return false
+        } else {
+            lastAppVisitDate = today
+            return true
+        }
+    }
+    
+    func updateLastVisitDate() {
+        lastAppVisitDate = Calendar.current.startOfDay(for: Date())
+    }
+}
+
+enum SearchType {
+    case map
+    case user
+    case review
 }

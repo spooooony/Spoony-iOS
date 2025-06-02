@@ -10,7 +10,6 @@ import SwiftUI
 import ComposableArchitecture
 
 struct BottomSheetListView: View {
-    @ObservedObject var viewModel: HomeViewModel
     private let store: StoreOf<MapFeature>
     @Binding var currentStyle: BottomSheetStyle
     @Binding var bottomSheetHeight: CGFloat
@@ -18,11 +17,9 @@ struct BottomSheetListView: View {
     @GestureState private var isDragging: Bool = false
     @State private var isScrollEnabled: Bool = false
     
-    init(viewModel: HomeViewModel,
-         store: StoreOf<MapFeature>,
-         currentStyle: Binding<BottomSheetStyle> = .constant(.half),
-         bottomSheetHeight: Binding<CGFloat> = .constant(0)) {
-        self.viewModel = viewModel
+    init(store: StoreOf<MapFeature>,
+         currentStyle: Binding<BottomSheetStyle>,
+         bottomSheetHeight: Binding<CGFloat>) {
         self.store = store
         self._currentStyle = currentStyle
         self._bottomSheetHeight = bottomSheetHeight
@@ -52,9 +49,9 @@ struct BottomSheetListView: View {
                         .padding(.top, 10)
                     
                     HStack(spacing: 4) {
-                        Text("양수정님의 찐맛집")
+                        Text("\(store.userName)님의 찐맛집")
                             .customFont(.body2b)
-                        Text("\(viewModel.pickList.count)")
+                        Text("\(store.filteredPickList.count)")
                             .customFont(.body2b)
                             .foregroundColor(.gray500)
                     }
@@ -65,7 +62,7 @@ struct BottomSheetListView: View {
                 
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0) {
-                        ForEach(viewModel.pickList, id: \.placeId) { pickCard in
+                        ForEach(store.filteredPickList, id: \.placeId) { pickCard in
                             BottomSheetListItem(pickCard: pickCard)
                                 .background(Color.white)
                                 .onTapGesture {
@@ -74,12 +71,12 @@ struct BottomSheetListView: View {
                                         bottomSheetHeight = currentStyle.height
                                         isScrollEnabled = true
                                     }
-                                    viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
+                                    store.send(.fetchFocusedPlace(placeId: pickCard.placeId))
                                 }
                         }
                         
                         if currentStyle == .full {
-                            Color.clear.frame(height: 90.adjusted)
+                            Color.clear.frame(height: 230.adjustedH)
                         }
                     }
                 }

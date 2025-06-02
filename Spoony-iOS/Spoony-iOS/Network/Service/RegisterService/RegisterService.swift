@@ -13,7 +13,9 @@ protocol RegisterServiceType {
     func searchPlace(query: String) async throws -> SearchPlaceResponse
     func validatePlace(request: ValidatePlaceRequest) async throws -> ValidatePlaceResponse
     func registerPost(request: RegisterPostRequest, imagesData: [Data]) async throws -> Bool
-    func getRegisterCategories() async throws -> RegisterCategoryResponse
+    func editPost(request: EditPostRequest, imagesData: [Data]) async throws -> Bool
+    func getRegisterCategories() async throws -> CategoryListResponse
+    func getReviewInfo(postId: Int) async throws -> ReviewResponse
 }
 
 final class RegisterService: RegisterServiceType {
@@ -79,13 +81,52 @@ final class RegisterService: RegisterServiceType {
         }
     }
     
-    func getRegisterCategories() async throws -> RegisterCategoryResponse {
+    func editPost(request: EditPostRequest, imagesData: [Data]) async throws -> Bool {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.request(.editPost(request: request, imagesDate: imagesData)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<BlankData>.self)
+                        
+                        continuation.resume(returning: responseDto.success)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    func getRegisterCategories() async throws -> CategoryListResponse {
         return try await withCheckedThrowingContinuation { continuation in
             provider.request(.getRegisterCategories) { result in
                 switch result {
                 case .success(let response):
                     do {
-                        let responseDto = try response.map(BaseResponse<RegisterCategoryResponse>.self)
+                        let responseDto = try response.map(BaseResponse<CategoryListResponse>.self)
+                        guard let data = responseDto.data else { return }
+                        
+                        continuation.resume(returning: data)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    func getReviewInfo(postId: Int) async throws -> ReviewResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            provider.request(.getReviewInfo(postId: postId)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        let responseDto = try response.map(BaseResponse<ReviewResponse>.self)
                         guard let data = responseDto.data else { return }
                         
                         continuation.resume(returning: data)

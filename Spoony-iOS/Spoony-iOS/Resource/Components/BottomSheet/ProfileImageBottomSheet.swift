@@ -6,9 +6,16 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct ProfileImageBottomSheet: View {
     @Binding var isPresented: Bool
+    private let profileImages: [ProfileImage]
+    
+    init(isPresented: Binding<Bool>, profileImages: [ProfileImage]) {
+        self._isPresented = isPresented
+        self.profileImages = profileImages
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -49,34 +56,68 @@ extension ProfileImageBottomSheet {
         }
         .padding(.top, 12)
         .padding(.bottom, 24)
-        // TODO: - 지훈이형이 넣은 사진으로 바꾸기
         .background(
-            LinearGradient(
-                gradient: Gradient(colors: [.spoonBlack, .spoonBlack, .gray500]),
-                startPoint: .topTrailing,
-                endPoint: .bottomLeading
-            )
+            GeometryReader { geo in
+                Image(.bgBottomGrad)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .clipped()
+            }
         )
     }
     
     private var imageListView: some View {
         VStack(spacing: 0) {
-            // TODO: - 나중에 정해지면 다시
-            ForEach(0..<6, id: \.self) { _ in
-                imageCell
+            ForEach(profileImages, id: \.self) { image in
+                ProfileImageCell(image: image)
             }
         }
     }
+}
+
+private struct ProfileImageCell: View {
+    @State private var isFail: Bool = false
+    private let image: ProfileImage
     
-    private var imageCell: some View {
+    init(image: ProfileImage) {
+        self.image = image
+    }
+    
+    var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 20) {                
-                // TODO: - 나중에 이미지로 대체
-                Circle()
-                    .fill(.gray200)
-                    .frame(width: 60.adjusted, height: 60.adjustedH)
-                    .clipped()
-                    .padding(.leading, 22)
+            HStack(spacing: 20) {
+                if let url = URL(string: image.url) {
+                    KFImage(url)
+                        .placeholder({ _ in
+                            Circle()
+                                .fill(.gray200)
+                        })
+                        .onFailure({ _ in
+                            isFail = true
+                        })
+                        .resizable()
+                        .frame(width: 60.adjusted, height: 60.adjustedH)
+                        .overlay {
+                            if isFail {
+                                Image(.icImageFail)
+                                    .resizable()
+                                    .frame(width: 18.adjusted, height: 18.adjustedH)
+                            }
+                        }
+                        .clipShape(Circle())
+                        .padding(.leading, 22)
+                } else {
+                    Circle()
+                        .fill(.gray200)
+                        .frame(width: 60.adjusted, height: 60.adjustedH)
+                        .overlay {
+                            Image(.icImageFail)
+                                .resizable()
+                                .frame(width: 18.adjusted, height: 18.adjustedH)
+                        }
+                        .padding(.leading, 22)
+                }
                 
                 VStack(alignment: .leading, spacing: 0) {
                     Text("프로필 이미지_1 이름 (미정)")
@@ -84,7 +125,7 @@ extension ProfileImageBottomSheet {
                         .font(.body1sb)
                         .foregroundStyle(.spoonBlack)
                     
-                    Text("기본 스푼. 스푸니에 오신 걸 환영해요!")
+                    Text("\(image.unlockCondition)")
                         .lineLimit(1)
                         .font(.body2m)
                         .foregroundStyle(.gray600)
@@ -98,10 +139,10 @@ extension ProfileImageBottomSheet {
                 .fill(.gray100)
                 .frame(height: 1)
                 .frame(maxWidth: .infinity)
-        }        
+        }
     }
 }
 
 #Preview {
-    ProfileImageBottomSheet(isPresented: .constant(true))
+    ProfileImageBottomSheet(isPresented: .constant(true), profileImages: [.init(url: "https://sojoong.joins.com/wp-content/uploads/sites/4/2024/12/01.jpg", imageLevel: 0, unlockCondition: "아아아아", isUnlocked: true)])
 }

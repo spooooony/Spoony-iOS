@@ -12,30 +12,37 @@ struct CustomNavigationBar: View {
     
     private let style: NavigationBarStyle
     private let title: String?
+    private let placeholder: String?
     private let tappedAction: (() -> Void)?
     private let onClearTapped: (() -> Void)?
     private var spoonCount: Int = 0
     private var onBackTapped: (() -> Void)?
     private var spoonTapped: (() -> Void)?
+    private var onKebabTapped: (() -> Void)?
     
     init(
         style: NavigationBarStyle,
         title: String? = nil,
+        placeholder: String? = nil,
         searchText: Binding<String> = .constant(""),
         spoonCount: Int = 0,
         onBackTapped: (() -> Void)? = nil,
         spoonTapped: (() -> Void)? = nil,
         tappedAction: (() -> Void)? = nil,
-        onClearTapped: (() -> Void)? = nil
+        onClearTapped: (() -> Void)? = nil,
+        onKebabTapped: (() -> Void)? = nil
+        
     ) {
         self.style = style
         self.title = title
+        self.placeholder = placeholder
         self._searchText = searchText
         self.spoonCount = spoonCount
         self.onBackTapped = onBackTapped
         self.spoonTapped = spoonTapped
         self.tappedAction = tappedAction
         self.onClearTapped = onClearTapped
+        self.onKebabTapped = onKebabTapped
     }
     
     var body: some View {
@@ -67,6 +74,8 @@ struct CustomNavigationBar: View {
                 searchBar
             case .onboarding:
                 onboarding
+            case .detailWithKebab:
+                detailWithKebab
             }
         }
         .frame(height: 56.adjusted)
@@ -107,8 +116,6 @@ struct CustomNavigationBar: View {
     
     private var searchContent: some View {
         HStack(spacing: 12) {
-            LogoChip(type: .small, count: spoonCount)
-            
             HStack(spacing: 8) {
                 Image(.icSearchGray600)
                 
@@ -221,10 +228,12 @@ struct CustomNavigationBar: View {
                 Image(.icSearchGray600)
                 
                 TextField("", text: $searchText)
+                    .customFont(.body2m)
                     .frame(height: 44.adjusted)
                     .placeholder(when: searchText.isEmpty) {
-                        Text("마포구,성수동,강남역")
-                            .foregroundStyle(.gray600)
+                        Text(placeholder ?? "마포구,성수동,강남역")
+                            .customFont(.body2m)
+                            .foregroundStyle(.gray500)
                     }
                     .onSubmit {
                         tappedAction?()
@@ -235,8 +244,9 @@ struct CustomNavigationBar: View {
                         searchText = ""
                         onClearTapped?()
                     }) {
-                        Image(.icCloseGray400)
-                            .foregroundStyle(.gray600)
+                        Image(.icDeleteFillGray400)
+                            .resizable()
+                            .frame(width: 20.adjusted, height: 20.adjusted)
                     }
                 }
             }
@@ -264,6 +274,26 @@ struct CustomNavigationBar: View {
                 .onTapGesture {
                     tappedAction?()
                 }
+        }
+    }
+    
+    private var detailWithKebab: some View {
+        HStack {
+            Spacer()
+            Text(title ?? "프로필")
+                .customFont(.title3b)
+                .multilineTextAlignment(.center)
+                .lineLimit(1)
+            Spacer()
+            
+            Button(action: {
+                onKebabTapped?()
+            }) {
+                Image(.icMenu)
+                    .resizable()
+                    .frame(width: 20, height: 20)
+            }
+            .padding(.trailing, 16)
         }
     }
 }
@@ -338,8 +368,15 @@ struct CustomNavigationBar_Previews: PreviewProvider {
                 onBackTapped: {}
             )
             .border(.gray)
-        }
-        .padding()
-        .previewLayout(.sizeThatFits)
+            
+            CustomNavigationBar(
+                style: .detailWithKebab,
+                title: "프로필",
+                onBackTapped: {},
+                onKebabTapped: {}
+            )
+            .border(.gray)
+        }.padding()
+            .previewLayout(.sizeThatFits)
     }
 }

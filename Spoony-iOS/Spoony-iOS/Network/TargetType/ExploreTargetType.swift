@@ -9,13 +9,15 @@ import Foundation
 import Moya
 
 enum ExploreTargetType {
-    case getUserFeeds(
-        categoryId: Int,
-        location: String,
-        sort: FilterType
-    )
-    case reportPost(report: ReportRequest)
+    case reportPost(report: PostReportRequest)
+    case reportUser(report: UserReportRequest)
+    
     case getCategories
+    
+    case getFilteredFeedList(FilteredFeedRequest)
+    case getFollowingFeedList
+    
+    case searchPost(query: String)
 }
 
 extension ExploreTargetType: TargetType {
@@ -29,42 +31,79 @@ extension ExploreTargetType: TargetType {
     
     var path: String {
         switch self {
-        case .getUserFeeds(let categoryId, _, _):
-            return "/feed/\(categoryId)"
         case .reportPost:
-            return "/report"
+            return "/report/post"
+        case .reportUser:
+            return "/report/user"
         case .getCategories:
             return "/post/categories"
+        case .getFilteredFeedList:
+            return "/feed/filtered"
+        case .getFollowingFeedList:
+            return "/feed/following"
+        case .searchPost:
+            return "/post/search"
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .getUserFeeds,
-                .getCategories:
+        case .getCategories, .getFilteredFeedList, .getFollowingFeedList, .searchPost:
             return .get
-        case .reportPost:
+        case .reportPost, .reportUser:
             return .post
         }
     }
     
     var task: Moya.Task {
         switch self {
-        case let .getUserFeeds(_, location, filter):
-            let params: [String: String] = [
-                "query": location,
-                "sortBy": filter.rawValue
-            ]
-            return .requestParameters(parameters: params, encoding: URLEncoding.default)
-        case .getCategories:
+        case .getCategories, .getFollowingFeedList:
             return .requestPlain
         case .reportPost(let report):
             return .requestCustomJSONEncodable(report, encoder: JSONEncoder())
+        case .reportUser(let report):
+            return .requestCustomJSONEncodable(report, encoder: JSONEncoder())
+        case .searchPost(let query):
+            return .requestParameters(parameters: [
+                "query": query
+            ], encoding: URLEncoding.default)
+        case .getFilteredFeedList(let request):
+            var params: [String: Any] = [:]
+            
+            var category: [Int] = request.categoryIds
+            
+            if request.isLocal {
+                category.insert(2, at: 0)
+            }
+            
+            let joinedCategory = category.map { String($0) }.joined(separator: ",")
+            params["categoryIds"] = joinedCategory
+
+            if !request.regionIds.isEmpty {
+                let joinedString = request.regionIds.map { String($0) }.joined(separator: ",")
+                params["regionIds"] = joinedString
+            }
+            
+            if !request.ageGroups.isEmpty {
+                let joinedString = request.ageGroups.joined(separator: ",")
+                params["ageGroups"] = joinedString
+            }
+
+            params["sortBy"] = request.sortBy
+            
+            if let cursor = request.cursor {
+                params["cursor"] = cursor
+            }
+            
+            params["size"] = request.size
+            
+            return .requestParameters(parameters: params, encoding: URLEncoding.default)
         }
     }
-    
+
     var headers: [String: String]? {
-        return Config.defaultHeader
+        return HeaderType.auth.value
+//        return Config.defaultHeader
     }
     
     var validationType: ValidationType {
