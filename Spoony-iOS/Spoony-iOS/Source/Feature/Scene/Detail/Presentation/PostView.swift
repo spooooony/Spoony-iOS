@@ -154,6 +154,13 @@ extension PostView {
                             )
                         }
                     )
+                    .onChange(of: store.isFollowing) { oldValue, newValue in
+                        // 값이 실제로 변경되었는지 한 번 더 확인 코드 입니다. (중복 호출 방지용)
+                        guard oldValue != newValue else { return }
+
+                        let generator = UIImpactFeedbackGenerator(style: .light)
+                        generator.impactOccurred()
+                    }
                     
                     Image(.icMenu)
                         .onTapGesture {
@@ -475,5 +482,5 @@ struct PostScrapButton: View {
             .dependency(\.detailUseCase, DetailUseCaseKey.liveValue)
     }
     
-    return PostView(postId: 53, store: store)
+    return PostView(postId: 30, store: store)
 }
