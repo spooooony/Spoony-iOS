@@ -34,6 +34,9 @@ struct MapFeature {
         
         var searchText: String = ""
         
+        // 사용자 이름 추가
+        var userName: String = "스푸니"
+        
         var showDailySpoonPopup: Bool = false
         var isDrawingSpoon: Bool = false
         var drawnSpoon: SpoonDrawResponse? = nil
@@ -58,6 +61,7 @@ struct MapFeature {
             lhs.currentBottomSheetStyle == rhs.currentBottomSheetStyle &&
             lhs.bottomSheetHeight == rhs.bottomSheetHeight &&
             lhs.searchText == rhs.searchText &&
+            lhs.userName == rhs.userName && // 사용자 이름 비교 추가
             lhs.showDailySpoonPopup == rhs.showDailySpoonPopup &&
             lhs.isDrawingSpoon == rhs.isDrawingSpoon &&
             lhs.drawnSpoon == rhs.drawnSpoon &&
@@ -81,6 +85,9 @@ struct MapFeature {
         case fetchCategories
         case categoriesResponse(TaskResult<[CategoryChip]>)
         
+        case fetchUserInfo
+        case userInfoResponse(TaskResult<UserInfoResponse>)
+        
         case selectPlace(CardPlace?)
         case setCurrentPage(Int)
         case clearFocusedPlaces
@@ -103,6 +110,19 @@ struct MapFeature {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .fetchUserInfo:
+                state.userName = "스푸니"
+                return .none
+                
+            case let .userInfoResponse(.success(userInfo)):
+                state.userName = userInfo.userName
+                return .none
+                
+            case let .userInfoResponse(.failure(error)):
+                print("Error fetching user info: \(error)")
+                state.userName = "사용자"
+                return .none
+                
             case .checkDailyVisit:
                 if UserManager.shared.isFirstVisitOfDay() {
                     return .send(.setShowDailySpoonPopup(true))

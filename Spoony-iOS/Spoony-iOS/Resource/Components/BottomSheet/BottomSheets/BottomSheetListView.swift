@@ -49,7 +49,7 @@ struct BottomSheetListView: View {
                         .padding(.top, 10)
                     
                     HStack(spacing: 4) {
-                        Text("양수정님의 찐맛집")
+                        Text("\(store.userName)님의 찐맛집")
                             .customFont(.body2b)
                         Text("\(store.filteredPickList.count)")
                             .customFont(.body2b)

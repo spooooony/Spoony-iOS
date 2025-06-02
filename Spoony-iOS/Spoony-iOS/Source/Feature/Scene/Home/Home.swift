@@ -175,6 +175,7 @@ struct Home: View {
         .toolbar(store.showDailySpoonPopup ? .hidden : .visible, for: .tabBar)
         .task {
             checkPermissions()
+            store.send(.fetchUserInfo)   
             store.send(.fetchSpoonCount)
             store.send(.fetchPickList)
             store.send(.fetchCategories)
