@@ -122,10 +122,11 @@ struct ReviewStepFeature {
 extension ReviewStepFeature {
     private func transferImage(_ item: PhotoPickerType) async -> UploadImage? {
         guard let data = try? await item.loadTransferable(type: Data.self),
-              let jpegData = UIImageType(data: data)?.jpegData(compressionQuality: 0.1),
+              let jpegData = UIImageType(data: data)?.downscaleTOjpegData(maxBytes: 1_000_000),
               let image = UIImageType(data: jpegData) else { return nil }
         
         let uploadImage = UploadImage(image: ImageType(uiImage: image), imageData: jpegData)
+        
         return uploadImage
     }
 }
