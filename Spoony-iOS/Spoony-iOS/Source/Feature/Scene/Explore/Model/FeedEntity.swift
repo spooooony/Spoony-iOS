@@ -15,7 +15,7 @@ struct FeedEntity: Identifiable, Hashable {
     let id: UUID
     let postId: Int
     let userName: String
-    let userRegion: String
+    let userRegion: String?
     let description: String
     let categorColorResponse: CategoryColorResponse
     let zzimCount: Int
@@ -27,7 +27,7 @@ struct FeedEntity: Identifiable, Hashable {
         id: UUID,
         postId: Int,
         userName: String,
-        userRegion: String,
+        userRegion: String?,
         description: String,
         categorColorResponse: CategoryColorResponse,
         zzimCount: Int,

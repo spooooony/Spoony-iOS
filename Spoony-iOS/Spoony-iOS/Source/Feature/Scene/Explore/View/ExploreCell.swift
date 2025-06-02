@@ -103,9 +103,14 @@ extension ExploreCell {
             HStack(alignment: .bottom, spacing: 4) {
                 Text(feed.userName)
                     .customFont(.body2b)
-                Text("\(feed.userRegion) 스푼")
-                    .customFont(.caption2m)
-                    .foregroundStyle(.gray500)
+                
+                if let region = feed.userRegion {
+                    Text("\(region) 스푼")
+                        .customFont(.caption2m)
+                        .foregroundStyle(.gray500)
+                }
+                
+                Spacer()
             }
             .padding(.leading, 5)
             

@@ -15,7 +15,7 @@ struct FeedResponse: Codable {
     let userId: Int
     let userName: String
     let createdAt: String
-    let userRegion: String
+    let userRegion: String?
     let postId: Int
     let description: String
     let categoryColorResponse: CategoryColorResponse
