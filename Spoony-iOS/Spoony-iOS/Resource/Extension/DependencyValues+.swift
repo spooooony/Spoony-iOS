@@ -13,9 +13,9 @@ extension DependencyValues {
         set { self[MyPageServiceKey.self] = newValue }
     }
     
-    var detailUseCase: DetailUseCase {
-        get { self[DetailUseCaseKey.self] }
-        set { self[DetailUseCaseKey.self] = newValue }
+    var postUseCase: PostUseCase {
+        get { self[PostUseCaseKey.self] }
+        set { self[PostUseCaseKey.self] = newValue }
     }
     
     var homeService: HomeServiceType {

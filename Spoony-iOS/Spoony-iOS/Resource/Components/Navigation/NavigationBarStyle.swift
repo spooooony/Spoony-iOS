@@ -30,7 +30,6 @@ enum NavigationBarStyle {
     
     case detailWithKebab  // 뒤로가기 + 점새게
 
-    
     // 백 버튼 표시 여부
     var showsBackButton: Bool {
         switch self {

@@ -50,7 +50,7 @@ struct TabRootCoordinatorView: View {
                 WithdrawView(store: store)
                     .navigationBarBackButtonHidden()
                 
-            case let .detail(store):
+            case let .post(store):
                 PostView(postId: store.postId, store: store)
                 
             case let .report(store):

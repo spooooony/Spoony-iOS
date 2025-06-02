@@ -26,7 +26,7 @@ final class NavigationManager: ObservableObject {
             Home(store: Store(initialState: .initialState, reducer: {
                 MapFeature()
             }))
-        case .detailView(let postId):
+        case .postView(let postId):
             PostView(postId: postId, store: Store(initialState: PostFeature.State(), reducer: {
                 PostFeature()
             }))

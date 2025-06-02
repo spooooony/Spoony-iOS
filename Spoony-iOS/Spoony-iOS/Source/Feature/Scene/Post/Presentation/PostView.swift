@@ -85,15 +85,35 @@ struct PostView: View {
         }
         .popup(
             popup: Binding(
-                get: { store.isUseSpoonPopupVisible ? .useSpoon : nil },
+                get: {
+                    if store.isUseSpoonPopupVisible {
+                        return .useSpoon
+                    } else if store.isDeletePopupVisible {
+                        return .delete
+                    } else {
+                        return nil
+                    }
+                },
                 set: { newValue in
                     if newValue == nil {
-                        store.send(.dismissUseSpoonPopup)
+                        if store.isUseSpoonPopupVisible {
+                            store.send(.dismissUseSpoonPopup)
+                        }
+                        if store.isDeletePopupVisible {
+                            store.send(.dismissDeletePopup)
+                        }
                     }
                 }
             ),
-            confirmAction: { _ in
-                store.send(.confirmUseSpoonPopup)
+            confirmAction: { popup in
+                switch popup {
+                case .useSpoon:
+                    store.send(.confirmUseSpoonPopup)
+                case .delete:
+                    store.send(.confirmDeletePopup)
+                default:
+                    break
+                }
             }
         )
         .navigationBarBackButtonHidden()
@@ -411,7 +431,7 @@ extension PostView {
                             store.send(.routeToEditReviewScreen(store.postId))
                             print("수정하기 탭됨")
                         case "삭제하기":
-                            // TODO: 삭제 액션
+                            store.send(.showDeletePopup)
                             print("삭제하기 탭됨")
                         default:
                             break
@@ -448,6 +468,36 @@ extension PostView {
     }
 }
 
+struct menuList: View {
+    var menus: [String] = ["고등어봉초밥", "고등어봉초밥", "고등어봉초밥"]
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(0..<menus.count, id: \.self) { index in
+                HStack(spacing: 4) {
+                    Image(.icSpoonGray600)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20.adjusted, height: 20.adjustedH)
+                    Text(menus[index])
+                        .customFont(.body2m)
+                        .lineLimit(2)
+                    Spacer()
+                }
+            }
+        }
+    }
+}
+
+struct Line: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: 0, y: 0))
+        path.addLine(to: CGPoint(x: rect.width, y: 0))
+        return path
+    }
+}
+
 struct PostScrapButton: View {
     
     private var store: StoreOf<PostFeature>
@@ -479,7 +529,7 @@ struct PostScrapButton: View {
     
     let store = Store(initialState: PostFeature.State()) {
         PostFeature()
-            .dependency(\.detailUseCase, DetailUseCaseKey.liveValue)
+            .dependency(\.postUseCase, PostUseCaseKey.liveValue)
     }
     
     return PostView(postId: 30, store: store)

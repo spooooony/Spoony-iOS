@@ -43,7 +43,7 @@ struct TabCoordinator {
         case routeToSettings
         case routeToAttendance
         case routeToEditProfile
-        case routeToDetail(Int)
+        case routeToPost(Int)
         case routeToReport(Int)
         
         case presentToast(message: String)
@@ -85,15 +85,15 @@ struct TabCoordinator {
             case .map(.router(.routeAction(id: _, action: .map(.routeToExploreTab)))):
                 return .send(.switchToExploreTab)
                 
-            case .map(.routeToDetailScreen(let postId)):
-                return .send(.routeToDetail(postId))
+            case .map(.routeToPostScreen(let postId)):
+                return .send(.routeToPost(postId))
             
             // explore 관련
             case .explore(.tabSelected(let tab)):
                 return .send(.tabSelected(tab))
                 
-            case .explore(.routeToDetailScreen(let post)):
-                return .send(.routeToDetail(post))
+            case .explore(.routeToPostScreen(let post)):
+                return .send(.routeToPost(post))
                 
             case .explore(.routeToReportScreen(let postId)):
                 return .send(.routeToReport(postId))

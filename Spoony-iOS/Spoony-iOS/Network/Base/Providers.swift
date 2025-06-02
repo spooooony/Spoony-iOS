@@ -14,7 +14,7 @@ struct Providers {
     static let homeProvider = MoyaProvider<HomeTargetType>.init(withAuth: true)
     static let explorProvider = MoyaProvider<ExploreTargetType>.init(withAuth: true)
     static let registerProvider = MoyaProvider<RegisterTargetType>.init(withAuth: true)
-    static let detailProvider = MoyaProvider<DetailTargetType>.init(withAuth: true)
+    static let postProvider = MoyaProvider<PostTargetType>.init(withAuth: true)
     static let authProvider = MoyaProvider<AuthTargetType>.init(withAuth: false)
     static let myPageProvider = MoyaProvider<MyPageTargetType>.init(withAuth: true)
     static let imageProvider = MoyaProvider<ImageLoadTargetType>.init(withAuth: true)

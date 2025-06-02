@@ -22,7 +22,7 @@ struct PlaceCard: View {
                         .padding(.horizontal, 26)
                         .onTapGesture {
                             let place = places[index]
-                            store.send(.routToDetailView(postId: place.postId))
+                            store.send(.routeToPostView(postId: place.postId))
                         }
                 }
             }

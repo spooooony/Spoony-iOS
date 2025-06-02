@@ -1,5 +1,5 @@
 //
-//  DetailRepository.swift
+//  PostRepository.swift
 //  Spoony-iOS
 //
 //  Created by 이명진 on 2/7/25.
@@ -7,17 +7,17 @@
 
 import Foundation
 
-struct DefaultDetailRepository: DetailRepositoryInterface { }
+struct DefaultPostRepository: PostRepositoryInterface { }
 
-extension DefaultDetailRepository {
+extension DefaultPostRepository {
     
-    public func fetchReviewDetail(postId: Int) async throws -> ReviewDetailResponseDTO {
+    public func getPost(postId: Int) async throws -> PostResponseDTO {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.detailProvider.request(.getDetailReview(postId: postId)) { result in
+            Providers.postProvider.request(.getPost(postId: postId)) { result in
                 switch result {
                 case .success(let response):
                     do {
-                        let responseDto = try response.map(BaseResponse<ReviewDetailResponseDTO>.self)
+                        let responseDto = try response.map(BaseResponse<PostResponseDTO>.self)
                         if let data = responseDto.data {
                             continuation.resume(returning: data)
                         } else {
@@ -33,17 +33,17 @@ extension DefaultDetailRepository {
         }
     }
     
-    public func scrapReview(postId: Int) async throws {
-        try await requestReviewAction(targetType: .scrapReview(postId: postId))
+    public func scrapPost(postId: Int) async throws {
+        try await requestPostAction(targetType: .scrapPost(postId: postId))
     }
     
-    public func unScrapReview(postId: Int) async throws {
-        try await requestReviewAction(targetType: .unScrapReview(postId: postId))
+    public func unScrapPost(postId: Int) async throws {
+        try await requestPostAction(targetType: .unScrapPost(postId: postId))
     }
     
-    public func scoopReview(postId: Int) async throws -> Bool {
+    public func scoopPost(postId: Int) async throws -> Bool {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.detailProvider.request(.scoopReview(postId: postId)) { result in
+            Providers.postProvider.request(.scoopPost(postId: postId)) { result in
                 switch result {
                 case .success(let response):
                     do {
@@ -67,10 +67,30 @@ extension DefaultDetailRepository {
         return try await requestUserInfo(targetType: .getOtherUserInfo(userId: userId))
     }
     
-    // 공용 로직들을 여기에 추가
-    private func requestUserInfo(targetType: DetailTargetType) async throws -> UserInfoResponseDTO {
+    func deletePost(postId: Int) async throws {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.detailProvider.request(targetType) { result in
+            Providers.postProvider.request(.deletePost(postId: postId)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        _ = try response.map(BaseResponse<BlankData>.self)
+                        continuation.resume()
+                    } catch {
+                        continuation.resume(throwing: SNError.decodeError)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    // MARK: - 공통 로직
+    
+    // 공용 로직들을 여기에 추가
+    private func requestUserInfo(targetType: PostTargetType) async throws -> UserInfoResponseDTO {
+        return try await withCheckedThrowingContinuation { continuation in
+            Providers.postProvider.request(targetType) { result in
                 switch result {
                 case .success(let response):
                     do {
@@ -83,16 +103,16 @@ extension DefaultDetailRepository {
                     } catch {
                         continuation.resume(throwing: error)
                     }
-                case .failure(let error):
+                case .failure:
                     continuation.resume(throwing: PostError.userError)
                 }
             }
         }
     }
     
-    private func requestReviewAction(targetType: DetailTargetType) async throws {
+    private func requestPostAction(targetType: PostTargetType) async throws {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.detailProvider.request(targetType) { result in
+            Providers.postProvider.request(targetType) { result in
                 switch result {
                 case .success(let response):
                     do {

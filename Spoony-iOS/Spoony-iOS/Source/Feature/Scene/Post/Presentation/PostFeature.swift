@@ -64,11 +64,12 @@ struct PostFeature {
         var isFollowing: Bool = false
         
         var isUseSpoonPopupVisible: Bool = false
+        var isDeletePopupVisible: Bool = false
     }
     
     enum Action {
         case viewAppear(postId: Int)
-        case fetchInitialResponse(Result<ReviewDetailModel, PostError>)
+        case fetchInitialResponse(Result<PostModel, PostError>)
         
         case scoopButtonTapped
         case scoopButtonTappedResponse(isSuccess: Bool)
@@ -94,9 +95,13 @@ struct PostFeature {
         case showUseSpoonPopup
         case confirmUseSpoonPopup
         case dismissUseSpoonPopup
+        
+        case showDeletePopup
+        case confirmDeletePopup
+        case dismissDeletePopup
     }
     
-    @Dependency(\.detailUseCase) var detailUseCase: DetailUseCase
+    @Dependency(\.postUseCase) var postUseCase: PostUseCase
     @Dependency(\.followUseCase) var followUseCase: FollowUseCase
     
     var body: some ReducerOf<Self> {
@@ -107,7 +112,7 @@ struct PostFeature {
                 state.isLoading = true
                 return .run { [postId] send in
                     do {
-                        let data = try await detailUseCase.fetchInitialDetail(postId: postId)
+                        let data = try await postUseCase.getPost(postId: postId)
                         await send(.fetchInitialResponse(.success(data)))
                     } catch {
                         await send(.fetchInitialResponse(.failure(.userError)))
@@ -129,7 +134,7 @@ struct PostFeature {
             case .scoopButtonTapped:
                 return .run { [postId = state.postId] send in
                     do {
-                        let data = try await detailUseCase.scoopReview(postId: postId)
+                        let data = try await postUseCase.scoopPost(postId: postId)
                         await send(.scoopButtonTappedResponse(isSuccess: data))
                     } catch {
                         await send(.error(.spoonError))
@@ -140,10 +145,10 @@ struct PostFeature {
                 return .run { [postId = state.postId, isZzim] send in
                     do {
                         if isZzim {
-                            try await detailUseCase.unScrapReview(postId: postId)
+                            try await postUseCase.unScrapPost(postId: postId)
                             await send(.zzimButtonResponse(isScrap: false))
                         } else {
-                            try await detailUseCase.scrapReview(postId: postId)
+                            try await postUseCase.scrapPost(postId: postId)
                             await send(.zzimButtonResponse(isScrap: true))
                         }
                     } catch {
@@ -229,21 +234,41 @@ struct PostFeature {
                 state.isUseSpoonPopupVisible = false
                 return .run { [postId = state.postId] send in
                     do {
-                        let isSuccess = try await detailUseCase.scoopReview(postId: postId)
+                        let isSuccess = try await postUseCase.scoopPost(postId: postId)
                         await send(.scoopButtonTappedResponse(isSuccess: isSuccess))
                     } catch {
                         await send(.error(.spoonError))
                     }
                 }
                 
+            case .showDeletePopup:
+                state.isDeletePopupVisible = true
+                return .none
+                
             case .dismissUseSpoonPopup:
                 state.isUseSpoonPopupVisible = false
+                return .none
+                
+            case .confirmDeletePopup:
+                state.isDeletePopupVisible = false
+                return .run { [postId = state.postId] send in
+                    do {
+                        try await postUseCase.deletePost(postId: postId)
+                        await send(.showToast("삭제가 완료되었어요."))
+                        await send(.routeToPreviousScreen)
+                    } catch {
+                        await send(.showToast("삭제에 실패했어요. 다시 시도해주세요."))
+                    }
+                }
+                
+            case .dismissDeletePopup:
+                state.isDeletePopupVisible = false
                 return .none
             }
         }
     }
     
-    private func updateState(_ state: inout State, with data: ReviewDetailModel) {
+    private func updateState(_ state: inout State, with data: PostModel) {
         state.userId = data.userId
         state.isZzim = data.isZzim
         state.isScoop = data.isScoop

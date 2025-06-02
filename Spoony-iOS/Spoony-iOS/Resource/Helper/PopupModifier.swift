@@ -32,6 +32,7 @@ enum PopupType: Equatable {
     case useSpoon
     case reportSuccess
     case registerSuccess
+    case delete
 }
 
 struct PopupView: View {
@@ -96,7 +97,7 @@ extension PopupView {
             return "lottie_popup_use"
         case .registerSuccess:
             return "lottie_popup_get"
-        case .reportSuccess, .none:
+        case .reportSuccess, .delete, .none:
             return nil
         }
     }
@@ -109,10 +110,13 @@ extension PopupView {
             "수저 1개를 획득했어요!\n이제 새로운 장소를 떠먹으러 가볼까요?"
         case .reportSuccess:
             "신고가 접수되었어요"
+        case .delete:
+            "정말로 리뷰를 삭제할까요?"
         case .none:
             ""
         }
     }
+    
     
     private var blackButtonTitle: String {
         switch popup {
@@ -122,6 +126,8 @@ extension PopupView {
             "좋아요!"
         case .reportSuccess:
             "확인"
+        case .delete:
+            "네" // ✅
         case .none:
             ""
         }
@@ -129,7 +135,7 @@ extension PopupView {
     
     private var grayButtonTitle: String? {
         switch popup {
-        case .useSpoon:
+        case .useSpoon, .delete:
             "아니요"
         case .registerSuccess, .reportSuccess, .none:
             nil
@@ -140,7 +146,7 @@ extension PopupView {
         switch popup {
         case .useSpoon, .registerSuccess, .none:
             0
-        case .reportSuccess:
+        case .reportSuccess, .delete:
             12
         }
     }
@@ -149,7 +155,7 @@ extension PopupView {
         switch popup {
         case .useSpoon:
             true
-        case .reportSuccess, .registerSuccess, .none:
+        case .reportSuccess, .registerSuccess, .delete, .none:
             false
         }
     }
@@ -158,7 +164,7 @@ extension PopupView {
         switch popup {
         case .useSpoon, .registerSuccess:
                 .primary
-        case .reportSuccess, .none:
+        case .reportSuccess, .delete, .none:
                 .secondary
         }
     }
