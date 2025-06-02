@@ -138,6 +138,10 @@ struct TabRootCoordinator {
                 state.routes.push(.report(ReportFeature.State(postId: postId)))
                 return .none
                 
+            case .router(.routeAction(id: _, action: .profile(.routeToReportScreen(let userId)))):
+                state.routes.push(.report(ReportFeature.State(targetUserId: userId)))
+                return .none
+                
             case .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .accountManagement(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .blockedUsers(.routeToPreviousScreen))),
@@ -145,7 +149,8 @@ struct TabRootCoordinator {
                     .router(.routeAction(id: _, action: .withdraw(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .attendance(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .detail(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .report(.routeToPreviousScreen))):
+                    .router(.routeAction(id: _, action: .report(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .profile(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
                 
