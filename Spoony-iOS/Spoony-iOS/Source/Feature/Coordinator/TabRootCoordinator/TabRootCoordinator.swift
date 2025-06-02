@@ -30,6 +30,8 @@ enum TabRootScreen {
     
     case detail(PostFeature)
     case report(ReportFeature)
+    
+    case profile(OtherProfileFeature)
 }
 
 @Reducer
@@ -97,6 +99,10 @@ struct TabRootCoordinator {
                 
             case .router(.routeAction(id: _, action: .tab(.routeToDetail(let post)))):
                 state.routes.push(.detail(PostFeature.State(postId: post)))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .detail(.routeToUserProfileScreen(let user)))):
+                state.routes.push(.profile(OtherProfileFeature.State(userId: user)))
                 return .none
                 
             case .router(.routeAction(id: _, action: .tab(.routeToReport(let postId)))):

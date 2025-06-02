@@ -23,6 +23,7 @@ struct OtherProfileView: View {
         }
         .task { store.send(.onAppear) }
         .edgesIgnoringSafeArea(.bottom)
+        .navigationBarBackButtonHidden()
         .toastView(toast: Binding(get: { store.toast }, set: { _ in }))
     }
 }

@@ -89,6 +89,7 @@ struct PostFeature {
         case routeToPreviousScreen
         case routeToReportScreen(Int)
         case routeToEditReviewScreen(Int)
+        case routeToUserProfileScreen(Int)
         
         case showUseSpoonPopup
         case confirmUseSpoonPopup
@@ -215,6 +216,9 @@ struct PostFeature {
                 return .none
                 
             case .routeToEditReviewScreen:
+                return .none
+                
+            case .routeToUserProfileScreen:
                 return .none
                 
             case .showUseSpoonPopup:

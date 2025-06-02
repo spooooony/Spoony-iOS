@@ -179,7 +179,7 @@ extension PostView {
         .padding(.horizontal, 20.adjustedH)
         .padding(.bottom, 24.adjustedH)
         .onTapGesture {
-            print("유저 프로필 탭")
+            store.send(.routeToUserProfileScreen(store.userId))
         }
     }
     
