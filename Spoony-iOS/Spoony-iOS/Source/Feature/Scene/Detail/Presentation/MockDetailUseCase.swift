@@ -33,6 +33,10 @@ struct MockDetailUseCase: DetailUseCase {
     func getOtherUserInfo(userId: Int) async throws -> UserInfoResponseDTO {
         return MockData.userInfo
     }
+    
+    func deleteReview(postId: Int) async throws {
+        return
+    }
 }
 
 struct MockData {

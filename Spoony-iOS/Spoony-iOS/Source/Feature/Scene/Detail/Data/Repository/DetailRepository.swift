@@ -107,4 +107,22 @@ extension DefaultDetailRepository {
             }
         }
     }
+    
+    func deleteReview(postId: Int) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            Providers.detailProvider.request(.deletePost(postId: postId)) { result in
+                switch result {
+                case .success(let response):
+                    do {
+                        _ = try response.map(BaseResponse<BlankData>.self)
+                        continuation.resume()
+                    } catch {
+                        continuation.resume(throwing: SNError.decodeError)
+                    }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
 }

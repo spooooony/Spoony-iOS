@@ -12,4 +12,5 @@ protocol DetailRepositoryInterface {
     func scoopReview(postId: Int) async throws -> Bool
     func getMyUserInfo() async throws -> UserInfoResponseDTO
     func getOtherUserInfo(userId: Int) async throws -> UserInfoResponseDTO
+    func deleteReview(postId: Int) async throws
 }

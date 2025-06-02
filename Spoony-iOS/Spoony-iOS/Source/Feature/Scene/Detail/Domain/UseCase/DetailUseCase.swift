@@ -12,6 +12,7 @@ protocol DetailUseCase {
     func scoopReview(postId: Int) async throws -> Bool
     func getMyUserInfo() async throws -> UserInfoResponseDTO
     func getOtherUserInfo(userId: Int) async throws -> UserInfoResponseDTO
+    func deleteReview(postId: Int) async throws
 }
 
 struct DetailUseCaseImpl {
@@ -71,4 +72,8 @@ extension DetailUseCaseImpl: DetailUseCase {
         return try await detailRepository.getOtherUserInfo(userId: userId)
     }
     
+    func deleteReview(postId: Int) async throws {
+        try await detailRepository.deleteReview(postId: postId)
+    }
+
 }
