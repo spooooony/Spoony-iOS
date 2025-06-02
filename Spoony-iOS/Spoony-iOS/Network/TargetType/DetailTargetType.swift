@@ -15,6 +15,7 @@ enum DetailTargetType {
     case unScrapReview(postId: Int)
     case getMyUserInfo           // 나의 정보
     case getOtherUserInfo(userId: Int)  // 다른 유저 정보
+    case deletePost(postId: Int)
 }
 
 extension DetailTargetType: TargetType {
@@ -40,6 +41,8 @@ extension DetailTargetType: TargetType {
             return "/user"
         case .getOtherUserInfo(let userId):
             return "/user/\(userId)"
+        case .deletePost(let postId):
+            return "/post/\(postId)"
         }
     }
     
@@ -49,7 +52,7 @@ extension DetailTargetType: TargetType {
             return .get
         case .scoopReview, .scrapReview:
             return .post
-        case .unScrapReview:
+        case .unScrapReview, .deletePost:
             return .delete
         }
     }
@@ -65,7 +68,7 @@ extension DetailTargetType: TargetType {
                 ],
                 encoding: JSONEncoding.default
             )
-        case .unScrapReview:
+        case .unScrapReview, .deletePost:
             return .requestPlain
         }
     }
