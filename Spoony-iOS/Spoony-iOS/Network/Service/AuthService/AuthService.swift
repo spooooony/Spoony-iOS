@@ -89,6 +89,13 @@ final class DefaultAuthService: AuthProtocol {
                         }
                         
                         let user = data.user.userName
+                        let token = data.jwtTokenDto
+                        KeychainManager.saveKeychain(
+                            access: token.accessToken,
+                            refresh: token.refreshToken,
+                            platform: platform
+                        )
+                        
                         continuation.resume(returning: user)
                     } catch {
                         continuation.resume(throwing: error)
