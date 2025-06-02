@@ -1,11 +1,11 @@
 //
-//  DetailUseCase.swift
+//  PostUseCase.swift
 //  Spoony-iOS
 //
 //  Created by 이명진 on 2/7/25.
 //
 
-protocol DetailUseCase {
+protocol PostUseCase {
     func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel
     func scrapReview(postId: Int) async throws
     func unScrapReview(postId: Int) async throws
@@ -15,7 +15,7 @@ protocol DetailUseCase {
     func deleteReview(postId: Int) async throws
 }
 
-struct DetailUseCaseImpl {
+struct PostUseCaseImpl {
     private let detailRepository: DetailRepositoryInterface
     private let homeService: HomeServiceType
     
@@ -29,7 +29,7 @@ struct DetailUseCaseImpl {
     }
 }
 
-extension DetailUseCaseImpl: DetailUseCase {
+extension PostUseCaseImpl: PostUseCase {
     
     func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel {
         do {

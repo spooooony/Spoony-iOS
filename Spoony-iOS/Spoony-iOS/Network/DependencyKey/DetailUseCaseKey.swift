@@ -7,7 +7,7 @@
 
 import Dependencies
 
-enum DetailUseCaseKey: DependencyKey {
-    static let liveValue: DetailUseCase = DetailUseCaseImpl()
-    static let testValue: DetailUseCase = MockDetailUseCase()
+enum PostUseCaseKey: DependencyKey {
+    static let liveValue: PostUseCase = PostUseCaseImpl()
+    static let testValue: PostUseCase = MockPostUseCase()
 }

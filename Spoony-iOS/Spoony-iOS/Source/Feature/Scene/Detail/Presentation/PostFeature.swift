@@ -101,7 +101,7 @@ struct PostFeature {
         case dismissDeletePopup
     }
     
-    @Dependency(\.detailUseCase) var detailUseCase: DetailUseCase
+    @Dependency(\.postUseCase) var detailUseCase: PostUseCase
     @Dependency(\.followUseCase) var followUseCase: FollowUseCase
     
     var body: some ReducerOf<Self> {

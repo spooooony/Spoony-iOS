@@ -1,5 +1,5 @@
 //
-//  MockDetailUseCase.swift
+//  MockPostUseCase.swift
 //  Spoony-iOS
 //
 //  Created by 이명진 on 3/4/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MockDetailUseCase: DetailUseCase {
+struct MockPostUseCase: PostUseCase {
     
     func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel {
         return MockData.reviewDetail
