@@ -168,7 +168,7 @@ struct TabRootCoordinator {
             // popup
             case .popupAction(let type):
                 switch type {
-                case .useSpoon:
+                case .useSpoon, .delete:
                     return .none
                 case .reportSuccess:
                     state.routes.goBack()
