@@ -32,19 +32,15 @@ struct AccountManagementFeature {
         static let initialState = State(currentLoginType: .kakao)
         
         var currentLoginType: LoginType
-        var logoutAlert: LogoutAlert?
+        var isAlertPresented: Bool = false
         var isLoggingOut: Bool = false
         var logoutErrorMessage: String? = nil
     }
     
-    enum LogoutAlert: Equatable {
-        case confirmLogout
-    }
-    
     enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case onAppear // 추가
-        case userInfoResponse(TaskResult<UserInfoResponse>) // 추가
+        case onAppear
+        case userInfoResponse(TaskResult<UserInfoResponse>)
         case routeToPreviousScreen
         case selectLoginType(LoginType)
         case logoutButtonTapped
@@ -91,15 +87,15 @@ struct AccountManagementFeature {
                 return .none
                 
             case .logoutButtonTapped:
-                state.logoutAlert = .confirmLogout
+                state.isAlertPresented = true
                 return .none
                 
             case .confirmLogout:
-                state.logoutAlert = nil
+                state.isAlertPresented = false
                 return .send(.performLogout)
                 
             case .cancelLogout:
-                state.logoutAlert = nil
+                state.isAlertPresented = false
                 return .none
                 
             case .withdrawButtonTapped:

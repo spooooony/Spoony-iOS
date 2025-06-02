@@ -91,7 +91,7 @@ struct AccountManagementView: View {
             .background(Color.gray0)
             .navigationBarHidden(true)
             
-            if store.logoutAlert != nil {
+            if store.isAlertPresented {
                 CustomAlertView(
                     title: "로그아웃 하시겠습니까?",
                     cancelTitle: "아니요",
@@ -105,6 +105,7 @@ struct AccountManagementView: View {
                 )
             }
         }
+        .toolbar(store.isAlertPresented ? .hidden : .visible, for: .tabBar)
         .task {
             store.send(.onAppear)
         }
