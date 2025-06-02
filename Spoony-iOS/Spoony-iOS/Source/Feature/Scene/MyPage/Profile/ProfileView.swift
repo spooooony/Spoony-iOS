@@ -45,6 +45,7 @@ struct ProfileView: View {
                             profileContentView
                         }
                     }
+                    .padding(.bottom, 30)
                 }
                 .refreshable {
                     store.send(.onAppear)
@@ -69,7 +70,7 @@ struct ProfileView: View {
                 store.send(.routeToSettingsScreen)
             }
         )
-        .padding(.bottom, 24)
+        .padding(.bottom, 3)
     }
     
     private var loadingView: some View {
@@ -153,7 +154,7 @@ struct ProfileView: View {
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                    case .failure(_):
+                    case .failure:
                         defaultProfileImage
                     case .empty:
                         ProgressView()
@@ -348,6 +349,7 @@ struct ProfileView: View {
             }
         }
         .padding(.top, 16)
+        .padding(.bottom, 70)
     }
     
     private var emptyReviewsView: some View {

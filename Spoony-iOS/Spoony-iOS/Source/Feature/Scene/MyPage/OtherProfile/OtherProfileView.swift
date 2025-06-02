@@ -54,7 +54,7 @@ private extension OtherProfileView {
             onBackTapped: { store.send(.routeToPreviousScreen) },
             onKebabTapped: store.isBlocked ? nil : { store.send(.kebabMenuTapped) }
         )
-        .padding(.bottom, 24)
+        .padding(.bottom, 3)
     }
 }
 
@@ -141,7 +141,7 @@ private extension OtherProfileView {
                     switch phase {
                     case .success(let image):
                         image.resizable().aspectRatio(contentMode: .fill)
-                    case .failure(_):
+                    case .failure:
                         defaultProfileImage
                     case .empty:
                         ProgressView()
@@ -348,13 +348,14 @@ private extension OtherProfileView {
             }
         }
         .padding(.top, 16)
+        .padding(.bottom, 100)
     }
     
     var emptyReviewsView: some View {
         VStack(spacing: 16) {
             Image(.imageGoToList)
                 .resizable()
-                .frame(width: 100, height: 100)
+                .frame(width: 100.adjusted, height: 100.adjustedH)
                 .padding(.top, 30)
             
             Text("아직 등록한 리뷰가 없어요")
