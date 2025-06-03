@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+
 import ComposableArchitecture
+import Lottie
 
 struct OnboardingFinishView: View {
     @Bindable private var store: StoreOf<OnboardingFeature>
@@ -30,10 +32,9 @@ struct OnboardingFinishView: View {
                 .customFont(.title2)
                 .padding(.top, 4)
             
-            // TODO: Lottie
-            Rectangle()
+            LottieView(animation: .named("onboarding"))
+                .looping()
                 .frame(width: 335.adjusted, height: 406.adjustedH)
-                .foregroundStyle(.gray200)
                 .padding(.top, 37)
             Spacer()
             

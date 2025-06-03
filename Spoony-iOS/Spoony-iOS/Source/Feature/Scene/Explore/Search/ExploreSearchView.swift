@@ -75,7 +75,7 @@ struct ExploreSearchView: View {
         }
         .navigationBarBackButtonHidden()
         .onAppear {
-            // 여기서 키보드 올리기 어떻게 하는지 모르겠다...
+            // TODO: 여기서 키보드 올리기
             store.send(.onAppear)
         }
         .alertView(
@@ -96,8 +96,9 @@ struct ExploreSearchView: View {
 extension ExploreSearchView {
     private var beforeSearchView: some View {
         VStack(spacing: 0) {
-            // TODO: Lottie
-            Rectangle()
+            Image(.imageExploreSearchEmpty)
+                .resizable()
+                .scaledToFit()
                 .frame(width: 160.adjusted, height: 160.adjustedH)
                 .foregroundStyle(.gray200)
                 .padding(.top, 76)
@@ -220,8 +221,9 @@ extension ExploreSearchView {
     
     private var noResultView: some View {
         VStack(spacing: 0) {
-            // TODO: Lottie
-            Rectangle()
+            Image(.imageExploreSearchEmpty)
+                .resizable()
+                .scaledToFit()
                 .frame(width: 160.adjusted, height: 160.adjustedH)
                 .foregroundStyle(.gray200)
                 .padding(.top, 82)
