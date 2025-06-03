@@ -69,8 +69,7 @@ struct OnboardingFeature {
     var body: some ReducerOf<Self> {
         BindingReducer()
         
-        Reduce {
-            state, action in
+        Reduce { state, action in
             switch action {
             case .tappedNextButton:
                 switch state.currentStep {
@@ -171,7 +170,7 @@ struct OnboardingFeature {
                             token: token
                         )
                         
-                        AuthenticationManager.shared.setAuthenticationState()
+//                        AuthenticationManager.shared.setAuthenticationState()
                         
                         await send(.setUserNickname(user))
                     } catch {

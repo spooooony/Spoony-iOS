@@ -47,7 +47,7 @@ final class TokenAuthenticator: Authenticator {
                 let tokenSet = try await refreshService.refresh(token: refreshToken)
                 completion(.success(tokenSet))
             } catch {
-                AuthenticationManager.shared.handleTokenExpired()
+                // TODO: 로그인 화면으로 이동
                 completion(.failure(error))
             }
         }

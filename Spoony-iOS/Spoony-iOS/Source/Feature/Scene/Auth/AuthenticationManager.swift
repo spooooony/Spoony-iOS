@@ -29,6 +29,7 @@ final class AuthenticationManager: ObservableObject {
         self.socialToken = token
     }
     
+    @MainActor
     func setAuthenticationState() {
         authenticationState = .authenticated
     }
