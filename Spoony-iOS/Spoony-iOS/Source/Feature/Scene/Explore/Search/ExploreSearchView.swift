@@ -12,6 +12,7 @@ import ComposableArchitecture
 struct ExploreSearchView: View {
     @Namespace private var namespace
     @Bindable private var store: StoreOf<ExploreSearchFeature>
+    @FocusState private var isFocused: Bool
     
     init(store: StoreOf<ExploreSearchFeature>) {
         self.store = store
@@ -73,9 +74,10 @@ struct ExploreSearchView: View {
             }
             
         }
+        .focused($isFocused)
         .navigationBarBackButtonHidden()
         .onAppear {
-            // 여기서 키보드 올리기 어떻게 하는지 모르겠다...
+            isFocused = true
             store.send(.onAppear)
         }
         .alertView(
@@ -96,8 +98,9 @@ struct ExploreSearchView: View {
 extension ExploreSearchView {
     private var beforeSearchView: some View {
         VStack(spacing: 0) {
-            // TODO: Lottie
-            Rectangle()
+            Image(.imageExploreSearchEmpty)
+                .resizable()
+                .scaledToFit()
                 .frame(width: 160.adjusted, height: 160.adjustedH)
                 .foregroundStyle(.gray200)
                 .padding(.top, 76)
@@ -220,8 +223,9 @@ extension ExploreSearchView {
     
     private var noResultView: some View {
         VStack(spacing: 0) {
-            // TODO: Lottie
-            Rectangle()
+            Image(.imageExploreSearchEmpty)
+                .resizable()
+                .scaledToFit()
                 .frame(width: 160.adjusted, height: 160.adjustedH)
                 .foregroundStyle(.gray200)
                 .padding(.top, 82)
