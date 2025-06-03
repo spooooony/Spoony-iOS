@@ -39,8 +39,6 @@ struct SettingsView: View {
                 settingsRow(title: "차단한 유저", hasArrow: true) {
                     store.send(.didTapBlockedUsers)
                 }
-                Divider()
-                    .padding(.leading, 20)
                 
                 settingsRow(title: "서비스 이용약관", hasArrow: true) {
                     URLHelper.openURL(Config.termsOfServiceURL)
