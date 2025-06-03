@@ -12,6 +12,7 @@ import ComposableArchitecture
 struct ExploreSearchView: View {
     @Namespace private var namespace
     @Bindable private var store: StoreOf<ExploreSearchFeature>
+    @FocusState private var isFocused: Bool
     
     init(store: StoreOf<ExploreSearchFeature>) {
         self.store = store
@@ -73,9 +74,10 @@ struct ExploreSearchView: View {
             }
             
         }
+        .focused($isFocused)
         .navigationBarBackButtonHidden()
         .onAppear {
-            // TODO: 여기서 키보드 올리기
+            isFocused = true
             store.send(.onAppear)
         }
         .alertView(
