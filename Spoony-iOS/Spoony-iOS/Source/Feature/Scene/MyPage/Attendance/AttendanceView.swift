@@ -29,6 +29,23 @@ struct AttendanceView: View {
         .task {
             store.send(.onAppear)
         }
+        .toolbar(store.showDailySpoonPopup ? .hidden : .visible, for: .tabBar)
+        .overlay {
+            if store.showDailySpoonPopup {
+                SpoonDrawPopupView(
+                    isPresented: Binding(
+                        get: { store.showDailySpoonPopup },
+                        set: { store.send(.setShowDailySpoonPopup($0)) }
+                    ),
+                    onDrawSpoon: {
+                        store.send(.drawDailySpoon)
+                    },
+                    isDrawing: store.isDrawingSpoon,
+                    drawnSpoon: store.drawnSpoon,
+                    errorMessage: store.spoonDrawError
+                )
+            }
+        }
     }
     
     private var backgroundView: some View {
@@ -55,6 +72,12 @@ struct AttendanceView: View {
             
             trackerContentView
                 .padding(.horizontal, 20)
+            
+            if !store.hasDrawnSpoonToday {
+                dailySpoonSection
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 24)
+            }
             
             noticeView
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -93,6 +116,39 @@ struct AttendanceView: View {
         }
     }
     
+    private var dailySpoonSection: some View {
+        VStack(spacing: 16) {
+            Divider()
+                .background(Color.gray100)
+            
+            VStack(spacing: 12) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("오늘의 스푼 받기")
+                            .font(.title3b)
+                            .foregroundColor(.spoonBlack)
+                        
+                        Text("아직 오늘 스푼을 받지 않았어요")
+                            .font(.body2m)
+                            .foregroundColor(.gray500)
+                    }
+                    
+                    Spacer()
+                    
+                    SpoonyButton(
+                        style: .secondary,
+                        size: .xsmall,
+                        title: "스푼 받기",
+                        isIcon: false,
+                        disabled: .constant(false)
+                    ) {
+                        store.send(.setShowDailySpoonPopup(true))
+                    }
+                }
+            }
+        }
+    }
+    
     private var weekdayGridView: some View {
         let columns = [
             GridItem(.flexible()),
@@ -108,7 +164,11 @@ struct AttendanceView: View {
                     spoonDrawResponse: store.attendedWeekdays[day],
                     action: {
                         if !store.attendedWeekdays.keys.contains(day) {
-                            store.send(.drawSpoon(weekday: day))
+                            if day != store.todayWeekday {
+                                store.send(.drawSpoon(weekday: day))
+                            } else {
+                                store.send(.setShowDailySpoonPopup(true))
+                            }
                         }
                     }
                 )

@@ -15,6 +15,7 @@ enum UserDefaultsKeys: String, CaseIterable {
     case exploreReviewRecentSearches = "exploreReviewRecentSearches"
     case lastAppVisitDate = "lastAppVisitDate"
     case hasCompletedOnboarding = "hasCompletedOnboarding"
+    case lastHomeVisitDate = "lastHomeVisitDate"
 }
 
 final class UserManager {
@@ -27,6 +28,8 @@ final class UserManager {
     @UserDefaultWrapper(key: .lastAppVisitDate) public var lastAppVisitDate: Date?
     
     @UserDefaultWrapper(key: .hasCompletedOnboarding) public var hasCompletedOnboarding: Bool?
+    
+    @UserDefaultWrapper(key: .lastHomeVisitDate) private var lastHomeVisitDate: Date?
     
     static let shared = UserManager()
     
@@ -107,6 +110,29 @@ final class UserManager {
     
     func updateLastVisitDate() {
         lastAppVisitDate = Calendar.current.startOfDay(for: Date())
+    }
+    
+    func hasVisitedHomeToday() -> Bool {
+        guard hasCompletedOnboarding == true else {
+            return false
+        }
+        
+        let today = Calendar.current.startOfDay(for: Date())
+        
+        if let lastHomeVisit = lastHomeVisitDate {
+            let lastHomeVisitDay = Calendar.current.startOfDay(for: lastHomeVisit)
+            return lastHomeVisitDay == today
+        }
+        
+        return false
+    }
+    
+    func setHomeVisitedToday() {
+        lastHomeVisitDate = Calendar.current.startOfDay(for: Date())
+    }
+    
+    func resetHomeVisitDate() {
+        lastHomeVisitDate = nil
     }
 }
 
