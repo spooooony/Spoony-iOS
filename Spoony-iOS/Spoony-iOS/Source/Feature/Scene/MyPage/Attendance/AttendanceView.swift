@@ -48,6 +48,7 @@ struct AttendanceView: View {
             CustomNavigationBar(
                 style: .attendanceCheck,
                 title: "출석체크",
+                spoonCount: store.spoonCount,  
                 onBackTapped: {
                     store.send(.routeToPreviousScreen)
                 }

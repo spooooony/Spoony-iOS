@@ -16,6 +16,10 @@ struct AttendanceFeature {
         var errorMessage: String? = nil
         var spoonDrawData: SpoonDrawResponseWrapper.SpoonDrawData? = nil
         
+        var spoonCount: Int = 0
+        var isLoadingSpoonCount: Bool = false
+        var spoonCountErrorMessage: String? = nil
+        
         var dateRange: String
         var currentWeekDates: [Date] = []
         var weekdays = ["월", "화", "수", "목", "금", "토", "일"]
@@ -132,9 +136,13 @@ struct AttendanceFeature {
         case drawSpoon(weekday: String)
         case drawSpoonResponse(TaskResult<SpoonDrawResponse>)
         case dismissDrawResultPopup
+        
+        case fetchSpoonCount
+        case spoonCountResponse(TaskResult<Int>)
     }
     
     @Dependency(\.spoonDrawService) var spoonDrawService
+    @Dependency(\.homeService) var homeService
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -143,7 +151,10 @@ struct AttendanceFeature {
                 return .none
                 
             case .onAppear:
-                return .send(.fetchSpoonDrawInfo)
+                return .merge(
+                    .send(.fetchSpoonDrawInfo),
+                    .send(.fetchSpoonCount)
+                )
                 
             case .fetchSpoonDrawInfo:
                 state.isLoading = true
@@ -170,6 +181,27 @@ struct AttendanceFeature {
                 state.errorMessage = error.localizedDescription
                 return .none
                 
+            case .fetchSpoonCount:
+                state.isLoadingSpoonCount = true
+                state.spoonCountErrorMessage = nil
+                return .run { send in
+                    await send(.spoonCountResponse(
+                        TaskResult { try await homeService.fetchSpoonCount() }
+                    ))
+                }
+                
+            case let .spoonCountResponse(.success(count)):
+                state.isLoadingSpoonCount = false
+                state.spoonCount = count
+                state.spoonCountErrorMessage = nil
+                return .none
+                
+            case let .spoonCountResponse(.failure(error)):
+                state.isLoadingSpoonCount = false
+                state.spoonCount = 0
+                print("Error fetching spoon count: \(error)")
+                return .none
+                
             case let .drawSpoon(weekday):
                 guard !state.isLoading,
                       !state.attendedWeekdays.keys.contains(weekday) else {
@@ -190,8 +222,10 @@ struct AttendanceFeature {
                 state.lastDrawnSpoon = response
                 state.showDrawResultPopup = true
                 
-                // 새로운 데이터 가져오기
-                return .send(.fetchSpoonDrawInfo)
+                return .merge(
+                    .send(.fetchSpoonDrawInfo),
+                    .send(.fetchSpoonCount)
+                )
                 
             case let .drawSpoonResponse(.failure(error)):
                 state.isLoading = false
