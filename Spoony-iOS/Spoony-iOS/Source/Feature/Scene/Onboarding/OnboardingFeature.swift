@@ -80,6 +80,7 @@ struct OnboardingFeature {
                 case .introduce:
                     return .send(.signup)
                 case .finish:
+                    UserManager.shared.completeOnboarding()
                     return .send(.routToTabCoordinatorScreen)
                 }
                 return .none
