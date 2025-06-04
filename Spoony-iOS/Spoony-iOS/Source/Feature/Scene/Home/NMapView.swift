@@ -278,7 +278,7 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
                 
                 for (_, m) in self.markers {
                     m.iconImage = self.defaultMarkerImage
-                }
+                }           
                 
                 marker.iconImage = self.selectedMarkerImage
                 
@@ -288,7 +288,7 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.isProcessingMarkerTouch = false
                 }
-            }
+             }
             
             return true
         }

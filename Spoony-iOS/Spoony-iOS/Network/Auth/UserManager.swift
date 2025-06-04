@@ -14,6 +14,7 @@ enum UserDefaultsKeys: String, CaseIterable {
     case exploreUserRecentSearches = "exploreUserRecentSearches"
     case exploreReviewRecentSearches = "exploreReviewRecentSearches"
     case lastAppVisitDate = "lastAppVisitDate"
+    case hasCompletedOnboarding = "hasCompletedOnboarding"
 }
 
 final class UserManager {
@@ -24,6 +25,8 @@ final class UserManager {
     @UserDefaultWrapper(key: .exploreUserRecentSearches) public var exploreUserRecentSearches: [String]?
     @UserDefaultWrapper(key: .exploreReviewRecentSearches) public var exploreReviewRecentSearches: [String]?
     @UserDefaultWrapper(key: .lastAppVisitDate) public var lastAppVisitDate: Date?
+    
+    @UserDefaultWrapper(key: .hasCompletedOnboarding) public var hasCompletedOnboarding: Bool?
     
     static let shared = UserManager()
     
@@ -76,7 +79,16 @@ final class UserManager {
         }
     }
     
+    func completeOnboarding() {
+        hasCompletedOnboarding = true
+        updateLastVisitDate()
+    }
+    
     func isFirstVisitOfDay() -> Bool {
+        guard hasCompletedOnboarding == true else {
+            return false
+        }
+        
         let today = Calendar.current.startOfDay(for: Date())
         
         if let lastVisitDate = lastAppVisitDate {
