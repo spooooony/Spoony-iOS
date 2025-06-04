@@ -277,16 +277,16 @@ struct MapFeature {
                 state.selectedLocation = nil
                 return .none
         
-                case .moveToUserLocation:
-                    guard let userLocation = state.userLocation else {
-                        return .none
-                    }
-                    
-                    print("📍 현재 사용자 위치: \(userLocation.coordinate.latitude), \(userLocation.coordinate.longitude)")
-                    state.isLocationFocused = true
-                    state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
-                    
-                    return .send(.clearFocusedPlaces)
+            case .moveToUserLocation:
+                guard let userLocation = state.userLocation else {
+                    return .none
+                }
+                
+                print("📍 현재 사용자 위치: \(userLocation.coordinate.latitude), \(userLocation.coordinate.longitude)")
+                state.isLocationFocused = true
+                state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
+                
+                return .send(.clearFocusedPlaces)
                 
             case let .updateUserLocation(location):
                 state.userLocation = location

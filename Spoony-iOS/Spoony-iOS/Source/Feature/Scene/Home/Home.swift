@@ -22,7 +22,7 @@ struct Home: View {
         ZStack(alignment: .bottom) {
             Color.white
                 .edgesIgnoringSafeArea(.all)
-            
+                
             NMapView(
                 store: store,
                 selectedPlace: Binding(
