@@ -327,7 +327,7 @@ extension PostView {
                 .font(.body1b)
                 .foregroundStyle(.spoonBlack)
             
-            Text("여기...사장님이 레전드 불친절하심. 사장님이 사람을 안좋아하셔서 사장님 눈빛이 매서워요...ㄷㄷ")
+            Text(store.cons)
                 .font(.body2m)
                 .foregroundStyle(.gray900)
         }
