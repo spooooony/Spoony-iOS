@@ -368,7 +368,7 @@ struct ProfileView: View {
             SpoonyButton(
                 style: .primary,
                 size: .xsmall,
-                title: "등록하러가기",
+                title: "등록하러 가기",
                 isIcon: false,
                 disabled: .constant(false)
             ) {
