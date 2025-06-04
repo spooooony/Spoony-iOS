@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-
 import ComposableArchitecture
 import TCACoordinators
 
@@ -48,7 +47,7 @@ struct AttendanceView: View {
             CustomNavigationBar(
                 style: .attendanceCheck,
                 title: "출석체크",
-                spoonCount: store.spoonCount,  
+                spoonCount: store.spoonCount,
                 onBackTapped: {
                     store.send(.routeToPreviousScreen)
                 }
@@ -106,6 +105,7 @@ struct AttendanceView: View {
                 SpoonAttendanceView(
                     day: day,
                     isSelected: store.attendedWeekdays.keys.contains(day),
+                    spoonDrawResponse: store.attendedWeekdays[day],
                     action: {
                         if !store.attendedWeekdays.keys.contains(day) {
                             store.send(.drawSpoon(weekday: day))
