@@ -148,7 +148,7 @@ private struct PlaceInfoSection: View {
                     .customFont(.body2sb)
                     .lineLimit(1)
                     .foregroundStyle(.gray900)
-                Text("서울시 \(place.address) 수저")
+                Text("서울 \(place.address) 스푼")
                     .customFont(.caption1m)
                     .foregroundColor(.gray600)
             }
