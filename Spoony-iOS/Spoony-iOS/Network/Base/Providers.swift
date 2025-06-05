@@ -7,7 +7,6 @@
 
 import Alamofire
 import Moya
-
 import Foundation
 
 struct Providers {
@@ -25,16 +24,12 @@ struct Providers {
 extension MoyaProvider {
     convenience init(withAuth: Bool) {
         if withAuth {
-            let accessToken = try? KeychainManager.read(key: .accessToken).get()
-            let refreshToken = try? KeychainManager.read(key: .refreshToken).get()
-            
             let credential = TokenCredential(
-                accessToken: accessToken ?? "",
-                refreshToken: refreshToken ?? ""
+                accessToken: TokenManager.shared.currentToken ?? "",
+                refreshToken: TokenManager.shared.currentRefreshToken ?? ""
             )
             let authenticator = TokenAuthenticator(refreshService: DefaultRefreshService.shared)
             let interceptor = AuthenticationInterceptor(authenticator: authenticator, credential: credential)
-            
             self.init(
                 session: Session(interceptor: interceptor),
                 plugins: [SpoonyLoggingPlugin()]
