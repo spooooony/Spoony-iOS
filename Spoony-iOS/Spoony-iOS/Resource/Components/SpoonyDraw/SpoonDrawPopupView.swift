@@ -24,11 +24,6 @@ struct SpoonDrawPopupView: View {
             if isPresented {
                 Color.black.opacity(0.4)
                     .ignoresSafeArea()
-                    .onTapGesture {
-                        if !isDrawing && !showLottieScreen {
-                            isPresented = false
-                        }
-                    }
             }
             
             if showLottieScreen {
@@ -167,8 +162,7 @@ struct SpoonDrawPopupView: View {
                         .frame(width: 263.adjusted, height: 200.adjustedH)
                 } placeholder: {
                     
-                    // TODO: 서버에서 값 날아오면 지우기
-                    Image(.testImage1)
+                    Image(.imageGoToList)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 263, height: 200)
