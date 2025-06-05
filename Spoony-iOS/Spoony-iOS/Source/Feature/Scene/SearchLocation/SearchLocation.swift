@@ -85,6 +85,7 @@ struct SearchLocationView: View {
         .navigationBarHidden(true)
         .onAppear {
             store.send(.onAppear)
+            store.send(.map(.fetchUserInfo))
             Task {
                 await viewModel.fetchLocationList(locationId: store.locationId)
             }

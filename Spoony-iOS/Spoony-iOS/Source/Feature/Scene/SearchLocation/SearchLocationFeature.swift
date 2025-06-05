@@ -50,7 +50,10 @@ struct SearchLocationFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                return .send(.fetchLocationList)
+                return .concatenate(
+                    .send(.fetchLocationList),
+                    .send(.map(.fetchUserInfo))
+                )
                 
             case .fetchLocationList:
                 state.isLoading = true
