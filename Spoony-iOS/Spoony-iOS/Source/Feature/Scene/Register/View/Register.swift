@@ -33,7 +33,7 @@ struct Register: View {
                         switch store.state.currentStep {
                         case .start:
                             InfoStepView(store: store.scope(state: \.infoStepState, action: \.infoStepAction))
-                        case .middle, .end:
+                        case .end:
                             ReviewStepView(store: store.scope(state: \.reviewStepState, action: \.reviewStepAction))
                         }
                     }
@@ -81,7 +81,7 @@ extension Register {
     }
     
     private var progressBar: some View {
-        ProgressView(value: 1.0/3 * Double(store.state.currentStep.rawValue))
+        ProgressView(value: 1.0/2 * Double(store.state.currentStep.rawValue))
             .frame(height: 4.adjustedH)
             .progressViewStyle(.linear)
             .tint(.main400)
