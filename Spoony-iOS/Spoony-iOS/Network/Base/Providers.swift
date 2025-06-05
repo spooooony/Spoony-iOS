@@ -7,60 +7,29 @@
 
 import Alamofire
 import Moya
-
 import Foundation
 
 struct Providers {
-    static var homeProvider: MoyaProvider<HomeTargetType> {
-        return MoyaProvider<HomeTargetType>.init(withAuth: true)
-    }
-    
-    static var explorProvider: MoyaProvider<ExploreTargetType> {
-        return MoyaProvider<ExploreTargetType>.init(withAuth: true)
-    }
-    
-    static var registerProvider: MoyaProvider<RegisterTargetType> {
-        return MoyaProvider<RegisterTargetType>.init(withAuth: true)
-    }
-    
-    static var postProvider: MoyaProvider<PostTargetType> {
-        return MoyaProvider<PostTargetType>.init(withAuth: true)
-    }
-    
-    static var authProvider: MoyaProvider<AuthTargetType> {
-        return MoyaProvider<AuthTargetType>.init(withAuth: false)
-    }
-    
-    static var myPageProvider: MoyaProvider<MyPageTargetType> {
-        return MoyaProvider<MyPageTargetType>.init(withAuth: true)
-    }
-    
-    static var imageProvider: MoyaProvider<ImageLoadTargetType> {
-        return MoyaProvider<ImageLoadTargetType>.init(withAuth: true)
-    }
-    
-    static var followProvider: MoyaProvider<FollowTargetType> {
-        return MoyaProvider<FollowTargetType>.init(withAuth: true)
-    }
-    
-    static var spoonDrawProvider: MoyaProvider<SpoonDrawTargetType> {
-        return MoyaProvider<SpoonDrawTargetType>.init(withAuth: true)
-    }
+    static let homeProvider = MoyaProvider<HomeTargetType>.init(withAuth: true)
+    static let explorProvider = MoyaProvider<ExploreTargetType>.init(withAuth: true)
+    static let registerProvider = MoyaProvider<RegisterTargetType>.init(withAuth: true)
+    static let postProvider = MoyaProvider<PostTargetType>.init(withAuth: true)
+    static let authProvider = MoyaProvider<AuthTargetType>.init(withAuth: false)
+    static let myPageProvider = MoyaProvider<MyPageTargetType>.init(withAuth: true)
+    static let imageProvider = MoyaProvider<ImageLoadTargetType>.init(withAuth: true)
+    static let followProvider = MoyaProvider<FollowTargetType>.init(withAuth: true)
+    static let spoonDrawProvider = MoyaProvider<SpoonDrawTargetType>.init(withAuth: true)
 }
 
 extension MoyaProvider {
     convenience init(withAuth: Bool) {
         if withAuth {
-            let accessToken = try? KeychainManager.read(key: .accessToken).get()
-            let refreshToken = try? KeychainManager.read(key: .refreshToken).get()
-            
             let credential = TokenCredential(
-                accessToken: accessToken ?? "",
-                refreshToken: refreshToken ?? ""
+                accessToken: TokenManager.shared.currentToken ?? "",
+                refreshToken: TokenManager.shared.currentRefreshToken ?? ""
             )
             let authenticator = TokenAuthenticator(refreshService: DefaultRefreshService.shared)
             let interceptor = AuthenticationInterceptor(authenticator: authenticator, credential: credential)
-            
             self.init(
                 session: Session(interceptor: interceptor),
                 plugins: [SpoonyLoggingPlugin()]
