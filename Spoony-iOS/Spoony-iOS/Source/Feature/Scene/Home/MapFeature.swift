@@ -106,13 +106,18 @@ struct MapFeature {
     
     @Dependency(\.homeService) var homeService
     @Dependency(\.registerService) private var registerService
+    @Dependency(\.myPageService) private var myPageService
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .fetchUserInfo:
-                state.userName = "스푸니"
-                return .none
+                return .run { send in
+                    let result = await TaskResult {
+                        try await myPageService.getUserInfo()
+                    }
+                    await send(.userInfoResponse(result))
+                }
                 
             case let .userInfoResponse(.success(userInfo)):
                 state.userName = userInfo.userName
