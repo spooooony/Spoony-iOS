@@ -182,6 +182,7 @@ struct OnboardingFeature {
                 state.isLoading = false
                 state.userNickname = nickname
                 state.currentStep = .finish
+                UserManager.shared.hasCompletedOnboarding = true
                 return .none
             case .error:
                 state.isLoading = false
