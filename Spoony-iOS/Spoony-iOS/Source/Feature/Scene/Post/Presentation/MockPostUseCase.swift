@@ -1,5 +1,5 @@
 //
-//  MockDetailUseCase.swift
+//  MockPostUseCase.swift
 //  Spoony-iOS
 //
 //  Created by 이명진 on 3/4/25.
@@ -7,21 +7,21 @@
 
 import Foundation
 
-struct MockDetailUseCase: DetailUseCase {
+struct MockPostUseCase: PostUseCase {
     
-    func fetchInitialDetail(postId: Int) async throws -> ReviewDetailModel {
-        return MockData.reviewDetail
+    func getPost(postId: Int) async throws -> PostModel {
+        return MockData.postDetail
     }
     
-    func scrapReview(postId: Int) async throws {
+    func scrapPost(postId: Int) async throws {
         print("스크랩")
     }
     
-    func unScrapReview(postId: Int) async throws {
+    func unScrapPost(postId: Int) async throws {
         print("스크랩 취소")
     }
     
-    func scoopReview(postId: Int) async throws -> Bool {
+    func scoopPost(postId: Int) async throws -> Bool {
         print("떠먹기 기능")
         return true
     }
@@ -33,11 +33,15 @@ struct MockDetailUseCase: DetailUseCase {
     func getOtherUserInfo(userId: Int) async throws -> UserInfoResponseDTO {
         return MockData.userInfo
     }
+    
+    func deletePost(postId: Int) async throws {
+        return
+    }
 }
 
 struct MockData {
     
-    static let reviewDetailResponse: ReviewDetailResponseDTO = ReviewDetailResponseDTO(
+    static let postResponse: PostResponseDTO = PostResponseDTO(
         postId: 20,
         userId: 30,
         photoUrlList: [
@@ -85,9 +89,9 @@ struct MockData {
     
     static let spoonCount: Int = 5623
     
-    // 최종적으로 사용될 Mock ReviewDetailModel
-    static let reviewDetail: ReviewDetailModel = ReviewDetailModel(
-        reviewDetail: reviewDetailResponse,
+    // 최종적으로 사용될 Mock PostModel
+    static let postDetail: PostModel = PostModel(
+        postDto: postResponse,
         userInfo: userInfo,
         spoonCount: spoonCount
     )

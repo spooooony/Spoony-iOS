@@ -1,5 +1,5 @@
 //
-//  ReviewDetailModel.swift
+//  PostModel.swift
 //  Spoony-iOS
 //
 //  Created by 이명진 on 2/7/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ReviewDetailModel: Codable {
+struct PostModel: Codable {
     let userId: Int
     let postId: Int
     let photoUrlList: [String]
@@ -31,28 +31,28 @@ struct ReviewDetailModel: Codable {
     let cons: String
     let isFollowing: Bool
     
-    public init(reviewDetail: ReviewDetailResponseDTO, userInfo: UserInfoResponseDTO, spoonCount: Int) {
+    public init(postDto: PostResponseDTO, userInfo: UserInfoResponseDTO, spoonCount: Int) {
         self.userId = userInfo.userId
-        self.postId = reviewDetail.postId
-        self.photoUrlList = reviewDetail.photoUrlList
-        self.date = reviewDetail.date
-        self.menuList = reviewDetail.menuList
-        self.description = reviewDetail.description
-        self.placeName = reviewDetail.placeName
-        self.placeAddress = reviewDetail.placeAddress
-        self.latitude = reviewDetail.latitude
-        self.longitude = reviewDetail.longitude
-        self.zzimCount = reviewDetail.zzimCount
-        self.isZzim = reviewDetail.isZzim
-        self.isScoop = reviewDetail.isScoop
-        self.categoryColorResponse = reviewDetail.categoryColorResponse
-        self.isMine = reviewDetail.isMine
+        self.postId = postDto.postId
+        self.photoUrlList = postDto.photoUrlList
+        self.date = postDto.date
+        self.menuList = postDto.menuList
+        self.description = postDto.description
+        self.placeName = postDto.placeName
+        self.placeAddress = postDto.placeAddress
+        self.latitude = postDto.latitude
+        self.longitude = postDto.longitude
+        self.zzimCount = postDto.zzimCount
+        self.isZzim = postDto.isZzim
+        self.isScoop = postDto.isScoop
+        self.categoryColorResponse = postDto.categoryColorResponse
+        self.isMine = postDto.isMine
         self.userName = userInfo.userName
         self.profileImageUrl = userInfo.profileImageUrl
         self.regionName = userInfo.regionName ?? ""
         self.spoonCount = spoonCount
-        self.value = reviewDetail.value
-        self.cons = reviewDetail.cons
+        self.value = postDto.value
+        self.cons = postDto.cons
         self.isFollowing = userInfo.isFollowing
     }
 }

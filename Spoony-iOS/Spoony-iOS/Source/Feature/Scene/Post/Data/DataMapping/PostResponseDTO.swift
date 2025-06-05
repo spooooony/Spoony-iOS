@@ -1,5 +1,5 @@
 //
-//  ReviewDetailResponseDTO.swift
+//  PostResponseDTO.swift
 //  Spoony-iOS
 //
 //  Created by 이명진 on 1/20/25.
@@ -7,9 +7,9 @@
 
 import Foundation
 
-// MARK: - ReviewDetailResponseDTO
+// MARK: - PostResponseDTO
 
-struct ReviewDetailResponseDTO: Codable {
+struct PostResponseDTO: Codable {
     let postId: Int
     let userId: Int
     let photoUrlList: [String]

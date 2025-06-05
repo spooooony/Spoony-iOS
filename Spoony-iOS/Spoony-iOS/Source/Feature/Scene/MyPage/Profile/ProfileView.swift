@@ -19,6 +19,24 @@ struct ProfileView: View {
     
     var body: some View {
         ZStack {
+            VStack(spacing: 0) {
+                navigationBar
+                
+                ScrollView {
+                    VStack(spacing: 0) {
+                        if store.isLoading {
+                            loadingView
+                        } else {
+                            profileContentView
+                        }
+                    }
+                    .padding(.bottom, 30)
+                }
+                .refreshable {
+                    store.send(.onAppear)
+                }
+            }
+            
             if store.showDeleteAlert {
                 CustomAlertView(
                     title: "정말로 리뷰를 삭제할까요?",
@@ -31,25 +49,7 @@ struct ProfileView: View {
                         store.send(.confirmDeleteReview)
                     }
                 )
-            }
-            
-            VStack(spacing: 0) {
-                navigationBar
-                
-                ScrollView {
-                    VStack(spacing: 0) {
-                        if store.isLoading {
-                            loadingView
-                        } else {
-                            // 에러가 있어도 기본 UI는 표시하되, 데이터만 기본값으로 표시
-                            profileContentView
-                        }
-                    }
-                    .padding(.bottom, 30)
-                }
-                .refreshable {
-                    store.send(.onAppear)
-                }
+                .zIndex(10)
             }
         }
         .toolbar(store.showDeleteAlert ? .hidden : .visible, for: .tabBar)
@@ -111,7 +111,6 @@ struct ProfileView: View {
     
     private var profileContentView: some View {
         VStack(spacing: 0) {
-            // 에러가 있을 경우 상단에 간단한 에러 메시지 표시
             if let error = store.errorMessage {
                 errorBanner(error: error)
             }
@@ -224,7 +223,6 @@ struct ProfileView: View {
     
     private var userInfoSection: some View {
         VStack(alignment: .leading, spacing: 5) {
-            // 지역 정보 표시 - 에러가 있어도 표시
             let locationText = store.location.isEmpty || store.location == "지역 미설정" ?
                 (store.errorMessage != nil ? "지역 정보 없음" : "") : "\(store.location) 스푼"
             
@@ -235,7 +233,6 @@ struct ProfileView: View {
                     .padding(.bottom, 4)
             }
             
-            // 사용자 이름 - 에러가 있어도 표시
             let userName = store.username.isEmpty ?
                 (store.errorMessage != nil ? "사용자" : "이름 없음") : store.username
                 
@@ -244,7 +241,6 @@ struct ProfileView: View {
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 8)
             
-            // 자기소개 - 에러가 있어도 표시
             let introText = store.introduction.isEmpty ?
                 (store.errorMessage != nil ? "자기소개가 없습니다." : "") : store.introduction
                 
@@ -368,7 +364,7 @@ struct ProfileView: View {
             SpoonyButton(
                 style: .primary,
                 size: .xsmall,
-                title: "등록하러가기",
+                title: "등록하러 가기",
                 isIcon: false,
                 disabled: .constant(false)
             ) {

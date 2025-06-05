@@ -28,7 +28,7 @@ enum TabRootScreen {
     //출첵
     case attendance(AttendanceFeature)
     
-    case detail(PostFeature)
+    case post(PostFeature)
     case report(ReportFeature)
     
     case profile(OtherProfileFeature)
@@ -68,9 +68,9 @@ struct TabRootCoordinator {
                 state.routes.goBack()
                 return .none
                 
-            case .router(.routeAction(id: _, action: .registerAndEdit(.routeToDetailScreen(let postId)))):
+            case .router(.routeAction(id: _, action: .registerAndEdit(.routeToPostScreen(let postId)))):
                 if state.routes.count >= 3 {
-                    if case .detail = state.routes[1].screen {
+                    if case .post = state.routes[1].screen {
                         state.routes.goBack()
                         return .none
                     }
@@ -78,7 +78,7 @@ struct TabRootCoordinator {
                 
                 return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
                     $0.pop()
-                    $0.push(.detail(PostFeature.State(postId: postId)))
+                    $0.push(.post(PostFeature.State(postId: postId)))
                 }
                 
             case .router(.routeAction(id: _, action: .tab(.routeToEditReview(let postId)))):
@@ -97,11 +97,11 @@ struct TabRootCoordinator {
                 state.routes.push(.editProfile(.initialState))
                 return .none
                 
-            case .router(.routeAction(id: _, action: .tab(.routeToDetail(let post)))):
-                state.routes.push(.detail(PostFeature.State(postId: post)))
+            case .router(.routeAction(id: _, action: .tab(.routeToPost(let post)))):
+                state.routes.push(.post(PostFeature.State(postId: post)))
                 return .none
                 
-            case .router(.routeAction(id: _, action: .detail(.routeToUserProfileScreen(let user)))):
+            case .router(.routeAction(id: _, action: .post(.routeToUserProfileScreen(let user)))):
                 state.routes.push(.profile(OtherProfileFeature.State(userId: user)))
                 return .none
                 
@@ -130,11 +130,11 @@ struct TabRootCoordinator {
             case .routeToLogin:
                 return .none
 
-            case .router(.routeAction(id: _, action: .detail(.routeToEditReviewScreen(let postId)))):
+            case .router(.routeAction(id: _, action: .post(.routeToEditReviewScreen(let postId)))):
                 state.routes.push(.registerAndEdit(.init(postId: postId)))
                 return .none
                 
-            case .router(.routeAction(id: _, action: .detail(.routeToReportScreen(let postId)))):
+            case .router(.routeAction(id: _, action: .post(.routeToReportScreen(let postId)))):
                 state.routes.push(.report(ReportFeature.State(postId: postId)))
                 return .none
                 
@@ -148,7 +148,7 @@ struct TabRootCoordinator {
                     .router(.routeAction(id: _, action: .editProfile(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .withdraw(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .attendance(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .detail(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .post(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .report(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .profile(.routeToPreviousScreen))):
                 state.routes.goBack()
@@ -168,7 +168,7 @@ struct TabRootCoordinator {
             // popup
             case .popupAction(let type):
                 switch type {
-                case .useSpoon:
+                case .useSpoon, .delete:
                     return .none
                 case .reportSuccess:
                     state.routes.goBack()

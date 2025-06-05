@@ -72,7 +72,7 @@ struct MapFeature {
     enum Action {
         case routToSearchScreen
         case routeToExploreTab
-        case routToDetailView(postId: Int)
+        case routeToPostView(postId: Int)
         
         case fetchPickList
         case pickListResponse(TaskResult<ResturantpickListResponse>)
@@ -106,13 +106,18 @@ struct MapFeature {
     
     @Dependency(\.homeService) var homeService
     @Dependency(\.registerService) private var registerService
+    @Dependency(\.myPageService) private var myPageService
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .fetchUserInfo:
-                state.userName = "스푸니"
-                return .none
+                return .run { send in
+                    let result = await TaskResult {
+                        try await myPageService.getUserInfo()
+                    }
+                    await send(.userInfoResponse(result))
+                }
                 
             case let .userInfoResponse(.success(userInfo)):
                 state.userName = userInfo.userName
@@ -159,7 +164,7 @@ struct MapFeature {
                 print("스푼 뽑기 오류: \(error.localizedDescription)")
                 return .none
             
-            case .routToSearchScreen, .routeToExploreTab, .routToDetailView:
+            case .routToSearchScreen, .routeToExploreTab, .routeToPostView:
                 return .none
                 
             case .fetchPickList:
@@ -276,45 +281,24 @@ struct MapFeature {
                 state.selectedPlace = nil
                 state.selectedLocation = nil
                 return .none
-                
+        
             case .moveToUserLocation:
                 guard let userLocation = state.userLocation else {
                     return .none
                 }
                 
-                state.isLocationFocused.toggle()
+                print("📍 현재 사용자 위치: \(userLocation.coordinate.latitude), \(userLocation.coordinate.longitude)")
+                state.isLocationFocused = true
+                state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
                 
-                if state.isLocationFocused {
-                    state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
-                    return .send(.clearFocusedPlaces)
-                }
-                
-                return .none
+                return .send(.clearFocusedPlaces)
                 
             case let .updateUserLocation(location):
                 state.userLocation = location
                 return .none
                 
             case let .selectCategory(category):
-                if category.id == 0 {
-                    state.selectedCategories = [category]
-                } else {
-                    if state.selectedCategories.contains(where: { $0.id == category.id }) {
-                        state.selectedCategories.removeAll { $0.id == category.id }
-                    } else {
-                        state.selectedCategories.removeAll { $0.id == 0 }
-                        state.selectedCategories.append(category)
-                    }
-                    
-                    if state.selectedCategories.isEmpty {
-                        state.selectedCategories = [CategoryChip(
-                            image: "",
-                            selectedImage: "",
-                            title: "전체",
-                            id: 0
-                        )]
-                    }
-                }
+                state.selectedCategories = [category]
                 
                 return .send(.applyFilters)
                 

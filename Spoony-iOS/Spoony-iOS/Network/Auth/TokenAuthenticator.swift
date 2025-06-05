@@ -17,8 +17,14 @@ final class TokenAuthenticator: Authenticator {
     }
 
     // 1) 요청하기 전 호출되어 헤더에 JWT 토큰 추가
+    // credential 무시하고 매번 최신 토큰 사용
     func apply(_ credential: TokenCredential, to urlRequest: inout URLRequest) {
-        urlRequest.headers.add(.authorization(bearerToken: credential.accessToken))
+        let currentToken = TokenManager.shared.currentToken ?? ""
+        urlRequest.headers.add(.authorization(bearerToken: currentToken))
+        
+        #if DEBUG
+        print("🔑 API 요청 시 사용되는 토큰: \(currentToken.prefix(30))...")
+        #endif
     }
     
     // 2) api 요청 후 응답의 상태코드가 401이면 true를 리턴하며 refresh 프로세스 계속 진행
@@ -27,11 +33,13 @@ final class TokenAuthenticator: Authenticator {
     }
     
     // 3) 헤더의 token과 credential의 token을 비교
+    // 현재 토큰과 비교하도록 수정
     // 같은 경우: token 만료 -> refresh()
     // 다른 경우: apply부터 다시 호출하여 최신 token으로 재시도
     func isRequest(_ urlRequest: URLRequest, authenticatedWith credential: TokenCredential) -> Bool {
-        let token = HTTPHeader.authorization(bearerToken: credential.accessToken).value
-        return urlRequest.headers["Authorization"] == token
+        let currentToken = TokenManager.shared.currentToken ?? ""
+        let headerToken = HTTPHeader.authorization(bearerToken: currentToken).value
+        return urlRequest.headers["Authorization"] == headerToken
     }
     
     //4) refresh api 호출
@@ -40,14 +48,14 @@ final class TokenAuthenticator: Authenticator {
         for session: Alamofire.Session,
         completion: @escaping @Sendable (Result<TokenCredential, any Error>) -> Void
     ) {
-        let refreshToken = credential.refreshToken
+        let refreshToken = TokenManager.shared.currentRefreshToken ?? ""
         
         Task {
             do {
                 let tokenSet = try await refreshService.refresh(token: refreshToken)
                 completion(.success(tokenSet))
             } catch {
-                AuthenticationManager.shared.handleTokenExpired()
+                // TODO: 로그인 화면으로 이동
                 completion(.failure(error))
             }
         }

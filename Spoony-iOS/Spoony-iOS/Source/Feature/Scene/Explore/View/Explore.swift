@@ -237,7 +237,7 @@ extension Explore {
                         }
                     )
                     .onTapGesture {
-                        store.send(.routeToDetailScreen(feed))
+                        store.send(.routeToPostScreen(feed))
                     }
                 }
             }
@@ -267,7 +267,7 @@ extension Explore {
                             }
                         )
                         .onTapGesture {
-                            store.send(.routeToDetailScreen(feed))
+                            store.send(.routeToPostScreen(feed))
                         }
                     } else {
                         ExploreCell(
@@ -277,7 +277,7 @@ extension Explore {
                             }
                         )
                         .onTapGesture {
-                            store.send(.routeToDetailScreen(feed))
+                            store.send(.routeToPostScreen(feed))
                         }
                     }
                 }

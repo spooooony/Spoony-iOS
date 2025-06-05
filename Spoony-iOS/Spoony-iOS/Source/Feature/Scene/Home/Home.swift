@@ -12,6 +12,7 @@ import CoreLocation
 struct Home: View {
     @Bindable private var store: StoreOf<MapFeature>
     @State private var locationManager = CLLocationManager()
+    @State private var locationDelegate: LocationManagerDelegate?
     
     init(store: StoreOf<MapFeature>) {
         self.store = store
@@ -21,7 +22,7 @@ struct Home: View {
         ZStack(alignment: .bottom) {
             Color.white
                 .edgesIgnoringSafeArea(.all)
-            
+                
             NMapView(
                 store: store,
                 selectedPlace: Binding(
@@ -99,7 +100,7 @@ struct Home: View {
             ZStack(alignment: .bottomTrailing) {
                 if store.currentBottomSheetStyle != .full {
                     Button(action: {
-                        store.send(.moveToUserLocation)
+                        handleGPSButtonTap()
                     }) {
                         ZStack {
                             Circle()
@@ -174,8 +175,8 @@ struct Home: View {
         .navigationBarHidden(true)
         .toolbar(store.showDailySpoonPopup ? .hidden : .visible, for: .tabBar)
         .task {
-            checkPermissions()
-            store.send(.fetchUserInfo)   
+            setupLocationManager()
+            store.send(.fetchUserInfo)
             store.send(.fetchSpoonCount)
             store.send(.fetchPickList)
             store.send(.fetchCategories)
@@ -199,12 +200,59 @@ struct Home: View {
         }
     }
     
-    private func checkPermissions() {
-        locationManager.delegate = LocationManagerDelegate(onLocationUpdate: { location in
+    private func setupLocationManager() {
+        locationDelegate = LocationManagerDelegate(onLocationUpdate: { location in
             store.send(.updateUserLocation(location))
         })
+        locationManager.delegate = locationDelegate
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
+    }
+    
+    private func handleGPSButtonTap() {
+        switch locationManager.authorizationStatus {
+        case .authorizedWhenInUse, .authorizedAlways:
+            if let currentLocation = locationManager.location {
+                store.send(.updateUserLocation(currentLocation))
+                store.send(.moveToUserLocation)
+            } else {
+                locationManager.requestLocation()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    if let location = locationManager.location {
+                        store.send(.updateUserLocation(location))
+                        store.send(.moveToUserLocation)
+                    }
+                }
+            }
+        case .denied, .restricted:
+            showLocationPermissionAlert()
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        default:
+            break
+        }
+    }
+    
+    private func showLocationPermissionAlert() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else { return }
+        
+        let alert = UIAlertController(
+            title: "위치 권한 필요",
+            message: "현재 위치를 확인하려면 위치 권한이 필요합니다. 설정에서 위치 권한을 허용해주세요.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "설정으로 이동", style: .default) { _ in
+            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsUrl)
+            }
+        })
+        
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
+        window.rootViewController?.present(alert, animated: true)
     }
 }
 
@@ -219,6 +267,36 @@ class LocationManagerDelegate: NSObject, CLLocationManagerDelegate, ObservableOb
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
             onLocationUpdate(location)
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        
+        if let clError = error as? CLError {
+            switch clError.code {
+            case .locationUnknown:
+                print("📍 위치를 확인할 수 없습니다")
+            case .denied:
+                print("📍 위치 권한이 거부되었습니다")
+            case .network:
+                print("📍 네트워크 오류로 위치를 확인할 수 없습니다")
+            default:
+                print("📍 기타 위치 오류: \(clError.localizedDescription)")
+            }
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        
+        switch status {
+        case .authorizedWhenInUse, .authorizedAlways:
+            manager.startUpdatingLocation()
+        case .denied, .restricted:
+            manager.stopUpdatingLocation()
+        case .notDetermined:
+            print("📍 위치 권한 미결정")
+        default:
+            break
         }
     }
 }

@@ -57,7 +57,7 @@ struct ExploreSearchFeature {
         case routeToPreviousScreen
         case presentAlert(AlertType, Alert)
         case routeToEditReviewScreen(Int)
-        case routeToDetailScreen(FeedEntity)
+        case routeToPostScreen(FeedEntity)
         case routeToReportScreen(Int)
         case routeToUserProfileScreen(Int)
         case presentToast(message: String)
@@ -241,7 +241,7 @@ struct ExploreSearchFeature {
                 state.alert = alert
                 state.isAlertPresented = true
                 return .none
-            case .routeToDetailScreen:
+            case .routeToPostScreen:
                 return .none
             case .routeToReportScreen:
                 return .none
