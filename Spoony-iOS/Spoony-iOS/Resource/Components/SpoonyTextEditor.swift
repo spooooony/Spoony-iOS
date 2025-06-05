@@ -76,7 +76,7 @@ extension SpoonyTextEditor {
                         .offset(x: 5.adjusted, y: 8.adjustedH)
                 }
                 .onChange(of: text) { _, newValue in
-                    if style == .profileEdit {
+                    if style == .profileEdit || style == .onboarding {
                         text = newValue.removeEmogi()
                     }                    
                     
@@ -91,6 +91,7 @@ extension SpoonyTextEditor {
                     }
                 }
                 .onChange(of: isFocused) { _, newValue in
+                    print(errorState)
                     if !newValue, errorState.isMaximumInputError {
                         errorState = .noError
                     }
@@ -229,7 +230,11 @@ public enum TextEditorErrorState: Equatable {
     }
     
     var isMaximumInputError: Bool {
-        self == .maximumInputError(style: .review) || self == .maximumInputError(style: .report) || self == .maximumInputError(style: .profileEdit) || self == .maximumInputError(style: .weakPoint)
+        self == .maximumInputError(style: .review) ||
+        self == .maximumInputError(style: .report) ||
+        self == .maximumInputError(style: .profileEdit) ||
+        self == .maximumInputError(style: .weakPoint) ||
+        self == .maximumInputError(style: .onboarding)
     }
 }
 
