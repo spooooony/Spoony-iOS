@@ -15,7 +15,7 @@ struct RegisterFeature {
         static let initialState = State()
                        
         var postId: Int?
-        var currentStep: RegisterStep = .end
+        var currentStep: RegisterStep = .start
         var isLoading: Bool = false
         var isRegistrationSuccess: Bool = false
         var infoStepState: InfoStepFeature.State
