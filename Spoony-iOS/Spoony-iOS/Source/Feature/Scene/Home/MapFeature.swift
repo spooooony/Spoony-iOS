@@ -293,25 +293,7 @@ struct MapFeature {
                 return .none
                 
             case let .selectCategory(category):
-                if category.id == 0 {
-                    state.selectedCategories = [category]
-                } else {
-                    if state.selectedCategories.contains(where: { $0.id == category.id }) {
-                        state.selectedCategories.removeAll { $0.id == category.id }
-                    } else {
-                        state.selectedCategories.removeAll { $0.id == 0 }
-                        state.selectedCategories.append(category)
-                    }
-                    
-                    if state.selectedCategories.isEmpty {
-                        state.selectedCategories = [CategoryChip(
-                            image: "",
-                            selectedImage: "",
-                            title: "전체",
-                            id: 0
-                        )]
-                    }
-                }
+                state.selectedCategories = [category]
                 
                 return .send(.applyFilters)
                 
