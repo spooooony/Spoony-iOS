@@ -15,8 +15,8 @@ struct NMapView: UIViewRepresentable {
     private let userLocationZoomLevel: Double = 15.0
     private let defaultMarker = NMFOverlayImage(name: "ic_unselected_marker")
     private let selectedMarker = NMFOverlayImage(name: "ic_selected_marker")
-    private let defaultLatitude: Double = 37.5666103
-    private let defaultLongitude: Double = 126.9783882
+    private let defaultLatitude: Double = 37.5563
+    private let defaultLongitude: Double = 126.9236
     
     let store: StoreOf<MapFeature>
     @Binding var selectedPlace: CardPlace?
@@ -39,7 +39,7 @@ struct NMapView: UIViewRepresentable {
         case .authorizedWhenInUse, .authorizedAlways:
             if let location = userLocation {
                 moveCamera(mapView, to: NMGLatLng(lat: location.coordinate.latitude,
-                                                lng: location.coordinate.longitude))
+                                                  lng: location.coordinate.longitude))
             } else if let selectedLocation = selectedLocation {
                 moveCamera(mapView, to: NMGLatLng(lat: selectedLocation.latitude, lng: selectedLocation.longitude))
             } else {
