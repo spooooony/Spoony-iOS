@@ -15,7 +15,7 @@ struct SearchFeature {
         static let initialState = State()
         
         var searchText: String = ""
-        var recentSearches: [String] = UserManager.shared.recentSearches ?? []
+        var recentSearches: [String] = UserManager.shared.recentSearches ?? [] 
         var isFirstAppear: Bool = true
         var isSearching: Bool = false
         var searchResults: [SearchResult] = []
@@ -49,6 +49,7 @@ struct SearchFeature {
         case setFirstAppear(Bool)
         case searchCompletedSuccess([SearchResult])
         case searchCompletedFailure(String)
+        case updateRecentSearches([String])
         case routeToPreviousScreen
         case goBack
     }
@@ -66,50 +67,44 @@ struct SearchFeature {
                 
             case .search:
                 guard !state.searchText.isEmpty else { return .none }
-                let normalizedSearchText = state.searchText.components(separatedBy: .whitespaces)
-                    .filter { !$0.isEmpty }
-                    .joined(separator: " ")
+                
+                let originalSearchText = state.searchText
+                let normalizedSearchText = normalizeSearchText(state.searchText)
+                
+                guard !normalizedSearchText.isEmpty else { return .none }
                 
                 state.isSearching = true
                 
-                return .run { [query = normalizedSearchText] send in
-                    do {
-                        let service = SearchService()
-                        let response = try await service.searchLocation(query: query)
-                        let results = response.locationResponseList.map { location in
-                            SearchResult(
-                                title: location.locationName,
-                                locationId: location.locationId,
-                                address: location.locationAddress ?? ""
-                            )
+                return .concatenate(
+                    .run { send in
+                        UserManager.shared.setSearches(.map, originalSearchText)
+                        let updatedSearches = UserManager.shared.recentSearches ?? []
+                        await send(.updateRecentSearches(updatedSearches))
+                    },
+                    
+                    .run { [query = normalizedSearchText] send in
+                        do {
+                            let service = SearchService()
+                            let response = try await service.searchLocation(query: query)
+                            let results = response.locationResponseList.map { location in
+                                SearchResult(
+                                    title: location.locationName,
+                                    locationId: location.locationId,
+                                    address: location.locationAddress ?? ""
+                                )
+                            }
+                            await send(.searchCompletedSuccess(results))
+                        } catch {
+                            await send(.searchCompletedFailure(error.localizedDescription))
                         }
-                        await send(.searchCompletedSuccess(results))
-                    } catch {
-                        await send(.searchCompletedFailure(error.localizedDescription))
                     }
-                }
+                )
                 
             case .clearSearch:
                 state.searchText = ""
                 state.searchResults = []
                 state.errorMessage = nil
                 return .none
-                
-            case let .removeRecentSearch(search):
-                if let index = state.recentSearches.firstIndex(of: search) {
-                    state.recentSearches.remove(at: index)
-                    let searches = state.recentSearches
-                    return .run { _ in
-                        UserManager.shared.recentSearches = searches
-                    }
-                }
-                return .none
-                
-            case .clearAllRecentSearches:
-                state.recentSearches.removeAll()
-                return .run { _ in
-                    UserManager.shared.recentSearches = []
-                }
                 
             case let .selectLocation(result):
                 state.isSearching = false
@@ -124,29 +119,35 @@ struct SearchFeature {
                 state.searchResults = results
                 state.errorMessage = nil
                 
-                if !results.isEmpty && !state.searchText.isEmpty {
-                    if !state.recentSearches.contains(state.searchText) {
-                        state.recentSearches.insert(state.searchText, at: 0)
-                        if state.recentSearches.count > 6 {
-                            state.recentSearches.removeLast()
-                        }
-                        
-                        _ = state.recentSearches
-                        return .run { [searches = state.recentSearches] _ in
-                            UserManager.shared.recentSearches = searches
-                        }
-                    }
-                } else if results.isEmpty {
+                if results.isEmpty {
                     state.errorMessage = "검색 결과가 없습니다"
                 }
                 
                 return .none
-                
+
+
+            case let .removeRecentSearch(search):
+                return .run { send in
+                    UserManager.shared.deleteRecent(.map, search)
+                    let updatedSearches = UserManager.shared.recentSearches ?? []
+                    await send(.updateRecentSearches(updatedSearches))
+                }
+
+            case .clearAllRecentSearches:
+                return .run { send in
+                    UserManager.shared.recentSearches = []
+                    await send(.updateRecentSearches([]))
+                }
+
             case let .searchCompletedFailure(errorMessage):
                 state.isSearching = false
                 state.searchResults = []
                 state.errorMessage = "검색 중 오류가 발생했습니다"
                 print("Search error:", errorMessage)
+                return .none
+
+            case let .updateRecentSearches(searches):
+                state.recentSearches = searches
                 return .none
                 
             case .routeToPreviousScreen:
@@ -164,5 +165,15 @@ struct SearchFeature {
                 
             }
         }
+    }
+}
+
+extension SearchFeature {
+    private func normalizeSearchText(_ text: String) -> String {
+        return text
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+            .joined(separator: "")
     }
 }
