@@ -83,6 +83,9 @@ struct ExploreSearchFeature {
                 return .send(.setRecentSearchList)
             case .changeViewType(let type):
                 state.viewType = type
+                if state.searchState == .searchResult || state.searchState == .noResult {
+                    return .send(.setRecentSearchList)
+                }
                 if state.searchState != .searching {
                     return .send(.updateSearchStateFromRecentSearches)
                 }

@@ -75,6 +75,10 @@ struct ExploreSearchView: View {
             
         }
         .focused($isFocused)
+        .background(.white)
+        .onTapGesture {
+            hideKeyboard()
+        }
         .navigationBarBackButtonHidden()
         .onAppear {
             isFocused = true
@@ -150,6 +154,7 @@ extension ExploreSearchView {
                 .customFont(.body1m)
                 .foregroundStyle(.gray700)
                 .onTapGesture {
+                    hideKeyboard()
                     store.send(.searchByRecentSearch(text))
                 }
             
@@ -159,6 +164,7 @@ extension ExploreSearchView {
                 .resizable()
                 .frame(width: 24.adjusted, height: 24.adjusted)
                 .onTapGesture {
+                    hideKeyboard()
                     store.send(.recentDeleteButtonTapped(text))
                 }
         }
@@ -202,8 +208,19 @@ extension ExploreSearchView {
     
     private func userCell(_ user: SimpleUser) -> some View {
         HStack(spacing: 14) {
-            Circle()
-                .frame(width: 48.adjusted)
+            AsyncImage(url: URL(string: user.profileImage)) { phase in
+                if let image = phase.image {
+                    image.resizable()
+                } else if phase.error != nil {
+                    Circle()
+                        .fill(Color.gray200)
+                } else {
+                    Circle()
+                        .fill(Color.gray200)
+                }
+            }
+            .clipShape(Circle())
+            .frame(width: 60.adjusted, height: 60.adjustedH)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(user.userName)
