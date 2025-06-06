@@ -23,7 +23,7 @@ struct SearchView: View {
                     style: .search(showBackButton: true),
                     searchText: $store.searchText.sending(\.updateSearchText),
                     onBackTapped: {
-                        store.send(.goBack) 
+                        store.send(.goBack)
                     },
                     tappedAction: {
                         store.send(.search)
@@ -41,6 +41,8 @@ struct SearchView: View {
         }
         .navigationBarHidden(true)
         .onAppear {
+            store.send(.loadRecentSearches)
+            
             if store.isFirstAppear {
                 isSearchFocused = true
                 store.send(.setFirstAppear(false))
