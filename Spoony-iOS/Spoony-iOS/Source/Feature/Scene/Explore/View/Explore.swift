@@ -65,6 +65,7 @@ struct Explore: View {
             )
             .presentationDetents([.height(542.adjustedH)])
             .presentationCornerRadius(16)
+            .interactiveDismissDisabled()
         }
         .sheet(isPresented: $sortIsPresented) {
             SortBottomSheet(

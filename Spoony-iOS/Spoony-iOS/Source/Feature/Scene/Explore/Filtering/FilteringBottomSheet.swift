@@ -123,7 +123,7 @@ extension FilteringBottomSheet {
                                 isSegmentTapped = true
                                 withAnimation(.easeInOut(duration: 0.35)) {
                                     currentFilter = index
-                                    proxy.scrollTo(FilterType.allCases[index])
+                                    proxy.scrollTo(FilterType.allCases[index], anchor: .top)
                                 }
                             }
                         
