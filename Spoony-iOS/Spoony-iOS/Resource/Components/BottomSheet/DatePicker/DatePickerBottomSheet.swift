@@ -19,7 +19,7 @@ struct DatePickerBottomSheet: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 12) {
             headerView
             
             CustomUIPickerView(selectedDate: $pickerData)
@@ -152,15 +152,27 @@ struct CustomUIPickerView: UIViewRepresentable {
 }
 
 extension CustomUIPickerView {
+    mutating func updateMonth(yearIndex: Int) {
+        let year = dataSource[0][yearIndex]
+        
+        dataSource[1] = DatePickerManager.shared.getMonths(year: year)
+    }
+    
     mutating func updateDays(yearIndex: Int, monthIndex: Int) {
         let year = dataSource[0][yearIndex]
         let month = dataSource[1][monthIndex]
+                        
         dataSource[2] = DatePickerManager.shared.getDays(year: year, month: month)
     }
     
     mutating private func initialDateSource() {
         dataSource[0] = DatePickerManager.shared.getYears()
-        dataSource[1] = DatePickerManager.shared.getMonths()
+        if selectedDate[1].isEmpty {
+            dataSource[1] = DatePickerManager.shared.getMonths(year: "2000")
+        } else {
+            dataSource[1] = DatePickerManager.shared.getMonths(year: selectedDate[0])
+        }
+        
         if selectedDate[2].isEmpty {
             dataSource[2] = DatePickerManager.shared.getDays(year: "2000", month: "01")
         } else {
