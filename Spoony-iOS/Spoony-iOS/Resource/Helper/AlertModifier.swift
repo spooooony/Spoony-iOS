@@ -18,23 +18,35 @@ struct AlertModifier: ViewModifier {
     let confirmAction: (() -> Void)?
     let afterAction: (() -> Void)?
     
+    @State private var isOpacityZero: Bool = false
+    
     func body(content: Content) -> some View {
         
         content
             .fullScreenCover(isPresented: $isPresented) {
                 ZStack {
-                    Color.black.opacity(0.6)
+                    Color.black.opacity(isOpacityZero ? 0 : 0.6)
                         .ignoresSafeArea(.all)
                     
                     AlertView(
-                        isPresented: $isPresented,
+//                        isPresented: $isPresented,
+                        isOpacityZero: $isOpacityZero,
                         alertType: alertType,
                         alert: alert,
                         confirmAction: confirmAction,
                         afterAction: afterAction
                     )
+                    .opacity(isOpacityZero ? 0 : 1)
                 }
                 .background(BackgroundClearView())
+                .onAppear {
+                    isOpacityZero = false
+                }
+                .onChange(of: isOpacityZero) {
+                    if isOpacityZero {
+                        isPresented = false
+                    }
+                }
             }
             .transaction {
                 $0.disablesAnimations = true
@@ -58,7 +70,8 @@ struct Alert: Equatable {
 }
 
 struct AlertView: View {
-    @Binding var isPresented: Bool
+//    @Binding var isPresented: Bool
+    @Binding var isOpacityZero: Bool
     let alertType: AlertType
     let alert: Alert
     let confirmAction: (() -> Void)?
@@ -93,7 +106,8 @@ struct AlertView: View {
                         title: title,
                         disabled: .constant(false)
                     ) {
-                        isPresented = false
+                        isOpacityZero = true
+//                        isPresented = false
                     }
                 }
                 
@@ -106,7 +120,8 @@ struct AlertView: View {
                     if let confirmAction {
                         confirmAction()
                     }
-                    isPresented = false
+//                    isPresented = false
+                    isOpacityZero = true
                     if let afterAction {
                         afterAction()
                     }
@@ -115,6 +130,9 @@ struct AlertView: View {
         }
         .padding(20)
         .background(.white, in: RoundedRectangle(cornerRadius: 16))
+        .transaction {
+            $0.disablesAnimations = true
+        }
     }
 }
 
