@@ -53,6 +53,7 @@ struct SearchFeature {
         case routeToPreviousScreen
         case goBack
         case loadRecentSearches
+        case routeToSearchLocation(SearchResult)
     }
     
     var body: some ReducerOf<Self> {
@@ -91,7 +92,9 @@ struct SearchFeature {
                             SearchResult(
                                 title: location.locationName,
                                 locationId: location.locationId,
-                                address: location.locationAddress ?? ""
+                                address: location.locationAddress ?? "",
+                                latitude: location.latitude,
+                                longitude: location.longitude
                             )
                         }
                         await send(.searchCompletedSuccess(results))
@@ -108,8 +111,11 @@ struct SearchFeature {
                 
             case let .selectLocation(result):
                 state.isSearching = false
+                return .send(.routeToSearchLocation(result))
+            
+            case .routeToSearchLocation:
                 return .none
-                
+
             case let .selectRecentSearch(searchText):
                 state.searchText = searchText
                 return .send(.search)

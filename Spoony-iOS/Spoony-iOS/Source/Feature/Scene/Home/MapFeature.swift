@@ -34,7 +34,6 @@ struct MapFeature {
         
         var searchText: String = ""
         
-        // 사용자 이름 추가
         var userName: String = "스푸니"
         
         var showDailySpoonPopup: Bool = false
@@ -102,6 +101,7 @@ struct MapFeature {
         case setShowDailySpoonPopup(Bool)
         case drawDailySpoon
         case spoonDrawResponse(TaskResult<SpoonDrawResponse>)
+        case focusToLocation(CLLocationCoordinate2D)
     }
     
     @Dependency(\.homeService) var homeService
@@ -166,7 +166,7 @@ struct MapFeature {
                 state.spoonDrawError = error.localizedDescription
                 print("스푼 뽑기 오류: \(error.localizedDescription)")
                 return .none
-            
+                
             case .routToSearchScreen, .routeToPostView:
                 return .none
                 
@@ -236,6 +236,11 @@ struct MapFeature {
                     await send(.spoonCountResponse(result))
                 }
                 
+            case let .focusToLocation(coordinate):
+                state.selectedLocation = (coordinate.latitude, coordinate.longitude)
+                state.isLocationFocused = true
+                return .none
+                
             case let .spoonCountResponse(.success(count)):
                 state.spoonCount = count
                 return .none
@@ -284,7 +289,7 @@ struct MapFeature {
                 state.selectedPlace = nil
                 state.selectedLocation = nil
                 return .none
-        
+                
             case .moveToUserLocation:
                 guard let userLocation = state.userLocation else {
                     return .none
@@ -336,7 +341,7 @@ struct MapFeature {
                 
                 state.isLocationFocused = false
                 return .none
-
+                
             case let .focusedPlaceResponse(.failure(error)):
                 state.isLoading = false
                 print("포커스 장소 조회 실패: \(error)")

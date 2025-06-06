@@ -80,12 +80,11 @@ struct NMapView: UIViewRepresentable {
             mapView.moveCamera(cameraUpdate)
             
             context.coordinator.updateUserLocationMarker(mapView: mapView, location: userLocation)
-        }
-        else if let location = selectedLocation, !focusedPlaces.isEmpty {
+        } else if let location = selectedLocation {
             let coord = NMGLatLng(lat: location.latitude, lng: location.longitude)
-            let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
+            let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: 11.0)
             cameraUpdate.animation = .easeIn
-            cameraUpdate.animationDuration = 0.2
+            cameraUpdate.animationDuration = 0.5
             mapView.moveCamera(cameraUpdate)
         }
         
