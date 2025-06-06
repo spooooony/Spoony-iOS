@@ -84,7 +84,9 @@ struct ExploreSearchView: View {
         }
         .navigationBarBackButtonHidden()
         .onAppear {
-            isFocused = true
+            if store.state.searchState == .beforeSearch {
+                isFocused = true
+            }
             store.send(.onAppear)
         }
         .alertView(
