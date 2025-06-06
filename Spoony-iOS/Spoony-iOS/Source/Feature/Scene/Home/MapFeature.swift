@@ -111,6 +111,9 @@ struct MapFeature {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .routeToExploreTab:
+                return .none
+                
             case .fetchUserInfo:
                 return .run { send in
                     let result = await TaskResult {
@@ -164,7 +167,7 @@ struct MapFeature {
                 print("스푼 뽑기 오류: \(error.localizedDescription)")
                 return .none
             
-            case .routToSearchScreen, .routeToExploreTab, .routeToPostView:
+            case .routToSearchScreen, .routeToPostView:
                 return .none
                 
             case .fetchPickList:
