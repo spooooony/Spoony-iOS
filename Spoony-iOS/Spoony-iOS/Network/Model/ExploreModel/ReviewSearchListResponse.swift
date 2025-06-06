@@ -15,7 +15,7 @@ extension ReviewSearchListResponse {
     struct ReviewSearchResponse: Codable {
         let userId: Int
         let userName: String
-        let userRegion: String
+        let userRegion: String?
         let postId: Int
         let description: String
         let categoryColorResponse: CategoryColorResponse
