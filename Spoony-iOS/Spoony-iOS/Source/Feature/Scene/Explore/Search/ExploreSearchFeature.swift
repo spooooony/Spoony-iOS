@@ -226,7 +226,7 @@ struct ExploreSearchFeature {
                 if !success {
                     return .send(.error(SNError.networkFail))
                 }
-                return .none
+                return .send(.setRecentSearchList)
             case .routeToEditReviewScreen:
                 return .none
             case .binding(\.searchText):
