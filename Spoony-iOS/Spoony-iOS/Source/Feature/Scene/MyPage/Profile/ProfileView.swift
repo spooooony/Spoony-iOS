@@ -340,6 +340,9 @@ struct ProfileView: View {
                     }
                 )
                 .padding(.horizontal, 20)
+                .onTapGesture {
+                    store.send(.routeToReviewDetail(review.postId))
+                }
             }
         }
         .padding(.top, 16)

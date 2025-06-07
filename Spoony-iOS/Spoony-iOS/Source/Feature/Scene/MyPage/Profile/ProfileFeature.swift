@@ -57,6 +57,7 @@ struct ProfileFeature {
         case confirmDeleteReview
         case cancelDeleteReview
         case reviewDeleted(TaskResult<Bool>)
+        case routeToReviewDetail(Int)
         
         case retryFetchUserInfo
         case clearError
@@ -227,7 +228,7 @@ struct ProfileFeature {
                 state.reviewToDeleteId = nil
                 return .none
 
-            case .routeToFollowingScreen, .routeToFollowerScreen, .routeToEditProfileScreen, .routeToSettingsScreen, .routeToAttendanceScreen, .routeToEditReviewScreen, .routeToRegister:
+            case .routeToFollowingScreen, .routeToFollowerScreen, .routeToEditProfileScreen, .routeToSettingsScreen, .routeToAttendanceScreen, .routeToEditReviewScreen, .routeToRegister,.routeToReviewDetail:
                 return .none
             }
         }

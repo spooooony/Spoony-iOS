@@ -61,6 +61,7 @@ struct OtherProfileFeature {
         case cancelUnblock
         case blockActionResponse(TaskResult<Void>)
         case unblockActionResponse(TaskResult<Void>)
+        case routeToReviewDetail(Int)
         
         case hideToast
         case routeToReportScreen(Int)
@@ -230,9 +231,7 @@ struct OtherProfileFeature {
                 state.toast = nil
                 return .none
                 
-            case .routeToPreviousScreen:
-                return .none
-            case .routeToReportScreen:
+            case .routeToPreviousScreen, .routeToReviewDetail, .routeToReportScreen:
                 return .none
             }
         }
