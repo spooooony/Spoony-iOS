@@ -113,13 +113,11 @@ struct RegisterFeature {
                 state.currentStep = step
                 return .none
             case .infoStepAction(.didTapNextButton):
-                state.currentStep = .middle
+                state.currentStep = .end
                 return .none
             case let .infoStepAction(.presentToast(message)):
                 return .send(.presentToast(message: message))
-            case .reviewStepAction(.didTapNextButton):
-                state.currentStep = .end
-                
+            case .reviewStepAction(.didTapNextButton):                
                 guard let selectedPlace = state.infoStepState.selectedPlace,
                       let selectedCategory = state.infoStepState.selectedCategory.first else {
                     return .none
