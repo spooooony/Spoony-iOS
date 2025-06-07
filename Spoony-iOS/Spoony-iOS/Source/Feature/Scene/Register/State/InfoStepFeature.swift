@@ -16,7 +16,6 @@ struct InfoStepFeature {
             var state = State()
             state.isEditMode = true
             state.isDisableNextButton = false
-            state.isToolTipPresented = false
             return state
         }
         
@@ -41,7 +40,6 @@ struct InfoStepFeature {
         var satisfaction: Double = 50.0
         
         var keyboardHeight: SizeValueType = 0
-        var isToolTipPresented: Bool = UserManager.shared.isTooltipPresented ?? true
         var isDisableNextButton: Bool = true
     }
     
@@ -70,7 +68,6 @@ struct InfoStepFeature {
         case validateNextButton
         case didTapBackground
         case updateKeyboardHeight(SizeValueType)
-        case updateToolTipState
         
         // MARK: - TabCoordinator Action
         case presentToast(message: String)
@@ -206,10 +203,6 @@ struct InfoStepFeature {
                 return .none
             case .updateKeyboardHeight(let height):
                 state.keyboardHeight = height
-                return .none
-            case .updateToolTipState:
-                UserManager.shared.isTooltipPresented = false 
-                state.isToolTipPresented = false
                 return .none
             default:
                 return .none

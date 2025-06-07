@@ -250,20 +250,6 @@ extension InfoStepView {
                     }
                 }
             }
-            .overlay(alignment: .top) {
-                if store.state.isToolTipPresented {
-                    ToolTipView()
-                        .offset(y: -25.adjustedH)
-                        .task {
-                            do {
-                                try await Task.sleep(for: .seconds(2))
-                                store.send(.updateToolTipState)
-                            } catch {
-                                
-                            }
-                        }
-                }
-            }
         }
     }
 }
