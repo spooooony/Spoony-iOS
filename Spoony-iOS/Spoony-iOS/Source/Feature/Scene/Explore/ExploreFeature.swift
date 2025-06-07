@@ -215,7 +215,7 @@ struct ExploreFeature {
                 if !success {
                     return .send(.error(SNError.networkFail))
                 }
-                return .none
+                return .send(.refreshFilteredFeed)
             case .routeToEditReviewScreen:
                 return .none
             case .routeToExploreSearchScreen:

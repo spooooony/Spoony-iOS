@@ -89,7 +89,7 @@ struct OtherProfileFeature {
                 state.username = response.userName
                 state.profileImageUrl = response.profileImageUrl
                 state.location = response.regionName ?? ""
-                state.introduction = response.introduction
+                state.introduction = response.introduction ?? ""
                 state.reviewCount = response.reviewCount
                 state.followingCount = response.followingCount
                 state.followerCount = response.followerCount

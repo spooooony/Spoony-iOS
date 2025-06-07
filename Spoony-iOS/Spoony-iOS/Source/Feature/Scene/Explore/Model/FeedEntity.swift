@@ -33,7 +33,7 @@ struct FeedEntity: Identifiable, Hashable {
         zzimCount: Int,
         photoURLList: [String],
         createAt: String,
-        isMine: Bool = false
+        isMine: Bool
     ) {
         self.id = id
         self.postId = postId

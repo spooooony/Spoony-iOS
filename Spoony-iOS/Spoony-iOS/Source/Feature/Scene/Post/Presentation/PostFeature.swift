@@ -56,7 +56,7 @@ struct PostFeature {
         var iconTextColor: String = ""
         var iconBackgroundColor: String = ""
         var categoryColorResponse: DetailCategoryColorResponse = .init(categoryId: 0, categoryName: "", iconUrl: "", iconTextColor: "", iconBackgroundColor: "")
-        var isMine: Bool = false
+        var isMine: Bool = true
         var profileImageUrl: String = ""
         var regionName: String = ""
         var value: Double = 0.0
