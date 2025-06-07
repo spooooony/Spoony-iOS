@@ -175,7 +175,7 @@ extension EditProfileView {
             SpoonyTextEditor(
                 text: $store.introduction,
                 style: .profileEdit,
-                placeholder: "",
+                placeholder: "안녕! 나는 어떤 스푼이냐면...",
                 isError: .constant(false)
             )
         }
