@@ -241,16 +241,14 @@ struct ProfileView: View {
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 8)
             
-            let introText = store.introduction.isEmpty ?
-                (store.errorMessage != nil ? "자기소개가 없습니다." : "") : store.introduction
+            let introText = store.introduction.isEmpty ? "안녕! 난 어떤 스푼이냐면…" : store.introduction
+            let isDefaultIntro = store.introduction.isEmpty
                 
-            if !introText.isEmpty {
-                Text(introText)
-                    .customFont(.caption1m)
-                    .foregroundStyle(.gray600)
-                    .lineLimit(nil)
-                    .multilineTextAlignment(.leading)
-            }
+            Text(introText)
+                .customFont(.caption1m)
+                .foregroundStyle(.gray600)  
+                .lineLimit(nil)
+                .multilineTextAlignment(.leading)
         }
     }
     
