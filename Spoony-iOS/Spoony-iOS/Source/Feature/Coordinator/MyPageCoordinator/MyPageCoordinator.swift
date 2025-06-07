@@ -31,6 +31,7 @@ struct MyPageCoordinator {
         
         case routeToRegister
         case routeToEditReviewScreen(Int)
+        case routeToPostScreen(Int)
         case routeToLoginScreen
         case routeToSettingsScreen
         case routeToEditProfileScreen
@@ -51,6 +52,12 @@ struct MyPageCoordinator {
                 
             case .router(.routeAction(id: _, action: .profile(.routeToEditReviewScreen(let postId)))):
                 return .send(.routeToEditReviewScreen(postId))
+                
+            case .router(.routeAction(id: _, action: .profile(.routeToReviewDetail(let postId)))):
+                return .send(.routeToPostScreen(postId))
+                
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToReviewDetail(let postId)))):
+                return .send(.routeToPostScreen(postId))
                 
             case .router(.routeAction(id: _, action: .profile(.routeToFollowingScreen))):
                 state.routes.push(.follow(.initialState))
@@ -73,6 +80,9 @@ struct MyPageCoordinator {
                  .router(.routeAction(id: _, action: .follow(.routeToPreviousScreen))),
                  .router(.routeAction(id: _, action: .otherProfile(.routeToPreviousScreen))):
                 state.routes.goBack()
+                return .none
+                
+            case .routeToPostScreen, .routeToEditReviewScreen, .routeToSettingsScreen, .routeToEditProfileScreen, .routeToAttendanceScreen:
                 return .none
                 
             default:
