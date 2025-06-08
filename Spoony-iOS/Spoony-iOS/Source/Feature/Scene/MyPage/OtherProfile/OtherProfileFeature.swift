@@ -206,7 +206,7 @@ struct OtherProfileFeature {
                 state.reviews = []
                 state.toast = Toast(
                     style: .gray,
-                    message: "사용자를 차단했습니다",
+                    message: "해당 유저가 차단되었어요.",
                     yOffset: UIScreen.main.bounds.height - 200.adjustedH
                 )
 
