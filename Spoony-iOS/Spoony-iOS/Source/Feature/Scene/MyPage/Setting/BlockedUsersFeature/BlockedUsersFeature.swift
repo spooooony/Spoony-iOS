@@ -30,9 +30,9 @@ struct BlockedUsersFeature {
         case fetchBlockedUsersResponse(TaskResult<BlockedUsersResponse>)
         case unblockUser(Int)
         case unblockUserResponse(userId: Int, TaskResult<Bool>)
-        case reblockUser(Int) // 재차단 액션 추가
+        case reblockUser(Int)
         case reblockUserResponse(userId: Int, TaskResult<Void>)
-        case onScrollEvent // 스크롤 이벤트 액션 추가
+        case onScrollEvent
     }
     
     @Dependency(\.myPageService) var myPageService
@@ -81,7 +81,6 @@ struct BlockedUsersFeature {
                 state.processingUserIds.remove(userId)
                 
                 if isSuccess {
-                    // 리스트에서 바로 제거하지 않고, 해제된 사용자로 마킹
                     state.unblockedUserIds.insert(userId)
                 }
                 
@@ -104,7 +103,6 @@ struct BlockedUsersFeature {
             case let .reblockUserResponse(userId, .success):
                 state.reblockingUserIds.remove(userId)
                 
-                // 재차단 성공 시 해제된 사용자 목록에서 제거
                 state.unblockedUserIds.remove(userId)
                 
                 return .none
@@ -114,7 +112,6 @@ struct BlockedUsersFeature {
                 return .none
                 
             case .onScrollEvent:
-                // 스크롤 시에만 해제된 사용자들을 리스트에서 실제로 제거
                 let userIdsToRemove = state.unblockedUserIds
                 if !userIdsToRemove.isEmpty {
                     state.blockedUsers.removeAll { userIdsToRemove.contains($0.userId) }
