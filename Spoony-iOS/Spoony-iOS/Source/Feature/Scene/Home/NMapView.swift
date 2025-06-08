@@ -139,7 +139,6 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
         super.init()
     }
     
-    // Update or create user location marker
     func updateUserLocationMarker(mapView: NMFMapView, location: CLLocation) {
         if userLocationMarker == nil {
             userLocationMarker = NMFMarker()
@@ -264,7 +263,6 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
         marker.touchHandler = { [weak self] _ -> Bool in
             guard let self = self else { return false }
             
-            // 중복 터치 방지
             if self.isProcessingMarkerTouch { return true }
             self.isProcessingMarkerTouch = true
             
@@ -277,7 +275,7 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
                 
                 for (_, m) in self.markers {
                     m.iconImage = self.defaultMarkerImage
-                }           
+                }
                 
                 marker.iconImage = self.selectedMarkerImage
                 

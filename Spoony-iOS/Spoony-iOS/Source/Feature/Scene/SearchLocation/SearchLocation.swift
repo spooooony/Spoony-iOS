@@ -34,12 +34,12 @@ struct SearchLocationView: View {
                     ),
                     isLocationFocused: store.mapState.isLocationFocused,
                     userLocation: store.mapState.userLocation,
-                    focusedPlaces: store.focusedPlaces,
+                    focusedPlaces: store.mapState.focusedPlaces,
                     pickList: store.pickList,
                     selectedLocation: store.mapState.selectedLocation
                 )
                 .edgesIgnoringSafeArea(.all)
-                .onChange(of: store.focusedPlaces) { _, newPlaces in
+                .onChange(of: store.mapState.focusedPlaces) { _, newPlaces in
                     store.send(.updatePlaces(focusedPlaces: newPlaces))
                 }
                 
@@ -56,10 +56,10 @@ struct SearchLocationView: View {
                 }
                 
                 Group {
-                    if !store.focusedPlaces.isEmpty {
+                    if !store.mapState.focusedPlaces.isEmpty {
                         PlaceCard(
                             store: store.scope(state: \.mapState, action: \.map),
-                            places: store.focusedPlaces,
+                            places: store.mapState.focusedPlaces,
                             currentPage: Binding(
                                 get: { store.mapState.currentPage },
                                 set: { store.send(.map(.setCurrentPage($0))) }
