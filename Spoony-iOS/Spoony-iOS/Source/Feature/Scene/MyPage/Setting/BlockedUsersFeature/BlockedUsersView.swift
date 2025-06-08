@@ -120,15 +120,28 @@ struct BlockedUsersView: View {
                     BlockedUserRow(
                         user: user,
                         isProcessing: store.processingUserIds.contains(user.userId),
+                        isUnblocked: store.unblockedUserIds.contains(user.userId),
+                        isReblocking: store.reblockingUserIds.contains(user.userId),
                         unblockAction: {
                             store.send(.unblockUser(user.userId))
+                        },
+                        reblockAction: {
+                            store.send(.reblockUser(user.userId))
                         }
                     )
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .alignmentGuide(.listRowSeparatorLeading) { $0[.leading] }
+                    .onAppear {
+                        if user.userId == store.blockedUsers.last?.userId {
+                            store.send(.onScrollEvent)
+                        }
+                    }
                 }
             }
             .listStyle(.plain)
+            .refreshable {
+                store.send(.fetchBlockedUsers)
+            }
         }
     }
 }
@@ -136,11 +149,13 @@ struct BlockedUsersView: View {
 struct BlockedUserRow: View {
     let user: BlockedUserModel
     let isProcessing: Bool
+    let isUnblocked: Bool
+    let isReblocking: Bool
     let unblockAction: () -> Void
+    let reblockAction: () -> Void
     
     var body: some View {
         HStack(spacing: 16.adjusted) {
-            // 프로필 이미지
             AsyncImage(url: URL(string: user.profileImageUrl)) { phase in
                 if let image = phase.image {
                     image.resizable()
@@ -153,7 +168,6 @@ struct BlockedUserRow: View {
             .frame(width: 60.adjusted, height: 60.adjustedH)
             .clipShape(Circle())
             
-            // 유저 정보
             VStack(alignment: .leading, spacing: 2) {
                 Text(user.username)
                     .customFont(.body2sb)
@@ -166,10 +180,15 @@ struct BlockedUserRow: View {
             
             Spacer()
             
-            // 차단 해제 버튼
-            BlockButton(isProcessing: isProcessing, action: unblockAction)
-                .contentShape(Rectangle())
-                .buttonStyle(.borderless)
+            BlockButton(
+                isProcessing: isProcessing,
+                isUnblocked: isUnblocked,
+                isReblocking: isReblocking,
+                unblockAction: unblockAction,
+                reblockAction: reblockAction
+            )
+            .contentShape(Rectangle())
+            .buttonStyle(.borderless)
         }
         .contentShape(Rectangle())
         .padding(.horizontal, 20.adjusted)
@@ -179,31 +198,40 @@ struct BlockedUserRow: View {
 
 struct BlockButton: View {
     var isProcessing: Bool
-    var action: () -> Void
+    var isUnblocked: Bool
+    var isReblocking: Bool
+    var unblockAction: () -> Void
+    var reblockAction: () -> Void
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            if isUnblocked {
+                reblockAction()
+            } else {
+                unblockAction()
+            }
+        }) {
             HStack(spacing: 4) {
-                if isProcessing {
+                if isProcessing || isReblocking {
                     ProgressView()
                         .scaleEffect(0.7)
                         .tint(.gray500)
                 } else {
-                    Text("해제")
+                    Text(isUnblocked ? "차단" : "해제")
                         .customFont(.body2sb)
-                        .foregroundColor(.gray500)
+                        .foregroundColor(isUnblocked ? .white : .gray500)
                 }
             }
             .padding(.horizontal, 14.adjusted)
             .padding(.vertical, 8.adjustedH)
-            .background(Color.gray0)
+            .background(isUnblocked ? Color.red : Color.gray0)
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(Color.gray100, lineWidth: 1)
+                    .strokeBorder(isUnblocked ? Color.red : Color.gray100, lineWidth: 1)
             )
         }
-        .disabled(isProcessing)
+        .disabled(isProcessing || isReblocking)
     }
 }
 

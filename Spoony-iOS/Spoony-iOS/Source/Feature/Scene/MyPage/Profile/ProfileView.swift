@@ -184,7 +184,6 @@ struct ProfileView: View {
     private var statsCounters: some View {
         HStack(spacing: 54) {
             statCounter(title: "리뷰", count: store.reviewCount) {
-                // 리뷰 스크롤로 이동하는 로직 추가 가능
             }
             
             statCounter(title: "팔로워", count: store.followerCount) {
@@ -338,6 +337,7 @@ struct ProfileView: View {
                     onEdit: { feed in
                         store.send(.routeToEditReviewScreen(feed.postId))
                     }
+
                 )
                 .padding(.horizontal, 20)
                 .onTapGesture {
