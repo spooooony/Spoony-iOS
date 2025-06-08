@@ -133,15 +133,14 @@ struct ProfileView: View {
     }
     
     private var profileHeader: some View {
-        HStack(alignment: .center, spacing: 24) {
+        HStack(alignment: .center, spacing: 39) {
             profileImage
-            
-            Spacer()
-            
+                        
             statsCounters
         }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 24)
+        .padding(.leading, 20.adjusted)
+        .padding(.trailing, 44.adjusted)
+        .padding(.bottom, 24.adjustedH)
     }
     
     private var profileImage: some View {
