@@ -97,6 +97,7 @@ struct MapFeature {
         case setBottomSheetStyle(BottomSheetStyle)
         case setSearchText(String)
         case applyFilters
+        case toggleGPSTracking
         
         case checkDailyVisit
         case setShowDailySpoonPopup(Bool)
@@ -275,17 +276,7 @@ struct MapFeature {
                 state.selectedPlace = nil
                 state.selectedLocation = nil
                 return .none
-        
-            case .moveToUserLocation:
-                guard let userLocation = state.userLocation else {
-                    return .none
-                }
-                
-                state.isLocationFocused = true
-                state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
-                
-                return .send(.clearFocusedPlaces)
-                
+
             case let .updateUserLocation(location):
                 state.userLocation = location
                 return .none
@@ -329,6 +320,31 @@ struct MapFeature {
                 
                 state.isLocationFocused = false
                 return .none
+                
+            case .toggleGPSTracking:
+                if state.isLocationFocused {
+                    state.isLocationFocused = false
+                    state.selectedLocation = nil
+                    return .send(.clearFocusedPlaces)
+                } else {
+                    guard let userLocation = state.userLocation else {
+                        return .none
+                    }
+                    state.isLocationFocused = true
+                    state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
+                    return .send(.clearFocusedPlaces)
+                }
+
+            case .moveToUserLocation:
+                guard let userLocation = state.userLocation else {
+                    return .none
+                }
+                
+                print("📍 현재 사용자 위치: \(userLocation.coordinate.latitude), \(userLocation.coordinate.longitude)")
+                state.isLocationFocused = true
+                state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
+                
+                return .send(.clearFocusedPlaces)
 
             case let .focusedPlaceResponse(.failure(error)):
                 state.isLoading = false
