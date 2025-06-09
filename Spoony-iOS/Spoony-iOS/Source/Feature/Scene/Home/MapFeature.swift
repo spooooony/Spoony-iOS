@@ -2,12 +2,12 @@
 //  MapFeature.swift
 //  Spoony-iOS
 //
-//  Created by 최안용 on 4/6/25.
+//  Created by 이지훈 on 1/14/25.
 //
 
 import Foundation
-import CoreLocation
 import ComposableArchitecture
+import CoreLocation
 
 @Reducer
 struct MapFeature {
@@ -19,6 +19,7 @@ struct MapFeature {
         var filteredPickList: [PickListCardResponse] = []
         var focusedPlaces: [CardPlace] = []
         var selectedPlace: CardPlace? = nil
+        
         var currentPage: Int = 0
         var isLoading: Bool = false
         var isLocationFocused: Bool = false
@@ -34,7 +35,6 @@ struct MapFeature {
         
         var searchText: String = ""
         
-        // 사용자 이름 추가
         var userName: String = "스푸니"
         
         var showDailySpoonPopup: Bool = false
@@ -50,7 +50,6 @@ struct MapFeature {
             lhs.currentPage == rhs.currentPage &&
             lhs.isLoading == rhs.isLoading &&
             lhs.isLocationFocused == rhs.isLocationFocused &&
-            // CLLocation은 좌표값을 비교
             (lhs.userLocation?.coordinate.latitude == rhs.userLocation?.coordinate.latitude &&
              lhs.userLocation?.coordinate.longitude == rhs.userLocation?.coordinate.longitude) &&
             lhs.selectedLocation?.latitude == rhs.selectedLocation?.latitude &&
@@ -61,7 +60,7 @@ struct MapFeature {
             lhs.currentBottomSheetStyle == rhs.currentBottomSheetStyle &&
             lhs.bottomSheetHeight == rhs.bottomSheetHeight &&
             lhs.searchText == rhs.searchText &&
-            lhs.userName == rhs.userName && // 사용자 이름 비교 추가
+            lhs.userName == rhs.userName &&
             lhs.showDailySpoonPopup == rhs.showDailySpoonPopup &&
             lhs.isDrawingSpoon == rhs.isDrawingSpoon &&
             lhs.drawnSpoon == rhs.drawnSpoon &&
@@ -93,10 +92,12 @@ struct MapFeature {
         case clearFocusedPlaces
         case moveToUserLocation
         case updateUserLocation(CLLocation)
+        case focusToLocation(CLLocationCoordinate2D)
         case selectCategory(CategoryChip)
         case setBottomSheetStyle(BottomSheetStyle)
         case setSearchText(String)
         case applyFilters
+        case toggleGPSTracking
         
         case checkDailyVisit
         case setShowDailySpoonPopup(Bool)
@@ -111,6 +112,9 @@ struct MapFeature {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .routeToExploreTab:
+                return .none
+                
             case .fetchUserInfo:
                 return .run { send in
                     let result = await TaskResult {
@@ -148,30 +152,35 @@ struct MapFeature {
                 state.spoonDrawError = nil
                 
                 return .run { send in
-                    let result = await TaskResult { try await homeService.drawDailySpoon() }
+                    let result = await TaskResult {
+                        try await homeService.drawDailySpoon()
+                    }
                     await send(.spoonDrawResponse(result))
                 }
                 
             case let .spoonDrawResponse(.success(response)):
                 state.isDrawingSpoon = false
                 state.drawnSpoon = response
-                
-                return .send(.fetchSpoonCount)
+                return .none
                 
             case let .spoonDrawResponse(.failure(error)):
                 state.isDrawingSpoon = false
                 state.spoonDrawError = error.localizedDescription
-                print("스푼 뽑기 오류: \(error.localizedDescription)")
                 return .none
-            
-            case .routToSearchScreen, .routeToExploreTab, .routeToPostView:
+                
+            case .routToSearchScreen:
+                return .none
+                
+            case let .routeToPostView(postId):
                 return .none
                 
             case .fetchPickList:
                 state.isLoading = true
                 return .run { send in
-                    let result = await TaskResult { try await homeService.fetchPickList() }
-                    await send(.pickListResponse(result))
+                    let pickListResult = await TaskResult {
+                        try await homeService.fetchPickList()
+                    }
+                    await send(.pickListResponse(pickListResult))
                 }
                 
             case let .pickListResponse(.success(response)):
@@ -182,49 +191,36 @@ struct MapFeature {
                 
             case let .pickListResponse(.failure(error)):
                 state.isLoading = false
-                print("Error fetching pickList: \(error)")
+                print("Pick list fetch error: \(error)")
                 return .none
                 
             case let .fetchFocusedPlace(placeId):
-                print("포커스 장소 조회 시작: placeId=\(placeId)")
                 state.isLoading = true
-                
-                if let selectedPlace = state.filteredPickList.first(where: { $0.placeId == placeId }) {
-                    state.selectedLocation = (selectedPlace.latitude, selectedPlace.longitude)
-                }
-                
                 return .run { send in
-                    do {
-                        let response = try await homeService.fetchFocusedPlace(placeId: placeId)
-                        print("포커스 장소 조회 성공: \(response.zzimFocusResponseList.count)개 장소")
-                        await send(.focusedPlaceResponse(.success(response)))
-                    } catch {
-                        print("포커스 장소 조회 실패: \(error)")
-                        await send(.focusedPlaceResponse(.failure(error)))
+                    let result = await TaskResult {
+                        try await homeService.fetchFocusedPlace(placeId: placeId)
                     }
+                    await send(.focusedPlaceResponse(result))
                 }
                 
             case let .fetchLocationList(locationId):
                 state.isLoading = true
                 return .run { send in
-                    await send(.clearFocusedPlaces)
-                    let result = await TaskResult { try await homeService.fetchLocationList(locationId: locationId) }
+                    let result = await TaskResult {
+                        try await homeService.fetchLocationList(locationId: locationId)
+                    }
                     await send(.locationListResponse(result))
                 }
                 
             case let .locationListResponse(.success(response)):
                 state.isLoading = false
                 state.pickList = response.zzimCardResponses
-                state.filteredPickList = filterPickList(state.pickList, with: state.selectedCategories)
-                if let firstPlace = state.filteredPickList.first {
-                    state.selectedLocation = (firstPlace.latitude, firstPlace.longitude)
-                }
-                state.isLocationFocused = false
+                state.filteredPickList = response.zzimCardResponses
                 return .none
                 
             case let .locationListResponse(.failure(error)):
                 state.isLoading = false
-                print("Error in fetchLocationList: \(error)")
+                print("Location list fetch error: \(error)")
                 return .none
                 
             case .fetchSpoonCount:
@@ -238,7 +234,7 @@ struct MapFeature {
                 return .none
                 
             case let .spoonCountResponse(.failure(error)):
-                print("Error fetching spoon count: \(error)")
+                print("Spoon count fetch error: \(error)")
                 return .none
                 
             case .fetchCategories:
@@ -276,26 +272,19 @@ struct MapFeature {
                 return .none
                 
             case .clearFocusedPlaces:
-                print("기존 포커스 장소 초기화")
                 state.focusedPlaces = []
                 state.selectedPlace = nil
                 state.selectedLocation = nil
                 return .none
-        
-            case .moveToUserLocation:
-                guard let userLocation = state.userLocation else {
-                    return .none
-                }
-                
-                print("📍 현재 사용자 위치: \(userLocation.coordinate.latitude), \(userLocation.coordinate.longitude)")
-                state.isLocationFocused = true
-                state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
-                
-                return .send(.clearFocusedPlaces)
-                
+
             case let .updateUserLocation(location):
                 state.userLocation = location
                 return .none
+                
+            case let .focusToLocation(coordinate):
+                state.selectedLocation = (coordinate.latitude, coordinate.longitude)
+                state.isLocationFocused = true
+                return .send(.clearFocusedPlaces)
                 
             case let .selectCategory(category):
                 state.selectedCategories = [category]
@@ -316,7 +305,6 @@ struct MapFeature {
                 return .none
                 
             case let .focusedPlaceResponse(.success(response)):
-                print("포커스 장소 응답 처리")
                 state.isLoading = false
                 let places = response.zzimFocusResponseList.map { $0.toCardPlace() }
                 
@@ -326,13 +314,37 @@ struct MapFeature {
                     state.currentPage = 0
                     state.currentBottomSheetStyle = .half
                 } else {
-                    print("포커스 장소 데이터 없음")
                     state.focusedPlaces = []
                     state.selectedPlace = nil
                 }
                 
                 state.isLocationFocused = false
                 return .none
+                
+            case .toggleGPSTracking:
+                if state.isLocationFocused {
+                    state.isLocationFocused = false
+                    state.selectedLocation = nil
+                    return .send(.clearFocusedPlaces)
+                } else {
+                    guard let userLocation = state.userLocation else {
+                        return .none
+                    }
+                    state.isLocationFocused = true
+                    state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
+                    return .send(.clearFocusedPlaces)
+                }
+
+            case .moveToUserLocation:
+                guard let userLocation = state.userLocation else {
+                    return .none
+                }
+                
+                print("📍 현재 사용자 위치: \(userLocation.coordinate.latitude), \(userLocation.coordinate.longitude)")
+                state.isLocationFocused = true
+                state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
+                
+                return .send(.clearFocusedPlaces)
 
             case let .focusedPlaceResponse(.failure(error)):
                 state.isLoading = false

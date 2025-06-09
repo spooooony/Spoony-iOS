@@ -112,6 +112,9 @@ struct TabCoordinator {
             case .myPage(.router(.routeAction(id: _, action: .profile(.routeToEditReviewScreen(let postId))))):
                 return .send(.routeToEditReview(postId))
                 
+            case .myPage(.routeToPostScreen(let postId)):
+                return .send(.routeToPost(postId))
+                
             case .myPage(.router(.routeAction(id: _, action: .profile(.routeToSettingsScreen)))):
                 return .send(.routeToSettings)
                 

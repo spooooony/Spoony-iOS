@@ -16,7 +16,7 @@ struct FocusPlaceResponse: Codable {
     let placeName: String
     let categoryColorResponse: MapFocusCategoryColorResponse
     let authorName: String
-    let authorRegionName: String
+    let authorRegionName: String?
     let postId: Int
     let description: String
     let zzimCount: Int
@@ -38,7 +38,7 @@ extension FocusPlaceResponse {
             postId: postId,
             name: placeName,
             visitorCount: "\(zzimCount)",
-            address: authorRegionName,
+            address: authorRegionName ?? "",  
             images: photoUrlList,
             title: authorName,
             subTitle: description,

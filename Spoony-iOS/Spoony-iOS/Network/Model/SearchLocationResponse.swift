@@ -24,6 +24,7 @@ struct SearchLocationResult: Codable, Identifiable {
     let title: String
     let address: String
     let postTitle: String?
+    let description: String?
     let photoUrl: String?
     let latitude: Double?
     let longitude: Double?

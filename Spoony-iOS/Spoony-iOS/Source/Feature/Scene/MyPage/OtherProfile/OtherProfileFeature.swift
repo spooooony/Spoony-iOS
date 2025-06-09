@@ -49,6 +49,10 @@ struct OtherProfileFeature {
         case followButtonTapped
         case followActionResponse(TaskResult<Void>)
         
+        case routeToFollowingScreen
+        case routeToFollowerScreen
+        case routeToFollowScreen(tab: Int)
+        
         case kebabMenuTapped
         case menuItemSelected(String)
         case dismissMenu
@@ -61,6 +65,7 @@ struct OtherProfileFeature {
         case cancelUnblock
         case blockActionResponse(TaskResult<Void>)
         case unblockActionResponse(TaskResult<Void>)
+        case routeToReviewDetail(Int)
         
         case hideToast
         case routeToReportScreen(Int)
@@ -147,6 +152,12 @@ struct OtherProfileFeature {
                 print("Follow action failed: \(error.localizedDescription)")
                 return .none
                 
+            case .routeToFollowingScreen:
+                return .send(.routeToFollowScreen(tab: 1))
+                
+            case .routeToFollowerScreen:
+                return .send(.routeToFollowScreen(tab: 0))
+                
             case .kebabMenuTapped:
                 state.isMenuPresented.toggle()
                 return .none
@@ -205,7 +216,7 @@ struct OtherProfileFeature {
                 state.reviews = []
                 state.toast = Toast(
                     style: .gray,
-                    message: "사용자를 차단했습니다",
+                    message: "해당 유저가 차단되었어요.",
                     yOffset: UIScreen.main.bounds.height - 200.adjustedH
                 )
 
@@ -230,9 +241,7 @@ struct OtherProfileFeature {
                 state.toast = nil
                 return .none
                 
-            case .routeToPreviousScreen:
-                return .none
-            case .routeToReportScreen:
+            case .routeToPreviousScreen, .routeToReviewDetail, .routeToReportScreen, .routeToFollowScreen:
                 return .none
             }
         }

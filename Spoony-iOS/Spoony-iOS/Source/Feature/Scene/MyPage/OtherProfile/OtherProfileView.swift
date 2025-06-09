@@ -125,9 +125,8 @@ private extension OtherProfileView {
     }
     
     var profileHeader: some View {
-        HStack(alignment: .center, spacing: 24) {
+        HStack(alignment: .center, spacing: 39) {
             profileImage
-            Spacer()
             statsCounters
         }
         .padding(.horizontal, 20)
@@ -171,17 +170,34 @@ private extension OtherProfileView {
     
     var statsCounters: some View {
         HStack(spacing: 54) {
-            statCounter(title: "리뷰", count: store.isBlocked ? 0 : store.reviewCount)
-            statCounter(title: "팔로워", count: store.isBlocked ? 0 : store.followerCount)
-            statCounter(title: "팔로잉", count: store.isBlocked ? 0 : store.followingCount)
+            statCounter(title: "리뷰", count: store.isBlocked ? 0 : store.reviewCount) {
+            }
+            
+            statCounter(title: "팔로워", count: store.isBlocked ? 0 : store.followerCount) {
+                if !store.isBlocked {
+                    store.send(.routeToFollowerScreen)
+                }
+            }
+            
+            statCounter(title: "팔로잉", count: store.isBlocked ? 0 : store.followingCount) {
+                if !store.isBlocked {
+                    store.send(.routeToFollowingScreen)
+                }
+            }
         }
     }
     
-    func statCounter(title: String, count: Int) -> some View {
+    func statCounter(title: String, count: Int, action: @escaping () -> Void = {}) -> some View {
         VStack(spacing: 8) {
-            Text(title).customFont(.caption1b).foregroundStyle(.gray400)
-            Text("\(count)").customFont(.body1sb).foregroundStyle(.spoonBlack)
+            Text(title)
+                .customFont(.caption1b)
+                .foregroundStyle(.gray400)
+                .lineLimit(1)
+            Text("\(count)")
+                .customFont(.body1sb)
+                .foregroundStyle(.spoonBlack)
         }
+        .onTapGesture(perform: action)
     }
     
     var profileInfo: some View {
@@ -345,6 +361,9 @@ private extension OtherProfileView {
             ForEach(reviews) { review in
                 ExploreCell(feed: review, onDelete: nil, onEdit: nil)
                     .padding(.horizontal, 20)
+                    .onTapGesture {
+                        store.send(.routeToReviewDetail(review.postId))
+                    }
             }
         }
         .padding(.top, 16)

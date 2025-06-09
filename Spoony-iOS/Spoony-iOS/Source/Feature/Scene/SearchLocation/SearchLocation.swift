@@ -34,12 +34,12 @@ struct SearchLocationView: View {
                     ),
                     isLocationFocused: store.mapState.isLocationFocused,
                     userLocation: store.mapState.userLocation,
-                    focusedPlaces: store.focusedPlaces,
+                    focusedPlaces: store.mapState.focusedPlaces,
                     pickList: store.pickList,
-                    selectedLocation: store.selectedLocation
+                    selectedLocation: store.mapState.selectedLocation
                 )
                 .edgesIgnoringSafeArea(.all)
-                .onChange(of: store.focusedPlaces) { _, newPlaces in
+                .onChange(of: store.mapState.focusedPlaces) { _, newPlaces in
                     store.send(.updatePlaces(focusedPlaces: newPlaces))
                 }
                 
@@ -56,10 +56,10 @@ struct SearchLocationView: View {
                 }
                 
                 Group {
-                    if !store.focusedPlaces.isEmpty {
+                    if !store.mapState.focusedPlaces.isEmpty {
                         PlaceCard(
                             store: store.scope(state: \.mapState, action: \.map),
-                            places: store.focusedPlaces,
+                            places: store.mapState.focusedPlaces,
                             currentPage: Binding(
                                 get: { store.mapState.currentPage },
                                 set: { store.send(.map(.setCurrentPage($0))) }
@@ -86,6 +86,12 @@ struct SearchLocationView: View {
         .onAppear {
             store.send(.onAppear)
             store.send(.map(.fetchUserInfo))
+            
+            if let lat = store.searchedLatitude, let lng = store.searchedLongitude {
+                let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lng)
+                store.send(.map(.focusToLocation(coordinate)))
+            }
+            
             Task {
                 await viewModel.fetchLocationList(locationId: store.locationId)
             }
@@ -94,17 +100,4 @@ struct SearchLocationView: View {
             viewModel.pickList = newPickList
         }
     }
-}
-
-#Preview {
-    SearchLocationView(
-        store: Store(
-            initialState: SearchLocationFeature.State(
-                locationId: 1,
-                locationTitle: "테스트 장소"
-            )
-        ) {
-            SearchLocationFeature()
-        }
-    )
 }
