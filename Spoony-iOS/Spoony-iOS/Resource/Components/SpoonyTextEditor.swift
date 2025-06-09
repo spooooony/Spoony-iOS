@@ -70,8 +70,9 @@ extension SpoonyTextEditor {
                 .focused($isFocused)
                 .customFont(.body2m)
                 .overlay(alignment: .topLeading) {
-                    Text("\(placeholder)")
+                    Text("\(placeholder.splitZeroWidthSpace())")
                         .customFont(.body2m)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .foregroundStyle(text.isEmpty ? .gray500 : .clear)
                         .offset(x: 5.adjusted, y: 8.adjustedH)
                 }
@@ -107,11 +108,8 @@ extension SpoonyTextEditor {
             Text("\(text.count) / \(style.maximumInput)")
                 .customFont(.caption1m)
                 .foregroundStyle(errorState != .noError && errorState != .initial ? .error400 : .gray500)
-                .padding(.trailing, 5)
-                .padding(.bottom, 7)
         }
-        .padding(.horizontal, 7)
-        .padding(.vertical, 5)
+        .padding(.all, 12)
         .frame(width: style.width, height: style.height)
         .background {
             RoundedRectangle(cornerRadius: 8)

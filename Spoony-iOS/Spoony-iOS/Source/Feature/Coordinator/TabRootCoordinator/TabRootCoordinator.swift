@@ -175,7 +175,9 @@ struct TabRootCoordinator {
                     return .none
                 case .registerSuccess:
                     state.routes.goBack()
-                    return .none
+                    return .concatenate(
+                                .send(.router(.routeAction(id: 0, action: .tab(.switchToExploreTab))))
+                            )
                 }
                 
             case .updatePopup(let popup):
