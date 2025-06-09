@@ -70,7 +70,6 @@ struct Alert: Equatable {
 }
 
 struct AlertView: View {
-//    @Binding var isPresented: Bool
     @Binding var isOpacityZero: Bool
     let alertType: AlertType
     let alert: Alert

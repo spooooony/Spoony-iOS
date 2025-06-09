@@ -8,6 +8,13 @@
 import Foundation
 
 extension Date {
+    private static var exploreCellDateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "yyyy년 MM월 dd일"
+        return formatter
+    }
+    
     var relativeTimeNamed: String {
         let now = Date()
         
@@ -27,10 +34,7 @@ extension Date {
             let hours = secondsAgo / (60 * 60)
             return "약 \(hours)시간 전"
         } else {
-            let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "ko_KR")
-            formatter.dateFormat = "yyyy년 MM월 dd일"
-            return formatter.string(from: self)
+            return Self.exploreCellDateFormatter.string(from: self)
         }
     }
 }
