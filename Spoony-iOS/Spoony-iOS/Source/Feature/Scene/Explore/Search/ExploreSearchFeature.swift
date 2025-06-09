@@ -83,6 +83,9 @@ struct ExploreSearchFeature {
                 return .send(.setRecentSearchList)
             case .changeViewType(let type):
                 state.viewType = type
+                if state.searchState == .searchResult || state.searchState == .noResult {
+                    return .send(.setRecentSearchList)
+                }
                 if state.searchState != .searching {
                     return .send(.updateSearchStateFromRecentSearches)
                 }
@@ -223,7 +226,7 @@ struct ExploreSearchFeature {
                 if !success {
                     return .send(.error(SNError.networkFail))
                 }
-                return .none
+                return .send(.setRecentSearchList)
             case .routeToEditReviewScreen:
                 return .none
             case .binding(\.searchText):
