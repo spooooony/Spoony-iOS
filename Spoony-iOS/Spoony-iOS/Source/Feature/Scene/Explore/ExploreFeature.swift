@@ -175,7 +175,7 @@ struct ExploreFeature {
                     state.followingList = list
                 }
                 
-                if state.nextCursor == nextCursor {
+                if state.nextCursor != nil || nextCursor == nil {
                     state.isLast = true
                 }
                 
