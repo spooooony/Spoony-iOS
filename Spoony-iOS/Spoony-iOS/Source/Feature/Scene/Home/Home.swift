@@ -98,7 +98,7 @@ struct Home: View {
             }
             
             ZStack(alignment: .bottomTrailing) {
-                if store.currentBottomSheetStyle != .full {
+                if store.currentBottomSheetStyle != .full && store.focusedPlaces.isEmpty {
                     Button(action: {
                         handleGPSButtonTap()
                     }) {
@@ -114,7 +114,10 @@ struct Home: View {
                                 .frame(width: 24.adjusted, height: 24.adjusted)
                         }
                     }
-                    .padding(.bottom, store.bottomSheetHeight - 68)
+                    .padding(.bottom, store.filteredPickList.isEmpty ?
+                        (UIScreen.main.bounds.height * 0.5 - 68) :
+                        (store.bottomSheetHeight - 68)
+                    )
                     .padding(.trailing, 20)
                 }
                 
