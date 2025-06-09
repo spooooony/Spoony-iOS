@@ -35,6 +35,9 @@ struct FollowListView: View {
         .task {
             await store.send(.onAppear).finish()
         }
+        .onAppear {
+            currentTab = store.initialTab
+        }
     }
 }
 

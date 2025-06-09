@@ -133,15 +133,14 @@ struct ProfileView: View {
     }
     
     private var profileHeader: some View {
-        HStack(alignment: .center, spacing: 24) {
+        HStack(alignment: .center, spacing: 39) {
             profileImage
-            
-            Spacer()
-            
+                        
             statsCounters
         }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 24)
+        .padding(.leading, 20.adjusted)
+        .padding(.trailing, 44.adjusted)
+        .padding(.bottom, 24.adjustedH)
     }
     
     private var profileImage: some View {
@@ -184,7 +183,6 @@ struct ProfileView: View {
     private var statsCounters: some View {
         HStack(spacing: 54) {
             statCounter(title: "리뷰", count: store.reviewCount) {
-                // 리뷰 스크롤로 이동하는 로직 추가 가능
             }
             
             statCounter(title: "팔로워", count: store.followerCount) {
@@ -202,6 +200,7 @@ struct ProfileView: View {
             Text(title)
                 .customFont(.caption1b)
                 .foregroundStyle(.gray400)
+                .lineLimit(1)
             Text("\(count)")
                 .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
@@ -241,16 +240,14 @@ struct ProfileView: View {
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 8)
             
-            let introText = store.introduction.isEmpty ?
-                (store.errorMessage != nil ? "자기소개가 없습니다." : "") : store.introduction
+            let introText = store.introduction.isEmpty ? "안녕! 난 어떤 스푼이냐면…" : store.introduction
+            let isDefaultIntro = store.introduction.isEmpty
                 
-            if !introText.isEmpty {
-                Text(introText)
-                    .customFont(.caption1m)
-                    .foregroundStyle(.gray600)
-                    .lineLimit(nil)
-                    .multilineTextAlignment(.leading)
-            }
+            Text(introText)
+                .customFont(.caption1m)
+                .foregroundStyle(.gray600)  
+                .lineLimit(nil)
+                .multilineTextAlignment(.leading)
         }
     }
     
@@ -340,8 +337,12 @@ struct ProfileView: View {
                     onEdit: { feed in
                         store.send(.routeToEditReviewScreen(feed.postId))
                     }
+
                 )
                 .padding(.horizontal, 20)
+                .onTapGesture {
+                    store.send(.routeToReviewDetail(review.postId))
+                }
             }
         }
         .padding(.top, 16)
