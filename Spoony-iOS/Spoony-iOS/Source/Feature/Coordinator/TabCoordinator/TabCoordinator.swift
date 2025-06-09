@@ -45,6 +45,7 @@ struct TabCoordinator {
         case routeToEditProfile
         case routeToPost(Int)
         case routeToReport(Int)
+        case routeToRoot
         
         case presentToast(message: String)
     }
@@ -129,7 +130,13 @@ struct TabCoordinator {
             case .presentToast:
                 return .none
                 
-            default:    
+            case .routeToRoot:
+                state.map.routes = [.root(.map(.initialState), embedInNavigationView: false)]
+                state.explore.routes = [.root(.explore(.initialState), embedInNavigationView: false)]
+                state.myPage.routes = [.root(.profile(.initialState), embedInNavigationView: false)]
+                return .none
+                
+            default:
                 return .none
             }
         }

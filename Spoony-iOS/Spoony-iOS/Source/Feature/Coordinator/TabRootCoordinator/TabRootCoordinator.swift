@@ -54,6 +54,7 @@ struct TabRootCoordinator {
         case updateToast(Toast?)
         case updatePopup(PopupType?)
         case routeToLogin
+        case routeToRoot
     }
     
     var body: some ReducerOf<Self> {
@@ -153,7 +154,7 @@ struct TabRootCoordinator {
                     .router(.routeAction(id: _, action: .profile(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
-                
+
             // toast
             case .updateToast(let toast):
                 state.toast = toast
@@ -189,6 +190,16 @@ struct TabRootCoordinator {
                 return .none
                 
 //            case .router(.routeAction(id: _, action: .registerAndEdit(.presentPopup)))
+                
+            case .router(.routeAction(id: _, action: .report(.routeToRoot))):
+                return .send(.routeToRoot)
+                
+            case .routeToRoot:
+                repeat {
+                    state.routes.goBack()
+                } while state.routes.count > 1
+                
+                return .concatenate(.send(.router(.routeAction(id: 0, action: .tab(.routeToRoot)))))
                 
             default: return .none
             }
