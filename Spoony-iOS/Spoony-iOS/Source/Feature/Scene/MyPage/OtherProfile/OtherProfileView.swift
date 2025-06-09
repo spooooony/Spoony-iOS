@@ -49,8 +49,8 @@ private extension OtherProfileView {
     
     var navigationBar: some View {
         CustomNavigationBar(
-            style: store.isBlocked ? .detail : .detailWithKebab,
-            title: store.username,
+            style: store.isBlocked ? .backOnly : .detailWithKebab,
+            title: "", 
             onBackTapped: { store.send(.routeToPreviousScreen) },
             onKebabTapped: store.isBlocked ? nil : { store.send(.kebabMenuTapped) }
         )
@@ -170,7 +170,7 @@ private extension OtherProfileView {
     }
     
     var statsCounters: some View {
-        HStack(spacing: 54) {
+        HStack(spacing: 40.adjusted) { // spacing을 늘려서 텍스트 줄바꿈 방지
             statCounter(title: "리뷰", count: store.isBlocked ? 0 : store.reviewCount)
             statCounter(title: "팔로워", count: store.isBlocked ? 0 : store.followerCount)
             statCounter(title: "팔로잉", count: store.isBlocked ? 0 : store.followingCount)
@@ -179,9 +179,15 @@ private extension OtherProfileView {
     
     func statCounter(title: String, count: Int) -> some View {
         VStack(spacing: 8) {
-            Text(title).customFont(.caption1b).foregroundStyle(.gray400)
-            Text("\(count)").customFont(.body1sb).foregroundStyle(.spoonBlack)
+            Text(title)
+                .customFont(.caption1b)
+                .foregroundStyle(.gray400)
+                .fixedSize(horizontal: true, vertical: false) // 텍스트 줄바꿈 방지
+            Text("\(count)")
+                .customFont(.body1sb)
+                .foregroundStyle(.spoonBlack)
         }
+        .frame(minWidth: 50.adjusted) // 최소 너비 보장
     }
     
     var profileInfo: some View {
