@@ -224,10 +224,6 @@ extension Explore {
     private func followingListView(_ list: [FeedEntity]) -> some View {
         ScrollView {
             LazyVStack(spacing: 18) {
-                Rectangle()
-                    .fill(.clear)
-                    .frame(height: 16.5.adjustedH)
-            
                 ForEach(list) { feed in
                     ExploreCell(
                         feed: feed,
@@ -250,10 +246,6 @@ extension Explore {
     private func filteredListView(_ list: [FeedEntity]) -> some View {
         ScrollView {
             LazyVStack(spacing: 18) {
-                Rectangle()
-                    .fill(.clear)
-                    .frame(height: 16.5.adjustedH)
-                
                 ForEach(list) { feed in
                     if feed.isMine {
                         ExploreCell(
