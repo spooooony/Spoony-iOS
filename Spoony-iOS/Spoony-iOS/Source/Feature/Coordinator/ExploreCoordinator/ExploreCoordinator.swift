@@ -62,6 +62,7 @@ struct ExploreCoordinator {
             case .router(.routeAction(id: _, action: .search(.routeToUserProfileScreen(let userId)))):
                 state.routes.push(.otherProfile(.init(userId: userId)))
                 return .none
+                
             case .router(.routeAction(id: _, action: .otherProfile(.routeToReportScreen(let userId)))):
                 return .send(.routeToReportScreen(userId))
                 
