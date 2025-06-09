@@ -200,6 +200,7 @@ struct ProfileView: View {
             Text(title)
                 .customFont(.caption1b)
                 .foregroundStyle(.gray400)
+                .lineLimit(1)
             Text("\(count)")
                 .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
