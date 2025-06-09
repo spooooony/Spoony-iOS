@@ -14,8 +14,6 @@ struct Explore: View {
     @Namespace private var namespace
     @Bindable private var store: StoreOf<ExploreFeature>
     
-    @State private var sortIsPresented: Bool = false
-    
     init(store: StoreOf<ExploreFeature>) {
         self.store = store
     }
@@ -65,10 +63,11 @@ struct Explore: View {
             )
             .presentationDetents([.height(542.adjustedH)])
             .presentationCornerRadius(16)
+            .interactiveDismissDisabled()
         }
-        .sheet(isPresented: $sortIsPresented) {
+        .sheet(isPresented: $store.isSortFilterPresented) {
             SortBottomSheet(
-                isPresented: $sortIsPresented,
+                isPresented: $store.isSortFilterPresented,
                 selectedSort: $store.selectedSort
             )
             .presentationDetents([.height(240.adjustedH)])
@@ -180,7 +179,7 @@ extension Explore {
             )
             .frame(width: 44.adjusted, height: 32.adjusted)
             .onTapGesture {
-                sortIsPresented = true
+                store.isSortFilterPresented = true
             }
             .spoonyShadow(style: .shadow500)
             .padding(.trailing, 20)

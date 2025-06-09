@@ -24,7 +24,8 @@ extension FilteredFeedResponse {
                     categorColorResponse: feed.categoryColorResponse,
                     zzimCount: feed.zzimCount,
                     photoURLList: feed.photoUrlList,
-                    createAt: feed.createdAt
+                    createAt: feed.createdAt,
+                    isMine: feed.isMine
                 )
         }
     }

@@ -158,10 +158,11 @@ struct BlockedUserRow: View {
                 Text(user.username)
                     .customFont(.body2sb)
                     .foregroundColor(.spoonBlack)
-                
-                Text("서울 \(user.regionName) 스푼")
-                    .customFont(.caption1m)
-                    .foregroundColor(.gray600)
+                if let region = user.regionName {
+                    Text("서울 \(region) 스푼")
+                        .customFont(.caption1m)
+                        .foregroundColor(.gray600)
+                }
             }
             
             Spacer()

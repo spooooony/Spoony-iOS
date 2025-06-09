@@ -15,13 +15,14 @@ extension ReviewSearchListResponse {
     struct ReviewSearchResponse: Codable {
         let userId: Int
         let userName: String
-        let userRegion: String
+        let userRegion: String?
         let postId: Int
         let description: String
         let categoryColorResponse: CategoryColorResponse
         let zzimCount: Int
         let photoUrlList: [String]
         let createdAt: String
+        let isMine: Bool
     }
 }
 
@@ -37,7 +38,8 @@ extension ReviewSearchListResponse {
                 categorColorResponse: $0.categoryColorResponse,
                 zzimCount: $0.zzimCount,
                 photoURLList: $0.photoUrlList,
-                createAt: $0.createdAt
+                createAt: $0.createdAt,
+                isMine: $0.isMine
             )
         }
     }

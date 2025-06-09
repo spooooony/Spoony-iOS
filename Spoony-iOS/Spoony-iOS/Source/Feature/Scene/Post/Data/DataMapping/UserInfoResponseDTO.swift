@@ -15,7 +15,7 @@ struct UserInfoResponseDTO: Codable {
     let platformId: String
     let userName: String
     let regionName: String?
-    let introduction: String
+    let introduction: String?
     let createdAt: String
     let updatedAt: String
     let followerCount: Int

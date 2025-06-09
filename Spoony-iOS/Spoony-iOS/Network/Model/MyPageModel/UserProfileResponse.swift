@@ -10,7 +10,7 @@ import Foundation
 struct UserProfileResponse: Codable {
     let userName: String
     let regionName: String?
-    let introduction: String
+    let introduction: String?
     let birth: String?
     let imageLevel: Int
 }
@@ -38,7 +38,7 @@ extension UserProfileResponse {
         
         return .init(
             nickname: userName,
-            introduction: introduction,
+            introduction: introduction ?? "",
             birthDate: birthDateComponents,
             regionName: finalRegionName,
             selectedLocation: location,
