@@ -80,6 +80,11 @@ struct EditProfileFeature {
             case .binding(\.userNickname):
                 state.isChangeNickname = true
                 return .none
+            case .binding(\.introduction):
+                if state.introduction == " " {
+                    state.introduction = ""
+                }
+                return .none
                 
             case .binding: return .none
             case .onAppear:
