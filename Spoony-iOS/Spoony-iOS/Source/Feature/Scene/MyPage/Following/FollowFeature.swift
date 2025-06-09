@@ -21,11 +21,13 @@ struct FollowFeature {
         var followingCount: Int = 0
         var isLoading: Bool = false
         var initialTab: Int = 0
+        var targetUserId: Int? = nil 
         
         static let initialState = State()
-            
-        init(initialTab: Int = 0) {
+        
+        init(initialTab: Int = 0, targetUserId: Int? = nil) {
             self.initialTab = initialTab
+            self.targetUserId = targetUserId
         }
     }
     
@@ -54,17 +56,27 @@ struct FollowFeature {
             case .onAppear:
                 state.isLoading = true
                 return .merge(
-                    .run { send in
+                    .run { [targetUserId = state.targetUserId] send in
                         do {
-                            let followers = try await followUseCase.getMyFollowers()
+                            let followers: FollowListDTO
+                            if let userId = targetUserId {
+                                followers = try await followUseCase.getFollowers(userId: userId)
+                            } else {
+                                followers = try await followUseCase.getMyFollowers()
+                            }
                             await send(.followersResponse(.success(followers)))
                         } catch {
                             await send(.followersResponse(.failure(error)))
                         }
                     },
-                    .run { send in
+                    .run { [targetUserId = state.targetUserId] send in
                         do {
-                            let followings = try await followUseCase.getMyFollowings()
+                            let followings: FollowListDTO
+                            if let userId = targetUserId {
+                                followings = try await followUseCase.getFollowings(userId: userId)
+                            } else {
+                                followings = try await followUseCase.getMyFollowings()
+                            }
                             await send(.followingsResponse(.success(followings)))
                         } catch {
                             await send(.followingsResponse(.failure(error)))

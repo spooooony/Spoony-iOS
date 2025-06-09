@@ -49,6 +49,10 @@ struct OtherProfileFeature {
         case followButtonTapped
         case followActionResponse(TaskResult<Void>)
         
+        case routeToFollowingScreen
+        case routeToFollowerScreen
+        case routeToFollowScreen(tab: Int)
+        
         case kebabMenuTapped
         case menuItemSelected(String)
         case dismissMenu
@@ -148,6 +152,12 @@ struct OtherProfileFeature {
                 print("Follow action failed: \(error.localizedDescription)")
                 return .none
                 
+            case .routeToFollowingScreen:
+                return .send(.routeToFollowScreen(tab: 1))
+                
+            case .routeToFollowerScreen:
+                return .send(.routeToFollowScreen(tab: 0))
+                
             case .kebabMenuTapped:
                 state.isMenuPresented.toggle()
                 return .none
@@ -231,7 +241,7 @@ struct OtherProfileFeature {
                 state.toast = nil
                 return .none
                 
-            case .routeToPreviousScreen, .routeToReviewDetail, .routeToReportScreen:
+            case .routeToPreviousScreen, .routeToReviewDetail, .routeToReportScreen, .routeToFollowScreen:
                 return .none
             }
         }

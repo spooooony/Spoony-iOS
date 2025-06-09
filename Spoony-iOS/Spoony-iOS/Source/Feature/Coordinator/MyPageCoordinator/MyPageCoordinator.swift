@@ -64,6 +64,13 @@ struct MyPageCoordinator {
                 state.routes.push(.follow(followState))
                 return .none
                 
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToFollowScreen(let tab)))):
+                if case let .otherProfile(otherProfileStore) = state.routes.last?.screen {
+                    let followState = FollowFeature.State(initialTab: tab, targetUserId: otherProfileStore.userId)
+                    state.routes.push(.follow(followState))
+                }
+                return .none
+                
             case .router(.routeAction(id: _, action: .follow(.routeToUserProfileScreen(let userId)))):
                 state.routes.push(.otherProfile(.init(userId: userId)))
                 return .none
