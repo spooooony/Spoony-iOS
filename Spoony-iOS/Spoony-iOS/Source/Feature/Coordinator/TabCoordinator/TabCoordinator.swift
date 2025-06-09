@@ -127,6 +127,12 @@ struct TabCoordinator {
             case .myPage(.routeToLoginScreen):
                 return .send(.routeToLoginScreen)
                 
+            case .myPage(.router(.routeAction(id: _, action: .otherProfile(.routeToReviewDetail(let postId))))):
+                return .send(.routeToPost(postId))
+                
+            case .myPage(.router(.routeAction(id: _, action: .otherProfile(.routeToReportScreen(let userId))))):
+                return .send(.routeToReport(userId))
+                
             case .routeToLoginScreen:
                 return .none
                 
