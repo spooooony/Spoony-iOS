@@ -47,6 +47,7 @@ struct ProfileFeature {
         case spoonCountResponse(TaskResult<Int>)
         case routeToFollowingScreen
         case routeToFollowerScreen
+        case routeToFollowScreen(tab: Int)
         case routeToSettingsScreen
         case routeToAttendanceScreen
         case routeToEditProfileScreen
@@ -228,7 +229,13 @@ struct ProfileFeature {
                 state.reviewToDeleteId = nil
                 return .none
 
-            case .routeToFollowingScreen, .routeToFollowerScreen, .routeToEditProfileScreen, .routeToSettingsScreen, .routeToAttendanceScreen, .routeToEditReviewScreen, .routeToRegister,.routeToReviewDetail:
+            case .routeToFollowingScreen:
+                return .send(.routeToFollowScreen(tab: 1))
+                
+            case .routeToFollowerScreen:
+                return .send(.routeToFollowScreen(tab: 0))
+                
+            case .routeToFollowScreen, .routeToEditProfileScreen, .routeToSettingsScreen, .routeToAttendanceScreen, .routeToEditReviewScreen, .routeToRegister, .routeToReviewDetail:
                 return .none
             }
         }
