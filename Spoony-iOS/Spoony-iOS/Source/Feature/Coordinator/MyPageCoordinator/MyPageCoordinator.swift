@@ -59,8 +59,9 @@ struct MyPageCoordinator {
             case .router(.routeAction(id: _, action: .otherProfile(.routeToReviewDetail(let postId)))):
                 return .send(.routeToPostScreen(postId))
                 
-            case .router(.routeAction(id: _, action: .profile(.routeToFollowingScreen))):
-                state.routes.push(.follow(.initialState))
+            case .router(.routeAction(id: _, action: .profile(.routeToFollowScreen(let tab)))):
+                let followState = FollowFeature.State(initialTab: tab)
+                state.routes.push(.follow(followState))
                 return .none
                 
             case .router(.routeAction(id: _, action: .follow(.routeToUserProfileScreen(let userId)))):
