@@ -52,7 +52,7 @@ struct PostModel: Codable {
         self.regionName = userInfo.regionName ?? ""
         self.spoonCount = spoonCount
         self.value = postDto.value
-        self.cons = postDto.cons
+        self.cons = postDto.cons ?? ""
         self.isFollowing = userInfo.isFollowing
     }
 }
