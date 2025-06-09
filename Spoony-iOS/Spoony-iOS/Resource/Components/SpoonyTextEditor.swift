@@ -65,6 +65,7 @@ extension SpoonyTextEditor {
         
         return VStack(alignment: .trailing, spacing: 4) {
             TextEditor(text: $text)
+                .padding(.trailing, 5)
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
                 .focused($isFocused)
@@ -109,8 +110,11 @@ extension SpoonyTextEditor {
             Text("\(text.count) / \(style.maximumInput)")
                 .customFont(.caption1m)
                 .foregroundStyle(errorState != .noError && errorState != .initial ? .error400 : .gray500)
+                .padding(.trailing, 5)
+                .padding(.bottom, 7)
         }
-        .padding(.all, 12)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 5)
         .frame(width: style.width, height: style.height)
         .background {
             RoundedRectangle(cornerRadius: 8)

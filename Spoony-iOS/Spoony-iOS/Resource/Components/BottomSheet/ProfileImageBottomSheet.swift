@@ -106,7 +106,6 @@ private struct ProfileImageCell: View {
                             }
                         }
                         .clipShape(Circle())
-                        .padding(.leading, 22)
                 } else {
                     Circle()
                         .fill(.gray200)
@@ -116,7 +115,6 @@ private struct ProfileImageCell: View {
                                 .resizable()
                                 .frame(width: 18.adjusted, height: 18.adjustedH)
                         }
-                        .padding(.leading, 22)
                 }
                 
                 VStack(alignment: .leading, spacing: 0) {
@@ -132,8 +130,9 @@ private struct ProfileImageCell: View {
                 }
                 Spacer()
             }
-            .padding([.horizontal, .top], 10)
+            .padding(.top, 10)
             .padding(.bottom, 9)
+            .padding(.leading, 30)
             
             Rectangle()
                 .fill(.gray100)
@@ -144,5 +143,5 @@ private struct ProfileImageCell: View {
 }
 
 #Preview {
-    ProfileImageBottomSheet(isPresented: .constant(true), profileImages: [.init(url: "https://sojoong.joins.com/wp-content/uploads/sites/4/2024/12/01.jpg", imageLevel: 0, unlockCondition: "아아아아", isUnlocked: true)])
+    ProfileImageBottomSheet(isPresented: .constant(true), profileImages: [.init(url: "https://sojoong.joins.com/wp-content/uploads/sites/4/2024/12/01.jpg", imageLevel: 0, unlockCondition: "내 리뷰가 다른 유저들의 지도에 100번 저장", isUnlocked: true)])
 }
