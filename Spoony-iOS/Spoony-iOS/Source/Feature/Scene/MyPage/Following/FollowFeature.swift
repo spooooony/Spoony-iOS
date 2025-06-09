@@ -20,8 +20,13 @@ struct FollowFeature {
         var followerCount: Int = 0
         var followingCount: Int = 0
         var isLoading: Bool = false
+        var initialTab: Int = 0
         
         static let initialState = State()
+            
+        init(initialTab: Int = 0) {
+            self.initialTab = initialTab
+        }
     }
     
     // MARK: - Action
