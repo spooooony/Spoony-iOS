@@ -184,7 +184,11 @@ extension ExploreSearchView {
                     ForEach(store.state.userResult, id: \.id) { user in
                         userCell(user)
                             .onTapGesture {
-                                store.send(.routeToUserProfileScreen(user.id))
+                                if user.isMine {
+                                    store.send(.routeToMyProfileScreen)
+                                } else {
+                                    store.send(.routeToUserProfileScreen(user.id))
+                                }
                             }
                     }
                 case .review:
@@ -282,7 +286,7 @@ extension ExploreSearchView {
         ExploreCell(
             feed: feed,
             onReport: { feed in
-                store.send(.routeToReportScreen(feed.postId))
+                store.send(.routeToPostReportScreen(feed.postId))
             }
         )
     }

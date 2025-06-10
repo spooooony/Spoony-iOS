@@ -41,6 +41,7 @@ struct FollowFeature {
         case followActionResponse(Result<Void, Error>)
         case routeToPreviousScreen
         case routeToUserProfileScreen(userId: Int)
+        case routeToMyProfileScreen
     }
     
     // MARK: - Dependencies
@@ -124,9 +125,11 @@ struct FollowFeature {
                     print("❌ 팔로우 로직 실패 : \(error.localizedDescription)")
                     return .none
                 }
-            case .routeToUserProfileScreen(let userId):
+            case .routeToUserProfileScreen:
                 return .none
             case .routeToPreviousScreen:
+                return .none
+            case .routeToMyProfileScreen:
                 return .none
             }
         }

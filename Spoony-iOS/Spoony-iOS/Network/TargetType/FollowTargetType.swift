@@ -70,4 +70,8 @@ extension FollowTargetType: TargetType {
 //        return Config.defaultHeader
         
     }
+    
+    var validationType: ValidationType {
+        return .successCodes
+    }
 }

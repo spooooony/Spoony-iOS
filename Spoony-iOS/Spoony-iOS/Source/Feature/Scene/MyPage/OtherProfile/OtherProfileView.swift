@@ -19,12 +19,21 @@ struct OtherProfileView: View {
         ZStack {
             mainContent
             overlayContent
-            alertViews
+//            alertViews
         }
         .task { store.send(.onAppear) }
         .edgesIgnoringSafeArea(.bottom)
         .navigationBarBackButtonHidden()
         .toastView(toast: Binding(get: { store.toast }, set: { _ in }))
+        .alertView(
+            isPresented: $store.isAlertPresented,
+            alertType: store.alertType,
+            alert: store.alert,
+            confirmAction: {
+                store.send(.confirmAction)
+            },
+            afterAction: nil
+        )
     }
 }
 
@@ -86,33 +95,6 @@ private extension OtherProfileView {
             .padding(.trailing, 16)
             Spacer()
         }
-    }
-    
-    var alertViews: some View {
-        Group {
-            if store.showBlockAlert { blockAlert }
-            if store.showUnblockAlert { unblockAlert }
-        }
-    }
-    
-    var blockAlert: some View {
-        CustomAlertView(
-            title: "\(store.username)님을\n 차단하시겠습니까?",
-            cancelTitle: "아니요",
-            confirmTitle: "네",
-            cancelAction: { store.send(.cancelBlock) },
-            confirmAction: { store.send(.confirmBlock) }
-        )
-    }
-    
-    var unblockAlert: some View {
-        CustomAlertView(
-            title: "차단을 해제하시겠습니까?",
-            cancelTitle: "아니요",
-            confirmTitle: "네",
-            cancelAction: { store.send(.cancelUnblock) },
-            confirmAction: { store.send(.confirmUnblock) }
-        )
     }
 }
 
@@ -359,7 +341,9 @@ private extension OtherProfileView {
     func reviewListView(_ reviews: [FeedEntity]) -> some View {
         LazyVStack(spacing: 18) {
             ForEach(reviews) { review in
-                ExploreCell(feed: review, onDelete: nil, onEdit: nil)
+                ExploreCell(feed: review, onReport: { feed in
+                    store.send(.routeToPostReportScreen(feed.postId))
+                })
                     .padding(.horizontal, 20)
                     .onTapGesture {
                         store.send(.routeToReviewDetail(review.postId))

@@ -58,8 +58,9 @@ struct ExploreSearchFeature {
         case presentAlert(AlertType, Alert)
         case routeToEditReviewScreen(Int)
         case routeToPostScreen(FeedEntity)
-        case routeToReportScreen(Int)
         case routeToUserProfileScreen(Int)
+        case routeToMyProfileScreen
+        case routeToPostReportScreen(Int)
         case presentToast(message: String)
     }
     
@@ -246,8 +247,6 @@ struct ExploreSearchFeature {
                 return .none
             case .routeToPostScreen:
                 return .none
-            case .routeToReportScreen:
-                return .none
             case .routeToUserProfileScreen:
                 return .none
             case .binding:
@@ -255,6 +254,9 @@ struct ExploreSearchFeature {
             case .error:
                 return .send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
             case .presentToast:
+                return .none
+                
+            default:
                 return .none
             }
         }

@@ -32,6 +32,8 @@ enum TabRootScreen {
     case report(ReportFeature)
     
     case profile(OtherProfileFeature)
+    case follow(FollowFeature)
+    case myProfile(ProfileFeature)
 }
 
 @Reducer
@@ -54,6 +56,7 @@ struct TabRootCoordinator {
         case updateToast(Toast?)
         case updatePopup(PopupType?)
         case routeToLogin
+        case routeToRoot
     }
     
     var body: some ReducerOf<Self> {
@@ -105,7 +108,11 @@ struct TabRootCoordinator {
                 state.routes.push(.profile(OtherProfileFeature.State(userId: user)))
                 return .none
                 
-            case .router(.routeAction(id: _, action: .tab(.routeToReport(let postId)))):
+            case .router(.routeAction(id: _, action: .tab(.routeToUserReport(let userId)))):
+                state.routes.push(.report(ReportFeature.State(targetUserId: userId)))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .tab(.routeToPostReport(let postId)))):
                 state.routes.push(.report(ReportFeature.State(postId: postId)))
                 return .none
                 
@@ -137,9 +144,33 @@ struct TabRootCoordinator {
             case .router(.routeAction(id: _, action: .post(.routeToReportScreen(let postId)))):
                 state.routes.push(.report(ReportFeature.State(postId: postId)))
                 return .none
-                
-            case .router(.routeAction(id: _, action: .profile(.routeToReportScreen(let userId)))):
+            
+            // profile
+            case .router(.routeAction(id: _, action: .profile(.routeToUserReportScreen(let userId)))):
                 state.routes.push(.report(ReportFeature.State(targetUserId: userId)))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .profile(.routeToPostReportScreen(let postId)))):
+                state.routes.push(.report(ReportFeature.State(postId: postId)))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .profile(.routeToReviewDetail(let postId)))):
+                state.routes.push(.post(PostFeature.State(postId: postId)))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .profile(.routeToFollowScreen(let tab)))):
+                if case let .profile(otherProfileStore) = state.routes.last?.screen {
+                    let followState = FollowFeature.State(initialTab: tab, targetUserId: otherProfileStore.userId)
+                    state.routes.push(.follow(followState))
+                }
+                return .none
+                
+            // follow
+            case .router(.routeAction(id: _, action: .follow(.routeToUserProfileScreen(let user)))):
+                state.routes.push(.profile(OtherProfileFeature.State(userId: user)))
+                return .none
+            case .router(.routeAction(id: _, action: .follow(.routeToMyProfileScreen))):
+                state.routes.push(.myProfile(.init()))
                 return .none
                 
             case .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),
@@ -152,6 +183,30 @@ struct TabRootCoordinator {
                     .router(.routeAction(id: _, action: .report(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .profile(.routeToPreviousScreen))):
                 state.routes.goBack()
+                return .none
+                
+            //myPage
+            case .router(.routeAction(id: _, action: .myProfile(.routeToReviewDetail(let postId)))):
+                state.routes.push(.post(PostFeature.State(postId: postId)))
+                return .none
+            case .router(.routeAction(id: _, action: .myProfile(.routeToFollowScreen(let tab)))):
+                let followState = FollowFeature.State(initialTab: tab)
+                state.routes.push(.follow(.initialState))
+                return .none
+            case .router(.routeAction(id: _, action: .myProfile(.routeToRegister))):
+                state.routes.push(.registerAndEdit(.initialState))
+                return .none
+            case .router(.routeAction(id: _, action: .myProfile(.routeToSettingsScreen))):
+                state.routes.push(.settings(.initialState))
+                return .none
+            case .router(.routeAction(id: _, action: .myProfile(.routeToAttendanceScreen))):
+                state.routes.push(.attendance(.initialState))
+                return .none
+            case .router(.routeAction(id: _, action: .myProfile(.routeToEditProfileScreen))):
+                state.routes.push(.editProfile(.initialState))
+                return .none
+            case .router(.routeAction(id: _, action: .myProfile(.routeToEditReviewScreen(let postId)))):
+                state.routes.push(.registerAndEdit(.init(postId: postId)))
                 return .none
                 
             // toast
@@ -189,6 +244,16 @@ struct TabRootCoordinator {
                 return .none
                 
 //            case .router(.routeAction(id: _, action: .registerAndEdit(.presentPopup)))
+                
+            case .router(.routeAction(id: _, action: .report(.routeToRoot))):
+                return .send(.routeToRoot)
+                
+            case .routeToRoot:
+                repeat {
+                    state.routes.goBack()
+                } while state.routes.count > 1
+                
+                return .concatenate(.send(.router(.routeAction(id: 0, action: .tab(.routeToRoot)))))
                 
             default: return .none
             }

@@ -121,4 +121,8 @@ extension RegisterTargetType {
         
         return formData
     }
+    
+    var validationType: ValidationType {
+        return .successCodes
+    }
 }
