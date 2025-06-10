@@ -108,7 +108,7 @@ struct TabRootCoordinator {
                 
             case .router(.routeAction(id: _, action: .tab(.routeToReport(let postId)))):
                 // TODO: myPage tab일 때 user신고인지 후기신고인지 구분해야함..
-                state.routes.push(.report(ReportFeature.State(postId: postId)))
+                state.routes.push(.report(ReportFeature.State(targetUserId: postId)))
                 return .none
                 
             case .router(.routeAction(id: _, action: .settings(.routeToAccountManagementScreen))):
