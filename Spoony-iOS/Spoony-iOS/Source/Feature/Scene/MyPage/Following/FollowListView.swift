@@ -99,7 +99,11 @@ extension FollowListView {
                             store.send(.followButtonTapped(userId: user.userId, isFollowing: user.isFollowing))
                         },
                         onUserTap: {
-                            store.send(.routeToUserProfileScreen(userId: user.userId))
+                            if user.isMine {
+                                store.send(.routeToMyProfileScreen)
+                            } else {
+                                store.send(.routeToUserProfileScreen(userId: user.userId))
+                            }
                         }
                     )
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
@@ -119,7 +123,11 @@ extension FollowListView {
                             store.send(.followButtonTapped(userId: user.userId, isFollowing: user.isFollowing))
                         },
                         onUserTap: {
-                            store.send(.routeToUserProfileScreen(userId: user.userId))
+                            if user.isMine {
+                                store.send(.routeToMyProfileScreen)
+                            } else {
+                                store.send(.routeToUserProfileScreen(userId: user.userId))
+                            }
                         }
                     )
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
@@ -171,9 +179,11 @@ struct FollowRow: View {
             
             Spacer()
             
-            FollowButton(isFollowing: user.isFollowing, action: onFollowTap)
-                .contentShape(Rectangle())
-                .buttonStyle(.borderless)
+            if !user.isMine {
+                FollowButton(isFollowing: user.isFollowing, action: onFollowTap)
+                    .contentShape(Rectangle())
+                    .buttonStyle(.borderless)
+            }
         }
         .contentShape(Rectangle())
         .onTapGesture {

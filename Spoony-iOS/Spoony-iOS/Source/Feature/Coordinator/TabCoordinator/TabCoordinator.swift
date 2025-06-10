@@ -108,6 +108,17 @@ struct TabCoordinator {
                 
             case .explore(.presentToast(let message)):
                 return .send(.presentToast(message: message))
+                
+            case .explore(.router(.routeAction(id: _, action: .myProfile(.routeToRegister)))):
+                return .send(.routeToRegister)
+            case .explore(.router(.routeAction(id: _, action: .myProfile(.routeToEditProfileScreen)))):
+                return .send(.routeToEditProfile)
+            case .explore(.router(.routeAction(id: _, action: .myProfile(.routeToAttendanceScreen)))):
+                return .send(.routeToAttendance)
+            case .explore(.router(.routeAction(id: _, action: .myProfile(.routeToEditReviewScreen(let postId))))):
+                return .send(.routeToEditReview(postId))
+            case .explore(.router(.routeAction(id: _, action: .myProfile(.routeToSettingsScreen)))):
+                return .send(.routeToSettings)
             
             // mypage 관련
             case .myPage(.router(.routeAction(id: _, action: .profile(.routeToRegister)))):

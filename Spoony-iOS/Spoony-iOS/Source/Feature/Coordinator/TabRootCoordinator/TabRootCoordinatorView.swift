@@ -62,6 +62,10 @@ struct TabRootCoordinatorView: View {
             case let .follow(store):
                 FollowListView(store: store)
                     .navigationBarBackButtonHidden()
+                
+            case let .myProfile(store):
+                ProfileView(store: store)
+                    .navigationBarBackButtonHidden()
             }
         }
         .toastView(
