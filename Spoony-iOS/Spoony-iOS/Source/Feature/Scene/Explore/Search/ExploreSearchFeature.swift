@@ -59,6 +59,7 @@ struct ExploreSearchFeature {
         case routeToEditReviewScreen(Int)
         case routeToPostScreen(FeedEntity)
         case routeToUserProfileScreen(Int)
+        case routeToMyProfileScreen
         case routeToPostReportScreen(Int)
         case presentToast(message: String)
     }
