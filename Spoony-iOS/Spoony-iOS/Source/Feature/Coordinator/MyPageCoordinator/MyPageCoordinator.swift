@@ -36,6 +36,9 @@ struct MyPageCoordinator {
         case routeToSettingsScreen
         case routeToEditProfileScreen
         case routeToAttendanceScreen
+        case routeToReportScreen(Int)
+        case routeToReviewDetail(Int)
+        case routeToFollowScreen(tab: Int)
     }
     
     var body: some ReducerOf<Self> {
@@ -58,6 +61,9 @@ struct MyPageCoordinator {
                 
             case .router(.routeAction(id: _, action: .otherProfile(.routeToReviewDetail(let postId)))):
                 return .send(.routeToPostScreen(postId))
+                
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToUserReportScreen(let userId)))):
+                return .send(.routeToReportScreen(userId))
                 
             case .router(.routeAction(id: _, action: .profile(.routeToFollowScreen(let tab)))):
                 let followState = FollowFeature.State(initialTab: tab)

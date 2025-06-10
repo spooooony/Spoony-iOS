@@ -58,6 +58,7 @@ struct FilterCell: View {
                         .strokeBorder(isSelected ? .main400 : .gray100)
                 )
         )
+        .frame(height: 32.adjustedH)
     }
 }
 
