@@ -80,6 +80,9 @@ struct MyPageCoordinator {
             case .router(.routeAction(id: _, action: .follow(.routeToUserProfileScreen(let userId)))):
                 state.routes.push(.otherProfile(.init(userId: userId)))
                 return .none
+            case .router(.routeAction(id: _, action: .follow(.routeToMyProfileScreen))):
+                state.routes.push(.profile(.init()))
+                return .none
                 
             case .router(.routeAction(id: _, action: .profile(.routeToSettingsScreen))):
                 return .send(.routeToSettingsScreen)

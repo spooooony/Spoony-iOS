@@ -16,6 +16,7 @@ enum ExploreScreen {
     case search(ExploreSearchFeature)
     case otherProfile(OtherProfileFeature)
     case follow(FollowFeature)
+    case myProfile(ProfileFeature)
 }
 
 @Reducer
@@ -66,6 +67,9 @@ struct ExploreCoordinator {
             case .router(.routeAction(id: _, action: .search(.routeToUserProfileScreen(let userId)))):
                 state.routes.push(.otherProfile(.init(userId: userId)))
                 return .none
+            case .router(.routeAction(id: _, action: .search(.routeToMyProfileScreen))):
+                state.routes.push(.myProfile(.init()))
+                return .none
                 
             // otherProfile
             case .router(.routeAction(id: _, action: .otherProfile(.routeToReviewDetail(let postId)))):
@@ -81,8 +85,19 @@ struct ExploreCoordinator {
                 }
                 return .none
                 
+            // myProfile
+            case .router(.routeAction(id: _, action: .myProfile(.routeToReviewDetail(let postId)))):
+                return .send(.routeToPostScreen(postId))
+            case .router(.routeAction(id: _, action: .myProfile(.routeToFollowScreen(let tab)))):
+                let followState = FollowFeature.State(initialTab: tab)
+                state.routes.push(.follow(followState))
+                return .none
+                
             case .router(.routeAction(id: _, action: .follow(.routeToUserProfileScreen(let userId)))):
                 state.routes.push(.otherProfile(.init(userId: userId)))
+                return .none
+            case .router(.routeAction(id: _, action: .follow(.routeToMyProfileScreen))):
+                state.routes.push(.myProfile(.init()))
                 return .none
                 
             // 이전 화면

@@ -33,6 +33,7 @@ enum TabRootScreen {
     
     case profile(OtherProfileFeature)
     case follow(FollowFeature)
+    case myProfile(ProfileFeature)
 }
 
 @Reducer
@@ -168,6 +169,9 @@ struct TabRootCoordinator {
             case .router(.routeAction(id: _, action: .follow(.routeToUserProfileScreen(let user)))):
                 state.routes.push(.profile(OtherProfileFeature.State(userId: user)))
                 return .none
+            case .router(.routeAction(id: _, action: .follow(.routeToMyProfileScreen))):
+                state.routes.push(.myProfile(.init()))
+                return .none
                 
             case .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .accountManagement(.routeToPreviousScreen))),
@@ -180,7 +184,31 @@ struct TabRootCoordinator {
                     .router(.routeAction(id: _, action: .profile(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
-
+                
+            //myPage
+            case .router(.routeAction(id: _, action: .myProfile(.routeToReviewDetail(let postId)))):
+                state.routes.push(.post(PostFeature.State(postId: postId)))
+                return .none
+            case .router(.routeAction(id: _, action: .myProfile(.routeToFollowScreen(let tab)))):
+                let followState = FollowFeature.State(initialTab: tab)
+                state.routes.push(.follow(.initialState))
+                return .none
+            case .router(.routeAction(id: _, action: .myProfile(.routeToRegister))):
+                state.routes.push(.registerAndEdit(.initialState))
+                return .none
+            case .router(.routeAction(id: _, action: .myProfile(.routeToSettingsScreen))):
+                state.routes.push(.settings(.initialState))
+                return .none
+            case .router(.routeAction(id: _, action: .myProfile(.routeToAttendanceScreen))):
+                state.routes.push(.attendance(.initialState))
+                return .none
+            case .router(.routeAction(id: _, action: .myProfile(.routeToEditProfileScreen))):
+                state.routes.push(.editProfile(.initialState))
+                return .none
+            case .router(.routeAction(id: _, action: .myProfile(.routeToEditReviewScreen(let postId)))):
+                state.routes.push(.registerAndEdit(.init(postId: postId)))
+                return .none
+                
             // toast
             case .updateToast(let toast):
                 state.toast = toast

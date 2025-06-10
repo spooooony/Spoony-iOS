@@ -14,7 +14,7 @@ enum DateFormatterProvider {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX") // 중요
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.timeZone = TimeZone.current
         return formatter
     }()
     
