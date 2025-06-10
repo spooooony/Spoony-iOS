@@ -77,7 +77,8 @@ struct OtherProfileFeature {
         case routeToReviewDetail(Int)
         
         case hideToast
-        case routeToReportScreen(Int)
+        case routeToPostReportScreen(Int)
+        case routeToUserReportScreen(Int)
         
         case presentAlert(AlertType, Alert)
     }
@@ -215,7 +216,7 @@ struct OtherProfileFeature {
                 )
                 
             case .reportUser:
-                return .send(.routeToReportScreen(state.userId))
+                return .send(.routeToUserReportScreen(state.userId))
                 
             case .confirmAction:
                 if state.isBlocked {
@@ -270,7 +271,7 @@ struct OtherProfileFeature {
                 state.toast = nil
                 return .none
                 
-            case .routeToPreviousScreen, .routeToReviewDetail, .routeToReportScreen, .routeToFollowScreen:
+            case .routeToPreviousScreen, .routeToReviewDetail, .routeToUserReportScreen, .routeToPostReportScreen, .routeToFollowScreen:
                 return .none
                 
             case let .presentAlert(type, alert):

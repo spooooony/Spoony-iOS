@@ -58,7 +58,8 @@ struct ExploreSearchFeature {
         case presentAlert(AlertType, Alert)
         case routeToEditReviewScreen(Int)
         case routeToPostScreen(FeedEntity)
-        case routeToReportScreen(Int)
+        case routeToPostReportScreen(Int)
+        case routeToUserReportScreen(Int)
         case routeToUserProfileScreen(Int)
         case presentToast(message: String)
     }
@@ -246,7 +247,7 @@ struct ExploreSearchFeature {
                 return .none
             case .routeToPostScreen:
                 return .none
-            case .routeToReportScreen:
+            case .routeToPostReportScreen, .routeToUserReportScreen:
                 return .none
             case .routeToUserProfileScreen:
                 return .none

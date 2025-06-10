@@ -32,6 +32,7 @@ enum TabRootScreen {
     case report(ReportFeature)
     
     case profile(OtherProfileFeature)
+    case follow(FollowFeature)
 }
 
 @Reducer
@@ -106,9 +107,12 @@ struct TabRootCoordinator {
                 state.routes.push(.profile(OtherProfileFeature.State(userId: user)))
                 return .none
                 
-            case .router(.routeAction(id: _, action: .tab(.routeToReport(let postId)))):
-                // TODO: myPage tab일 때 user신고인지 후기신고인지 구분해야함..
-                state.routes.push(.report(ReportFeature.State(targetUserId: postId)))
+            case .router(.routeAction(id: _, action: .tab(.routeToUserReport(let userId)))):
+                state.routes.push(.report(ReportFeature.State(targetUserId: userId)))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .tab(.routeToPostReport(let postId)))):
+                state.routes.push(.report(ReportFeature.State(postId: postId)))
                 return .none
                 
             case .router(.routeAction(id: _, action: .settings(.routeToAccountManagementScreen))):
@@ -139,9 +143,30 @@ struct TabRootCoordinator {
             case .router(.routeAction(id: _, action: .post(.routeToReportScreen(let postId)))):
                 state.routes.push(.report(ReportFeature.State(postId: postId)))
                 return .none
-                
-            case .router(.routeAction(id: _, action: .profile(.routeToReportScreen(let userId)))):
+            
+            // profile
+            case .router(.routeAction(id: _, action: .profile(.routeToUserReportScreen(let userId)))):
                 state.routes.push(.report(ReportFeature.State(targetUserId: userId)))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .profile(.routeToPostReportScreen(let postId)))):
+                state.routes.push(.report(ReportFeature.State(postId: postId)))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .profile(.routeToReviewDetail(let postId)))):
+                state.routes.push(.post(PostFeature.State(postId: postId)))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .profile(.routeToFollowScreen(let tab)))):
+                if case let .profile(otherProfileStore) = state.routes.last?.screen {
+                    let followState = FollowFeature.State(initialTab: tab, targetUserId: otherProfileStore.userId)
+                    state.routes.push(.follow(followState))
+                }
+                return .none
+                
+            // follow
+            case .router(.routeAction(id: _, action: .follow(.routeToUserProfileScreen(let user)))):
+                state.routes.push(.profile(OtherProfileFeature.State(userId: user)))
                 return .none
                 
             case .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),

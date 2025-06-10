@@ -44,7 +44,8 @@ struct TabCoordinator {
         case routeToAttendance
         case routeToEditProfile
         case routeToPost(Int)
-        case routeToReport(Int)
+        case routeToPostReport(Int)
+        case routeToUserReport(Int)
         case routeToRoot
         
         case presentToast(message: String)
@@ -96,8 +97,11 @@ struct TabCoordinator {
             case .explore(.routeToPostScreen(let post)):
                 return .send(.routeToPost(post))
                 
-            case .explore(.routeToReportScreen(let postId)):
-                return .send(.routeToReport(postId))
+            case .explore(.routeToPostReportScreen(let postId)):
+                return .send(.routeToPostReport(postId))
+                
+            case .explore(.routeToUserReportScreen(let userId)):
+                return .send(.routeToUserReport(userId))
                 
             case .explore(.routeToEditReviewScreen(let postId)):
                 return .send(.routeToEditReview(postId))
@@ -126,12 +130,12 @@ struct TabCoordinator {
                 
             case .myPage(.routeToLoginScreen):
                 return .send(.routeToLoginScreen)
+                    
+            case .myPage(.router(.routeAction(id: _, action: .otherProfile(.routeToPostReportScreen(let postId))))):
+                return .send(.routeToPostReport(postId))
                 
-            case .myPage(.router(.routeAction(id: _, action: .otherProfile(.routeToReviewDetail(let postId))))):
-                return .send(.routeToPost(postId))
-                
-            case .myPage(.router(.routeAction(id: _, action: .otherProfile(.routeToReportScreen(let userId))))):
-                return .send(.routeToReport(userId))
+            case .myPage(.router(.routeAction(id: _, action: .otherProfile(.routeToUserReportScreen(let userId))))):
+                return .send(.routeToUserReport(userId))
                 
             case .routeToLoginScreen:
                 return .none

@@ -341,7 +341,9 @@ private extension OtherProfileView {
     func reviewListView(_ reviews: [FeedEntity]) -> some View {
         LazyVStack(spacing: 18) {
             ForEach(reviews) { review in
-                ExploreCell(feed: review, onDelete: nil, onEdit: nil)
+                ExploreCell(feed: review, onReport: { feed in
+                    store.send(.routeToPostReportScreen(feed.postId))
+                })
                     .padding(.horizontal, 20)
                     .onTapGesture {
                         store.send(.routeToReviewDetail(review.postId))

@@ -56,8 +56,12 @@ struct TabRootCoordinatorView: View {
             case let .report(store):
                 Report(postId: store.postId, userId: nil, store: store)
                 
-            case let.profile(store):
+            case let .profile(store):
                 OtherProfileView(store: store)
+                
+            case let .follow(store):
+                FollowListView(store: store)
+                    .navigationBarBackButtonHidden()
             }
         }
         .toastView(

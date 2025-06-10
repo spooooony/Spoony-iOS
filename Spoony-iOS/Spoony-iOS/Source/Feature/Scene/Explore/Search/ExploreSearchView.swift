@@ -282,7 +282,7 @@ extension ExploreSearchView {
         ExploreCell(
             feed: feed,
             onReport: { feed in
-                store.send(.routeToReportScreen(feed.postId))
+                store.send(.routeToPostReportScreen(feed.postId))
             }
         )
     }

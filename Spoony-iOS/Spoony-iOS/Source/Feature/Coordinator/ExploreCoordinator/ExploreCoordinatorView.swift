@@ -27,6 +27,9 @@ struct ExploreCoordinatorView: View {
             case .otherProfile(let store):
                 OtherProfileView(store: store)
                     .toolbar(.hidden, for: .navigationBar)
+            case let .follow(store):
+                FollowListView(store: store)
+                    .navigationBarBackButtonHidden()
             }
         }
     }

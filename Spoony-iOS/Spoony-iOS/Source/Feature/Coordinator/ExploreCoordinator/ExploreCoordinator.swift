@@ -15,6 +15,7 @@ enum ExploreScreen {
     case explore(ExploreFeature)
     case search(ExploreSearchFeature)
     case otherProfile(OtherProfileFeature)
+    case follow(FollowFeature)
 }
 
 @Reducer
@@ -32,8 +33,12 @@ struct ExploreCoordinator {
         case routeToPreviousScreen
         
         case routeToPostScreen(Int)
-        case routeToReportScreen(Int)
+        case routeToPostReportScreen(Int)
+        case routeToUserReportScreen(Int)
         case routeToEditReviewScreen(Int)
+        case routeToReviewDetail(Int)
+
+        case routeToFollowScreen(tab: Int)
         
         case presentToast(message: String)
     }
@@ -48,23 +53,20 @@ struct ExploreCoordinator {
             case .router(.routeAction(id: _, action: .explore(.routeToPostScreen(let post)))):
                 return .send(.routeToPostScreen(post.postId))
             case .router(.routeAction(id: _, action: .explore(.routeToReportScreen(let postId)))):
-                return .send(.routeToReportScreen(postId))
+                return .send(.routeToPostReportScreen(postId))
             case .router(.routeAction(id: _, action: .explore(.routeToEditReviewScreen(let postId)))):
                 return .send(.routeToEditReviewScreen(postId))
                 
             // 검색에서 네비게이션
             case .router(.routeAction(id: _, action: .search(.routeToPostScreen(let post)))):
                 return .send(.routeToPostScreen(post.postId))
-            case let .router(.routeAction(id: _, action: .search(.routeToReportScreen(postId)))):
-                return .send(.routeToReportScreen(postId))
+            case let .router(.routeAction(id: _, action: .search(.routeToPostReportScreen(postId)))):
+                return .send(.routeToPostReportScreen(postId))
             case .router(.routeAction(id: _, action: .search(.routeToEditReviewScreen(let postId)))):
                 return .send(.routeToEditReviewScreen(postId))
             case .router(.routeAction(id: _, action: .search(.routeToUserProfileScreen(let userId)))):
                 state.routes.push(.otherProfile(.init(userId: userId)))
                 return .none
-                
-            case .router(.routeAction(id: _, action: .otherProfile(.routeToReportScreen(let userId)))):
-                return .send(.routeToReportScreen(userId))
                 
             // 이전 화면
             case .router(.routeAction(id: _, action: .search(.routeToPreviousScreen))):
