@@ -37,7 +37,6 @@ struct ExploreCoordinator {
         case routeToUserReportScreen(Int)
         case routeToEditReviewScreen(Int)
         case routeToReviewDetail(Int)
-
         case routeToFollowScreen(tab: Int)
         
         case presentToast(message: String)
@@ -68,22 +67,31 @@ struct ExploreCoordinator {
                 state.routes.push(.otherProfile(.init(userId: userId)))
                 return .none
                 
+            // otherProfile
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToReviewDetail(let postId)))):
+                return .send(.routeToPostScreen(postId))
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToUserReportScreen(let userId)))):
+                return .send(.routeToUserReportScreen(userId))
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToPostReportScreen(let postId)))):
+                return .send(.routeToPostReportScreen(postId))
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToFollowScreen(let tab)))):
+                if case let .otherProfile(otherProfileStore) = state.routes.last?.screen {
+                    let followState = FollowFeature.State(initialTab: tab, targetUserId: otherProfileStore.userId)
+                    state.routes.push(.follow(followState))
+                }
+                return .none
+                
+            case .router(.routeAction(id: _, action: .follow(.routeToUserProfileScreen(let userId)))):
+                state.routes.push(.otherProfile(.init(userId: userId)))
+                return .none
+                
             // 이전 화면
             case .router(.routeAction(id: _, action: .search(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
-//            case .router(.routeAction(id: _, action: .report(.routeToPreviousScreen))):
-//                state.routes.goBack()
-//                return .none
-//            case .router(.routeAction(id: _, action: .post(.routeToPreviousScreen))):
-//                state.routes.goBack()
-//                return .none
             case .router(.routeAction(id: _, action: .otherProfile(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
-//            case .router(.routeAction(id: _, action: .edit(.routeToPreviousScreen))):
-//                state.routes.dismiss()
-//                return .none
                 
             // 탭
             case .router(.routeAction(id: _, action: .explore(.tabSelected(let tab)))):
