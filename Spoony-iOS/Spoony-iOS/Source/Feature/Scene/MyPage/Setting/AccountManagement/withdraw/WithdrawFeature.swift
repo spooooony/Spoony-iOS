@@ -88,11 +88,9 @@ struct WithdrawFeature {
                     
                     // UserDefaults 클리어
                     UserDefaults.standard.removeObject(forKey: "userId")
-                    UserDefaults.standard.removeObject(forKey: "isTooltipPresented")
                     
                     // UserManager의 데이터 클리어
                     UserManager.shared.userId = nil
-                    UserManager.shared.isTooltipPresented = nil
                     UserManager.shared.recentSearches = nil
                     UserManager.shared.exploreUserRecentSearches = nil
                     UserManager.shared.exploreReviewRecentSearches = nil

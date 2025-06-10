@@ -9,7 +9,6 @@ import Foundation
 
 enum UserDefaultsKeys: String, CaseIterable {
     case userId = "userId"
-    case isTooltipPresented = "isTooltipPresented"
     case recentSearches = "RecentSearches"
     case exploreUserRecentSearches = "exploreUserRecentSearches"
     case exploreReviewRecentSearches = "exploreReviewRecentSearches"
@@ -20,7 +19,6 @@ enum UserDefaultsKeys: String, CaseIterable {
 
 final class UserManager {
     @UserDefaultWrapper(key: .userId) public var userId: String?
-    @UserDefaultWrapper(key: .isTooltipPresented) public var isTooltipPresented: Bool?
     @UserDefaultWrapper(key: .recentSearches) public var recentSearches: [String]?
     
     @UserDefaultWrapper(key: .exploreUserRecentSearches) public var exploreUserRecentSearches: [String]?
