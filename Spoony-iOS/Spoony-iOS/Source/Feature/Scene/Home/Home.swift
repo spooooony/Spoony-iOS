@@ -153,7 +153,7 @@ struct Home: View {
                 }
             }
             
-            #if DEBUG
+//            #if DEBUG
             VStack {
                 Spacer()
                 HStack {
@@ -173,7 +173,7 @@ struct Home: View {
                     .padding(.bottom, store.bottomSheetHeight + 16)
                 }
             }
-            #endif
+//            #endif
         }
         .navigationBarHidden(true)
         .toolbar(store.showDailySpoonPopup ? .hidden : .visible, for: .tabBar)
