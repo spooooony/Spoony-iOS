@@ -107,7 +107,7 @@ extension PopupView {
         case .useSpoon:
             "수저 1개를 사용하여 떠먹어 볼까요?"
         case .registerSuccess:
-            "수저 1개를 획득했어요!\n이제 새로운 장소를 떠먹으러 가볼까요?"
+            "리뷰를 등록했어요!\n이제 새로운 장소를 떠먹으러 가볼까요?"
         case .reportSuccess:
             "신고가 접수되었어요"
         case .delete:
@@ -116,7 +116,6 @@ extension PopupView {
             ""
         }
     }
-    
     
     private var blackButtonTitle: String {
         switch popup {

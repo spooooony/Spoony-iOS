@@ -62,7 +62,22 @@ extension UIPickerCoordinator: UIPickerViewDelegate {
         
         $selectedDate.wrappedValue[component] = parent.dataSource[component][row % parent.dataSource[component].count]
         
-        if component != 2 {
+        if component == 0 {
+            parent.updateMonth(
+                yearIndex: pickerView.selectedRow(inComponent: 0) % parent.dataSource[0].count
+            )
+            parent.$selectedDate.wrappedValue[1] = parent.dataSource[1][0]
+            pickerView.reloadComponent(1)
+            pickerView.selectRow(parent.dataSource[1].count * 5, inComponent: 1, animated: false)
+            
+            parent.updateDays(
+                yearIndex: pickerView.selectedRow(inComponent: 0) % parent.dataSource[0].count,
+                monthIndex: pickerView.selectedRow(inComponent: 1) % parent.dataSource[1].count
+            )
+            parent.$selectedDate.wrappedValue[2] = parent.dataSource[2][0]
+            pickerView.reloadComponent(2)
+            pickerView.selectRow(parent.dataSource[2].count * 5, inComponent: 2, animated: false)
+        } else if component == 1 {
             parent.updateDays(
                 yearIndex: pickerView.selectedRow(inComponent: 0) % parent.dataSource[0].count,
                 monthIndex: pickerView.selectedRow(inComponent: 1) % parent.dataSource[1].count

@@ -16,7 +16,7 @@ enum SortType: String, CaseIterable {
         case .createdAt:
             "최신순"
         case .zzimCount:
-            "저장순"
+            "저장 많은 순"
         }
     }
 }

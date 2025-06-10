@@ -31,10 +31,14 @@ struct MyPageCoordinator {
         
         case routeToRegister
         case routeToEditReviewScreen(Int)
+        case routeToPostScreen(Int)
         case routeToLoginScreen
         case routeToSettingsScreen
         case routeToEditProfileScreen
         case routeToAttendanceScreen
+        case routeToReportScreen(Int)
+        case routeToReviewDetail(Int)
+        case routeToFollowScreen(tab: Int)
     }
     
     var body: some ReducerOf<Self> {
@@ -52,12 +56,32 @@ struct MyPageCoordinator {
             case .router(.routeAction(id: _, action: .profile(.routeToEditReviewScreen(let postId)))):
                 return .send(.routeToEditReviewScreen(postId))
                 
-            case .router(.routeAction(id: _, action: .profile(.routeToFollowingScreen))):
-                state.routes.push(.follow(.initialState))
+            case .router(.routeAction(id: _, action: .profile(.routeToReviewDetail(let postId)))):
+                return .send(.routeToPostScreen(postId))
+                
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToReviewDetail(let postId)))):
+                return .send(.routeToPostScreen(postId))
+                
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToUserReportScreen(let userId)))):
+                return .send(.routeToReportScreen(userId))
+                
+            case .router(.routeAction(id: _, action: .profile(.routeToFollowScreen(let tab)))):
+                let followState = FollowFeature.State(initialTab: tab)
+                state.routes.push(.follow(followState))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToFollowScreen(let tab)))):
+                if case let .otherProfile(otherProfileStore) = state.routes.last?.screen {
+                    let followState = FollowFeature.State(initialTab: tab, targetUserId: otherProfileStore.userId)
+                    state.routes.push(.follow(followState))
+                }
                 return .none
                 
             case .router(.routeAction(id: _, action: .follow(.routeToUserProfileScreen(let userId)))):
                 state.routes.push(.otherProfile(.init(userId: userId)))
+                return .none
+            case .router(.routeAction(id: _, action: .follow(.routeToMyProfileScreen))):
+                state.routes.push(.profile(.init()))
                 return .none
                 
             case .router(.routeAction(id: _, action: .profile(.routeToSettingsScreen))):
@@ -73,6 +97,9 @@ struct MyPageCoordinator {
                  .router(.routeAction(id: _, action: .follow(.routeToPreviousScreen))),
                  .router(.routeAction(id: _, action: .otherProfile(.routeToPreviousScreen))):
                 state.routes.goBack()
+                return .none
+                
+            case .routeToPostScreen, .routeToEditReviewScreen, .routeToSettingsScreen, .routeToEditProfileScreen, .routeToAttendanceScreen:
                 return .none
                 
             default:

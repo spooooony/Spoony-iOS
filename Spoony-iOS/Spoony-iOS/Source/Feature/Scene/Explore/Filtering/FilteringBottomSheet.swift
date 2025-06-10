@@ -16,6 +16,7 @@ struct FilteringBottomSheet: View {
     @Binding var currentFilter: Int
     
     @State private var isSegmentTapped = false
+    @State private var isOnAppear = true
     
     init(
         filters: Binding<FilterInfo>,
@@ -50,10 +51,11 @@ struct FilteringBottomSheet: View {
                     DragGesture()
                         .onChanged({ _ in
                             isSegmentTapped = false
+                            isOnAppear = false
                         })
                 )
                 .onPreferenceChange(FilterSectionPreferenceKey.self) { dics in // [FilterType: CGFloat]
-                    guard !isSegmentTapped else { return }
+                    guard !isSegmentTapped && !isOnAppear else { return }
                     if let current = dics.min(by: { abs($0.value) < abs($1.value) })?.key {
                         currentFilter = FilterType.allCases.firstIndex(of: current) ?? 0
                     }
@@ -121,7 +123,7 @@ extension FilteringBottomSheet {
                                 isSegmentTapped = true
                                 withAnimation(.easeInOut(duration: 0.35)) {
                                     currentFilter = index
-                                    proxy.scrollTo(FilterType.allCases[index])
+                                    proxy.scrollTo(FilterType.allCases[index], anchor: .top)
                                 }
                             }
                         

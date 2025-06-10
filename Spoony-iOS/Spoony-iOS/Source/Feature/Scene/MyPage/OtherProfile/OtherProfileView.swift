@@ -19,12 +19,21 @@ struct OtherProfileView: View {
         ZStack {
             mainContent
             overlayContent
-            alertViews
+//            alertViews
         }
         .task { store.send(.onAppear) }
         .edgesIgnoringSafeArea(.bottom)
         .navigationBarBackButtonHidden()
         .toastView(toast: Binding(get: { store.toast }, set: { _ in }))
+        .alertView(
+            isPresented: $store.isAlertPresented,
+            alertType: store.alertType,
+            alert: store.alert,
+            confirmAction: {
+                store.send(.confirmAction)
+            },
+            afterAction: nil
+        )
     }
 }
 
@@ -50,7 +59,7 @@ private extension OtherProfileView {
     var navigationBar: some View {
         CustomNavigationBar(
             style: store.isBlocked ? .detail : .detailWithKebab,
-            title: store.username,
+            title: "",
             onBackTapped: { store.send(.routeToPreviousScreen) },
             onKebabTapped: store.isBlocked ? nil : { store.send(.kebabMenuTapped) }
         )
@@ -87,33 +96,6 @@ private extension OtherProfileView {
             Spacer()
         }
     }
-    
-    var alertViews: some View {
-        Group {
-            if store.showBlockAlert { blockAlert }
-            if store.showUnblockAlert { unblockAlert }
-        }
-    }
-    
-    var blockAlert: some View {
-        CustomAlertView(
-            title: "\(store.username)님을\n 차단하시겠습니까?",
-            cancelTitle: "아니요",
-            confirmTitle: "네",
-            cancelAction: { store.send(.cancelBlock) },
-            confirmAction: { store.send(.confirmBlock) }
-        )
-    }
-    
-    var unblockAlert: some View {
-        CustomAlertView(
-            title: "차단을 해제하시겠습니까?",
-            cancelTitle: "아니요",
-            confirmTitle: "네",
-            cancelAction: { store.send(.cancelUnblock) },
-            confirmAction: { store.send(.confirmUnblock) }
-        )
-    }
 }
 
 private extension OtherProfileView {
@@ -125,9 +107,8 @@ private extension OtherProfileView {
     }
     
     var profileHeader: some View {
-        HStack(alignment: .center, spacing: 24) {
+        HStack(alignment: .center, spacing: 39) {
             profileImage
-            Spacer()
             statsCounters
         }
         .padding(.horizontal, 20)
@@ -171,17 +152,34 @@ private extension OtherProfileView {
     
     var statsCounters: some View {
         HStack(spacing: 54) {
-            statCounter(title: "리뷰", count: store.isBlocked ? 0 : store.reviewCount)
-            statCounter(title: "팔로워", count: store.isBlocked ? 0 : store.followerCount)
-            statCounter(title: "팔로잉", count: store.isBlocked ? 0 : store.followingCount)
+            statCounter(title: "리뷰", count: store.isBlocked ? 0 : store.reviewCount) {
+            }
+            
+            statCounter(title: "팔로워", count: store.isBlocked ? 0 : store.followerCount) {
+                if !store.isBlocked {
+                    store.send(.routeToFollowerScreen)
+                }
+            }
+            
+            statCounter(title: "팔로잉", count: store.isBlocked ? 0 : store.followingCount) {
+                if !store.isBlocked {
+                    store.send(.routeToFollowingScreen)
+                }
+            }
         }
     }
     
-    func statCounter(title: String, count: Int) -> some View {
+    func statCounter(title: String, count: Int, action: @escaping () -> Void = {}) -> some View {
         VStack(spacing: 8) {
-            Text(title).customFont(.caption1b).foregroundStyle(.gray400)
-            Text("\(count)").customFont(.body1sb).foregroundStyle(.spoonBlack)
+            Text(title)
+                .customFont(.caption1b)
+                .foregroundStyle(.gray400)
+                .lineLimit(1)
+            Text("\(count)")
+                .customFont(.body1sb)
+                .foregroundStyle(.spoonBlack)
         }
+        .onTapGesture(perform: action)
     }
     
     var profileInfo: some View {
@@ -343,8 +341,13 @@ private extension OtherProfileView {
     func reviewListView(_ reviews: [FeedEntity]) -> some View {
         LazyVStack(spacing: 18) {
             ForEach(reviews) { review in
-                ExploreCell(feed: review, onDelete: nil, onEdit: nil)
+                ExploreCell(feed: review, onReport: { feed in
+                    store.send(.routeToPostReportScreen(feed.postId))
+                })
                     .padding(.horizontal, 20)
+                    .onTapGesture {
+                        store.send(.routeToReviewDetail(review.postId))
+                    }
             }
         }
         .padding(.top, 16)

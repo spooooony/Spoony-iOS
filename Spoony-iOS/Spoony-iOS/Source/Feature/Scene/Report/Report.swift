@@ -69,7 +69,7 @@ struct Report: View {
             alert: store.alert,
             confirmAction: nil,
             afterAction: {
-                store.send(.routeToPreviousScreen)
+                store.send(.routeToRoot)
             }
         )
     }
@@ -131,12 +131,13 @@ extension Report {
             HStack(alignment: .top, spacing: 10) {
                 Image(.icErrorGray300)
                 
-                Text("스푸니는 철저한 광고 제한 정책과 모니터링을 실시하고 있어요. 부적절한 후기 작성자를 발견하면, 바로 신고해주세요!")
+                Text("스푸니는 철저한 광고 제한 정책과 모니터링을 실시하고 있어요. 부적절한 후기 작성자를 발견하면, 바로 신고해주세요!"
+                    .splitZeroWidthSpace())
                     .customFont(.caption1m)
                     .foregroundStyle(.gray400)
             }
             .padding(10)
-            .frame(width: 335.adjusted, height: 71.adjustedH)
+            .frame(width: 335.adjusted, height: 54.adjustedH)
             .background(.gray0, in: RoundedRectangle(cornerRadius: 8))
             .padding(.top, 8)
         }

@@ -12,4 +12,5 @@ struct SimpleUser: Identifiable, Hashable {
     let userName: String
     let regionName: String?
     let profileImage: String
+    let isMine: Bool
 }

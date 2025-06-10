@@ -21,7 +21,7 @@ struct FeedResponse: Codable {
     let categoryColorResponse: CategoryColorResponse
     let zzimCount: Int
     let photoUrlList: [String]
-    let isMine: Bool?
+    let isMine: Bool
 }
 
 struct CategoryColorResponse: Codable, Hashable {
@@ -45,7 +45,7 @@ extension FeedListResponse {
                     zzimCount: feed.zzimCount,
                     photoURLList: feed.photoUrlList,
                     createAt: feed.createdAt,
-                    isMine: feed.isMine != nil ? feed.isMine! : false
+                    isMine: feed.isMine
                 )
         }
     }

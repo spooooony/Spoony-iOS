@@ -9,6 +9,5 @@ import Foundation
 
 enum RegisterStep: Int {
     case start = 1
-    case middle = 2
-    case end = 3
+    case end = 2
 }

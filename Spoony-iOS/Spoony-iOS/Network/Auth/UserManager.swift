@@ -9,7 +9,6 @@ import Foundation
 
 enum UserDefaultsKeys: String, CaseIterable {
     case userId = "userId"
-    case isTooltipPresented = "isTooltipPresented"
     case recentSearches = "RecentSearches"
     case exploreUserRecentSearches = "exploreUserRecentSearches"
     case exploreReviewRecentSearches = "exploreReviewRecentSearches"
@@ -20,7 +19,6 @@ enum UserDefaultsKeys: String, CaseIterable {
 
 final class UserManager {
     @UserDefaultWrapper(key: .userId) public var userId: String?
-    @UserDefaultWrapper(key: .isTooltipPresented) public var isTooltipPresented: Bool?
     @UserDefaultWrapper(key: .recentSearches) public var recentSearches: [String]?
     
     @UserDefaultWrapper(key: .exploreUserRecentSearches) public var exploreUserRecentSearches: [String]?
@@ -39,12 +37,12 @@ final class UserManager {
         var list: [String]?
         
         switch key {
+        case .map:
+            list = recentSearches ?? []
         case .user:
             list = exploreUserRecentSearches ?? []
         case .review:
             list = exploreReviewRecentSearches ?? []
-        default:
-            return
         }
         
         if let index = list?.firstIndex(of: text) {
@@ -56,17 +54,22 @@ final class UserManager {
         list?.insert(text, at: 0)
         
         switch key {
+        case .map:
+            recentSearches = list
         case .user:
             exploreUserRecentSearches = list
         case .review:
             exploreReviewRecentSearches = list
-        default:
-            return
         }
     }
-    
+
     func deleteRecent(_ key: SearchType, _ text: String) {
         switch key {
+        case .map:
+            guard let index = recentSearches?.firstIndex(of: text)
+            else { return }
+            
+            recentSearches?.remove(at: index)
         case .user:
             guard let index = exploreUserRecentSearches?.firstIndex(of: text)
             else { return }
@@ -77,8 +80,6 @@ final class UserManager {
             else { return }
             
             exploreReviewRecentSearches?.remove(at: index)
-        default:
-            return
         }
     }
     

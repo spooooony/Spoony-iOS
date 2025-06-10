@@ -47,4 +47,8 @@ extension SpoonDrawTargetType: TargetType {
     var headers: [String: String]? {
         return HeaderType.auth.value
     }
+    
+    var validationType: ValidationType {
+        return .successCodes
+    }
 }

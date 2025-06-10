@@ -123,11 +123,9 @@ struct AccountManagementFeature {
                     
                     // UserDefaults 초기화
                     UserDefaults.standard.removeObject(forKey: "userId")
-                    UserDefaults.standard.removeObject(forKey: "isTooltipPresented")
                     
                     // UserManager 초기화
                     UserManager.shared.userId = nil
-                    UserManager.shared.isTooltipPresented = nil
                     UserManager.shared.recentSearches = nil
                     UserManager.shared.exploreUserRecentSearches = nil
                     UserManager.shared.exploreReviewRecentSearches = nil

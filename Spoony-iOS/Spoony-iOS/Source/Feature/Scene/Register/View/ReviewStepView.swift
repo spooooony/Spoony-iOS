@@ -76,7 +76,7 @@ extension ReviewStepView {
             SpoonyTextEditor(
                 text: $store.detailText,
                 style: .review,
-                placeholder: "장소명 언급은 피해주세요. 우리만의 비밀!",
+                placeholder: "맛, 양, 분위기 등 맛집에 대한 나만의 솔직한 리뷰를 남겨주세요.",
                 isError: $store.isDetailTextError
             )
         }
@@ -126,7 +126,7 @@ extension ReviewStepView {
             SpoonyTextEditor(
                 text: $store.weakPointText,
                 style: .weakPoint,
-                placeholder: "사장님 몰래 남기는 솔직 후기!\n이 내용은 비공개 처리 돼요. (선택)",
+                placeholder: "사장님 몰래 남기는 솔직 후기!\n이 내용은 비공개 처리 되어요. (선택)",
                 isError: $store.isWeakPointTextError
             )
         }

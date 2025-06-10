@@ -16,6 +16,7 @@ struct PickListCardResponse: Codable, Equatable {
     let placeName: String
     let placeAddress: String
     let postTitle: String?
+    let description: String? 
     let photoUrl: String
     let latitude: Double
     let longitude: Double

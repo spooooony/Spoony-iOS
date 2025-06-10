@@ -15,6 +15,8 @@ enum ExploreScreen {
     case explore(ExploreFeature)
     case search(ExploreSearchFeature)
     case otherProfile(OtherProfileFeature)
+    case follow(FollowFeature)
+    case myProfile(ProfileFeature)
 }
 
 @Reducer
@@ -32,8 +34,11 @@ struct ExploreCoordinator {
         case routeToPreviousScreen
         
         case routeToPostScreen(Int)
-        case routeToReportScreen(Int)
+        case routeToPostReportScreen(Int)
+        case routeToUserReportScreen(Int)
         case routeToEditReviewScreen(Int)
+        case routeToReviewDetail(Int)
+        case routeToFollowScreen(tab: Int)
         
         case presentToast(message: String)
     }
@@ -48,39 +53,60 @@ struct ExploreCoordinator {
             case .router(.routeAction(id: _, action: .explore(.routeToPostScreen(let post)))):
                 return .send(.routeToPostScreen(post.postId))
             case .router(.routeAction(id: _, action: .explore(.routeToReportScreen(let postId)))):
-                return .send(.routeToReportScreen(postId))
+                return .send(.routeToPostReportScreen(postId))
             case .router(.routeAction(id: _, action: .explore(.routeToEditReviewScreen(let postId)))):
                 return .send(.routeToEditReviewScreen(postId))
                 
             // 검색에서 네비게이션
             case .router(.routeAction(id: _, action: .search(.routeToPostScreen(let post)))):
                 return .send(.routeToPostScreen(post.postId))
-            case let .router(.routeAction(id: _, action: .search(.routeToReportScreen(postId)))):
-                return .send(.routeToReportScreen(postId))
+            case let .router(.routeAction(id: _, action: .search(.routeToPostReportScreen(postId)))):
+                return .send(.routeToPostReportScreen(postId))
             case .router(.routeAction(id: _, action: .search(.routeToEditReviewScreen(let postId)))):
                 return .send(.routeToEditReviewScreen(postId))
             case .router(.routeAction(id: _, action: .search(.routeToUserProfileScreen(let userId)))):
                 state.routes.push(.otherProfile(.init(userId: userId)))
                 return .none
-            case .router(.routeAction(id: _, action: .otherProfile(.routeToReportScreen(let userId)))):
-                return .send(.routeToReportScreen(userId))
+            case .router(.routeAction(id: _, action: .search(.routeToMyProfileScreen))):
+                state.routes.push(.myProfile(.init()))
+                return .none
+                
+            // otherProfile
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToReviewDetail(let postId)))):
+                return .send(.routeToPostScreen(postId))
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToUserReportScreen(let userId)))):
+                return .send(.routeToUserReportScreen(userId))
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToPostReportScreen(let postId)))):
+                return .send(.routeToPostReportScreen(postId))
+            case .router(.routeAction(id: _, action: .otherProfile(.routeToFollowScreen(let tab)))):
+                if case let .otherProfile(otherProfileStore) = state.routes.last?.screen {
+                    let followState = FollowFeature.State(initialTab: tab, targetUserId: otherProfileStore.userId)
+                    state.routes.push(.follow(followState))
+                }
+                return .none
+                
+            // myProfile
+            case .router(.routeAction(id: _, action: .myProfile(.routeToReviewDetail(let postId)))):
+                return .send(.routeToPostScreen(postId))
+            case .router(.routeAction(id: _, action: .myProfile(.routeToFollowScreen(let tab)))):
+                let followState = FollowFeature.State(initialTab: tab)
+                state.routes.push(.follow(followState))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .follow(.routeToUserProfileScreen(let userId)))):
+                state.routes.push(.otherProfile(.init(userId: userId)))
+                return .none
+            case .router(.routeAction(id: _, action: .follow(.routeToMyProfileScreen))):
+                state.routes.push(.myProfile(.init()))
+                return .none
                 
             // 이전 화면
             case .router(.routeAction(id: _, action: .search(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
-//            case .router(.routeAction(id: _, action: .report(.routeToPreviousScreen))):
-//                state.routes.goBack()
-//                return .none
-//            case .router(.routeAction(id: _, action: .post(.routeToPreviousScreen))):
-//                state.routes.goBack()
-//                return .none
             case .router(.routeAction(id: _, action: .otherProfile(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
-//            case .router(.routeAction(id: _, action: .edit(.routeToPreviousScreen))):
-//                state.routes.dismiss()
-//                return .none
                 
             // 탭
             case .router(.routeAction(id: _, action: .explore(.tabSelected(let tab)))):

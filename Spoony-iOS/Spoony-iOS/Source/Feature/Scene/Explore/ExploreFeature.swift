@@ -175,7 +175,7 @@ struct ExploreFeature {
                     state.followingList = list
                 }
                 
-                if state.nextCursor == nextCursor {
+                if state.nextCursor != nil || nextCursor == nil {
                     state.isLast = true
                 }
                 
@@ -215,7 +215,7 @@ struct ExploreFeature {
                 if !success {
                     return .send(.error(SNError.networkFail))
                 }
-                return .none
+                return .send(.refreshFilteredFeed)
             case .routeToEditReviewScreen:
                 return .none
             case .routeToExploreSearchScreen:

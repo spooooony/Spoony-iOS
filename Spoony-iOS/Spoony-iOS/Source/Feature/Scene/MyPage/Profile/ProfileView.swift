@@ -115,17 +115,22 @@ struct ProfileView: View {
                 errorBanner(error: error)
             }
             
-            profileSection
+            ProfileHeaderView(store: store)
             
             Divider()
                 .frame(height: 2)
                 .background(Color.gray0)
             
-            reviewsSection
+            ProfileReviewsView(store: store)
         }
     }
+}
+
+// MARK: - Profile Header View
+struct ProfileHeaderView: View {
+    @Bindable var store: StoreOf<ProfileFeature>
     
-    private var profileSection: some View {
+    var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             profileHeader
             profileInfo
@@ -133,15 +138,13 @@ struct ProfileView: View {
     }
     
     private var profileHeader: some View {
-        HStack(alignment: .center, spacing: 24) {
+        HStack(alignment: .center, spacing: 39) {
             profileImage
-            
-            Spacer()
-            
             statsCounters
         }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 24)
+        .padding(.leading, 20.adjusted)
+        .padding(.trailing, 44.adjusted)
+        .padding(.bottom, 24.adjustedH)
     }
     
     private var profileImage: some View {
@@ -184,7 +187,6 @@ struct ProfileView: View {
     private var statsCounters: some View {
         HStack(spacing: 54) {
             statCounter(title: "리뷰", count: store.reviewCount) {
-                // 리뷰 스크롤로 이동하는 로직 추가 가능
             }
             
             statCounter(title: "팔로워", count: store.followerCount) {
@@ -202,6 +204,7 @@ struct ProfileView: View {
             Text(title)
                 .customFont(.caption1b)
                 .foregroundStyle(.gray400)
+                .lineLimit(1)
             Text("\(count)")
                 .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
@@ -212,9 +215,7 @@ struct ProfileView: View {
     private var profileInfo: some View {
         HStack(alignment: .center, spacing: 0) {
             userInfoSection
-            
             Spacer()
-            
             editProfileButton
         }
         .padding(.horizontal, 20)
@@ -241,16 +242,13 @@ struct ProfileView: View {
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 8)
             
-            let introText = store.introduction.isEmpty ?
-                (store.errorMessage != nil ? "자기소개가 없습니다." : "") : store.introduction
+            let introText = store.introduction.isEmpty ? "안녕! 난 어떤 스푼이냐면…" : store.introduction
                 
-            if !introText.isEmpty {
-                Text(introText)
-                    .customFont(.caption1m)
-                    .foregroundStyle(.gray600)
-                    .lineLimit(nil)
-                    .multilineTextAlignment(.leading)
-            }
+            Text(introText)
+                .customFont(.caption1m)
+                .foregroundStyle(.gray600)
+                .lineLimit(nil)
+                .multilineTextAlignment(.leading)
         }
     }
     
@@ -269,20 +267,16 @@ struct ProfileView: View {
                 )
         }
     }
+}
+
+// MARK: - Profile Reviews View
+struct ProfileReviewsView: View {
+    @Bindable var store: StoreOf<ProfileFeature>
     
-    private var reviewsSection: some View {
+    var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             reviewsHeader
-            
-            if store.isLoadingReviews {
-                reviewsLoadingView
-            } else if let error = store.reviewsErrorMessage {
-                reviewsErrorView(error)
-            } else if let reviews = store.reviews, !reviews.isEmpty {
-                reviewListView(reviews)
-            } else {
-                emptyReviewsView
-            }
+            reviewsContent
         }
     }
     
@@ -294,9 +288,43 @@ struct ProfileView: View {
             Text("\(store.reviewCount)개")
                 .customFont(.body2m)
                 .foregroundStyle(.gray400)
+            
+            Spacer()
+            
+            Button(action: {
+                store.send(.selectReviewFilter(store.selectedReviewFilter == .local ? .all : .local))
+            }) {
+                HStack(spacing: 8) {
+                    Image(store.selectedReviewFilter == .local ? "ic_checkboxfilled_main" : "ic_checkboxfilled_gray300")
+                        .resizable()
+                        .frame(width: 26.adjusted, height: 26.adjusted)
+                    
+                    Text("로컬리뷰")
+                        .customFont(.body2m)
+                        .foregroundStyle(store.selectedReviewFilter == .local ? .main400 : .gray400)
+                }
+            }
         }
         .padding(.horizontal, 20)
         .padding(.top, 19)
+    }
+    
+    private var reviewFilterTabs: some View {
+        EmptyView()
+    }
+    
+    private var reviewsContent: some View {
+        Group {
+            if store.isLoadingReviews {
+                reviewsLoadingView
+            } else if let error = store.reviewsErrorMessage {
+                reviewsErrorView(error)
+            } else if let reviews = store.reviews, !reviews.isEmpty {
+                reviewListView(reviews)
+            } else {
+                emptyReviewsView
+            }
+        }
     }
     
     private var reviewsLoadingView: some View {
@@ -342,6 +370,9 @@ struct ProfileView: View {
                     }
                 )
                 .padding(.horizontal, 20)
+                .onTapGesture {
+                    store.send(.routeToReviewDetail(review.postId))
+                }
             }
         }
         .padding(.top, 16)

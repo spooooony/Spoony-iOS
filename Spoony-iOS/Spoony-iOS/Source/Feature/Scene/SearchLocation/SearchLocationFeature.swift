@@ -16,6 +16,8 @@ struct SearchLocationFeature {
     struct State: Equatable {
         let locationId: Int
         let locationTitle: String
+        let searchedLatitude: Double?
+        let searchedLongitude: Double?
         
         var pickList: [PickListCardResponse] = []
         var focusedPlaces: [CardPlace] = []

@@ -17,7 +17,7 @@ struct PostResponseDTO: Codable {
     let menuList: [String]
     let description: String
     let value: Double
-    let cons: String
+    let cons: String?
     let placeName: String
     let placeAddress: String
     let latitude: Double

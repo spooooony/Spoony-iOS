@@ -17,6 +17,7 @@ extension UserSimpleListResponse {
         let username: String
         let regionName: String?
         let profileImageUrl: String
+        let isMine: Bool
     }
 }
 
@@ -27,7 +28,8 @@ extension UserSimpleListResponse {
                 id: $0.userId,
                 userName: $0.username,
                 regionName: $0.regionName,
-                profileImage: $0.profileImageUrl
+                profileImage: $0.profileImageUrl,
+                isMine: $0.isMine
             )
         }
     }

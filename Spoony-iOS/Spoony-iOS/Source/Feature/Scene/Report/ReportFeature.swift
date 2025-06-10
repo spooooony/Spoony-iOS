@@ -41,6 +41,7 @@ struct ReportFeature {
         case reportPostButtonTapped
         case routeToPreviousScreen
         case presentAlert(AlertType, Alert)
+        case routeToRoot
     }
     
     @Dependency(\.reportService) var reportService: ReportProtocol
@@ -103,6 +104,8 @@ struct ReportFeature {
                 state.alertType = type
                 state.alert = alert
                 state.isAlertPresented = true
+                return .none
+            case .routeToRoot:
                 return .none
             case .binding:
                 return .none

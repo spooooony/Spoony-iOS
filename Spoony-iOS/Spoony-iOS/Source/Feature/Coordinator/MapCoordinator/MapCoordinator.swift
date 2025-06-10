@@ -51,7 +51,9 @@ struct MapCoordinator {
             case .router(.routeAction(id: _, action: .search(.selectLocation(let result)))):
                 let locationState = SearchLocationFeature.State(
                     locationId: result.locationId,
-                    locationTitle: result.title
+                    locationTitle: result.title,
+                    searchedLatitude: result.latitude,  
+                    searchedLongitude: result.longitude 
                 )
                 
                 state.routes.push(.searchLocation(locationState))

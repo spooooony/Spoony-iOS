@@ -14,8 +14,6 @@ struct Explore: View {
     @Namespace private var namespace
     @Bindable private var store: StoreOf<ExploreFeature>
     
-    @State private var sortIsPresented: Bool = false
-    
     init(store: StoreOf<ExploreFeature>) {
         self.store = store
     }
@@ -65,10 +63,11 @@ struct Explore: View {
             )
             .presentationDetents([.height(542.adjustedH)])
             .presentationCornerRadius(16)
+            .interactiveDismissDisabled()
         }
-        .sheet(isPresented: $sortIsPresented) {
+        .sheet(isPresented: $store.isSortFilterPresented) {
             SortBottomSheet(
-                isPresented: $sortIsPresented,
+                isPresented: $store.isSortFilterPresented,
                 selectedSort: $store.selectedSort
             )
             .presentationDetents([.height(240.adjustedH)])
@@ -180,7 +179,7 @@ extension Explore {
             )
             .frame(width: 44.adjusted, height: 32.adjusted)
             .onTapGesture {
-                sortIsPresented = true
+                store.isSortFilterPresented = true
             }
             .spoonyShadow(style: .shadow500)
             .padding(.trailing, 20)
@@ -225,10 +224,6 @@ extension Explore {
     private func followingListView(_ list: [FeedEntity]) -> some View {
         ScrollView {
             LazyVStack(spacing: 18) {
-                Rectangle()
-                    .fill(.clear)
-                    .frame(height: 16.5.adjustedH)
-            
                 ForEach(list) { feed in
                     ExploreCell(
                         feed: feed,
@@ -251,10 +246,6 @@ extension Explore {
     private func filteredListView(_ list: [FeedEntity]) -> some View {
         ScrollView {
             LazyVStack(spacing: 18) {
-                Rectangle()
-                    .fill(.clear)
-                    .frame(height: 16.5.adjustedH)
-                
                 ForEach(list) { feed in
                     if feed.isMine {
                         ExploreCell(

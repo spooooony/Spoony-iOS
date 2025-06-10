@@ -82,4 +82,8 @@ extension HomeTargetType: TargetType {
         return HeaderType.auth.value
 //        return Config.defaultHeader
     }
+    
+    var validationType: ValidationType {
+        return .successCodes
+    }
 }

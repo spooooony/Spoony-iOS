@@ -105,7 +105,7 @@ extension ExploreCell {
                     .customFont(.body2b)
                 
                 if let region = feed.userRegion {
-                    Text("\(region) 스푼")
+                    Text("서울 \(region) 스푼")
                         .customFont(.caption2m)
                         .foregroundStyle(.gray500)
                 }
@@ -216,8 +216,7 @@ extension ExploreCell {
     private var relativeDate: String {
         let formatter = ISO8601DateFormatter()
         
-        let trimmedDate = feed.createAt.split(separator: ".")[0] +
-        "Z"
+        let trimmedDate = feed.createAt.split(separator: ".")[0] + "Z"
         guard let date = formatter.date(from: String(trimmedDate)) else {
             return "시간 오류"
         }

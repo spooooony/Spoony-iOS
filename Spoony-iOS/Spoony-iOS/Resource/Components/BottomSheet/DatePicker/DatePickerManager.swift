@@ -12,6 +12,7 @@ final class DatePickerManager {
     
     private let calendar = Calendar.current
     private let today = Date()
+    private var maxYear = 0
     
     func getYears() -> [String] {
         let ageLimit = 14
@@ -19,13 +20,23 @@ final class DatePickerManager {
             return []
         }
         
-        let maxYear = calendar.component(.year, from: maxYearDate)
+        maxYear = calendar.component(.year, from: maxYearDate)
         
         return (1900...maxYear).map { String($0) }
     }
     
-    func getMonths() -> [String] {
-        return (1...12).map { String(format: "%02d", $0) }
+    func getMonths(year: String) -> [String] {
+        guard let year = Int(year) else {
+            return []
+        }
+        
+        if year == maxYear {
+            let currentMonth = calendar.component(.month, from: today)
+
+            return (1...currentMonth).map { String(format: "%02d", $0) }
+        } else {
+            return (1...12).map { String(format: "%02d", $0) }
+        }
     }
     
     func getDays(year: String, month: String) -> [String] {
@@ -42,6 +53,15 @@ final class DatePickerManager {
             return []
         }
         
-        return range.map { String(format: "%02d", $0) }
+        if year == maxYear {
+            let today = calendar.component(.day, from: today)
+            return range.prefix(today).map { String(format: "%02d", $0)}
+        } else {
+            return range.map { String(format: "%02d", $0) }
+        }
+    }
+    
+    func getMaxYear() -> Int {
+        return maxYear
     }
 }

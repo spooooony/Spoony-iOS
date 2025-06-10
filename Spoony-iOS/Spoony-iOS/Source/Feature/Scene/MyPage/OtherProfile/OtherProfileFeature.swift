@@ -30,17 +30,27 @@ struct OtherProfileFeature {
         var reviewsErrorMessage: String? = nil
         
         var isMenuPresented: Bool = false
-        var showBlockAlert: Bool = false
+//        var showBlockAlert: Bool = false
         var showUnblockAlert: Bool = false
         
         var toast: Toast? = nil
+        
+        var isAlertPresented: Bool = false
+        var alertType: AlertType = .normalButtonTwo
+        var alert: Alert = .init(
+            title: "테스트",
+            confirmButtonTitle: "테스트",
+            cancelButtonTitle: "테스트",
+            imageString: nil
+        )
         
         init(userId: Int) {
             self.userId = userId
         }
     }
     
-    enum Action {
+    enum Action: BindableAction {
+        case binding(BindingAction<State>)
         case onAppear
         case userInfoResponse(TaskResult<UserInfoResponse>)
         case fetchUserReviews
@@ -49,21 +59,28 @@ struct OtherProfileFeature {
         case followButtonTapped
         case followActionResponse(TaskResult<Void>)
         
+        case routeToFollowingScreen
+        case routeToFollowerScreen
+        case routeToFollowScreen(tab: Int)
+        
         case kebabMenuTapped
         case menuItemSelected(String)
         case dismissMenu
         case blockUser
         case unblockUser
         case reportUser
+        case confirmAction
         case confirmBlock
         case confirmUnblock
-        case cancelBlock
-        case cancelUnblock
         case blockActionResponse(TaskResult<Void>)
         case unblockActionResponse(TaskResult<Void>)
+        case routeToReviewDetail(Int)
         
         case hideToast
-        case routeToReportScreen(Int)
+        case routeToPostReportScreen(Int)
+        case routeToUserReportScreen(Int)
+        
+        case presentAlert(AlertType, Alert)
     }
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
@@ -71,6 +88,8 @@ struct OtherProfileFeature {
     @Dependency(\.blockService) var blockService: BlockServiceProtocol
     
     var body: some ReducerOf<Self> {
+        BindingReducer()
+        
         Reduce { state, action in
             switch action {
             case .onAppear:
@@ -89,7 +108,7 @@ struct OtherProfileFeature {
                 state.username = response.userName
                 state.profileImageUrl = response.profileImageUrl
                 state.location = response.regionName ?? ""
-                state.introduction = response.introduction
+                state.introduction = response.introduction ?? ""
                 state.reviewCount = response.reviewCount
                 state.followingCount = response.followingCount
                 state.followerCount = response.followerCount
@@ -147,6 +166,12 @@ struct OtherProfileFeature {
                 print("Follow action failed: \(error.localizedDescription)")
                 return .none
                 
+            case .routeToFollowingScreen:
+                return .send(.routeToFollowScreen(tab: 1))
+                
+            case .routeToFollowerScreen:
+                return .send(.routeToFollowScreen(tab: 0))
+                
             case .kebabMenuTapped:
                 state.isMenuPresented.toggle()
                 return .none
@@ -165,18 +190,42 @@ struct OtherProfileFeature {
                 return .none
                 
             case .blockUser:
-                state.showBlockAlert = true
-                return .none
+                return .send(
+                    .presentAlert(
+                        .normalButtonTwo,
+                        Alert(
+                            title: "\(state.username)님을\n 차단하시겠습니까?",
+                            confirmButtonTitle: "네",
+                            cancelButtonTitle: "아니요",
+                            imageString: nil
+                        )
+                    )
+                )
                 
             case .unblockUser:
-                state.showUnblockAlert = true
-                return .none
+                return .send(
+                    .presentAlert(
+                        .normalButtonTwo,
+                        Alert(
+                            title: "차단을 해제하시겠습니까?",
+                            confirmButtonTitle: "네",
+                            cancelButtonTitle: "아니요",
+                            imageString: nil
+                        )
+                    )
+                )
                 
             case .reportUser:
-                return .send(.routeToReportScreen(state.userId))
+                return .send(.routeToUserReportScreen(state.userId))
+                
+            case .confirmAction:
+                if state.isBlocked {
+                    return .send(.confirmUnblock)
+                } else {
+                    return .send(.confirmBlock)
+                }
                 
             case .confirmBlock:
-                state.showBlockAlert = false
                 return .run { [userId = state.userId] send in
                     await send(.blockActionResponse(
                         TaskResult { try await blockService.blockUser(userId: userId) }
@@ -191,21 +240,13 @@ struct OtherProfileFeature {
                     ))
                 }
                 
-            case .cancelBlock:
-                state.showBlockAlert = false
-                return .none
-                
-            case .cancelUnblock:
-                state.showUnblockAlert = false
-                return .none
-                
             case .blockActionResponse(.success):
                 state.isBlocked = true
                 state.isFollowing = false
                 state.reviews = []
                 state.toast = Toast(
                     style: .gray,
-                    message: "사용자를 차단했습니다",
+                    message: "해당 유저가 차단되었어요.",
                     yOffset: UIScreen.main.bounds.height - 200.adjustedH
                 )
 
@@ -230,9 +271,16 @@ struct OtherProfileFeature {
                 state.toast = nil
                 return .none
                 
-            case .routeToPreviousScreen:
+            case .routeToPreviousScreen, .routeToReviewDetail, .routeToUserReportScreen, .routeToPostReportScreen, .routeToFollowScreen:
                 return .none
-            case .routeToReportScreen:
+                
+            case let .presentAlert(type, alert):
+                state.alertType = type
+                state.alert = alert
+                state.isAlertPresented = true
+                return .none
+                
+            case .binding:
                 return .none
             }
         }
