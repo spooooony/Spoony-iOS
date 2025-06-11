@@ -185,7 +185,8 @@ struct TabRootCoordinator {
                     .router(.routeAction(id: _, action: .attendance(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .post(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .report(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .profile(.routeToPreviousScreen))):
+                    .router(.routeAction(id: _, action: .profile(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .follow(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
                 
