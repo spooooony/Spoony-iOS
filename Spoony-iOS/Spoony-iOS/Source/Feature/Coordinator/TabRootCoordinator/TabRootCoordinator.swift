@@ -108,6 +108,10 @@ struct TabRootCoordinator {
                 state.routes.push(.profile(OtherProfileFeature.State(userId: user)))
                 return .none
                 
+            case .router(.routeAction(id: _, action: .post(.routeToMyProfileScreen))):
+                state.routes.push(.myProfile(.initialState))
+                return .none
+                
             case .router(.routeAction(id: _, action: .tab(.routeToUserReport(let userId)))):
                 state.routes.push(.report(ReportFeature.State(targetUserId: userId)))
                 return .none

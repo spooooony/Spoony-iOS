@@ -153,9 +153,11 @@ extension PostView {
                     .customFont(.body2b)
                     .foregroundStyle(.black)
                 
-                Text(store.regionName)
-                    .customFont(.caption1m)
-                    .foregroundStyle(.gray400)
+                if !store.regionName.isEmpty {
+                    Text(store.regionName)
+                        .customFont(.caption1m)
+                        .foregroundStyle(.gray400)
+                }
             }
             
             Spacer()
@@ -199,7 +201,11 @@ extension PostView {
         .padding(.horizontal, 20.adjustedH)
         .padding(.bottom, 24.adjustedH)
         .onTapGesture {
-            store.send(.routeToUserProfileScreen(store.userId))
+            if store.isMine {
+                store.send(.routeToMyProfileScreen)
+            } else {
+                store.send(.routeToUserProfileScreen(store.userId))
+            }
         }
     }
     
