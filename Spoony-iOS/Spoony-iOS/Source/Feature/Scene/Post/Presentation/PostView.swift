@@ -317,7 +317,6 @@ extension PostView {
         if !store.cons.isEmpty {
             ZStack(alignment: .center) {
                 baseHmmSection
-                    .frame(height: (store.isScoop || store.isMine) ? nil : 120.adjustedH)
                 
                 if !(store.isScoop || store.isMine) {
                     SpoonyButton(
