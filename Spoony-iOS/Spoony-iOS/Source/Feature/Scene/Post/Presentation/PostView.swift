@@ -317,7 +317,8 @@ extension PostView {
         if !store.cons.isEmpty {
             ZStack(alignment: .center) {
                 baseHmmSection
-                
+                    .frame(height: (store.isScoop || store.isMine) ? nil : 120.adjustedH)
+
                 if !(store.isScoop || store.isMine) {
                     SpoonyButton(
                         style: .primary,
@@ -329,6 +330,7 @@ extension PostView {
                         store.send(.showUseSpoonPopup)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.bottom, -16.adjustedH)
                 }
             }
         }
@@ -343,6 +345,7 @@ extension PostView {
             Text(store.cons)
                 .font(.body2m)
                 .foregroundStyle(.gray900)
+                .blur(radius: (store.isScoop || store.isMine) ? 0 : 12)
         }
         .padding(EdgeInsets(
             top: 20.adjustedH,
@@ -357,7 +360,6 @@ extension PostView {
         }
         .padding(.horizontal, 20.adjusted)
         .padding(.bottom, 12.adjustedH)
-        .blur(radius: (store.isScoop || store.isMine) ? 0 : 12)
     }
     
     private var menuInfo: some View {
