@@ -312,13 +312,20 @@ extension PostView {
     }
     
     // 흠 아쉬워요 섹션
+    @ViewBuilder
     private var hmmJustOneThingSection: some View {
-        ZStack(alignment: .center) {
-            baseHmmSection
-            
-            Group {
+        if !store.cons.isEmpty {
+            ZStack(alignment: .center) {
+                baseHmmSection
+                
                 if !(store.isScoop || store.isMine) {
-                    SpoonyButton(style: .primary, size: .minusSpoon, title: "스푼 1개 써서 확인하기", isIcon: true, disabled: .constant(false)) {
+                    SpoonyButton(
+                        style: .primary,
+                        size: .minusSpoon,
+                        title: "스푼 1개 써서 확인하기",
+                        isIcon: true,
+                        disabled: .constant(false)
+                    ) {
                         store.send(.showUseSpoonPopup)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -535,7 +542,7 @@ struct PostScrapButton: View {
     
     let store = Store(initialState: PostFeature.State()) {
         PostFeature()
-            .dependency(\.postUseCase, PostUseCaseKey.liveValue)
+            .dependency(\.postUseCase, PostUseCaseKey.testValue)
     }
     
     return PostView(postId: 30, store: store)
