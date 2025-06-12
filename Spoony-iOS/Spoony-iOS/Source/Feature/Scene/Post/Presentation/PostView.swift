@@ -154,7 +154,7 @@ extension PostView {
                     .foregroundStyle(.black)
                 
                 if !store.regionName.isEmpty {
-                    Text(store.regionName)
+                    Text("서울 \(store.regionName) 스푼")
                         .customFont(.caption1m)
                         .foregroundStyle(.gray400)
                 }
