@@ -318,7 +318,7 @@ extension PostView {
             ZStack(alignment: .center) {
                 baseHmmSection
                     .frame(height: (store.isScoop || store.isMine) ? nil : 120.adjustedH)
-
+                
                 if !(store.isScoop || store.isMine) {
                     SpoonyButton(
                         style: .primary,
@@ -354,6 +354,10 @@ extension PostView {
             trailing: 20.adjusted
         ))
         .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(
+            height: (store.isScoop || store.isMine) ? nil : 119.adjustedH,
+            alignment: .top
+        )
         .background {
             Color.gray0
                 .cornerRadius(20, corners: [.topLeft, .topRight])
