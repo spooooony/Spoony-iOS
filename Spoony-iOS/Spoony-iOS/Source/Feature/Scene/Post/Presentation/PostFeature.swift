@@ -161,7 +161,7 @@ struct PostFeature {
                 if isScrap {
                     state.zzimCount += 1
                     state.isZzim.toggle()
-                    return .send(.showToast("내 지도에 추가되었어요."))
+                    return .send(.showToast("내 지도에 저장되었어요."))
                 } else {
                     state.zzimCount -= 1
                     state.isZzim.toggle()
