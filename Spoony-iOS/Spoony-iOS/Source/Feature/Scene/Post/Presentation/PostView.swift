@@ -197,13 +197,16 @@ extension PostView {
                     }
             }
         }
+        .zIndex(1)
         .padding(.vertical, 8.adjustedH)
         .padding(.horizontal, 20.adjustedH)
         .padding(.bottom, 24.adjustedH)
         .onTapGesture {
             if store.isMine {
+                print("내 페이지로")
                 store.send(.routeToMyProfileScreen)
             } else {
+                print("남의 페이지로")
                 store.send(.routeToUserProfileScreen(store.userId))
             }
         }
@@ -547,8 +550,8 @@ struct PostScrapButton: View {
     
     let store = Store(initialState: PostFeature.State()) {
         PostFeature()
-            .dependency(\.postUseCase, PostUseCaseKey.testValue)
+            .dependency(\.postUseCase, PostUseCaseKey.liveValue)
     }
     
-    return PostView(postId: 30, store: store)
+    return PostView(postId: 51, store: store)
 }
