@@ -108,12 +108,17 @@ struct FollowFeature {
                 return .none
                 
             case .followButtonTapped(let userId, let isFollowing):
-                return .run { send in
+                if let index = state.followingList.firstIndex(where: { $0.userId == userId }) {
+                    // 현재 팔로잉 화면에서 언팔 시 isFollowing만 토글
+                    state.followingList[index].isFollowing.toggle()
+                }
+                return .run { _ in
                     do {
                         try await followUseCase.toggleFollow(userId: userId, isFollowing: isFollowing)
-                        await send(.followActionResponse(.success(())))
+                        // ✅ 성공했지만 새로고침은 하지 않음
+//                        await send(.followActionResponse(.success(())))
                     } catch {
-                        await send(.followActionResponse(.failure(error)))
+                        print("❌ 팔로우 실패: \(error.localizedDescription)")
                     }
                 }
                 

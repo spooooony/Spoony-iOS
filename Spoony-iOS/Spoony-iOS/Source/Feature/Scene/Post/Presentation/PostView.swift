@@ -154,7 +154,7 @@ extension PostView {
                     .foregroundStyle(.black)
                 
                 if !store.regionName.isEmpty {
-                    Text(store.regionName)
+                    Text("서울 \(store.regionName) 스푼")
                         .customFont(.caption1m)
                         .foregroundStyle(.gray400)
                 }
@@ -197,13 +197,16 @@ extension PostView {
                     }
             }
         }
+        .zIndex(1)
         .padding(.vertical, 8.adjustedH)
         .padding(.horizontal, 20.adjustedH)
         .padding(.bottom, 24.adjustedH)
         .onTapGesture {
             if store.isMine {
+                print("내 페이지로")
                 store.send(.routeToMyProfileScreen)
             } else {
+                print("남의 페이지로")
                 store.send(.routeToUserProfileScreen(store.userId))
             }
         }
@@ -312,16 +315,24 @@ extension PostView {
     }
     
     // 흠 아쉬워요 섹션
+    @ViewBuilder
     private var hmmJustOneThingSection: some View {
-        ZStack(alignment: .center) {
-            baseHmmSection
-            
-            Group {
+        if !store.cons.isEmpty {
+            ZStack(alignment: .center) {
+                baseHmmSection
+                
                 if !(store.isScoop || store.isMine) {
-                    SpoonyButton(style: .primary, size: .minusSpoon, title: "스푼 1개 써서 확인하기", isIcon: true, disabled: .constant(false)) {
+                    SpoonyButton(
+                        style: .primary,
+                        size: .minusSpoon,
+                        title: "스푼 1개 써서 확인하기",
+                        isIcon: true,
+                        disabled: .constant(false)
+                    ) {
                         store.send(.showUseSpoonPopup)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.bottom, -16.adjustedH)
                 }
             }
         }
@@ -336,6 +347,7 @@ extension PostView {
             Text(store.cons)
                 .font(.body2m)
                 .foregroundStyle(.gray900)
+                .blur(radius: (store.isScoop || store.isMine) ? 0 : 12)
         }
         .padding(EdgeInsets(
             top: 20.adjustedH,
@@ -344,13 +356,16 @@ extension PostView {
             trailing: 20.adjusted
         ))
         .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(
+            height: (store.isScoop || store.isMine) ? nil : 119.adjustedH,
+            alignment: .top
+        )
         .background {
             Color.gray0
                 .cornerRadius(20, corners: [.topLeft, .topRight])
         }
         .padding(.horizontal, 20.adjusted)
         .padding(.bottom, 12.adjustedH)
-        .blur(radius: (store.isScoop || store.isMine) ? 0 : 12)
     }
     
     private var menuInfo: some View {
@@ -538,5 +553,5 @@ struct PostScrapButton: View {
             .dependency(\.postUseCase, PostUseCaseKey.liveValue)
     }
     
-    return PostView(postId: 30, store: store)
+    return PostView(postId: 51, store: store)
 }
