@@ -59,7 +59,7 @@ struct BottomSheetListItem: View {
                 Text(pickCard.description ?? "")
                     .customFont(.caption1m)
                     .foregroundColor(.spoonBlack)
-                    .lineLimit(1)
+                    .lineLimit(2)
                     .truncationMode(.tail)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 12)
@@ -97,7 +97,7 @@ struct BottomSheetListItem: View {
             .layoutPriority(0)
         }
         .padding(.horizontal, 16)
-        .frame(height: 120.adjusted)
+        .frame(height: 140.adjusted)
     }
     
     private var defaultPlaceholder: some View {
