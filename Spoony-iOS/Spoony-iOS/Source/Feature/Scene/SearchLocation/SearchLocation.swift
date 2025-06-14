@@ -156,22 +156,21 @@ struct SearchLocationView: View {
     }
     
     private func handleGPSButtonTap() {
-        if store.mapState.isLocationFocused {
-            store.send(.map(.clearFocusedPlaces))
-            return
-        }
-        
         switch locationManager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
-            if let currentLocation = locationManager.location {
-                store.send(.map(.updateUserLocation(currentLocation)))
-                store.send(.map(.moveToUserLocation))
+            if store.mapState.isLocationFocused {
+                store.send(.map(.toggleGPSTracking))
             } else {
-                locationManager.requestLocation()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    if let location = self.locationManager.location {
-                        store.send(.map(.updateUserLocation(location)))
-                        store.send(.map(.moveToUserLocation))
+                if let currentLocation = locationManager.location {
+                    store.send(.map(.updateUserLocation(currentLocation)))
+                    store.send(.map(.moveToUserLocation))
+                } else {
+                    locationManager.requestLocation()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        if let location = self.locationManager.location {
+                            store.send(.map(.updateUserLocation(location)))
+                            store.send(.map(.moveToUserLocation))
+                        }
                     }
                 }
             }
