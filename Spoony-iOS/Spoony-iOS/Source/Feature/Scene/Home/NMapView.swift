@@ -28,20 +28,22 @@ struct NMapView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> NMFMapView {
         let mapView = configureMapView(context: context)
-        checkLocationPermission(mapView)
+        
+        setInitialCameraPosition(mapView)
+        
         return mapView
     }
     
-    private func checkLocationPermission(_ mapView: NMFMapView) {
+    private func setInitialCameraPosition(_ mapView: NMFMapView) {
         let locationManager = CLLocationManager()
         
         switch locationManager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
             if let location = userLocation {
-                moveCamera(mapView, to: NMGLatLng(lat: location.coordinate.latitude,
-                                                  lng: location.coordinate.longitude))
-            } else if let selectedLocation = selectedLocation {
-                moveCamera(mapView, to: NMGLatLng(lat: selectedLocation.latitude, lng: selectedLocation.longitude))
+                let coord = NMGLatLng(lat: location.coordinate.latitude, lng: location.coordinate.longitude)
+                let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: userLocationZoomLevel)
+                mapView.moveCamera(cameraUpdate)
+                print("📍 초기 사용자 위치로 카메라 이동: \(location.coordinate)")
             } else {
                 moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
             }
@@ -80,7 +82,12 @@ struct NMapView: UIViewRepresentable {
             mapView.moveCamera(cameraUpdate)
             
             context.coordinator.updateUserLocationMarker(mapView: mapView, location: userLocation)
-        } else if let location = selectedLocation {
+        }
+        else if !isLocationFocused && context.coordinator.userLocationMarker?.mapView != nil {
+            context.coordinator.userLocationMarker?.mapView = nil
+            context.coordinator.userLocationMarker = nil
+        }
+        else if let location = selectedLocation {
             let coord = NMGLatLng(lat: location.latitude, lng: location.longitude)
             let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: 11.0)
             cameraUpdate.animation = .easeIn
@@ -88,7 +95,7 @@ struct NMapView: UIViewRepresentable {
             mapView.moveCamera(cameraUpdate)
         }
         
-        if context.coordinator.isInitialLoad && !pickList.isEmpty {
+        if context.coordinator.isInitialLoad && !pickList.isEmpty && !isLocationFocused {
             let bounds = NMGLatLngBounds(latLngs: pickList.map {
                 NMGLatLng(lat: $0.latitude, lng: $0.longitude)
             })
@@ -207,26 +214,6 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
                 markers.removeValue(forKey: idToRemove)
             }
         }
-        
-        if !pickList.isEmpty && isInitialLoad {
-            adjustMapToShowAllMarkers(mapView, pickList: pickList)
-        }
-    }
-    
-    private func adjustMapToShowAllMarkers(_ mapView: NMFMapView, pickList: [PickListCardResponse]) {
-        if pickList.count > 1 {
-            let bounds = NMGLatLngBounds(latLngs: pickList.map {
-                NMGLatLng(lat: $0.latitude, lng: $0.longitude)
-            })
-            let cameraUpdate = NMFCameraUpdate(fit: bounds, padding: 50)
-            mapView.moveCamera(cameraUpdate)
-        } else if let firstPlace = pickList.first {
-            let coord = NMGLatLng(lat: firstPlace.latitude, lng: firstPlace.longitude)
-            let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: 15.0)
-            mapView.moveCamera(cameraUpdate)
-        }
-        
-        isInitialLoad = false
     }
     
     private func configureMarkerCaption(_ marker: NMFMarker, with placeName: String, isSelected: Bool) {
