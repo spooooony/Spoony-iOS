@@ -314,26 +314,31 @@ struct MapFeature {
                 state.searchText = text
                 return .none
                 
-            case let .focusedPlaceResponse(.success(response)):
-                state.isLoading = false
-                let places = response.zzimFocusResponseList.map { $0.toCardPlace() }
-                
-                if !places.isEmpty {
-                    state.focusedPlaces = places
-                    state.selectedPlace = places[0]
-                    state.currentPage = 0
-                    state.currentBottomSheetStyle = .half
-                } else {
-                    state.focusedPlaces = []
-                    state.selectedPlace = nil
-                }
-                
-                state.isLocationFocused = false
-                return .none
+                case let .focusedPlaceResponse(.success(response)):
+                    state.isLoading = false
+                    let places = response.zzimFocusResponseList.map { $0.toCardPlace() }
+                    
+                    if !places.isEmpty {
+                        state.focusedPlaces = places
+                        state.selectedPlace = places[0]
+                        state.currentPage = 0
+                        state.currentBottomSheetStyle = .half
+                        
+                        if let firstPlace = places.first {
+                            if let matchingPickCard = state.pickList.first(where: { $0.placeId == firstPlace.placeId }) {
+                                state.selectedLocation = (matchingPickCard.latitude, matchingPickCard.longitude)
+                            }
+                        }
+                    } else {
+                        state.focusedPlaces = []
+                        state.selectedPlace = nil
+                    }
+                    
+                    state.isLocationFocused = false
+                    return .none
                 
             case .toggleGPSTracking:
                 if state.isLocationFocused {
-                    // GPS 포커싱 해제
                     state.isLocationFocused = false
                     state.selectedLocation = nil
                     print("📍 GPS 포커싱 해제됨")

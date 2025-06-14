@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-
 import ComposableArchitecture
 
 struct BottomSheetListView: View {
@@ -66,21 +65,18 @@ struct BottomSheetListView: View {
                             BottomSheetListItem(pickCard: pickCard)
                                 .background(Color.white)
                                 .onTapGesture {
-                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                        currentStyle = .full
-                                        bottomSheetHeight = currentStyle.height
-                                        isScrollEnabled = true
-                                    }
                                     store.send(.fetchFocusedPlace(placeId: pickCard.placeId))
                                 }
+                                .allowsHitTesting(true)
                         }
                         
                         if currentStyle == .full {
                             Color.clear.frame(height: 230.adjustedH)
                         }
                     }
+                    .allowsHitTesting(true)
                 }
-                .disabled(!isScrollEnabled)
+                .scrollDisabled(currentStyle != .full)
             }
             .frame(maxHeight: .infinity)
             .background(Color.white)

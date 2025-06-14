@@ -190,7 +190,7 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
-    
+
     func updateMarkers(mapView: NMFMapView, pickList: [PickListCardResponse], selectedPlaceId: Int?) {
         var currentMarkerIds = Set(markers.keys)
         
