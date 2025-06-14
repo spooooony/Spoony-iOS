@@ -22,6 +22,8 @@ struct InfoStepFeature {
         var isEditMode: Bool = false
         var selectedCategoryId: Int?
         
+        var isLoadError: Bool = false
+        
         // MARK: - 카테고리 관련 property
         var selectedCategory: [CategoryChip] = []
         var categories: [CategoryChip] = []
@@ -46,6 +48,8 @@ struct InfoStepFeature {
     enum Action: BindableAction, Equatable {
         case onAppear
         case binding(BindingAction<State>)
+        
+        case updateIsLoadError(Bool)
         
         // MARK: - 카테고리 관련 이벤트
         case categoryResponse([CategoryChip])
@@ -81,27 +85,29 @@ struct InfoStepFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                if !state.categories.isEmpty {
-                    return .none
-                } else {
-                    return .run { send in
-                        do {
-                            let categories = try await network.getRegisterCategories().toModel()
-                            
-                            await send(.categoryResponse(categories))
-                        } catch {
-                            await send(.presentToast(message: "네트워크 에러!"))
-                        }
+                return .run { send in
+                    do {
+                        let categories = try await network.getRegisterCategories().toModel()
+                        
+                        await send(.categoryResponse(categories))
+                    } catch {
+                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
+                        await send(.updateIsLoadError(true))
                     }
                 }
+                
             case .binding(\.recommendTexts):
                 return .send(.validateNextButton)
             case .binding(\.selectedCategory):
                 return .send(.validateNextButton)
             case .binding: return .none
+            case .updateIsLoadError(let isLoadError):
+                state.isLoadError = isLoadError
+                state.isDisableNextButton = true
+                return .none
             case .loadSelectedCategory:
                 if let selectedId = state.selectedCategoryId,
-                   let selectedCategory = state.categories.first(where: { $0.id == selectedId }){
+                   let selectedCategory = state.categories.first(where: { $0.id == selectedId }) {
                     state.selectedCategory = [selectedCategory]
                 }
                 
@@ -125,7 +131,7 @@ struct InfoStepFeature {
                         
                         await send(.searchPlaceResponse(places))
                     } catch {
-                        await send(.presentToast(message: "네트워크 에러!"))
+                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
                     }
                 }
             case .searchPlaceResponse(let places):
