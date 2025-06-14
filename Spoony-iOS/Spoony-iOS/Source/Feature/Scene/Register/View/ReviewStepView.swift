@@ -126,7 +126,7 @@ extension ReviewStepView {
             SpoonyTextEditor(
                 text: $store.weakPointText,
                 style: .weakPoint,
-                placeholder: "사장님 몰래 남기는 솔직 후기!\n이 내용은 비공개 처리 되어요. (선택)",
+                placeholder: "쉿 사장님 몰래 남기는 솔직 후기! (선택)\n이 내용은 비공개 처리 돼요.",
                 isError: $store.isWeakPointTextError
             )
         }

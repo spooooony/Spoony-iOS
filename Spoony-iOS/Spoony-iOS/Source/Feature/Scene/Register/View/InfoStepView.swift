@@ -32,8 +32,9 @@ struct InfoStepView: View {
             hideKeyboard()
         }
         .task {
-            store.send(.onAppear)
+            await store.send(.onAppear).finish()
         }
+        .disabled(store.state.isLoadError)
     }
 }
 
@@ -81,6 +82,7 @@ extension InfoStepView {
                 ) {
                     store.send(.didTapSearchDeleteIcon)
                 }
+                .redacted(reason: store.state.isLoadError ? .placeholder : [])
                 .focused($isPlaceTextFieldFocused)
                 .onSubmit {
                     store.send(.didTapKeyboardEnter)
@@ -93,6 +95,7 @@ extension InfoStepView {
                     ) {
                         store.send(.didTapPlaceInfoCellIcon)
                     }
+                    .redacted(reason: store.state.isLoadError ? .placeholder : [])
                 }
             }
         }
@@ -115,6 +118,7 @@ extension InfoStepView {
                     selectedItem: $store.selectedCategory,
                     items: store.state.categories
                 )
+                .redacted(reason: store.state.isLoadError ? .placeholder : [])
             }
         }
         .padding(.bottom, 40)
@@ -130,7 +134,7 @@ extension InfoStepView {
             VStack(spacing: 8) {
                 ForEach($store.recommendTexts, id: \.id) { $text in
                     SpoonyTextField(
-                        text: $text.text,
+                        text: store.state.isLoadError ? .constant("") : $text.text,
                         style: .normal(isIcon: store.state.recommendTexts.count > 1),
                         placeholder: "메뉴 이름",
                         isError: .constant(false)
@@ -138,6 +142,7 @@ extension InfoStepView {
                         store.send(.didTapRecommendDeleteButton(text))
                     }
                 }
+                .redacted(reason: store.state.isLoadError ? .placeholder : [])
                 
                 if store.state.recommendTexts.count < 3 {
                     plusButton
@@ -155,7 +160,6 @@ extension InfoStepView {
             
             SpoonySlider($store.satisfaction)
         }
-        
     }
     
     private var dropDownView: some View {

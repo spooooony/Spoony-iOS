@@ -82,6 +82,8 @@ struct RegisterFeature {
                             let reviewInfo = try await network.getReviewInfo(postId: postId).toModel()
                             await send(.reviewInfoResponse(reviewInfo))
                         } catch {
+                            await send(.infoStepAction(.updateIsLoadError(true)))
+                            await send(.updateIsLoading(false))
                             await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
                         }
                     }

@@ -16,7 +16,6 @@ struct Providers {
     static let postProvider = MoyaProvider<PostTargetType>.init(withAuth: true)
     static let authProvider = MoyaProvider<AuthTargetType>.init(withAuth: false)
     static let myPageProvider = MoyaProvider<MyPageTargetType>.init(withAuth: true)
-    static let imageProvider = MoyaProvider<ImageLoadTargetType>.init(withAuth: true)
     static let followProvider = MoyaProvider<FollowTargetType>.init(withAuth: true)
     static let spoonDrawProvider = MoyaProvider<SpoonDrawTargetType>.init(withAuth: true)
 }
