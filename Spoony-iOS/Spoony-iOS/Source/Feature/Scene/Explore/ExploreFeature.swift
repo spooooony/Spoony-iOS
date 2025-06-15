@@ -33,7 +33,7 @@ struct ExploreFeature {
         
         var filterInfo: FilterInfo = .init(categories: [], locations: [])
         
-        var nextCursor: Int?
+        var nextCursor: String?
         var isLast: Bool = false
         
         var isLoading: Bool = false
@@ -61,7 +61,7 @@ struct ExploreFeature {
         
         case fetchFollowingFeed
         
-        case setFeed([FeedEntity], Int?)
+        case setFeed([FeedEntity], String?)
         case setFilterInfo(category: [CategoryChip], location: [Region])
         
         case deleteMyReview(Int)
