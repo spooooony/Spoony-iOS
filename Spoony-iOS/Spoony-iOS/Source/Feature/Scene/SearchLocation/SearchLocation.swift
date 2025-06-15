@@ -16,9 +16,6 @@ struct SearchLocationView: View {
     @State private var locationManager = CLLocationManager()
     @State private var locationDelegate: LocationManagerDelegate?
     
-    @State private var currentBottomSheetHeight: CGFloat = BottomSheetStyle.half.height
-    @State private var currentBottomSheetStyle: BottomSheetStyle = .half
-    
     init(store: StoreOf<SearchLocationFeature>) {
         self.store = store
         self._viewModel = State(initialValue: HomeViewModel(service: DefaultHomeService()))
@@ -39,15 +36,12 @@ struct SearchLocationView: View {
                         set: { store.send(.map(.selectPlace($0))) }
                     ),
                     isLocationFocused: store.mapState.isLocationFocused,
-                    userLocation: store.mapState.userLocation,
-                    focusedPlaces: store.focusedPlaces,
+                    userLocation: store.mapState.isLocationFocused ? store.mapState.userLocation : nil,
+                    focusedPlaces: store.mapState.focusedPlaces,
                     pickList: store.pickList,
                     selectedLocation: store.selectedLocation
                 )
                 .edgesIgnoringSafeArea(.all)
-                .onChange(of: store.focusedPlaces) { _, newPlaces in
-                    store.send(.updatePlaces(focusedPlaces: newPlaces))
-                }
                 
                 VStack(spacing: 0) {
                     CustomNavigationBar(
@@ -66,7 +60,7 @@ struct SearchLocationView: View {
                     HStack {
                         Spacer()
                         
-                        if currentBottomSheetStyle != .full && store.focusedPlaces.isEmpty {
+                        if store.mapState.currentBottomSheetStyle != .full && store.mapState.focusedPlaces.isEmpty {
                             Button(action: handleGPSButtonTap) {
                                 ZStack {
                                     Circle()
@@ -84,34 +78,32 @@ struct SearchLocationView: View {
                     }
                     .padding(.bottom, store.pickList.isEmpty ?
                         (UIScreen.main.bounds.height * 0.5 - 68) :
-                        (currentBottomSheetHeight - 68)
+                        (store.mapState.bottomSheetHeight - 68)
                     )
                     .padding(.trailing, 20)
                 }
                 
                 Group {
-                    if !store.focusedPlaces.isEmpty {
-                        PlaceCard(
-                            store: store.scope(state: \.mapState, action: \.map),
-                            places: store.focusedPlaces,
+                    if !store.mapState.focusedPlaces.isEmpty {
+                        SearchLocationPlaceCard(
+                            places: store.mapState.focusedPlaces,
                             currentPage: Binding(
                                 get: { store.mapState.currentPage },
                                 set: { store.send(.map(.setCurrentPage($0))) }
-                            )
+                            ),
+                            onCardTapped: { place in
+                                // 플레이스 카드를 탭했을 때 디테일 뷰로 이동
+                                store.send(.routeToPostDetail(postId: place.postId))
+                            }
                         )
                         .padding(.bottom, 12)
                         .transition(.move(edge: .bottom))
                     } else {
                         if !store.pickList.isEmpty {
-                            FlexibleListBottomSheetWrapper(
-                                viewModel: viewModel,
-                                store: store.scope(state: \.mapState, action: \.map),
-                                onHeightChanged: { height in
-                                    currentBottomSheetHeight = height
-                                },
-                                onStyleChanged: { style in
-                                    currentBottomSheetStyle = style
-                                }
+                            SearchLocationBottomSheetListView(
+                                mapStore: store.scope(state: \.mapState, action: \.map),
+                                pickList: store.pickList,
+                                locationTitle: store.locationTitle
                             )
                         } else {
                             FixedBottomSheetView(
@@ -124,24 +116,27 @@ struct SearchLocationView: View {
         }
         .navigationBarHidden(true)
         .onAppear {
+            if let searchedLatitude = store.searchedLatitude,
+               let searchedLongitude = store.searchedLongitude {
+                store.send(.setSelectedLocation(latitude: searchedLatitude, longitude: searchedLongitude))
+            }
+            
+            if store.searchedLatitude != nil && store.searchedLongitude != nil {
+                if store.mapState.isLocationFocused {
+                    store.send(.map(.toggleGPSTracking))
+                }
+            }
+            
             setupLocationManager()
             store.send(.onAppear)
             store.send(.map(.fetchUserInfo))
+            
             Task {
                 await viewModel.fetchLocationList(locationId: store.locationId)
             }
-            
-            currentBottomSheetHeight = store.pickList.isEmpty ?
-                UIScreen.main.bounds.height * 0.5 :
-                BottomSheetStyle.half.height
-            currentBottomSheetStyle = .half
         }
         .onChange(of: store.pickList) { _, newPickList in
             viewModel.pickList = newPickList
-            
-            currentBottomSheetHeight = newPickList.isEmpty ?
-                UIScreen.main.bounds.height * 0.5 :
-                BottomSheetStyle.half.height
         }
     }
     
@@ -151,8 +146,6 @@ struct SearchLocationView: View {
         })
         locationManager.delegate = locationDelegate
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
     }
     
     private func handleGPSButtonTap() {
@@ -161,23 +154,25 @@ struct SearchLocationView: View {
             if store.mapState.isLocationFocused {
                 store.send(.map(.toggleGPSTracking))
             } else {
+                locationManager.startUpdatingLocation()
                 if let currentLocation = locationManager.location {
                     store.send(.map(.updateUserLocation(currentLocation)))
                     store.send(.map(.moveToUserLocation))
                 } else {
                     locationManager.requestLocation()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        if let location = self.locationManager.location {
-                            store.send(.map(.updateUserLocation(location)))
-                            store.send(.map(.moveToUserLocation))
-                        }
-                    }
                 }
             }
         case .denied, .restricted:
             showLocationPermissionAlert()
         case .notDetermined:
             locationManager.requestWhenInUseAuthorization()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                if self.locationManager.authorizationStatus == .authorizedWhenInUse ||
+                   self.locationManager.authorizationStatus == .authorizedAlways {
+                    self.locationManager.startUpdatingLocation()
+                    self.locationManager.requestLocation()
+                }
+            }
         default:
             break
         }
@@ -205,25 +200,21 @@ struct SearchLocationView: View {
     }
 }
 
-struct FlexibleListBottomSheetWrapper: View {
-    @ObservedObject var viewModel: HomeViewModel
+struct SearchLocationBottomSheetListView: View {
     private let store: StoreOf<MapFeature>
-    let onHeightChanged: (CGFloat) -> Void
-    let onStyleChanged: (BottomSheetStyle) -> Void
+    let pickList: [PickListCardResponse]
+    let locationTitle: String
     
     @State private var currentStyle: BottomSheetStyle = .half
+    @State private var bottomSheetHeight: CGFloat = BottomSheetStyle.half.height
     @State private var offset: CGFloat = 0
     @GestureState private var isDragging: Bool = false
     @State private var isScrollEnabled: Bool = false
     
-    init(viewModel: HomeViewModel,
-         store: StoreOf<MapFeature>,
-         onHeightChanged: @escaping (CGFloat) -> Void,
-         onStyleChanged: @escaping (BottomSheetStyle) -> Void) {
-        self.viewModel = viewModel
-        self.store = store
-        self.onHeightChanged = onHeightChanged
-        self.onStyleChanged = onStyleChanged
+    init(mapStore: StoreOf<MapFeature>, pickList: [PickListCardResponse], locationTitle: String) {
+        self.store = mapStore
+        self.pickList = pickList
+        self.locationTitle = locationTitle
     }
     
     var body: some View {
@@ -236,43 +227,40 @@ struct FlexibleListBottomSheetWrapper: View {
                         .padding(.top, 10)
                     
                     HStack(spacing: 4) {
-                        Text("\(store.userName)님의 찐맛집")
+                        Text(locationTitle)
                             .customFont(.body2b)
-                        Text("\(viewModel.pickList.count)")
+                        Text("\(pickList.count)")
                             .customFont(.body2b)
                             .foregroundColor(.gray500)
                     }
                     .padding(.bottom, 8)
                 }
                 .frame(height: 60.adjustedH)
-                .frame(maxWidth: .infinity)
                 .background(Color.white)
                 
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0) {
-                        ForEach(viewModel.pickList, id: \.placeId) { place in
-                            BottomSheetListItem(pickCard: place)
+                        ForEach(pickList, id: \.placeId) { pickCard in
+                            BottomSheetListItem(pickCard: pickCard)
+                                .background(Color.white)
                                 .onTapGesture {
-                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                        currentStyle = .full
-                                        onHeightChanged(currentStyle.height)
-                                        onStyleChanged(currentStyle)
-                                    }
-                                    viewModel.fetchFocusedPlace(placeId: place.placeId)
+                                    store.send(.fetchFocusedPlace(placeId: pickCard.placeId))
                                 }
+                                .allowsHitTesting(true)
                         }
                         
                         if currentStyle == .full {
                             Color.clear.frame(height: 230.adjustedH)
                         }
                     }
+                    .allowsHitTesting(true)
                 }
-                .disabled(currentStyle == .half)
+                .scrollDisabled(currentStyle != .full)
             }
             .frame(maxHeight: .infinity)
             .background(Color.white)
             .cornerRadius(10, corners: [.topLeft, .topRight])
-            .offset(y: geometry.size.height - currentStyle.height + offset)
+            .offset(y: UIScreen.main.bounds.height - currentStyle.height + offset)
             .gesture(
                 DragGesture()
                     .updating($isDragging) { _, state, _ in
@@ -285,7 +273,7 @@ struct FlexibleListBottomSheetWrapper: View {
                             offset = 0
                         } else {
                             offset = translation
-                            onHeightChanged(currentStyle.height - translation)
+                            bottomSheetHeight = currentStyle.height - translation
                         }
                     }
                     .onEnded { value in
@@ -313,36 +301,35 @@ struct FlexibleListBottomSheetWrapper: View {
                                 }
                             }
                         } else {
-                            let screenHeight = geometry.size.height
+                            let screenHeight = UIScreen.main.bounds.height
                             let currentOffset = screenHeight - currentStyle.height + translation
-                            currentStyle = getClosestSnapPoint(to: currentOffset, in: geometry)
-                            isScrollEnabled = (currentStyle == .full)
+                            let newStyle = getClosestSnapPoint(to: currentOffset)
+                            currentStyle = newStyle
+                            isScrollEnabled = (newStyle == .full)
                         }
                         
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                             offset = 0
-                            onHeightChanged(currentStyle.height)
-                            onStyleChanged(currentStyle)
+                            bottomSheetHeight = currentStyle.height
                         }
                     }
             )
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentStyle)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: offset)
-            .onAppear {
-                onHeightChanged(currentStyle.height)
-                onStyleChanged(currentStyle)
-            }
             .onChange(of: currentStyle) { _, newStyle in
                 isScrollEnabled = (newStyle == .full)
-                onHeightChanged(newStyle.height)
-                onStyleChanged(newStyle)
+                bottomSheetHeight = newStyle.height
+                store.send(.setBottomSheetStyle(newStyle))
+            }
+            .onAppear {
+                bottomSheetHeight = currentStyle.height
+                store.send(.setBottomSheetStyle(currentStyle))
             }
         }
         .ignoresSafeArea()
     }
     
-    private func getClosestSnapPoint(to offset: CGFloat, in geometry: GeometryProxy) -> BottomSheetStyle {
-        let screenHeight = geometry.size.height
+    private func getClosestSnapPoint(to offset: CGFloat) -> BottomSheetStyle {
+        let screenHeight = UIScreen.main.bounds.height
         let currentHeight = screenHeight - offset
         
         let distances = [

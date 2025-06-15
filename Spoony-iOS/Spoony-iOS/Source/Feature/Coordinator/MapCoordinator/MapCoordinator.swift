@@ -40,6 +40,9 @@ struct MapCoordinator {
             case let .router(.routeAction(id: _, action: .map(.routeToPostView(postId: postId)))):
                 return .send(.routeToPostScreen(postId))
                 
+            case let .router(.routeAction(id: _, action: .searchLocation(.routeToPostDetail(postId: postId)))):
+                return .send(.routeToPostScreen(postId))
+                
             case .router(.routeAction(id: _, action: .map(.routToSearchScreen))):
                 state.routes.push(.search(.initialState))
                 return .none
@@ -51,9 +54,7 @@ struct MapCoordinator {
             case .router(.routeAction(id: _, action: .search(.selectLocation(let result)))):
                 let locationState = SearchLocationFeature.State(
                     locationId: result.locationId,
-                    locationTitle: result.title,
-                    searchedLatitude: result.latitude,  
-                    searchedLongitude: result.longitude 
+                    locationTitle: result.title
                 )
                 
                 state.routes.push(.searchLocation(locationState))

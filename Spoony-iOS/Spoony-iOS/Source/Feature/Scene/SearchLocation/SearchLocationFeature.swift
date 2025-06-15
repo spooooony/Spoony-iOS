@@ -6,7 +6,6 @@
 //
 
 import Foundation
-
 import ComposableArchitecture
 import CoreLocation
 
@@ -28,7 +27,26 @@ struct SearchLocationFeature {
         var mapState: MapFeature.State = .initialState
         
         static func == (lhs: State, rhs: State) -> Bool {
-            lhs.locationId == rhs.locationId
+            lhs.locationId == rhs.locationId &&
+            lhs.locationTitle == rhs.locationTitle &&
+            lhs.searchedLatitude == rhs.searchedLatitude &&
+            lhs.searchedLongitude == rhs.searchedLongitude
+        }
+        
+        init(locationId: Int,
+             locationTitle: String,
+             searchedLatitude: Double? = nil,
+             searchedLongitude: Double? = nil) {
+            self.locationId = locationId
+            self.locationTitle = locationTitle
+            self.searchedLatitude = searchedLatitude
+            self.searchedLongitude = searchedLongitude
+            
+            if let lat = searchedLatitude, let lng = searchedLongitude {
+                self.selectedLocation = (latitude: lat, longitude: lng)
+                self.mapState.selectedLocation = (latitude: lat, longitude: lng)
+                self.mapState.isLocationFocused = false
+            }
         }
     }
     
@@ -38,7 +56,9 @@ struct SearchLocationFeature {
         case fetchLocationListResponse(TaskResult<ResturantpickListResponse>)
         case selectPlace(CardPlace?)
         case routeToHomeScreen
+        case routeToPostDetail(postId: Int)  // 디테일 뷰로 이동하는 액션 추가
         case updatePlaces(focusedPlaces: [CardPlace])
+        case setSelectedLocation(latitude: Double, longitude: Double)
         case map(MapFeature.Action)
     }
     
@@ -67,7 +87,8 @@ struct SearchLocationFeature {
             case let .fetchLocationListResponse(.success(response)):
                 state.isLoading = false
                 state.pickList = response.zzimCardResponses
-                if let firstPlace = response.zzimCardResponses.first {
+                
+                if state.selectedLocation == nil, let firstPlace = response.zzimCardResponses.first {
                     state.selectedLocation = (firstPlace.latitude, firstPlace.longitude)
                 }
                 return .none
@@ -83,6 +104,10 @@ struct SearchLocationFeature {
             case .routeToHomeScreen:
                 return .none
                 
+            case .routeToPostDetail:
+                // 디테일 뷰로 이동하는 액션 처리 (상위 컴포넌트에서 처리)
+                return .none
+                
             case let .updatePlaces(focusedPlaces):
                 state.focusedPlaces = focusedPlaces
                 if !focusedPlaces.isEmpty {
@@ -90,6 +115,11 @@ struct SearchLocationFeature {
                 } else {
                     state.selectedPlace = nil
                 }
+                return .none
+                
+            case let .setSelectedLocation(latitude, longitude):
+                state.selectedLocation = (latitude: latitude, longitude: longitude)
+                state.mapState.selectedLocation = (latitude: latitude, longitude: longitude)
                 return .none
                 
             case .map(_):
