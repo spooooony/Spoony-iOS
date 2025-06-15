@@ -46,6 +46,8 @@ struct SearchLocationFeature {
                 self.selectedLocation = (latitude: lat, longitude: lng)
                 self.mapState.selectedLocation = (latitude: lat, longitude: lng)
                 self.mapState.isLocationFocused = false
+            } else {
+                self.mapState.isLocationFocused = false
             }
         }
     }
@@ -56,9 +58,10 @@ struct SearchLocationFeature {
         case fetchLocationListResponse(TaskResult<ResturantpickListResponse>)
         case selectPlace(CardPlace?)
         case routeToHomeScreen
-        case routeToPostDetail(postId: Int)  // 디테일 뷰로 이동하는 액션 추가
+        case routeToPostDetail(postId: Int)
         case updatePlaces(focusedPlaces: [CardPlace])
         case setSelectedLocation(latitude: Double, longitude: Double)
+        case forceMoveCameraToSearchLocation
         case map(MapFeature.Action)
     }
     
@@ -72,6 +75,12 @@ struct SearchLocationFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
+                if let lat = state.searchedLatitude, let lng = state.searchedLongitude {
+                    state.selectedLocation = (latitude: lat, longitude: lng)
+                    state.mapState.selectedLocation = (latitude: lat, longitude: lng)
+]                    state.mapState.isLocationFocused = false
+                }
+                
                 return .concatenate(
                     .send(.fetchLocationList),
                     .send(.map(.fetchUserInfo))
@@ -88,8 +97,17 @@ struct SearchLocationFeature {
                 state.isLoading = false
                 state.pickList = response.zzimCardResponses
                 
-                if state.selectedLocation == nil, let firstPlace = response.zzimCardResponses.first {
-                    state.selectedLocation = (firstPlace.latitude, firstPlace.longitude)
+                if state.selectedLocation == nil {
+                    if let searchedLat = state.searchedLatitude,
+                       let searchedLng = state.searchedLongitude {
+                        state.selectedLocation = (searchedLat, searchedLng)
+                        state.mapState.selectedLocation = (searchedLat, searchedLng)
+                        state.mapState.isLocationFocused = false
+                    } else if let firstPlace = response.zzimCardResponses.first {
+                        state.selectedLocation = (firstPlace.latitude, firstPlace.longitude)
+                        state.mapState.selectedLocation = (firstPlace.latitude, firstPlace.longitude)
+                        state.mapState.isLocationFocused = false
+                    }
                 }
                 return .none
                 
@@ -105,7 +123,6 @@ struct SearchLocationFeature {
                 return .none
                 
             case .routeToPostDetail:
-                // 디테일 뷰로 이동하는 액션 처리 (상위 컴포넌트에서 처리)
                 return .none
                 
             case let .updatePlaces(focusedPlaces):
@@ -120,6 +137,14 @@ struct SearchLocationFeature {
             case let .setSelectedLocation(latitude, longitude):
                 state.selectedLocation = (latitude: latitude, longitude: longitude)
                 state.mapState.selectedLocation = (latitude: latitude, longitude: longitude)
+                return .none
+                
+            case .forceMoveCameraToSearchLocation:
+                if let lat = state.searchedLatitude, let lng = state.searchedLongitude {
+                    state.selectedLocation = (latitude: lat, longitude: lng)
+                    state.mapState.selectedLocation = (latitude: lat, longitude: lng)
+                    state.mapState.isLocationFocused = false
+                }
                 return .none
                 
             case .map(_):

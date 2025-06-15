@@ -36,7 +36,7 @@ struct SearchLocationView: View {
                         set: { store.send(.map(.selectPlace($0))) }
                     ),
                     isLocationFocused: store.mapState.isLocationFocused,
-                    userLocation: store.mapState.isLocationFocused ? store.mapState.userLocation : nil,
+                    userLocation: store.mapState.userLocation,
                     focusedPlaces: store.mapState.focusedPlaces,
                     pickList: store.pickList,
                     selectedLocation: store.selectedLocation
@@ -92,7 +92,6 @@ struct SearchLocationView: View {
                                 set: { store.send(.map(.setCurrentPage($0))) }
                             ),
                             onCardTapped: { place in
-                                // 플레이스 카드를 탭했을 때 디테일 뷰로 이동
                                 store.send(.routeToPostDetail(postId: place.postId))
                             }
                         )
@@ -116,24 +115,26 @@ struct SearchLocationView: View {
         }
         .navigationBarHidden(true)
         .onAppear {
+            if store.mapState.isLocationFocused {
+                store.send(.map(.toggleGPSTracking))
+            }
+            
             if let searchedLatitude = store.searchedLatitude,
                let searchedLongitude = store.searchedLongitude {
                 store.send(.setSelectedLocation(latitude: searchedLatitude, longitude: searchedLongitude))
             }
             
-            if store.searchedLatitude != nil && store.searchedLongitude != nil {
-                if store.mapState.isLocationFocused {
-                    store.send(.map(.toggleGPSTracking))
-                }
-            }
-            
             setupLocationManager()
+            
             store.send(.onAppear)
             store.send(.map(.fetchUserInfo))
             
             Task {
                 await viewModel.fetchLocationList(locationId: store.locationId)
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            store.send(.forceMoveCameraToSearchLocation)
         }
         .onChange(of: store.pickList) { _, newPickList in
             viewModel.pickList = newPickList
