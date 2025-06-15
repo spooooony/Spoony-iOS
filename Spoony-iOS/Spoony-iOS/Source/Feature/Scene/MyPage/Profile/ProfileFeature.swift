@@ -109,7 +109,7 @@ struct ProfileFeature {
                 state.errorMessage = nil
                 state.username = response.userName
                 state.profileImageUrl = response.profileImageUrl
-                state.location = response.regionName ?? "지역 미설정"
+                state.location = response.regionName ?? "지역 미설정"  
                 state.introduction = response.introduction ?? ""
                 state.reviewCount = response.reviewCount
                 state.followingCount = response.followingCount

@@ -226,7 +226,7 @@ struct ProfileHeaderView: View {
     private var userInfoSection: some View {
         VStack(alignment: .leading, spacing: 5) {
             let locationText = store.location.isEmpty || store.location == "지역 미설정" ?
-                (store.errorMessage != nil ? "지역 정보 없음" : "") : "\(store.location) 스푼"
+                (store.errorMessage != nil ? "지역 정보 없음" : "") : "서울 \(store.location) 스푼"
             
             if !locationText.isEmpty {
                 Text(locationText)
