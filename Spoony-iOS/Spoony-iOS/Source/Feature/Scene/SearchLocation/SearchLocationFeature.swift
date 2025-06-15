@@ -78,7 +78,7 @@ struct SearchLocationFeature {
                 if let lat = state.searchedLatitude, let lng = state.searchedLongitude {
                     state.selectedLocation = (latitude: lat, longitude: lng)
                     state.mapState.selectedLocation = (latitude: lat, longitude: lng)
-]                    state.mapState.isLocationFocused = false
+                    state.mapState.isLocationFocused = false
                 }
                 
                 return .concatenate(
