@@ -205,6 +205,7 @@ struct ProfileHeaderView: View {
                 .customFont(.caption1b)
                 .foregroundStyle(.gray400)
                 .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
             Text("\(count)")
                 .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
