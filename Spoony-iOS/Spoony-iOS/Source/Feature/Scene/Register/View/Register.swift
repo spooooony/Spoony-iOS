@@ -50,7 +50,7 @@ struct Register: View {
             }
         }
         .onAppear {
-            store.send(.onAppear)
+            await store.send(.onAppear).finish()
         }
     }
 }

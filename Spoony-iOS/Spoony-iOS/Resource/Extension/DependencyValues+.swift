@@ -38,11 +38,6 @@ extension DependencyValues {
         set { self[RegisterServiceKey.self] = newValue }
     }
     
-    var imageLoadService: ImageLoadServiceProtocol {
-        get { self[ImageLoadServiceKey.self] }
-        set { self[ImageLoadServiceKey.self] = newValue }
-    }
-    
     var followUseCase: FollowUseCase {
         get { self[FollowUseCaseKey.self] }
         set { self[FollowUseCaseKey.self] = newValue }
