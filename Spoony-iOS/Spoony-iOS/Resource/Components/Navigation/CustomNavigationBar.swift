@@ -196,6 +196,9 @@ struct CustomNavigationBar: View {
             
             LogoChip(type: .small, count: spoonCount)
                 .padding(.trailing, 20)
+                .onTapGesture {
+                    spoonTapped?()
+                }
         }
     }
     
