@@ -39,6 +39,7 @@ struct PostFeature {
         var isLoading: Bool = false
         var successService: Bool = true
         var toast: Toast?
+        var showAttendanceView: Bool = false
         
         var userId: Int = 0
         var postId: Int = 0
@@ -65,6 +66,12 @@ struct PostFeature {
         
         var isUseSpoonPopupVisible: Bool = false
         var isDeletePopupVisible: Bool = false
+        
+        var showDailySpoonPopup: Bool = false
+        var isDrawingSpoon: Bool = false
+        var drawnSpoon: SpoonDrawResponse? = nil
+        var spoonDrawError: String? = nil
+        
     }
     
     enum Action {
@@ -100,10 +107,20 @@ struct PostFeature {
         case showDeletePopup
         case confirmDeletePopup
         case dismissDeletePopup
+        
+        case spoonTapped
+        case routeToAttendanceView
+        
+        case setShowDailySpoonPopup(Bool)
+        case drawDailySpoon
+        case spoonDrawResponse(TaskResult<SpoonDrawResponse>)
+        case fetchSpoonCount
+        case spoonCountResponse(TaskResult<Int>)
     }
     
     @Dependency(\.postUseCase) var postUseCase: PostUseCase
     @Dependency(\.followUseCase) var followUseCase: FollowUseCase
+    @Dependency(\.homeService) var homeService
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -270,6 +287,65 @@ struct PostFeature {
                 
             case .dismissDeletePopup:
                 state.isDeletePopupVisible = false
+                return .none
+                
+            case .spoonTapped:
+                print("🔍 isFirstVisitOfDay: \(UserManager.shared.isFirstVisitOfDay())")
+                if !UserManager.shared.isFirstVisitOfDay() { // 지훈쌤이 스푼 뽑았으면 true 라고 했음
+                    print("🔍 스푼 뽑기를 안헀으면 팝업 표시")
+                    return .send(.setShowDailySpoonPopup(true))
+                } else {
+                    print("🔍 스푼 뽑기을 했으면 AttendanceView로 이동")
+                    return .send(.routeToAttendanceView)
+                }
+                
+            case let .setShowDailySpoonPopup(show):
+                print("🔍 setShowDailySpoonPopup: \(show)")
+                state.showDailySpoonPopup = show
+                if !show {
+                    state.drawnSpoon = nil
+                    state.spoonDrawError = nil
+                    state.isDrawingSpoon = false
+                }
+                return .none
+                
+            case .drawDailySpoon:
+                state.isDrawingSpoon = true
+                state.spoonDrawError = nil
+                
+                return .run { send in
+                    let result = await TaskResult {
+                        try await homeService.drawDailySpoon()
+                    }
+                    await send(.spoonDrawResponse(result))
+                }
+                
+            case let .spoonDrawResponse(.success(response)):
+                state.isDrawingSpoon = false
+                state.drawnSpoon = response
+                return .send(.fetchSpoonCount)
+                
+            case .fetchSpoonCount:
+                return .run { send in
+                    let result = await TaskResult { try await homeService.fetchSpoonCount() }
+                    await send(.spoonCountResponse(result))
+                }
+                
+            case let .spoonDrawResponse(.failure(error)):
+                state.isDrawingSpoon = false
+                state.spoonDrawError = error.localizedDescription
+                return .none
+                
+            case let .spoonCountResponse(.success(count)):
+                state.spoonCount = count
+                return .none
+                
+            case let .spoonCountResponse(.failure(error)):
+                print("Spoon count fetch error: \(error)")
+                return .none
+                
+            case .routeToAttendanceView:
+                state.showAttendanceView = true
                 return .none
             }
         }
