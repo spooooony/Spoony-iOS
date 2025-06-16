@@ -36,6 +36,10 @@ struct PostView: View {
                     spoonCount: store.spoonCount,
                     onBackTapped: {
                         store.send(.routeToPreviousScreen)
+                    },
+                    spoonTapped: {
+                        store.send(.spoonTapped)
+                        print("스푼 이밴트")
                     }
                 )
                 ScrollView(.vertical) {
@@ -71,7 +75,6 @@ struct PostView: View {
                 bottomView
                     .frame(height: 80.adjustedH)
             }
-
             .toolbar(.hidden, for: .tabBar)
             
             if store.isLoading {
@@ -116,6 +119,27 @@ struct PostView: View {
                 }
             }
         )
+        .overlay {
+            if store.showDailySpoonPopup {
+                SpoonDrawPopupView(
+                    isPresented: Binding(
+                        get: {
+                            return store.showDailySpoonPopup
+                        },
+                        set: { newValue in
+                            store.send(.setShowDailySpoonPopup(newValue))
+                        }
+                    ),
+                    onDrawSpoon: {
+                        // 드로우 버튼
+                        store.send(.drawDailySpoon)
+                    },
+                    isDrawing: store.isDrawingSpoon,
+                    drawnSpoon: store.drawnSpoon,
+                    errorMessage: store.spoonDrawError
+                )
+            }
+        }
         .navigationBarBackButtonHidden()
     }
 }
@@ -179,7 +203,7 @@ extension PostView {
                     .onChange(of: store.isFollowing) { oldValue, newValue in
                         // 값이 실제로 변경되었는지 한 번 더 확인 코드 입니다. (중복 호출 방지용)
                         guard oldValue != newValue else { return }
-
+                        
                         let generator = UIImpactFeedbackGenerator(style: .light)
                         generator.impactOccurred()
                     }
