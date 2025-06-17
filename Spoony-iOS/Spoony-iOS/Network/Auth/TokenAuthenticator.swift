@@ -55,7 +55,12 @@ final class TokenAuthenticator: Authenticator {
                 let tokenSet = try await refreshService.refresh(token: refreshToken)
                 completion(.success(tokenSet))
             } catch {
-                // TODO: 로그인 화면으로 이동
+                await MainActor.run {
+                    _ = KeychainManager.delete(key: .accessToken)
+                    _ = KeychainManager.delete(key: .refreshToken)
+                    _ = KeychainManager.delete(key: .socialType)
+                    NotificationCenter.default.post(name: .loginNotification, object: nil)
+                }
                 completion(.failure(error))
             }
         }

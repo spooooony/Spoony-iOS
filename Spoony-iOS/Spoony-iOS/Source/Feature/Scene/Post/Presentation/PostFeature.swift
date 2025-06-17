@@ -291,7 +291,7 @@ struct PostFeature {
                 
             case .spoonTapped:
                 print("🔍 isFirstVisitOfDay: \(UserManager.shared.isFirstVisitOfDay())")
-                if !UserManager.shared.isFirstVisitOfDay() { // 지훈쌤이 스푼 뽑았으면 true 라고 했음
+                if UserManager.shared.isFirstVisitOfDay() { // 지훈쌤이 스푼 뽑았으면 true 라고 했음 // 하 미안합니다
                     print("🔍 스푼 뽑기를 안헀으면 팝업 표시")
                     return .send(.setShowDailySpoonPopup(true))
                 } else {

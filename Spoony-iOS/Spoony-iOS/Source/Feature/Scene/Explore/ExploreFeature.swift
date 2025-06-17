@@ -89,11 +89,20 @@ struct ExploreFeature {
         Reduce { state, action in
             switch action {
             case .viewOnAppear:
-                state.isLoading = true
                 if state.viewType == .all {
-                    return .send(.refreshFilteredFeed)
+                    if state.allList.isEmpty {
+                        state.isLoading = true
+                        return .send(.refreshFilteredFeed)
+                    } else {
+                        return .none
+                    }
                 } else {
-                    return .send(.fetchFollowingFeed)
+                    if state.followingList.isEmpty {
+                        state.isLoading = true
+                        return .send(.fetchFollowingFeed)
+                    } else {
+                        return .none
+                    }
                 }
             case .changeViewType(let type):
                 state.viewType = type

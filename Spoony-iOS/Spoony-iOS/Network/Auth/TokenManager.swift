@@ -7,7 +7,7 @@
 
 import Foundation
 
-class TokenManager {
+final class TokenManager {
     static let shared = TokenManager()
     private init() {}
     

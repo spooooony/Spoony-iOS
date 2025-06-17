@@ -224,6 +224,7 @@ struct AttendanceFeature {
             case let .dailySpoonDrawResponse(.success(response)):
                 state.isDrawingSpoon = false
                 state.drawnSpoon = response
+                UserManager.shared.updateLastVisitDate()
                 
                 return .merge(
                     .send(.fetchSpoonCount),
@@ -303,6 +304,7 @@ struct AttendanceFeature {
                 state.isLoading = false
                 state.lastDrawnSpoon = response
                 state.showDrawResultPopup = true
+                UserManager.shared.updateLastVisitDate()
                 
                 return .merge(
                     .send(.fetchSpoonDrawInfo),

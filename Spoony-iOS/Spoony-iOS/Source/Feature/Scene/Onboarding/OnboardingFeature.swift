@@ -170,9 +170,7 @@ struct OnboardingFeature {
                             introduction: state.introduceText,
                             token: token
                         )
-                        
-//                        AuthenticationManager.shared.setAuthenticationState()
-                        
+                    
                         await send(.setUserNickname(user))
                     } catch {
                         await send(.error(SNError.networkFail))
