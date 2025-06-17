@@ -69,35 +69,23 @@ extension ExploreCell {
                 
                 Spacer()
                 
-                if onDelete != nil || onEdit != nil {
-                    Button(action: {
+                Button(action: {
+                    if onDelete != nil || onEdit != nil {
                         withAnimation {
                             showOptions.toggle()
                         }
-                    }) {
-                        Image(.icMenu)
-                            .resizable()
-                            .frame(width: 24.adjusted, height: 24.adjusted)
-                            .contentShape(Rectangle())
+                    } else {
+                        isDropdown.toggle()
                     }
-                    .id("menuButton-\(feed.id)")
-                    .environment(\.reviewCellID, feed.id.uuidString)
-                    .buttonStyle(PlainButtonStyle())
-                    
-                } else {
-                    
-                    Button(action: {
-                        withAnimation {
-                            isDropdown.toggle()
-                        }
-                    }) {
-                        Image(.icMenu)
-                            .resizable()
-                            .frame(width: 24.adjusted, height: 24.adjusted)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(PlainButtonStyle())
+                    print("tapped")
+                }) {
+                    Image(.icMenu)
+                        .resizable()
+                        .frame(width: 24.adjusted, height: 24.adjusted)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
+                .zIndex(0)
             }
             
             HStack(alignment: .bottom, spacing: 4) {

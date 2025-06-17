@@ -40,10 +40,8 @@ struct AppCoordinatorView: View {
                 set: { store.send(.updateToast($0)) }
             )
         )
-        .onChange(of: authManager.authenticationState) {
-            if authManager.authenticationState == .unAuthenticated {
-                store.send(.routeToLoginScreen)
-            }
+        .onReceive(NotificationManager.loginNotificationPublisher) { _ in
+            store.send(.routeToLoginScreen)
         }
     }
 }
