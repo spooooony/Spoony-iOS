@@ -50,13 +50,7 @@ struct Register: View {
             }
         }
         .onAppear {
-<<<<<<< Updated upstream
             store.send(.onAppear)
-=======
-            Task {
-                await store.send(.onAppear).finish()
-            }
->>>>>>> Stashed changes
         }
     }
 }
