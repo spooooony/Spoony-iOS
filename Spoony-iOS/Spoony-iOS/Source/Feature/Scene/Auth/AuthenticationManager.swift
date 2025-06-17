@@ -9,29 +9,17 @@ import Foundation
 
 import ComposableArchitecture
 
-enum AuthenticationState {
-    case authenticated
-    case unAuthenticated
-}
-
 final class AuthenticationManager: ObservableObject {
     static let shared = AuthenticationManager()
     
     private init() { }
     
-    // 로그아웃, 회원탈퇴 시에 unAuthenticated로 바꿔주기
-    @Published private(set) var authenticationState: AuthenticationState = .unAuthenticated
     private(set) var socialToken: String?
     private(set) var socialType: SocialType = .KAKAO
     
     func setToken(_ type: SocialType, _ token: String) {
         self.socialType = type
         self.socialToken = token
-    }
-    
-    @MainActor
-    func setAuthenticationState() {
-        authenticationState = .authenticated
     }
     
     func checkAutoLogin() -> Bool {
@@ -53,11 +41,6 @@ final class AuthenticationManager: ObservableObject {
             return false
         }
         
-        self.authenticationState = .unAuthenticated
         return true
-    }
-    
-    func handleTokenExpired() {
-        authenticationState = .unAuthenticated
     }
 }

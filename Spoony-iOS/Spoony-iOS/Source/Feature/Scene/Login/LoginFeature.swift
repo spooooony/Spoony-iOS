@@ -95,7 +95,6 @@ struct LoginFeature {
                     do {
                         let isExists = try await authService.login(platform: type.rawValue, token: token)
                         if isExists {
-//                            authenticationManager.setAuthenticationState()
                             await send(.routToTabCoordinatorScreen)
                         } else {
                             await send(.routToTermsOfServiceScreen)
