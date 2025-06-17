@@ -137,11 +137,14 @@ struct EditProfileFeature {
                 return .none
                 
             case .didTapRegisterButton:
+                let birthComponents = state.birthDate
+                let birth: String = birthComponents.allSatisfy { $0.isEmpty } ? "" : birthComponents.joined(separator: "-")
+                
                 let reqeust = EditProfileRequest(
                     userName: state.userNickname,
                     regionId: state.selectedSubLocation?.id ?? 1,
                     introduction: state.introduction,
-                    birth: state.birthDate.joined(separator: "-"),
+                    birth: birth,
                     imageLevel: state.imageLevel
                 )
                 
@@ -151,7 +154,7 @@ struct EditProfileFeature {
                     if success {
                         await send(.routeToPreviousScreen)
                     } else {
-                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
+                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
                         await send(.routeToPreviousScreen)
                     }
                 }

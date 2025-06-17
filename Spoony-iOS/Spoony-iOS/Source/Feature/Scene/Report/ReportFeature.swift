@@ -42,6 +42,7 @@ struct ReportFeature {
         case routeToPreviousScreen
         case presentAlert(AlertType, Alert)
         case routeToRoot
+        case presentToast(message: String)
     }
     
     @Dependency(\.reportService) var reportService: ReportProtocol
@@ -75,17 +76,6 @@ struct ReportFeature {
                                 report: state.selectedPostReport,
                                 description: state.description
                             )
-                            await send(
-                                .presentAlert(
-                                    .normalButtonOne,
-                                    Alert(
-                                        title: "신고가 접수되었어요",
-                                        confirmButtonTitle: "확인",
-                                        cancelButtonTitle: nil,
-                                        imageString: nil
-                                    )
-                                )
-                            )
                         case .user:
                             try await reportService.reportUser(
                                 targetUserId: state.targetUserId,
@@ -93,9 +83,19 @@ struct ReportFeature {
                                 description: state.description
                             )
                         }
-                        
+                        await send(
+                            .presentAlert(
+                                .normalButtonOne,
+                                Alert(
+                                    title: "신고가 접수되었어요",
+                                    confirmButtonTitle: "확인",
+                                    cancelButtonTitle: nil,
+                                    imageString: nil
+                                )
+                            )
+                        )
                     } catch {
-                        // 에러 처리
+                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
                     }
                 }
             case .routeToPreviousScreen:
@@ -106,6 +106,8 @@ struct ReportFeature {
                 state.isAlertPresented = true
                 return .none
             case .routeToRoot:
+                return .none
+            case .presentToast:
                 return .none
             case .binding:
                 return .none

@@ -30,7 +30,6 @@ struct OtherProfileFeature {
         var reviewsErrorMessage: String? = nil
         
         var isMenuPresented: Bool = false
-//        var showBlockAlert: Bool = false
         var showUnblockAlert: Bool = false
         
         var toast: Toast? = nil
@@ -44,9 +43,18 @@ struct OtherProfileFeature {
             imageString: nil
         )
         
+        var selectedReviewFilter: ReviewFilterType = .local
+        var localReviews: [FeedEntity]? = nil
+        var allReviews: [FeedEntity]? = nil
+        
         init(userId: Int) {
             self.userId = userId
         }
+    }
+    
+    enum ReviewFilterType: String, CaseIterable {
+        case local = "로컬리뷰"
+        case all = "전체리뷰"
     }
     
     enum Action: BindableAction {
@@ -81,6 +89,8 @@ struct OtherProfileFeature {
         case routeToUserReportScreen(Int)
         
         case presentAlert(AlertType, Alert)
+        
+        case selectReviewFilter(ReviewFilterType)
     }
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
@@ -137,13 +147,37 @@ struct OtherProfileFeature {
                 
             case let .userReviewsResponse(.success(reviews)):
                 state.isLoadingReviews = false
-                state.reviews = reviews
+                state.allReviews = reviews
+                
+                let userRegion = state.location.replacingOccurrences(of: " 스푼", with: "")
+                state.localReviews = reviews.filter { review in
+                    guard let reviewRegion = review.userRegion else { return false }
+                    return reviewRegion.contains(userRegion) || userRegion.contains(reviewRegion)
+                }
+                
+                switch state.selectedReviewFilter {
+                case .all:
+                    state.reviews = state.allReviews
+                case .local:
+                    state.reviews = state.localReviews
+                }
+                
                 return .none
                 
             case let .userReviewsResponse(.failure(error)):
                 state.isLoadingReviews = false
                 state.reviewsErrorMessage = error.localizedDescription
                 print("Error fetching user reviews: \(error.localizedDescription)")
+                return .none
+                
+            case let .selectReviewFilter(filterType):
+                state.selectedReviewFilter = filterType
+                switch filterType {
+                case .local:
+                    state.reviews = state.localReviews
+                case .all:
+                    state.reviews = state.allReviews
+                }
                 return .none
                 
             case .followButtonTapped:

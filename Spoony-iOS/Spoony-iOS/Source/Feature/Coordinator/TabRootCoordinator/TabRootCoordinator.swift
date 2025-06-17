@@ -108,6 +108,10 @@ struct TabRootCoordinator {
                 state.routes.push(.profile(OtherProfileFeature.State(userId: user)))
                 return .none
                 
+            case .router(.routeAction(id: _, action: .post(.routeToMyProfileScreen))):
+                state.routes.push(.myProfile(.initialState))
+                return .none
+                
             case .router(.routeAction(id: _, action: .tab(.routeToUserReport(let userId)))):
                 state.routes.push(.report(ReportFeature.State(targetUserId: userId)))
                 return .none
@@ -181,7 +185,8 @@ struct TabRootCoordinator {
                     .router(.routeAction(id: _, action: .attendance(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .post(.routeToPreviousScreen))),
                     .router(.routeAction(id: _, action: .report(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .profile(.routeToPreviousScreen))):
+                    .router(.routeAction(id: _, action: .profile(.routeToPreviousScreen))),
+                    .router(.routeAction(id: _, action: .follow(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
                 
@@ -244,6 +249,11 @@ struct TabRootCoordinator {
                 return .none
                 
 //            case .router(.routeAction(id: _, action: .registerAndEdit(.presentPopup)))
+                
+                // 출석체크
+            case .router(.routeAction(id: _, action: .post(.routeToAttendanceView))):
+                state.routes.push(.attendance(.initialState))
+                return .none
                 
             case .router(.routeAction(id: _, action: .report(.routeToRoot))):
                 return .send(.routeToRoot)

@@ -95,8 +95,6 @@ extension ExploreTargetType: TargetType {
                 params["cursor"] = cursor
             }
             
-            params["size"] = request.size
-            
             return .requestParameters(parameters: params, encoding: URLEncoding.default)
         }
     }

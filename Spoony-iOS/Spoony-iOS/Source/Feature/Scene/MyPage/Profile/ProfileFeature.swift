@@ -36,16 +36,6 @@ struct ProfileFeature {
         
         var isLoadingSpoonCount: Bool = false
         var spoonCountErrorMessage: String? = nil
-        
-        // 리뷰 필터링 관련 state 추가
-        var selectedReviewFilter: ReviewFilterType = .local
-        var localReviews: [FeedEntity]? = nil
-        var allReviews: [FeedEntity]? = nil
-    }
-    
-    enum ReviewFilterType: String, CaseIterable {
-        case local = "로컬리뷰"
-        case all = "전체리뷰"
     }
     
     enum Action {
@@ -72,9 +62,6 @@ struct ProfileFeature {
         
         case retryFetchUserInfo
         case clearError
-        
-        // 로컬리뷰 필터링 관련 액션 추가
-        case selectReviewFilter(ReviewFilterType)
     }
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
@@ -122,7 +109,7 @@ struct ProfileFeature {
                 state.errorMessage = nil
                 state.username = response.userName
                 state.profileImageUrl = response.profileImageUrl
-                state.location = response.regionName ?? "지역 미설정"
+                state.location = response.regionName ?? "지역 미설정"  
                 state.introduction = response.introduction ?? ""
                 state.reviewCount = response.reviewCount
                 state.followingCount = response.followingCount
@@ -161,20 +148,7 @@ struct ProfileFeature {
                 
             case let .userReviewsResponse(.success(reviews)):
                 state.isLoadingReviews = false
-                state.allReviews = reviews
-                
-                let userRegion = state.location.replacingOccurrences(of: " 스푼", with: "")
-                state.localReviews = reviews.filter { review in
-                    guard let reviewRegion = review.userRegion else { return false }
-                    return reviewRegion.contains(userRegion) || userRegion.contains(reviewRegion)
-                }
-                
-                switch state.selectedReviewFilter {
-                case .all:
-                    state.reviews = state.allReviews
-                case .local:
-                    state.reviews = state.localReviews
-                }
+                state.reviews = reviews
                 state.reviewsErrorMessage = nil
                 return .none
                 
@@ -182,16 +156,6 @@ struct ProfileFeature {
                 state.isLoadingReviews = false
                 state.reviewsErrorMessage = "리뷰를 불러오는데 실패했습니다."
                 print("Error fetching user reviews: \(error)")
-                return .none
-                
-            case let .selectReviewFilter(filterType):
-                state.selectedReviewFilter = filterType
-                switch filterType {
-                case .local:
-                    state.reviews = state.localReviews
-                case .all:
-                    state.reviews = state.allReviews
-                }
                 return .none
                 
             case .fetchSpoonCount:
@@ -238,14 +202,6 @@ struct ProfileFeature {
                 state.showDeleteAlert = false
                 
                 if let postId = state.reviewToDeleteId {
-                    if var allReviews = state.allReviews {
-                        allReviews.removeAll { $0.postId == postId }
-                        state.allReviews = allReviews
-                    }
-                    if var localReviews = state.localReviews {
-                        localReviews.removeAll { $0.postId == postId }
-                        state.localReviews = localReviews
-                    }
                     if var reviews = state.reviews {
                         reviews.removeAll { $0.postId == postId }
                         state.reviews = reviews

@@ -1,47 +1,28 @@
 //
-//  PlaceCard.swift
+//  SearchLocationPlaceCard.swift
 //  Spoony-iOS
 //
-//  Created by 이지훈 on 1/15/25.
+//  Created by 이지훈 on 5/3/25.
 //
 
 import SwiftUI
 import ComposableArchitecture
 
-struct PlaceCard: View {
-    let store: StoreOf<MapFeature>
+struct SearchLocationPlaceCard: View {
     let places: [CardPlace]
     @Binding var currentPage: Int
-    let onCardTapped: ((CardPlace) -> Void)?
-    
-    init(store: StoreOf<MapFeature>, places: [CardPlace], currentPage: Binding<Int>) {
-        self.store = store
-        self.places = places
-        self._currentPage = currentPage
-        self.onCardTapped = nil
-    }
-    
-    init(store: StoreOf<MapFeature>, places: [CardPlace], currentPage: Binding<Int>, onCardTapped: @escaping (CardPlace) -> Void) {
-        self.store = store
-        self.places = places
-        self._currentPage = currentPage
-        self.onCardTapped = onCardTapped
-    }
+    let onCardTapped: (CardPlace) -> Void
     
     var body: some View {
         VStack(spacing: 0) {
             TabView(selection: $currentPage) {
                 ForEach(self.places.indices, id: \.self) { index in
-                    PlaceCardItem(place: places[index])
+                    SearchLocationPlaceCardItem(place: places[index])
                         .tag(index)
                         .padding(.horizontal, 26)
                         .onTapGesture {
                             let place = places[index]
-                            if let callback = onCardTapped {
-                                callback(place)
-                            } else {
-                                store.send(.routeToPostView(postId: place.postId))
-                            }
+                            onCardTapped(place)
                         }
                 }
             }
@@ -64,7 +45,7 @@ struct PlaceCard: View {
     }
 }
 
-private struct PlaceCardItem: View {
+private struct SearchLocationPlaceCardItem: View {
     let place: CardPlace
     
     var body: some View {
@@ -78,10 +59,10 @@ private struct PlaceCardItem: View {
             VStack(spacing: 0) {
                 PlaceImagesLayout(images: place.images)
                 
-                PlaceHeaderSection(place: place)
+                SearchLocationPlaceHeaderSection(place: place)
                     .padding(15)
                 
-                PlaceInfoSection(place: place)
+                SearchLocationPlaceInfoSection(place: place)
                     .padding(15)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.gray0)
@@ -96,7 +77,7 @@ private struct PlaceCardItem: View {
     }
 }
 
-private struct PlaceHeaderSection: View {
+private struct SearchLocationPlaceHeaderSection: View {
     let place: CardPlace
     
     var body: some View {
@@ -106,17 +87,17 @@ private struct PlaceHeaderSection: View {
                     .customFont(.body1b)
                     .lineLimit(1)
                 
-                CategoryLabel(place: place)
+                SearchLocationCategoryLabel(place: place)
                 
                 Spacer()
                 
-                VisitorCountLabel(count: place.visitorCount)
+                SearchLocationVisitorCountLabel(count: place.visitorCount)
             }
         }
     }
 }
 
-private struct CategoryLabel: View {
+private struct SearchLocationCategoryLabel: View {
     let place: CardPlace
     
     var body: some View {
@@ -141,7 +122,7 @@ private struct CategoryLabel: View {
     }
 }
 
-private struct VisitorCountLabel: View {
+private struct SearchLocationVisitorCountLabel: View {
     let count: String
     
     var body: some View {
@@ -157,7 +138,7 @@ private struct VisitorCountLabel: View {
     }
 }
 
-private struct PlaceInfoSection: View {
+private struct SearchLocationPlaceInfoSection: View {
     let place: CardPlace
     
     var body: some View {

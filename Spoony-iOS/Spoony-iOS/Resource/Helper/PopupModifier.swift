@@ -94,7 +94,7 @@ extension PopupView {
     private var animationString: String? {
         switch popup {
         case .useSpoon:
-            return "lottie_popup_use"
+            return "lottie_popup_get"
         case .registerSuccess:
             return "lottie_popup_get"
         case .reportSuccess, .delete, .none:
@@ -105,7 +105,7 @@ extension PopupView {
     private var description: String {
         switch popup {
         case .useSpoon:
-            "수저 1개를 사용하여 떠먹어 볼까요?"
+            "스푼 1개를 사용하여 확인해 볼까요?"
         case .registerSuccess:
             "리뷰를 등록했어요!\n이제 새로운 장소를 떠먹으러 가볼까요?"
         case .reportSuccess:
@@ -120,7 +120,7 @@ extension PopupView {
     private var blackButtonTitle: String {
         switch popup {
         case .useSpoon:
-            "떠먹을래요"
+            "확인할래요"
         case .registerSuccess:
             "좋아요!"
         case .reportSuccess:
@@ -161,9 +161,9 @@ extension PopupView {
     
     private var buttonStyle: SpoonyButtonStyle {
         switch popup {
-        case .useSpoon, .registerSuccess:
+        case .registerSuccess:
                 .primary
-        case .reportSuccess, .delete, .none:
+        case .useSpoon, .reportSuccess, .delete, .none:
                 .secondary
         }
     }

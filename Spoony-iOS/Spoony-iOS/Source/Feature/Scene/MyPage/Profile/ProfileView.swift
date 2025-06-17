@@ -205,6 +205,7 @@ struct ProfileHeaderView: View {
                 .customFont(.caption1b)
                 .foregroundStyle(.gray400)
                 .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
             Text("\(count)")
                 .customFont(.body1sb)
                 .foregroundStyle(.spoonBlack)
@@ -225,7 +226,7 @@ struct ProfileHeaderView: View {
     private var userInfoSection: some View {
         VStack(alignment: .leading, spacing: 5) {
             let locationText = store.location.isEmpty || store.location == "지역 미설정" ?
-                (store.errorMessage != nil ? "지역 정보 없음" : "") : "\(store.location) 스푼"
+                (store.errorMessage != nil ? "지역 정보 없음" : "") : "서울 \(store.location) 스푼"
             
             if !locationText.isEmpty {
                 Text(locationText)
@@ -288,29 +289,9 @@ struct ProfileReviewsView: View {
             Text("\(store.reviewCount)개")
                 .customFont(.body2m)
                 .foregroundStyle(.gray400)
-            
-            Spacer()
-            
-            Button(action: {
-                store.send(.selectReviewFilter(store.selectedReviewFilter == .local ? .all : .local))
-            }) {
-                HStack(spacing: 8) {
-                    Image(store.selectedReviewFilter == .local ? "ic_checkboxfilled_main" : "ic_checkboxfilled_gray300")
-                        .resizable()
-                        .frame(width: 26.adjusted, height: 26.adjusted)
-                    
-                    Text("로컬리뷰")
-                        .customFont(.body2m)
-                        .foregroundStyle(store.selectedReviewFilter == .local ? .main400 : .gray400)
-                }
-            }
         }
         .padding(.horizontal, 20)
         .padding(.top, 19)
-    }
-    
-    private var reviewFilterTabs: some View {
-        EmptyView()
     }
     
     private var reviewsContent: some View {

@@ -85,7 +85,7 @@ private struct ProfileImageCell: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 20) {
                 if let url = URL(string: image.url) {
                     KFImage(url)
@@ -128,11 +128,11 @@ private struct ProfileImageCell: View {
                         .font(.body2m)
                         .foregroundStyle(.gray600)
                 }
-                Spacer()
             }
             .padding(.top, 10)
             .padding(.bottom, 9)
             .padding(.leading, 30)
+            .padding(.trailing, 15)
             
             Rectangle()
                 .fill(.gray100)
@@ -143,5 +143,5 @@ private struct ProfileImageCell: View {
 }
 
 #Preview {
-    ProfileImageBottomSheet(isPresented: .constant(true), profileImages: [.init(url: "https://sojoong.joins.com/wp-content/uploads/sites/4/2024/12/01.jpg", imageLevel: 0, unlockCondition: "내 리뷰가 다른 유저들의 지도에 100번 저장", isUnlocked: true)])
+    ProfileImageBottomSheet(isPresented: .constant(true), profileImages: [.init(url: "https://sojoong.joins.com/wp-content/uploads/sites/4/2024/12/01.jpg", imageLevel: 0, unlockCondition: "내 리뷰가 다른 유저들의 지도에 1000번 저장", isUnlocked: true)])
 }

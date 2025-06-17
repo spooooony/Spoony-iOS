@@ -216,15 +216,19 @@ struct Home: View {
     private func handleGPSButtonTap() {
         switch locationManager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
-            if let currentLocation = locationManager.location {
-                store.send(.updateUserLocation(currentLocation))
-                store.send(.moveToUserLocation)
+            if store.isLocationFocused {
+                store.send(.toggleGPSTracking)
             } else {
-                locationManager.requestLocation()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    if let location = locationManager.location {
-                        store.send(.updateUserLocation(location))
-                        store.send(.moveToUserLocation)
+                if let currentLocation = locationManager.location {
+                    store.send(.updateUserLocation(currentLocation))
+                    store.send(.moveToUserLocation)
+                } else {
+                    locationManager.requestLocation()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        if let location = locationManager.location {
+                            store.send(.updateUserLocation(location))
+                            store.send(.moveToUserLocation)
+                        }
                     }
                 }
             }
