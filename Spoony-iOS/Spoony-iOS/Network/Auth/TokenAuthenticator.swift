@@ -56,6 +56,9 @@ final class TokenAuthenticator: Authenticator {
                 completion(.success(tokenSet))
             } catch {
                 await MainActor.run {
+                    _ = KeychainManager.delete(key: .accessToken)
+                    _ = KeychainManager.delete(key: .refreshToken)
+                    _ = KeychainManager.delete(key: .socialType)
                     NotificationCenter.default.post(name: .loginNotification, object: nil)
                 }
                 completion(.failure(error))
