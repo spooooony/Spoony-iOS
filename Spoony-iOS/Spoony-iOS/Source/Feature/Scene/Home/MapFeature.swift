@@ -25,6 +25,7 @@ struct MapFeature {
         var isLocationFocused: Bool = false
         var userLocation: CLLocation? = nil
         var selectedLocation: (latitude: Double, longitude: Double)? = nil
+        var hasInitialLocationFocus: Bool = false // 초기 위치 포커싱 여부 추가
         
         var categories: [CategoryChip] = []
         var selectedCategories: [CategoryChip] = []
@@ -54,6 +55,7 @@ struct MapFeature {
              lhs.userLocation?.coordinate.longitude == rhs.userLocation?.coordinate.longitude) &&
             lhs.selectedLocation?.latitude == rhs.selectedLocation?.latitude &&
             lhs.selectedLocation?.longitude == rhs.selectedLocation?.longitude &&
+            lhs.hasInitialLocationFocus == rhs.hasInitialLocationFocus &&
             lhs.categories == rhs.categories &&
             lhs.selectedCategories == rhs.selectedCategories &&
             lhs.spoonCount == rhs.spoonCount &&
@@ -279,6 +281,14 @@ struct MapFeature {
 
             case let .updateUserLocation(location):
                 state.userLocation = location
+                
+                if !state.hasInitialLocationFocus {
+                    state.hasInitialLocationFocus = true
+                    state.isLocationFocused = true
+                    state.selectedLocation = (location.coordinate.latitude, location.coordinate.longitude)
+                    print("📍 초기 위치 자동 포커싱: \(location.coordinate.latitude), \(location.coordinate.longitude)")
+                }
+                
                 return .none
                 
             case let .focusToLocation(coordinate):
@@ -304,34 +314,43 @@ struct MapFeature {
                 state.searchText = text
                 return .none
                 
-            case let .focusedPlaceResponse(.success(response)):
-                state.isLoading = false
-                let places = response.zzimFocusResponseList.map { $0.toCardPlace() }
-                
-                if !places.isEmpty {
-                    state.focusedPlaces = places
-                    state.selectedPlace = places[0]
-                    state.currentPage = 0
-                    state.currentBottomSheetStyle = .half
-                } else {
-                    state.focusedPlaces = []
-                    state.selectedPlace = nil
-                }
-                
-                state.isLocationFocused = false
-                return .none
+                case let .focusedPlaceResponse(.success(response)):
+                    state.isLoading = false
+                    let places = response.zzimFocusResponseList.map { $0.toCardPlace() }
+                    
+                    if !places.isEmpty {
+                        state.focusedPlaces = places
+                        state.selectedPlace = places[0]
+                        state.currentPage = 0
+                        state.currentBottomSheetStyle = .half
+                        
+                        if let firstPlace = places.first {
+                            if let matchingPickCard = state.pickList.first(where: { $0.placeId == firstPlace.placeId }) {
+                                state.selectedLocation = (matchingPickCard.latitude, matchingPickCard.longitude)
+                            }
+                        }
+                    } else {
+                        state.focusedPlaces = []
+                        state.selectedPlace = nil
+                    }
+                    
+                    state.isLocationFocused = false
+                    return .none
                 
             case .toggleGPSTracking:
                 if state.isLocationFocused {
                     state.isLocationFocused = false
                     state.selectedLocation = nil
+                    print("📍 GPS 포커싱 해제됨")
                     return .send(.clearFocusedPlaces)
                 } else {
+                    // GPS 포커싱 활성화
                     guard let userLocation = state.userLocation else {
                         return .none
                     }
                     state.isLocationFocused = true
                     state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
+                    print("📍 GPS 포커싱 활성화됨")
                     return .send(.clearFocusedPlaces)
                 }
 

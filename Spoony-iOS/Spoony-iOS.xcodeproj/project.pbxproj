@@ -61,6 +61,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7893B4802DF6A03900B62E48 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		78C001FF2D1D9FC300DA101C = {
 			isa = PBXGroup;
 			children = (
@@ -68,6 +75,7 @@
 				71F8F73E2D230EF100B822F3 /* .swiftlint.yml */,
 				78C0020A2D1D9FC400DA101C /* Spoony-iOS */,
 				71F8F8B72D27EE0700B822F3 /* Info.plist */,
+				7893B4802DF6A03900B62E48 /* Frameworks */,
 				78C002092D1D9FC400DA101C /* Products */,
 			);
 			sourceTree = "<group>";

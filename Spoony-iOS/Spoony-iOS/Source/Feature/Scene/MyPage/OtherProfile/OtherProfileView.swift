@@ -19,7 +19,6 @@ struct OtherProfileView: View {
         ZStack {
             mainContent
             overlayContent
-//            alertViews
         }
         .task { store.send(.onAppear) }
         .edgesIgnoringSafeArea(.bottom)
@@ -268,6 +267,25 @@ private extension OtherProfileView {
         HStack {
             Text("리뷰").customFont(.body1b).foregroundStyle(.spoonBlack)
             Text("\(store.isBlocked ? 0 : store.reviewCount)개").customFont(.body2m).foregroundStyle(.gray400)
+            
+            Spacer()
+            
+            // 차단되지 않은 경우에만 로컬리뷰 필터 버튼 표시
+            if !store.isBlocked {
+                Button(action: {
+                    store.send(.selectReviewFilter(store.selectedReviewFilter == .local ? .all : .local))
+                }) {
+                    HStack(spacing: 8) {
+                        Image(store.selectedReviewFilter == .local ? "ic_checkboxfilled_main" : "ic_checkboxfilled_gray300")
+                            .resizable()
+                            .frame(width: 26.adjusted, height: 26.adjusted)
+                        
+                        Text("로컬리뷰")
+                            .customFont(.body2m)
+                            .foregroundStyle(store.selectedReviewFilter == .local ? .main400 : .gray400)
+                    }
+                }
+            }
         }
         .padding(.horizontal, 20)
         .padding(.top, 19)
