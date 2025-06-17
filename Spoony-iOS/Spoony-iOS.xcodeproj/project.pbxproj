@@ -13,6 +13,7 @@
 		787B5B042D32D9C50017A378 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B032D32D9C50017A378 /* Kingfisher */; };
 		787B5B072D32DA0F0017A378 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B062D32DA0F0017A378 /* Moya */; };
 		787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */ = {isa = PBXBuildFile; productRef = 787B5B092D32DA500017A378 /* NMapsMap */; };
+		7893B4822DF6A03900B62E48 /* NetworkingMacros in Frameworks */ = {isa = PBXBuildFile; productRef = 7893B4812DF6A03900B62E48 /* NetworkingMacros */; };
 		78AD4F082D4299110090E9E3 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */; };
 		78E985B42D564A9D00E02ABB /* FlexSheet in Frameworks */ = {isa = PBXBuildFile; productRef = 78E985B32D564A9D00E02ABB /* FlexSheet */; };
 		ADCF6DE12D9C03D1002F15E8 /* TCACoordinators in Frameworks */ = {isa = PBXBuildFile; productRef = ADCF6DE02D9C03D1002F15E8 /* TCACoordinators */; };
@@ -51,6 +52,7 @@
 				7156E2E12D74773300F0C5E7 /* ComposableArchitecture in Frameworks */,
 				78E985B42D564A9D00E02ABB /* FlexSheet in Frameworks */,
 				787B5B042D32D9C50017A378 /* Kingfisher in Frameworks */,
+				7893B4822DF6A03900B62E48 /* NetworkingMacros in Frameworks */,
 				71EDD4792D38EC8700D94926 /* Lottie in Frameworks */,
 				CB6B894C2D8149F400DF264B /* KakaoSDK in Frameworks */,
 				ADCF6DE12D9C03D1002F15E8 /* TCACoordinators in Frameworks */,
@@ -121,6 +123,7 @@
 				CB6B89512D8149F400DF264B /* KakaoSDKCertCore */,
 				CB6B89532D8149F400DF264B /* KakaoSDKCommon */,
 				ADCF6DE02D9C03D1002F15E8 /* TCACoordinators */,
+				7893B4812DF6A03900B62E48 /* NetworkingMacros */,
 			);
 			productName = SpoonMe;
 			productReference = 78C002082D1D9FC400DA101C /* Spoony-iOS.app */;
@@ -542,6 +545,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 787B5B082D32DA500017A378 /* XCRemoteSwiftPackageReference "SPM-NMapsMap" */;
 			productName = NMapsMap;
+		};
+		7893B4812DF6A03900B62E48 /* NetworkingMacros */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NetworkingMacros;
 		};
 		78E985B32D564A9D00E02ABB /* FlexSheet */ = {
 			isa = XCSwiftPackageProductDependency;
