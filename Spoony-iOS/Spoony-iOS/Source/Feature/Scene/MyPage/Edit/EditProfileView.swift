@@ -34,7 +34,7 @@ struct EditProfileView: View {
                 Spacer()
             } else {
                 sectionContainerView
-                    
+                
             }
         }
         .background(.white)
@@ -131,14 +131,14 @@ extension EditProfileView {
     
     private func profileImageCell(_ image: ProfileImage) -> some View {
         Group {
-            if image.isUnlocked {
-                if let url = URL(string: image.url) {
+            if let url = URL(string: image.url) {
+                if image.isUnlocked {
                     EditProfileImageView(store: store, type: .success(url, image.imageLevel))
                 } else {
-                    EditProfileImageView(store: store, type: .fail(image.imageLevel))
+                    EditProfileImageView(store: store, type: .lock(url, image.imageLevel))
                 }
             } else {
-                EditProfileImageView(store: store, type: .lock)
+                EditProfileImageView(store: store, type: .fail(image.imageLevel))
             }
         }
     }
