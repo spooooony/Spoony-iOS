@@ -108,9 +108,17 @@ struct FollowFeature {
                 return .none
                 
             case .followButtonTapped(let userId, let isFollowing):
-                if let index = state.followingList.firstIndex(where: { $0.userId == userId }) {
-                    // 현재 팔로잉 화면에서 언팔 시 isFollowing만 토글
-                    state.followingList[index].isFollowing.toggle()
+                if state.initialTab == 0 {
+                    if let index = state.followerList.firstIndex(where: { $0.userId == userId }) {
+                        // 현재 팔로워 화면에서 언팔 시 isFollowing만 토글
+                        state.followerList[index].isFollowing.toggle()
+                    }
+                } else {
+                    if let index = state.followingList.firstIndex(where: { $0.userId == userId }) {
+                        // 현재 팔로잉 화면에서 언팔 시 isFollowing만 토글
+                        state.followingList[index].isFollowing.toggle()
+                    }
+
                 }
                 return .run { _ in
                     do {

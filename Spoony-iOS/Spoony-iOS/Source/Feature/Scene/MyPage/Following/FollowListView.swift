@@ -96,6 +96,8 @@ extension FollowListView {
                     FollowRow(
                         user: user,
                         onFollowTap: {
+                            let generator = UIImpactFeedbackGenerator(style: .light)
+                            generator.impactOccurred()
                             store.send(.followButtonTapped(userId: user.userId, isFollowing: user.isFollowing))
                         },
                         onUserTap: {
@@ -120,6 +122,8 @@ extension FollowListView {
                     FollowRow(
                         user: user,
                         onFollowTap: {
+                            let generator = UIImpactFeedbackGenerator(style: .light)
+                            generator.impactOccurred()
                             store.send(.followButtonTapped(userId: user.userId, isFollowing: user.isFollowing))
                         },
                         onUserTap: {

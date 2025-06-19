@@ -209,7 +209,8 @@ struct PostFeature {
                 if isSuccess {
                     state.isScoop = true
                     state.spoonCount = max(0, state.spoonCount - 1)
-                    return .send(.showToast("떠먹기에 성공했어요!"))
+//                    return .send(.showToast("떠먹기에 성공했어요!"))
+                    return .none
                 } else {
                     return .send(.showToast("남은 스푼이 없어요 ㅠ.ㅠ"))
                 }
