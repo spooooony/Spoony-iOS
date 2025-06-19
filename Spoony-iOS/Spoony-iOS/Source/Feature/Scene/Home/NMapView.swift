@@ -73,35 +73,45 @@ struct NMapView: UIViewRepresentable {
     func updateUIView(_ mapView: NMFMapView, context: Context) {
         mapView.touchDelegate = context.coordinator
         context.coordinator.updateMarkers(mapView: mapView, pickList: pickList, selectedPlaceId: selectedPlace?.placeId)
+
+        let coordinator = context.coordinator
         
-        if isLocationFocused, let userLocation = userLocation {
+        if isLocationFocused, let userLocation = userLocation, !coordinator.hasMovedToUserLocation {
             let coord = NMGLatLng(lat: userLocation.coordinate.latitude, lng: userLocation.coordinate.longitude)
             let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: userLocationZoomLevel)
             cameraUpdate.animation = .easeIn
             cameraUpdate.animationDuration = 0.5
             mapView.moveCamera(cameraUpdate)
             
-            context.coordinator.updateUserLocationMarker(mapView: mapView, location: userLocation)
+            coordinator.updateUserLocationMarker(mapView: mapView, location: userLocation)
+            coordinator.hasMovedToUserLocation = true
+            print("📍 사용자 위치로 카메라 이동 완료")
         }
-        else if !isLocationFocused && context.coordinator.userLocationMarker?.mapView != nil {
-            context.coordinator.userLocationMarker?.mapView = nil
-            context.coordinator.userLocationMarker = nil
+        else if !isLocationFocused {
+            coordinator.hasMovedToUserLocation = false
         }
-        else if let location = selectedLocation {
+        else if let location = selectedLocation, !focusedPlaces.isEmpty, !coordinator.hasMovedToFocusedPlace {
             let coord = NMGLatLng(lat: location.latitude, lng: location.longitude)
-            let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: 11.0)
+            let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
             cameraUpdate.animation = .easeIn
-            cameraUpdate.animationDuration = 0.5
+            cameraUpdate.animationDuration = 0.2
             mapView.moveCamera(cameraUpdate)
+            coordinator.hasMovedToFocusedPlace = true
+            print("📍 포커스된 장소로 카메라 이동 완료")
+        }
+
+        else if focusedPlaces.isEmpty {
+            coordinator.hasMovedToFocusedPlace = false
         }
         
-        if context.coordinator.isInitialLoad && !pickList.isEmpty && !isLocationFocused {
+        if coordinator.isInitialLoad && !pickList.isEmpty {
             let bounds = NMGLatLngBounds(latLngs: pickList.map {
                 NMGLatLng(lat: $0.latitude, lng: $0.longitude)
             })
             let cameraUpdate = NMFCameraUpdate(fit: bounds, padding: 50)
             mapView.moveCamera(cameraUpdate)
-            context.coordinator.isInitialLoad = false
+            coordinator.isInitialLoad = false
+            print("📍 초기 영역 설정 완료")
         }
     }
     
@@ -134,6 +144,9 @@ final class Coordinator: NSObject, NMFMapViewTouchDelegate, UIGestureRecognizerD
     
     private let defaultMarkerImage: NMFOverlayImage
     private let selectedMarkerImage: NMFOverlayImage
+    
+    var hasMovedToUserLocation: Bool = false
+    var hasMovedToFocusedPlace: Bool = false
     
     init(store: StoreOf<MapFeature>,
          selectedPlace: Binding<CardPlace?>,
