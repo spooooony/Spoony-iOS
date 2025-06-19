@@ -9,7 +9,7 @@ import Foundation
 
 enum ProfileImageType: Equatable {
     case success(URL, Int)
-    case lock
+    case lock(URL, Int)
     case fail(Int)
     
     var imageName: String {

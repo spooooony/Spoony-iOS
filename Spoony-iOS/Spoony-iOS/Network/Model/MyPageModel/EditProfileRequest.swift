@@ -9,7 +9,7 @@ import Foundation
 
 struct EditProfileRequest: Codable {
     let userName: String
-    let regionId: Int
+    let regionId: Int?
     let introduction: String
     let birth: String
     let imageLevel: Int

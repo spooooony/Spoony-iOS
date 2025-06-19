@@ -73,6 +73,8 @@ struct TabCoordinator {
             case let .tabSelected(tab):
                 if tab == .register {
                     return .send(.routeToRegister)
+                } else if tab == .explore {
+                    state.explore.routes.goBackToRoot()
                 }
                 
                 state.selectedTab = tab

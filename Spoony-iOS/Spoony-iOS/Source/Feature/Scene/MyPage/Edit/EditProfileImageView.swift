@@ -39,7 +39,7 @@ struct EditProfileImageView: View {
     @ViewBuilder
     private var profileImageView: some View {
         switch type {
-        case let .success(url, _):
+        case let .success(url, _), let .lock(url, _):
             KFImage(url)
                 .placeholder {
                     Circle().fill(.gray200)
@@ -50,13 +50,11 @@ struct EditProfileImageView: View {
                 }
                 .resizable()
                 .fade(duration: 0.3)
-        case .lock, .fail:
+        case .fail:
             Circle().fill(.gray200)
                 .onAppear {
-                    if case .fail = type {
-                        if !store.isLoadError {
-                            store.send(.presentToast(message: "이미지 로드에 실패했습니다!"))
-                        }
+                    if !store.isLoadError {
+                        store.send(.presentToast(message: "이미지 로드에 실패했습니다!"))
                     }
                 }
         }
@@ -65,27 +63,29 @@ struct EditProfileImageView: View {
     @ViewBuilder
     private var overlayView: some View {
         switch type {
-        case let .success(_, imageLevel):
+        case let .success(_, imageLevel), let .lock(_, imageLevel):
+            if case .lock = type {
+                Color.spoonBlack.opacity(0.5)
+                Image(type.imageName)
+                    .resizable()
+                    .frame(width: 23.adjusted, height: 23.adjustedH)
+            } else {
+                Circle()
+                    .strokeBorder(
+                        imageLevel == store.state.imageLevel ? .main400 : .clear,
+                        lineWidth: 4.59.adjusted
+                    )
+            }
+        case let .fail(imageLevel):
+            Image(type.imageName)
+                .resizable()
+                .frame(width: 23.adjusted, height: 23.adjustedH)
+            
             Circle()
                 .strokeBorder(
                     imageLevel == store.state.imageLevel ? .main400 : .clear,
                     lineWidth: 4.59.adjusted
                 )
-            
-        case .lock, .fail:
-            Group {
-                Image(type.imageName)
-                    .resizable()
-                    .frame(width: 23.adjusted, height: 23.adjustedH)
-
-                if case let .fail(imageLevel) = type {
-                    Circle()
-                        .strokeBorder(
-                            imageLevel == store.state.imageLevel ? .main400 : .clear,
-                            lineWidth: 4.59.adjusted
-                        )
-                }
-            }
         }
     }
 }

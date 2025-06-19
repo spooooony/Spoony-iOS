@@ -142,7 +142,7 @@ struct EditProfileFeature {
                 
                 let reqeust = EditProfileRequest(
                     userName: state.userNickname,
-                    regionId: state.selectedSubLocation?.id ?? 1,
+                    regionId: state.selectedSubLocation?.id ?? nil,
                     introduction: state.introduction,
                     birth: birth,
                     imageLevel: state.imageLevel
