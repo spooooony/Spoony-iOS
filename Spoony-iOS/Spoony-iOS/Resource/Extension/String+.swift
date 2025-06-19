@@ -29,7 +29,7 @@ extension String {
     }
     
     func removeSpecialCharacter() -> String {
-        let regexString = "[^a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣\\s]"
+        let regexString = "[^a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣\\s]"
         
         guard let regex = try? Regex(regexString) else { return self }
         
