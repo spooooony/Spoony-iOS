@@ -194,7 +194,7 @@ private extension OtherProfileView {
     var userInfoSection: some View {
         VStack(alignment: .leading, spacing: 5) {
             if !store.location.isEmpty {
-                Text("서울 \(store.location) 스푼")
+                Text("")
                     .customFont(.body2sb)
                     .foregroundStyle(.gray600)
                     .padding(.bottom, 4)
@@ -205,8 +205,9 @@ private extension OtherProfileView {
                 .foregroundStyle(.spoonBlack)
                 .padding(.bottom, 8)
             
-            if !store.introduction.isEmpty {
-                Text(store.introduction)
+            if !store.isBlocked {
+                let introText = store.introduction.isEmpty ? "안녕! 난 어떤 스푼이냐면…" : store.introduction
+                Text(introText)
                     .customFont(.caption1m)
                     .foregroundStyle(.gray600)
                     .lineLimit(nil)

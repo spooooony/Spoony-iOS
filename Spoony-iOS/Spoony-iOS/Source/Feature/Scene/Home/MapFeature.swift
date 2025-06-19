@@ -279,17 +279,15 @@ struct MapFeature {
                 state.selectedLocation = nil
                 return .none
 
-            case let .updateUserLocation(location):
-                state.userLocation = location
-                
-                if !state.hasInitialLocationFocus {
-                    state.hasInitialLocationFocus = true
-                    state.isLocationFocused = true
-                    state.selectedLocation = (location.coordinate.latitude, location.coordinate.longitude)
-                    print("📍 초기 위치 자동 포커싱: \(location.coordinate.latitude), \(location.coordinate.longitude)")
-                }
-                
-                return .none
+                case let .updateUserLocation(location):
+                    state.userLocation = location
+
+                if state.selectedLocation != nil || !state.focusedPlaces.isEmpty {
+                        print("📍 사용자 위치 업데이트됨, 하지만 기존 선택된 위치 유지")
+                        return .none
+                    }
+                    print("📍 사용자 위치만 업데이트됨: \(location.coordinate.latitude), \(location.coordinate.longitude)")
+                    return .none
                 
             case let .focusToLocation(coordinate):
                 state.selectedLocation = (coordinate.latitude, coordinate.longitude)
