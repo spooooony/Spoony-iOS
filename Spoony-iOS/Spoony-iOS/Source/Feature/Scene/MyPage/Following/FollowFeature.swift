@@ -21,7 +21,8 @@ struct FollowFeature {
         var followingCount: Int = 0
         var isLoading: Bool = false
         var initialTab: Int = 0
-        var targetUserId: Int? = nil 
+        var targetUserId: Int? = nil
+        var currentTab: Int = 0
         
         static let initialState = State()
         
@@ -35,6 +36,7 @@ struct FollowFeature {
     
     enum Action {
         case onAppear
+        case currentTabChanged(Int)
         case followersResponse(Result<FollowListDTO, Error>)
         case followingsResponse(Result<FollowListDTO, Error>)
         case followButtonTapped(userId: Int, isFollowing: Bool)
@@ -85,6 +87,10 @@ struct FollowFeature {
                     }
                 )
                 
+            case .currentTabChanged(let newTab):
+                state.currentTab = newTab
+                return .none
+                
             case .followersResponse(let result):
                 state.isLoading = false
                 switch result {
@@ -108,7 +114,7 @@ struct FollowFeature {
                 return .none
                 
             case .followButtonTapped(let userId, let isFollowing):
-                if state.initialTab == 0 {
+                if state.currentTab == 0 {
                     if let index = state.followerList.firstIndex(where: { $0.userId == userId }) {
                         // 현재 팔로워 화면에서 언팔 시 isFollowing만 토글
                         state.followerList[index].isFollowing.toggle()
