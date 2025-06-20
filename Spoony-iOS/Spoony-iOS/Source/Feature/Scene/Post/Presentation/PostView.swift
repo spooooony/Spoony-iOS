@@ -386,7 +386,7 @@ extension PostView {
         )
         .background {
             Color.gray0
-                .cornerRadius(20, corners: [.topLeft, .topRight])
+                .cornerRadius(20)
         }
         .padding(.horizontal, 20.adjusted)
         .padding(.bottom, 12.adjustedH)
@@ -574,7 +574,7 @@ struct PostScrapButton: View {
     
     let store = Store(initialState: PostFeature.State()) {
         PostFeature()
-            .dependency(\.postUseCase, PostUseCaseKey.liveValue)
+            .dependency(\.postUseCase, PostUseCaseKey.testValue)
     }
     
     return PostView(postId: 51, store: store)
