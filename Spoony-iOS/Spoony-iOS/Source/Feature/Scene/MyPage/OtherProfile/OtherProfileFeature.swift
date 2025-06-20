@@ -17,7 +17,7 @@ struct OtherProfileFeature {
         var profileImageUrl: String = ""
         var location: String = ""
         var introduction: String = ""
-        var reviewCount: Int = 0
+        var reviewCoㅐunt: Int = 0
         var followingCount: Int = 0
         var followerCount: Int = 0
         var isFollowing: Bool = false
@@ -43,7 +43,7 @@ struct OtherProfileFeature {
             imageString: nil
         )
         
-        var selectedReviewFilter: ReviewFilterType = .local
+        var selectedReviewFilter: ReviewFilterType = .all
         var localReviews: [FeedEntity]? = nil
         var allReviews: [FeedEntity]? = nil
         
