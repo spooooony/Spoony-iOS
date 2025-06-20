@@ -106,7 +106,7 @@ private extension OtherProfileView {
     }
     
     var profileHeader: some View {
-        HStack(alignment: .center, spacing: 39) {
+        HStack(alignment: .center, spacing: 24) { 
             profileImage
             statsCounters
         }
@@ -193,8 +193,8 @@ private extension OtherProfileView {
     
     var userInfoSection: some View {
         VStack(alignment: .leading, spacing: 5) {
-            if !store.location.isEmpty {
-                Text("")
+            if !store.location.isEmpty && !store.isBlocked {
+                Text(store.location)
                     .customFont(.body2sb)
                     .foregroundStyle(.gray600)
                     .padding(.bottom, 4)
@@ -380,7 +380,15 @@ private extension OtherProfileView {
                 .frame(width: 100.adjusted, height: 100.adjustedH)
                 .padding(.top, 30)
             
-            Text("아직 등록한 리뷰가 없어요")
+            let emptyMessage: String = {
+                if store.selectedReviewFilter == .local {
+                    return "아직 등록된 로컬리뷰가 없어요"
+                } else {
+                    return "아직 등록한 리뷰가 없어요"
+                }
+            }()
+            
+            Text(emptyMessage)
                 .customFont(.body1m)
                 .foregroundStyle(.gray500)
                 .multilineTextAlignment(.center)
