@@ -17,7 +17,7 @@ struct OtherProfileFeature {
         var profileImageUrl: String = ""
         var location: String = ""
         var introduction: String = ""
-        var reviewCoㅐunt: Int = 0
+        var reviewCount: Int = 0
         var followingCount: Int = 0
         var followerCount: Int = 0
         var isFollowing: Bool = false
@@ -44,8 +44,6 @@ struct OtherProfileFeature {
         )
         
         var selectedReviewFilter: ReviewFilterType = .all
-        var localReviews: [FeedEntity]? = nil
-        var allReviews: [FeedEntity]? = nil
         
         init(userId: Int) {
             self.userId = userId
@@ -55,6 +53,15 @@ struct OtherProfileFeature {
     enum ReviewFilterType: String, CaseIterable {
         case local = "로컬리뷰"
         case all = "전체리뷰"
+        
+        var isLocalReview: Bool {
+            switch self {
+            case .local:
+                return true
+            case .all:
+                return false
+            }
+        }
     }
     
     enum Action: BindableAction {
@@ -139,29 +146,22 @@ struct OtherProfileFeature {
                 }
                 
                 state.isLoadingReviews = true
-                return .run { [userId = state.userId] send in
+                let isLocalReview = state.selectedReviewFilter.isLocalReview
+                
+                return .run { [userId = state.userId, isLocalReview = isLocalReview] send in
                     await send(.userReviewsResponse(
-                        TaskResult { try await myPageService.getOtherUserReviews(userId: userId) }
+                        TaskResult {
+                            try await myPageService.getOtherUserReviews(
+                                userId: userId,
+                                isLocalReview: isLocalReview
+                            )
+                        }
                     ))
                 }
                 
             case let .userReviewsResponse(.success(reviews)):
                 state.isLoadingReviews = false
-                state.allReviews = reviews
-                
-                let userRegion = state.location.replacingOccurrences(of: " 스푼", with: "")
-                state.localReviews = reviews.filter { review in
-                    guard let reviewRegion = review.userRegion else { return false }
-                    return reviewRegion.contains(userRegion) || userRegion.contains(reviewRegion)
-                }
-                
-                switch state.selectedReviewFilter {
-                case .all:
-                    state.reviews = state.allReviews
-                case .local:
-                    state.reviews = state.localReviews
-                }
-                
+                state.reviews = reviews
                 return .none
                 
             case let .userReviewsResponse(.failure(error)):
@@ -172,13 +172,8 @@ struct OtherProfileFeature {
                 
             case let .selectReviewFilter(filterType):
                 state.selectedReviewFilter = filterType
-                switch filterType {
-                case .local:
-                    state.reviews = state.localReviews
-                case .all:
-                    state.reviews = state.allReviews
-                }
-                return .none
+                // 필터 변경 시 즉시 API 호출하여 새로운 데이터 로드
+                return .send(.fetchUserReviews)
                 
             case .followButtonTapped:
                 if state.isBlocked {

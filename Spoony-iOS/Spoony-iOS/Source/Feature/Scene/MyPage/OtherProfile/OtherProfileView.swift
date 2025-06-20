@@ -265,33 +265,38 @@ private extension OtherProfileView {
     }
     
     var reviewsHeader: some View {
-        HStack {
-            HStack(spacing: 4) {
-                Text("리뷰").customFont(.body1b).foregroundStyle(.spoonBlack)
-                Text("\(store.isBlocked ? 0 : store.reviewCount)개").customFont(.body2m).foregroundStyle(.gray400)
-            }
-            
-            Spacer()
-            
-            if !store.isBlocked {
-                Button(action: {
-                    store.send(.selectReviewFilter(store.selectedReviewFilter == .local ? .all : .local))
-                }) {
-                    HStack(spacing: 8) {
-                        Image(store.selectedReviewFilter == .local ? "ic_checkboxfilled_main" : "ic_checkboxfilled_gray300")
-                            .resizable()
-                            .frame(width: 26.adjusted, height: 26.adjusted)
-                        
-                        Text("로컬리뷰")
-                            .customFont(.body2m)
-                            .foregroundStyle(store.selectedReviewFilter == .local ? .main400 : .gray400)
+            HStack {
+                HStack(spacing: 4) {
+                    Text("리뷰").customFont(.body1b).foregroundStyle(.spoonBlack)
+                    if store.isBlocked {
+                        Text("0개").customFont(.body2m).foregroundStyle(.gray400)
+                    } else {
+                        let displayCount = store.reviews?.count ?? 0
+                        Text("\(displayCount)개").customFont(.body2m).foregroundStyle(.gray400)
+                    }
+                }
+                
+                Spacer()
+                
+                if !store.isBlocked {
+                    Button(action: {
+                        store.send(.selectReviewFilter(store.selectedReviewFilter == .local ? .all : .local))
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(store.selectedReviewFilter == .local ? "ic_checkboxfilled_main" : "ic_checkboxfilled_gray300")
+                                .resizable()
+                                .frame(width: 26.adjusted, height: 26.adjusted)
+                            
+                            Text("로컬리뷰")
+                                .customFont(.body2m)
+                                .foregroundStyle(store.selectedReviewFilter == .local ? .main400 : .gray400)
+                        }
                     }
                 }
             }
+            .padding(.horizontal, 20)
+            .padding(.top, 19)
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 19)
-    }
     
     var reviewsContent: some View {
         Group {
