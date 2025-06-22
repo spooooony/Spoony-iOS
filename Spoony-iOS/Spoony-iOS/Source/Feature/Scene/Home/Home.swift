@@ -180,11 +180,11 @@ struct Home: View {
         .toolbar(store.showDailySpoonPopup ? .hidden : .visible, for: .tabBar)
         .task {
             setupLocationManager()
+            store.send(.checkAuthentication)
             store.send(.fetchUserInfo)
             store.send(.fetchSpoonCount)
             store.send(.fetchPickList)
             store.send(.fetchCategories)
-            store.send(.checkDailyVisit)
         }
         .overlay {
             if store.showDailySpoonPopup {
