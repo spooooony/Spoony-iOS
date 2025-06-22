@@ -89,6 +89,9 @@ struct TabCoordinator {
             case .map(.router(.routeAction(id: _, action: .map(.routeToExploreTab)))):
                 return .send(.switchToExploreTab)
                 
+            case .map(.routeToExploreTab):
+                return .send(.switchToExploreTab)
+                
             case .map(.routeToPostScreen(let postId)):
                 return .send(.routeToPost(postId))
             
