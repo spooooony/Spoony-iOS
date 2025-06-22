@@ -84,7 +84,6 @@ struct Home: View {
                                         isSelected: store.selectedCategories.contains { $0.id == category.id }
                                     )
                                     .contentShape(Rectangle())
-                                    .frame(minHeight: 44) 
                                     .onTapGesture {
                                         store.send(.selectCategory(category))
                                     }
