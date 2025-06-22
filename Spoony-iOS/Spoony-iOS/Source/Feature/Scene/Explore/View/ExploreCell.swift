@@ -58,6 +58,10 @@ struct ExploreCell: View {
                     showOptions = false
                 }
         )
+        .onAppear {
+            isDropdown = false
+            showOptions = false
+        }
     }
 }
 
