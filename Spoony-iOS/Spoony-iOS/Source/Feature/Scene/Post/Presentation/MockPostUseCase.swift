@@ -55,7 +55,7 @@ struct MockData {
         value: 50,
         cons: "하하하하 null 값으로 와서 싫음",
         placeName: "테스트 장소",
-        placeAddress: "서울 강남구",
+        placeAddress: "서울 강남구 장소가 왜 길어지면 사지분리가 되는거야 김세은 : ㅅㅂ, 배가희: ㅅㅂ, 정다은: ㅅㅂ zzzz",
         latitude: 37.497946,
         longitude: 127.027632,
         zzimCount: 1,

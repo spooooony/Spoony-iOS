@@ -107,6 +107,9 @@ struct ExploreCoordinator {
             case .router(.routeAction(id: _, action: .otherProfile(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
+            case .router(.routeAction(id: _, action: .follow(.routeToPreviousScreen))):
+                state.routes.goBack()
+                return .none
                 
             // 탭
             case .router(.routeAction(id: _, action: .explore(.tabSelected(let tab)))):

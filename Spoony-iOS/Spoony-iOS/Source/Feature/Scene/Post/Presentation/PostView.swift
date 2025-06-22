@@ -313,12 +313,10 @@ extension PostView {
                 }
             
             locationInfo
-                .background {
-                    Rectangle()
-                        .frame(maxHeight: 134.adjustedH)
+                .background(
+                    Color.gray0
                         .cornerRadius(20)
-                        .foregroundStyle(.gray0)
-                }
+                )
             
         }
         .padding(.horizontal, 20.adjusted)
@@ -414,15 +412,16 @@ extension PostView {
                     .customFont(.title3sb)
                     .foregroundStyle(.spoonBlack)
                 
-                HStack(spacing: 4.adjusted) {
+                HStack(alignment: .top, spacing: 4.adjusted) {
                     Image(.icMapGray400)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 20.adjusted, height: 20.adjustedH)
-                    
+
                     Text(store.placeAddress)
                         .customFont(.body2m)
                         .foregroundStyle(.spoonBlack)
+                        .fixedSize(horizontal: false, vertical: true) // 줄바꿈 시 높이 확장
                 }
             }
             Spacer()

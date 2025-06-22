@@ -188,9 +188,12 @@ struct FollowRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(user.username)
                     .font(.body2sb)
-                Text("서울 \(user.regionName ?? "") 스푼")
-                    .font(.caption1m)
-                    .foregroundColor(.black)
+                
+                if let regionName = user.regionName, !regionName.isEmpty {
+                    Text("서울 \(regionName) 스푼")
+                        .font(.caption1m)
+                        .foregroundColor(.black)
+                }
             }
             
             Spacer()
