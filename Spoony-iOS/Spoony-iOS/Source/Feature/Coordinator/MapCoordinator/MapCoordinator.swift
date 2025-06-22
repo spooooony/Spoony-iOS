@@ -32,6 +32,7 @@ struct MapCoordinator {
         case locationSelected(Int)
         
         case routeToPostScreen(Int)
+        case routeToExploreTab
     }
     
     var body: some ReducerOf<Self> {
@@ -40,12 +41,18 @@ struct MapCoordinator {
             case let .router(.routeAction(id: _, action: .map(.routeToPostView(postId: postId)))):
                 return .send(.routeToPostScreen(postId))
                 
-            case let .router(.routeAction(id: _, action: .searchLocation(.routeToPostDetail(postId: postId)))):
-                return .send(.routeToPostScreen(postId))
-                
             case .router(.routeAction(id: _, action: .map(.routToSearchScreen))):
                 state.routes.push(.search(.initialState))
                 return .none
+                
+            case .router(.routeAction(id: _, action: .map(.routeToExploreTab))):
+                return .send(.routeToExploreTab)
+                
+            case .router(.routeAction(id: _, action: .searchLocation(.routeToExploreTab))):
+                return .send(.routeToExploreTab)
+                
+            case let .router(.routeAction(id: _, action: .searchLocation(.routeToPostDetail(postId: postId)))):
+                return .send(.routeToPostScreen(postId))
                 
             case let .locationSelected(locationId):
                 state.selectedLocationId = locationId
@@ -68,6 +75,9 @@ struct MapCoordinator {
                 
             case .router(.routeAction(id: _, action: .search(.routeToPreviousScreen))):
                 state.routes.goBack()
+                return .none
+                
+            case .routeToExploreTab:
                 return .none
                 
             default:

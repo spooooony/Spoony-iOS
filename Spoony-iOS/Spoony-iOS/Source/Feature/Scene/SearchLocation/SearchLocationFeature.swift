@@ -61,6 +61,7 @@ struct SearchLocationFeature {
         case selectPlace(CardPlace?)
         case routeToHomeScreen
         case routeToPostDetail(postId: Int)
+        case routeToExploreTab  
         case updatePlaces(focusedPlaces: [CardPlace])
         case setSelectedLocation(latitude: Double, longitude: Double)
         case forceMoveCameraToSearchLocation
@@ -132,6 +133,10 @@ struct SearchLocationFeature {
             case .routeToPostDetail:
                 return .none
                 
+            case .routeToExploreTab:  // 새로 추가된 액션 처리
+                print("🟡 [SearchLocationFeature] .routeToExploreTab 액션 받음")
+                return .none
+                
             case let .updatePlaces(focusedPlaces):
                 state.focusedPlaces = focusedPlaces
                 if !focusedPlaces.isEmpty {
@@ -156,6 +161,10 @@ struct SearchLocationFeature {
                     print("📍 forceMoveCameraToSearchLocation: \(lat), \(lng)")
                 }
                 return .none
+                
+            case .map(.routeToExploreTab):  // MapFeature에서 오는 액션 전파
+                print("🟡 [SearchLocationFeature] map의 .routeToExploreTab 액션 전파")
+                return .send(.routeToExploreTab)
                 
             case .map(_):
                 return .none
