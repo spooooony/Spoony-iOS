@@ -49,6 +49,7 @@ struct Register: View {
                 )
             }
         }
+        .disabled(store.state.isLoading)
         .onAppear {
             store.send(.onAppear)
         }
