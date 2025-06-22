@@ -81,7 +81,7 @@ struct MyPageCoordinator {
                 state.routes.push(.otherProfile(.init(userId: userId)))
                 return .none
             case .router(.routeAction(id: _, action: .follow(.routeToMyProfileScreen))):
-                state.routes.push(.profile(.init()))
+                state.routes.push(.profile(.init(isRootView: false)))
                 return .none
                 
             case .router(.routeAction(id: _, action: .profile(.routeToSettingsScreen))):
@@ -95,7 +95,8 @@ struct MyPageCoordinator {
                 
             case .router(.routeAction(id: _, action: .reviews(.routeToPreviousScreen))),
                  .router(.routeAction(id: _, action: .follow(.routeToPreviousScreen))),
-                 .router(.routeAction(id: _, action: .otherProfile(.routeToPreviousScreen))):
+                 .router(.routeAction(id: _, action: .otherProfile(.routeToPreviousScreen))),
+                 .router(.routeAction(id: _, action: .profile(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
                 
