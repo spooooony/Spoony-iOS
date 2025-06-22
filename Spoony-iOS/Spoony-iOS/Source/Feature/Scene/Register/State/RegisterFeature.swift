@@ -17,6 +17,7 @@ struct RegisterFeature {
         var postId: Int?
         var currentStep: RegisterStep = .start
         var isLoading: Bool = false
+        var isPosting: Bool = false
         var isRegistrationSuccess: Bool = false
         var infoStepState: InfoStepFeature.State
         var reviewStepState: ReviewStepFeature.State
@@ -37,6 +38,7 @@ struct RegisterFeature {
         case binding(BindingAction<State>)
         case onAppear
         case updateIsLoading(Bool)
+        case updateIsPosting(Bool)
         case updateStep(RegisterStep)
         case registrationSuccessful
         case onDisappear
@@ -109,7 +111,9 @@ struct RegisterFeature {
                 return .send(.infoStepAction(.loadSelectedCategory))
             case .updateIsLoading(let isLoading):
                 state.isLoading = isLoading
-                
+                return .none
+            case .updateIsPosting(let isPosting):
+                state.isPosting = isPosting
                 return .none
             case .updateStep(let step):
                 state.currentStep = step
@@ -135,11 +139,14 @@ struct RegisterFeature {
                 return .none
 
             case let .registerPostRequest(selectedPlace, selectedCategory):
+                let trimmed = state.reviewStepState.weakPointText.trimmingCharacters(in: .whitespacesAndNewlines)
+                let cons = trimmed.isEmpty ? nil : trimmed
+                
                 let request = RegisterPostRequest(
                     title: "",
                     description: state.reviewStepState.detailText,
                     value: state.infoStepState.satisfaction,
-                    cons: state.reviewStepState.weakPointText,
+                    cons: cons,
                     placeName: selectedPlace.placeName,
                     placeAddress: selectedPlace.placeAddress,
                     placeRoadAddress: selectedPlace.placeRoadAddress,
@@ -151,14 +158,14 @@ struct RegisterFeature {
                 
                 let images = state.reviewStepState.uploadImages.compactMap { $0.imageData }
                 
-                state.isLoading = true
+                state.isPosting = true
                 
                 return .run { [request, images] send in
                     guard let success = try? await network.registerPost(
                         request: request,
                         imagesData: images
                     ) else {
-                        await send(.updateIsLoading(false))
+                        await send(.updateIsPosting(false))
                         await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
                         return
                     }
@@ -183,14 +190,14 @@ struct RegisterFeature {
                 
                 let images = state.reviewStepState.uploadImages.compactMap { $0.imageData }
                 
-                state.isLoading = true
+                state.isPosting = true
                 
                 return .run { [request, images] send in
                     guard let success = try? await network.editPost(
                         request: request,
                         imagesData: images
                     ) else {
-                        await send(.updateIsLoading(false))
+                        await send(.updateIsPosting(false))
                         await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
                         return
                     }
@@ -198,7 +205,7 @@ struct RegisterFeature {
                     if success {
                         await send(.registrationSuccessful)
                     } else {
-                        await send(.updateIsLoading(false))
+                        await send(.updateIsPosting(false))
                         await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
                     }
                 }

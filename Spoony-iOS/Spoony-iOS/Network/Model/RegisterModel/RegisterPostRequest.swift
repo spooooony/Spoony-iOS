@@ -11,7 +11,7 @@ struct RegisterPostRequest: Codable {
     let title: String
     let description: String
     let value: Double
-    let cons: String
+    let cons: String?
     let placeName: String
     let placeAddress: String
     let placeRoadAddress: String

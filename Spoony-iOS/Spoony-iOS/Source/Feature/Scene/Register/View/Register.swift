@@ -50,6 +50,16 @@ struct Register: View {
             }
         }
         .disabled(store.state.isLoading)
+        .overlay {
+            if store.state.isPosting {
+                VStack {
+                    Spacer()
+                    ProgressView()
+                        .tint(.main400)
+                    Spacer()
+                }
+            }
+        }
         .onAppear {
             store.send(.onAppear)
         }
