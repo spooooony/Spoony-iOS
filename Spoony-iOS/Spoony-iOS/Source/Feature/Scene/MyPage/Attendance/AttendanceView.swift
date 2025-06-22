@@ -95,18 +95,21 @@ struct AttendanceView: View {
     
     private var headerView: some View {
         VStack(alignment: .leading, spacing: 7) {
-            HStack(alignment: .lastTextBaseline) {
-                Text("매일 출석하고\n오늘의 스푼을 획득하세요")
+            VStack(alignment: .leading, spacing: 0) {
+                Text("매일 출석하고")
                     .font(.title1)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
                 
-                Image(.icInfoGray400)
-                    .padding(.leading, 6)
-                    .frame(width: 24, height: 24)
-                    .onTapGesture {
-                        isInfoSheetPresented = true
-                    }
+                HStack(alignment: .center) {
+                    Text("오늘의 스푼을 획득하세요")
+                        .font(.title1)
+                    
+                    Image(.icInfoGray400)
+                        .padding(.leading, 0)
+                        .frame(width: 24, height: 24)
+                        .onTapGesture {
+                            isInfoSheetPresented = true
+                        }
+                }
             }
             .padding(.top, 8)
             

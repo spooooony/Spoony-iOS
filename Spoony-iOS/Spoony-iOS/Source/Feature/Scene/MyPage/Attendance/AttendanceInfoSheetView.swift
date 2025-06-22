@@ -39,9 +39,9 @@ struct AttendanceInfoSheetView: View {
                 
                 VStack(spacing: 2) {
                     StampCategoryRow(title: "일회용 티스푼", count: "1개 적립")
-                    StampCategoryRow(title: "일회용 티스푼", count: "1개 적립")
-                    StampCategoryRow(title: "일회용 티스푼", count: "1개 적립")
-                    StampCategoryRow(title: "일회용 티스푼", count: "1개 적립")
+                    StampCategoryRow(title: "은스푼", count: "2개 적립")
+                    StampCategoryRow(title: "황금 스푼", count: "3개 적립")
+                    StampCategoryRow(title: "다이아스푼", count: "4개 적립")
                 }
                 .background(Color.white)
                 .padding(.top, 24)
