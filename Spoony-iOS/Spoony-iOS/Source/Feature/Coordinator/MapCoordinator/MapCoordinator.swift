@@ -40,7 +40,6 @@ struct MapCoordinator {
             case let .router(.routeAction(id: _, action: .map(.routeToPostView(postId: postId)))):
                 return .send(.routeToPostScreen(postId))
                 
-            // SearchLocationFeature에서 디테일 뷰로 이동하는 액션 처리 추가
             case let .router(.routeAction(id: _, action: .searchLocation(.routeToPostDetail(postId: postId)))):
                 return .send(.routeToPostScreen(postId))
                 

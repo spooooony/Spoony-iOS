@@ -46,8 +46,10 @@ struct SearchLocationFeature {
                 self.selectedLocation = (latitude: lat, longitude: lng)
                 self.mapState.selectedLocation = (latitude: lat, longitude: lng)
                 self.mapState.isLocationFocused = false
+                print("📍 SearchLocationFeature 초기화: 검색된 위치 \(lat), \(lng)")
             } else {
                 self.mapState.isLocationFocused = false
+                print("📍 SearchLocationFeature 초기화: 검색된 위치 정보 없음")
             }
         }
     }
@@ -75,10 +77,12 @@ struct SearchLocationFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
+                // 수정: onAppear 시 검색된 위치로 설정
                 if let lat = state.searchedLatitude, let lng = state.searchedLongitude {
                     state.selectedLocation = (latitude: lat, longitude: lng)
                     state.mapState.selectedLocation = (latitude: lat, longitude: lng)
                     state.mapState.isLocationFocused = false
+                    print("📍 onAppear: 검색된 위치로 설정 \(lat), \(lng)")
                 }
                 
                 return .concatenate(
@@ -97,16 +101,19 @@ struct SearchLocationFeature {
                 state.isLoading = false
                 state.pickList = response.zzimCardResponses
                 
+                // 수정: 검색된 위치가 있으면 우선적으로 사용
                 if state.selectedLocation == nil {
                     if let searchedLat = state.searchedLatitude,
                        let searchedLng = state.searchedLongitude {
                         state.selectedLocation = (searchedLat, searchedLng)
                         state.mapState.selectedLocation = (searchedLat, searchedLng)
                         state.mapState.isLocationFocused = false
+                        print("📍 fetchLocationListResponse: 검색된 위치로 재설정 \(searchedLat), \(searchedLng)")
                     } else if let firstPlace = response.zzimCardResponses.first {
                         state.selectedLocation = (firstPlace.latitude, firstPlace.longitude)
                         state.mapState.selectedLocation = (firstPlace.latitude, firstPlace.longitude)
                         state.mapState.isLocationFocused = false
+                        print("📍 fetchLocationListResponse: 첫 번째 장소로 설정")
                     }
                 }
                 return .none
@@ -137,13 +144,16 @@ struct SearchLocationFeature {
             case let .setSelectedLocation(latitude, longitude):
                 state.selectedLocation = (latitude: latitude, longitude: longitude)
                 state.mapState.selectedLocation = (latitude: latitude, longitude: longitude)
+                print("📍 setSelectedLocation: \(latitude), \(longitude)")
                 return .none
                 
             case .forceMoveCameraToSearchLocation:
+                // 수정: 강제로 검색된 위치로 카메라 이동
                 if let lat = state.searchedLatitude, let lng = state.searchedLongitude {
                     state.selectedLocation = (latitude: lat, longitude: lng)
                     state.mapState.selectedLocation = (latitude: lat, longitude: lng)
                     state.mapState.isLocationFocused = false
+                    print("📍 forceMoveCameraToSearchLocation: \(lat), \(lng)")
                 }
                 return .none
                 

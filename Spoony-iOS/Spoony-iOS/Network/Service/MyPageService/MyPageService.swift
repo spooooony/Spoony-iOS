@@ -20,6 +20,7 @@ protocol MypageServiceProtocol {
     func editProfileInfo(request: EditProfileRequest) async throws -> Bool
     func getOtherUserInfo(userId: Int) async throws -> UserInfoResponse
     func getOtherUserReviews(userId: Int) async throws -> [FeedEntity]
+    func getOtherUserReviews(userId: Int, isLocalReview: Bool) async throws -> [FeedEntity] // 새로운 메서드
 }
 
 final class MyPageService: MypageServiceProtocol {
@@ -247,8 +248,12 @@ final class MyPageService: MypageServiceProtocol {
     }
     
     func getOtherUserReviews(userId: Int) async throws -> [FeedEntity] {
+        return try await getOtherUserReviews(userId: userId, isLocalReview: false)
+    }
+    
+    func getOtherUserReviews(userId: Int, isLocalReview: Bool) async throws -> [FeedEntity] {
         return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.getOtherReviews(userId: userId)) { result in
+            provider.request(.getOtherReviews(userId: userId, isLocalReview: isLocalReview)) { result in
                 switch result {
                 case .success(let response):
                     do {

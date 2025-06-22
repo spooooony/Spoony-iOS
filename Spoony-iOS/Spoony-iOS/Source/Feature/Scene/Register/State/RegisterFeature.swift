@@ -159,10 +159,9 @@ struct RegisterFeature {
                         imagesData: images
                     ) else {
                         await send(.updateIsLoading(false))
+                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
                         return
                     }
-                    
-                    await send(.updateIsLoading(false))
                     
                     if success {
                         await send(.registrationSuccessful)
@@ -192,21 +191,21 @@ struct RegisterFeature {
                         imagesData: images
                     ) else {
                         await send(.updateIsLoading(false))
+                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
                         return
                     }
-                    
-                    await send(.updateIsLoading(false))
                     
                     if success {
                         await send(.registrationSuccessful)
                     } else {
+                        await send(.updateIsLoading(false))
                         await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
                     }
                 }
             case .registrationSuccessful:
                 state.currentStep = .end
                 state.isRegistrationSuccess = true
-                
+                    
                 if state.reviewStepState.isEditMode {
                     guard let postId = state.postId else {
                         // 여기 뭐로 분기하지

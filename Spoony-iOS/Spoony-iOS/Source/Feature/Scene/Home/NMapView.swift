@@ -11,8 +11,10 @@ import ComposableArchitecture
 import CoreLocation
 
 struct NMapView: UIViewRepresentable {
-    private let defaultZoomLevel: Double = 11.5
-    private let userLocationZoomLevel: Double = 15.0
+    private let districtZoomLevel: Double = 11.5    
+    private let townZoomLevel: Double = 14.0        
+    private let stationZoomLevel: Double = 15.0     
+    
     private let defaultMarker = NMFOverlayImage(name: "ic_unselected_marker")
     private let selectedMarker = NMFOverlayImage(name: "ic_selected_marker")
     private let defaultLatitude: Double = 37.5563
@@ -35,29 +37,41 @@ struct NMapView: UIViewRepresentable {
     }
     
     private func setInitialCameraPosition(_ mapView: NMFMapView) {
+        // 수정: 선택된 위치가 있으면 해당 위치로 초기 카메라 설정 (검색된 위치의 경우)
+        if let selectedLocation = selectedLocation {
+            let coord = NMGLatLng(lat: selectedLocation.latitude, lng: selectedLocation.longitude)
+            // 검색된 위치는 역 수준으로 포커싱 (15배율)
+            let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: stationZoomLevel)
+            mapView.moveCamera(cameraUpdate)
+            print("📍 초기 선택된 위치로 카메라 이동: \(selectedLocation) (줌: \(stationZoomLevel))")
+            return
+        }
+        
+        // 기존 로직: 사용자 위치 권한에 따른 카메라 설정
         let locationManager = CLLocationManager()
         
         switch locationManager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
             if let location = userLocation {
                 let coord = NMGLatLng(lat: location.coordinate.latitude, lng: location.coordinate.longitude)
-                let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: userLocationZoomLevel)
+                // 사용자 현재 위치는 역 수준으로 포커싱 (15배율)
+                let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: stationZoomLevel)
                 mapView.moveCamera(cameraUpdate)
-                print("📍 초기 사용자 위치로 카메라 이동: \(location.coordinate)")
+                print("📍 초기 사용자 위치로 카메라 이동: \(location.coordinate) (줌: \(stationZoomLevel))")
             } else {
-                moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
+                moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude), zoom: districtZoomLevel)
             }
         case .denied, .restricted:
-            moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
+            moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude), zoom: districtZoomLevel)
         case .notDetermined:
-            moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
+            moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude), zoom: districtZoomLevel)
         @unknown default:
-            moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude))
+            moveCamera(mapView, to: NMGLatLng(lat: defaultLatitude, lng: defaultLongitude), zoom: districtZoomLevel)
         }
     }
     
-    private func moveCamera(_ mapView: NMFMapView, to coord: NMGLatLng) {
-        let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
+    private func moveCamera(_ mapView: NMFMapView, to coord: NMGLatLng, zoom: Double = 11.5) {
+        let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: zoom)
         mapView.moveCamera(cameraUpdate)
     }
     
@@ -76,34 +90,36 @@ struct NMapView: UIViewRepresentable {
 
         let coordinator = context.coordinator
         
+        // GPS 포커싱 시 사용자 위치로 이동 (역 수준 포커싱)
         if isLocationFocused, let userLocation = userLocation, !coordinator.hasMovedToUserLocation {
             let coord = NMGLatLng(lat: userLocation.coordinate.latitude, lng: userLocation.coordinate.longitude)
-            let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: userLocationZoomLevel)
+            let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: stationZoomLevel)
             cameraUpdate.animation = .easeIn
             cameraUpdate.animationDuration = 0.5
             mapView.moveCamera(cameraUpdate)
             
             coordinator.updateUserLocationMarker(mapView: mapView, location: userLocation)
             coordinator.hasMovedToUserLocation = true
-            print("📍 사용자 위치로 카메라 이동 완료")
+            print("📍 사용자 위치로 카메라 이동 완료 (줌: \(stationZoomLevel))")
         }
         else if !isLocationFocused {
             coordinator.hasMovedToUserLocation = false
         }
+        // 포커스된 장소가 있을 때 해당 위치로 이동 (동 수준 포커싱)
         else if let location = selectedLocation, !focusedPlaces.isEmpty, !coordinator.hasMovedToFocusedPlace {
             let coord = NMGLatLng(lat: location.latitude, lng: location.longitude)
-            let cameraUpdate = NMFCameraUpdate(scrollTo: coord)
+            let cameraUpdate = NMFCameraUpdate(scrollTo: coord, zoomTo: townZoomLevel)
             cameraUpdate.animation = .easeIn
             cameraUpdate.animationDuration = 0.2
             mapView.moveCamera(cameraUpdate)
             coordinator.hasMovedToFocusedPlace = true
-            print("📍 포커스된 장소로 카메라 이동 완료")
+            print("📍 포커스된 장소로 카메라 이동 완료 (줌: \(townZoomLevel))")
         }
-
         else if focusedPlaces.isEmpty {
             coordinator.hasMovedToFocusedPlace = false
         }
         
+        // 초기 로드 시 전체 픽리스트를 포함하는 영역으로 카메라 설정
         if coordinator.isInitialLoad && !pickList.isEmpty {
             let bounds = NMGLatLngBounds(latLngs: pickList.map {
                 NMGLatLng(lat: $0.latitude, lng: $0.longitude)
@@ -118,7 +134,7 @@ struct NMapView: UIViewRepresentable {
     private func configureMapView(context: Context) -> NMFMapView {
         let mapView = NMFMapView()
         mapView.positionMode = .normal
-        mapView.zoomLevel = defaultZoomLevel
+        mapView.zoomLevel = districtZoomLevel // 기본 줌 레벨을 구 수준으로 설정
         mapView.touchDelegate = context.coordinator
         mapView.logoAlign = .rightTop
         mapView.logoInteractionEnabled = true

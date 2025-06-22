@@ -115,6 +115,9 @@ extension FollowListView {
                 }
             }
             .listStyle(.plain)
+            .refreshable {
+                await store.send(.onAppear).finish()
+            }
             .tag(0)
             
             List {
@@ -141,7 +144,16 @@ extension FollowListView {
                 }
             }
             .listStyle(.plain)
+            .refreshable {
+                await store.send(.onAppear).finish()
+            }
             .tag(1)
+        }
+        .onAppear {
+            currentTab = store.initialTab
+        }
+        .onChange(of: currentTab) { newValue in
+            store.send(.currentTabChanged(newValue))
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
     }
