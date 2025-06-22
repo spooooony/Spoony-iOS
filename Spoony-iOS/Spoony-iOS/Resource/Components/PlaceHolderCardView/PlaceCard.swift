@@ -50,16 +50,13 @@ struct PlaceCard: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
             .background(.clear)
             
-            ZStack {
-                if places.count > 1 {
-                    PageIndicator(
-                        currentPage: currentPage,
-                        pageCount: places.count
-                    )
-                    .padding(.vertical, 4)
-                }
+            if places.count > 1 {
+                PageIndicator(
+                    currentPage: currentPage,
+                    pageCount: places.count
+                )
+                .padding(.vertical, 4)
             }
-            .frame(height: 8)
         }
     }
 }
