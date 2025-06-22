@@ -106,7 +106,7 @@ private extension OtherProfileView {
     }
     
     var profileHeader: some View {
-        HStack(alignment: .center, spacing: 39) {
+        HStack(alignment: .center, spacing: 20) { 
             profileImage
             statsCounters
         }
@@ -193,8 +193,8 @@ private extension OtherProfileView {
     
     var userInfoSection: some View {
         VStack(alignment: .leading, spacing: 5) {
-            if !store.location.isEmpty {
-                Text("")
+            if !store.location.isEmpty && !store.isBlocked {
+                Text(store.location)
                     .customFont(.body2sb)
                     .foregroundStyle(.gray600)
                     .padding(.bottom, 4)
@@ -265,32 +265,38 @@ private extension OtherProfileView {
     }
     
     var reviewsHeader: some View {
-        HStack {
-            Text("리뷰").customFont(.body1b).foregroundStyle(.spoonBlack)
-            Text("\(store.isBlocked ? 0 : store.reviewCount)개").customFont(.body2m).foregroundStyle(.gray400)
-            
-            Spacer()
-            
-            // 차단되지 않은 경우에만 로컬리뷰 필터 버튼 표시
-            if !store.isBlocked {
-                Button(action: {
-                    store.send(.selectReviewFilter(store.selectedReviewFilter == .local ? .all : .local))
-                }) {
-                    HStack(spacing: 8) {
-                        Image(store.selectedReviewFilter == .local ? "ic_checkboxfilled_main" : "ic_checkboxfilled_gray300")
-                            .resizable()
-                            .frame(width: 26.adjusted, height: 26.adjusted)
-                        
-                        Text("로컬리뷰")
-                            .customFont(.body2m)
-                            .foregroundStyle(store.selectedReviewFilter == .local ? .main400 : .gray400)
+            HStack {
+                HStack(spacing: 4) {
+                    Text("리뷰").customFont(.body1b).foregroundStyle(.spoonBlack)
+                    if store.isBlocked {
+                        Text("0개").customFont(.body2m).foregroundStyle(.gray400)
+                    } else {
+                        let displayCount = store.reviews?.count ?? 0
+                        Text("\(displayCount)개").customFont(.body2m).foregroundStyle(.gray400)
+                    }
+                }
+                
+                Spacer()
+                
+                if !store.isBlocked {
+                    Button(action: {
+                        store.send(.selectReviewFilter(store.selectedReviewFilter == .local ? .all : .local))
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(store.selectedReviewFilter == .local ? "ic_checkboxfilled_main" : "ic_checkboxfilled_gray300")
+                                .resizable()
+                                .frame(width: 26.adjusted, height: 26.adjusted)
+                            
+                            Text("로컬리뷰")
+                                .customFont(.body2m)
+                                .foregroundStyle(store.selectedReviewFilter == .local ? .main400 : .gray400)
+                        }
                     }
                 }
             }
+            .padding(.horizontal, 20)
+            .padding(.top, 19)
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 19)
-    }
     
     var reviewsContent: some View {
         Group {
@@ -380,7 +386,16 @@ private extension OtherProfileView {
                 .frame(width: 100.adjusted, height: 100.adjustedH)
                 .padding(.top, 30)
             
-            Text("아직 등록한 리뷰가 없어요")
+            // 로컬리뷰와 전체리뷰 구분하여 메시지 표시
+            let emptyMessage: String = {
+                if store.selectedReviewFilter == .local {
+                    return "아직 등록된 로컬리뷰가 없어요"
+                } else {
+                    return "아직 등록한 리뷰가 없어요"
+                }
+            }()
+            
+            Text(emptyMessage)
                 .customFont(.body1m)
                 .foregroundStyle(.gray500)
                 .multilineTextAlignment(.center)

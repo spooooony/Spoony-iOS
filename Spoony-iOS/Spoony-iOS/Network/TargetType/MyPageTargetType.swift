@@ -17,7 +17,7 @@ enum MyPageTargetType {
     case editProfileInfo(request: EditProfileRequest)
     case getUserInfo
     case getOtherInfo(userId: Int)
-    case getOtherReviews(userId: Int)
+    case getOtherReviews(userId: Int, isLocalReview: Bool)
     case getUserReviews
     case searchUser(query: String)
     case getUserRegion
@@ -49,7 +49,7 @@ extension MyPageTargetType: TargetType {
             return "/user"
         case .getOtherInfo(let userId):
             return "/user/\(userId)"
-        case .getOtherReviews(let userId):
+        case .getOtherReviews(let userId, _):
             return "/user/reviews/\(userId)"
         case .getUserReviews:
             return "/user/reviews"
@@ -115,9 +115,9 @@ extension MyPageTargetType: TargetType {
                 parameters: ["userName": query],
                 encoding: URLEncoding.default
             )
-        case .getOtherReviews:
+        case .getOtherReviews(_, let isLocalReview):
             return .requestParameters(
-                parameters: ["isLocalReview": false],
+                parameters: ["isLocalReview": isLocalReview],
                 encoding: URLEncoding.queryString
             )
         case .getProfileInfo,
