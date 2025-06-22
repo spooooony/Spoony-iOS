@@ -25,7 +25,7 @@ struct MapFeature {
         var isLocationFocused: Bool = false
         var userLocation: CLLocation? = nil
         var selectedLocation: (latitude: Double, longitude: Double)? = nil
-        var hasInitialLocationFocus: Bool = false // 초기 위치 포커싱 여부 추가
+        var hasInitialLocationFocus: Bool = false
         
         var categories: [CategoryChip] = []
         var selectedCategories: [CategoryChip] = []
@@ -42,6 +42,8 @@ struct MapFeature {
         var isDrawingSpoon: Bool = false
         var drawnSpoon: SpoonDrawResponse? = nil
         var spoonDrawError: String? = nil
+        
+        var isAuthenticationChecked: Bool = false
         
         static func == (lhs: State, rhs: State) -> Bool {
             lhs.pickList == rhs.pickList &&
@@ -66,7 +68,8 @@ struct MapFeature {
             lhs.showDailySpoonPopup == rhs.showDailySpoonPopup &&
             lhs.isDrawingSpoon == rhs.isDrawingSpoon &&
             lhs.drawnSpoon == rhs.drawnSpoon &&
-            lhs.spoonDrawError == rhs.spoonDrawError
+            lhs.spoonDrawError == rhs.spoonDrawError &&
+            lhs.isAuthenticationChecked == rhs.isAuthenticationChecked
         }
     }
     
@@ -101,6 +104,8 @@ struct MapFeature {
         case applyFilters
         case toggleGPSTracking
         
+        case checkAuthentication
+        case authenticationChecked(Bool)
         case checkDailyVisit
         case setShowDailySpoonPopup(Bool)
         case drawDailySpoon
@@ -114,6 +119,21 @@ struct MapFeature {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .checkAuthentication:
+                return .run { send in
+                    let hasToken = TokenManager.shared.currentToken != nil
+                    await send(.authenticationChecked(hasToken))
+                }
+                
+            case let .authenticationChecked(isAuthenticated):
+                state.isAuthenticationChecked = true
+                
+                if isAuthenticated {
+                    return .send(.checkDailyVisit)
+                } else {
+                    return .none
+                }
+                
             case .routeToExploreTab:
                 return .none
                 
@@ -127,14 +147,26 @@ struct MapFeature {
                 
             case let .userInfoResponse(.success(userInfo)):
                 state.userName = userInfo.userName
+                
+                if !state.isAuthenticationChecked {
+                    return .send(.authenticationChecked(true))
+                }
                 return .none
                 
             case let .userInfoResponse(.failure(error)):
                 print("Error fetching user info: \(error)")
                 state.userName = "사용자"
+                
+                if !state.isAuthenticationChecked {
+                    return .send(.authenticationChecked(false))
+                }
                 return .none
                 
             case .checkDailyVisit:
+                guard state.isAuthenticationChecked else {
+                    return .none
+                }
+                
                 if UserManager.shared.isFirstVisitOfDay() {
                     return .send(.setShowDailySpoonPopup(true))
                 }
@@ -279,15 +311,13 @@ struct MapFeature {
                 state.selectedLocation = nil
                 return .none
 
-                case let .updateUserLocation(location):
-                    state.userLocation = location
+            case let .updateUserLocation(location):
+                state.userLocation = location
 
                 if state.selectedLocation != nil || !state.focusedPlaces.isEmpty {
-                        print("📍 사용자 위치 업데이트됨, 하지만 기존 선택된 위치 유지")
-                        return .none
-                    }
-                    print("📍 사용자 위치만 업데이트됨: \(location.coordinate.latitude), \(location.coordinate.longitude)")
                     return .none
+                }
+                return .none
                 
             case let .focusToLocation(coordinate):
                 state.selectedLocation = (coordinate.latitude, coordinate.longitude)
@@ -312,28 +342,28 @@ struct MapFeature {
                 state.searchText = text
                 return .none
                 
-                case let .focusedPlaceResponse(.success(response)):
-                    state.isLoading = false
-                    let places = response.zzimFocusResponseList.map { $0.toCardPlace() }
+            case let .focusedPlaceResponse(.success(response)):
+                state.isLoading = false
+                let places = response.zzimFocusResponseList.map { $0.toCardPlace() }
+                
+                if !places.isEmpty {
+                    state.focusedPlaces = places
+                    state.selectedPlace = places[0]
+                    state.currentPage = 0
+                    state.currentBottomSheetStyle = .half
                     
-                    if !places.isEmpty {
-                        state.focusedPlaces = places
-                        state.selectedPlace = places[0]
-                        state.currentPage = 0
-                        state.currentBottomSheetStyle = .half
-                        
-                        if let firstPlace = places.first {
-                            if let matchingPickCard = state.pickList.first(where: { $0.placeId == firstPlace.placeId }) {
-                                state.selectedLocation = (matchingPickCard.latitude, matchingPickCard.longitude)
-                            }
+                    if let firstPlace = places.first {
+                        if let matchingPickCard = state.pickList.first(where: { $0.placeId == firstPlace.placeId }) {
+                            state.selectedLocation = (matchingPickCard.latitude, matchingPickCard.longitude)
                         }
-                    } else {
-                        state.focusedPlaces = []
-                        state.selectedPlace = nil
                     }
-                    
-                    state.isLocationFocused = false
-                    return .none
+                } else {
+                    state.focusedPlaces = []
+                    state.selectedPlace = nil
+                }
+                
+                state.isLocationFocused = false
+                return .none
                 
             case .toggleGPSTracking:
                 if state.isLocationFocused {
@@ -342,7 +372,6 @@ struct MapFeature {
                     print("📍 GPS 포커싱 해제됨")
                     return .send(.clearFocusedPlaces)
                 } else {
-                    // GPS 포커싱 활성화
                     guard let userLocation = state.userLocation else {
                         return .none
                     }
