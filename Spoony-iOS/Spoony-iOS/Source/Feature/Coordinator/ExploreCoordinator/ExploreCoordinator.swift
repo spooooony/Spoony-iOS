@@ -68,7 +68,7 @@ struct ExploreCoordinator {
                 state.routes.push(.otherProfile(.init(userId: userId)))
                 return .none
             case .router(.routeAction(id: _, action: .search(.routeToMyProfileScreen))):
-                state.routes.push(.myProfile(.init()))
+                state.routes.push(.myProfile(.init(isRootView: false)))
                 return .none
                 
             // otherProfile
@@ -97,7 +97,7 @@ struct ExploreCoordinator {
                 state.routes.push(.otherProfile(.init(userId: userId)))
                 return .none
             case .router(.routeAction(id: _, action: .follow(.routeToMyProfileScreen))):
-                state.routes.push(.myProfile(.init()))
+                state.routes.push(.myProfile(.init(isRootView: false)))
                 return .none
                 
             // 이전 화면
@@ -108,6 +108,9 @@ struct ExploreCoordinator {
                 state.routes.goBack()
                 return .none
             case .router(.routeAction(id: _, action: .follow(.routeToPreviousScreen))):
+                state.routes.goBack()
+                return .none
+            case .router(.routeAction(id: _, action: .myProfile(.routeToPreviousScreen))):
                 state.routes.goBack()
                 return .none
                 

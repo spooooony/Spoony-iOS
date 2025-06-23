@@ -36,6 +36,8 @@ struct ProfileFeature {
         
         var isLoadingSpoonCount: Bool = false
         var spoonCountErrorMessage: String? = nil
+        
+        var isRootView: Bool = true
     }
     
     enum Action {
@@ -53,6 +55,7 @@ struct ProfileFeature {
         case routeToEditProfileScreen
         case routeToEditReviewScreen(Int)
         case routeToRegister
+        case routeToPreviousScreen
         
         case deleteReview(Int)
         case confirmDeleteReview
@@ -237,7 +240,7 @@ struct ProfileFeature {
             case .routeToFollowerScreen:
                 return .send(.routeToFollowScreen(tab: 0))
                 
-            case .routeToFollowScreen, .routeToEditProfileScreen, .routeToSettingsScreen, .routeToAttendanceScreen, .routeToEditReviewScreen, .routeToRegister, .routeToReviewDetail:
+            case .routeToFollowScreen, .routeToEditProfileScreen, .routeToSettingsScreen, .routeToAttendanceScreen, .routeToEditReviewScreen, .routeToRegister, .routeToReviewDetail, .routeToPreviousScreen:
                 return .none
             }
         }

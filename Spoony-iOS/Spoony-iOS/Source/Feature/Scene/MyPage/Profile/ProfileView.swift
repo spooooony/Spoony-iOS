@@ -60,16 +60,27 @@ struct ProfileView: View {
     }
     
     private var navigationBar: some View {
-        CustomNavigationBar(
-            style: .settingContent,
-            spoonCount: store.spoonCount,
-            spoonTapped: {
-                store.send(.routeToAttendanceScreen)
-            },
-            tappedAction: {
-                store.send(.routeToSettingsScreen)
+        HStack(spacing: 0) {
+            if !store.isRootView {
+                Image(.icArrowLeftGray700)
+                    .onTapGesture {
+                        store.send(.routeToPreviousScreen)
+                    }
+                    .padding(.leading, 16)
             }
-        )
+            
+            CustomNavigationBar(
+                style: .settingContent,
+                spoonCount: store.spoonCount,
+                spoonTapped: {
+                    store.send(.routeToAttendanceScreen)
+                },
+                tappedAction: {
+                    store.send(.routeToSettingsScreen)
+                }
+            )
+            .padding(.leading, -6)
+        }
         .padding(.bottom, 3)
     }
     

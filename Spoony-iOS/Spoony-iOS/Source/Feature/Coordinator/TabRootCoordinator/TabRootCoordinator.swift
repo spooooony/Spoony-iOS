@@ -109,7 +109,7 @@ struct TabRootCoordinator {
                 return .none
                 
             case .router(.routeAction(id: _, action: .post(.routeToMyProfileScreen))):
-                state.routes.push(.myProfile(.initialState))
+                state.routes.push(.myProfile(.init(isRootView: false)))
                 return .none
                 
             case .router(.routeAction(id: _, action: .tab(.routeToUserReport(let userId)))):
@@ -174,7 +174,7 @@ struct TabRootCoordinator {
                 state.routes.push(.profile(OtherProfileFeature.State(userId: user)))
                 return .none
             case .router(.routeAction(id: _, action: .follow(.routeToMyProfileScreen))):
-                state.routes.push(.myProfile(.init()))
+                state.routes.push(.myProfile(.init(isRootView: false)))
                 return .none
                 
             case .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),
@@ -212,6 +212,10 @@ struct TabRootCoordinator {
                 return .none
             case .router(.routeAction(id: _, action: .myProfile(.routeToEditReviewScreen(let postId)))):
                 state.routes.push(.registerAndEdit(.init(postId: postId)))
+                return .none
+                
+            case .router(.routeAction(id: _, action: .myProfile(.routeToPreviousScreen))):
+                state.routes.goBack()
                 return .none
                 
             // toast

@@ -194,7 +194,7 @@ private extension OtherProfileView {
     var userInfoSection: some View {
         VStack(alignment: .leading, spacing: 5) {
             if !store.location.isEmpty && !store.isBlocked {
-                Text(store.location)
+                Text("서울 \(store.location) 스푼")
                     .customFont(.body2sb)
                     .foregroundStyle(.gray600)
                     .padding(.bottom, 4)
