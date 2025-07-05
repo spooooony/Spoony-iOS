@@ -17,7 +17,7 @@ struct SpoonyApp: App {
     @StateObject private var navigationManager = NavigationManager()
     
     init() {
-        NMFAuthManager.shared().clientId = Config.naverMapsClientId
+        NMFAuthManager.shared().ncpKeyId = Config.naverMapsClientId
         KakaoSDK.initSDK(appKey: Config.kakaoAppKey)
     }
     
