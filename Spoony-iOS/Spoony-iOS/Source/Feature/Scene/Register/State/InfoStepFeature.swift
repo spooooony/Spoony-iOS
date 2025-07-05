@@ -140,7 +140,6 @@ struct InfoStepFeature {
                 return places.isEmpty ? .send(.presentToast(message: "검색 결과가 없습니다.")) : .none
             case .didTapPlaceInfoCell(let place):
                 let request = ValidatePlaceRequest(
-                    userId: Config.userId,
                     latitude: place.latitude,
                     longitude: place.longitude
                 )
