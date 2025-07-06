@@ -270,17 +270,10 @@ extension PostView {
     private var reviewSection: some View {
         VStack(alignment: .leading, spacing: 18.adjustedH) {
             
-            Text((store.isScoop || store.isMine)
-                 ? store.description.splitZeroWidthSpace()
-                 : (
-                    store.description.count > 120
-                    ? "\(store.description.prefix(120))...".splitZeroWidthSpace()
-                    : store.description.splitZeroWidthSpace()
-                 )
-            )
-            .customFont(.body2m)
-            .frame(width: 335.adjusted, alignment: .leading)
-            .foregroundStyle(.black)
+            Text(store.description.splitZeroWidthSpace())
+                .customFont(.body2m)
+                .frame(width: 335.adjusted, alignment: .leading)
+                .foregroundStyle(.black)
             
             Text(store.date.toKoreanDateString)
                 .customFont(.caption1m)
@@ -288,7 +281,6 @@ extension PostView {
         }
         .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 18.adjustedH, trailing: 20.adjusted))
         .frame(maxWidth: .infinity, alignment: .leading)
-        
     }
     
     private var placeInfoSection: some View {
