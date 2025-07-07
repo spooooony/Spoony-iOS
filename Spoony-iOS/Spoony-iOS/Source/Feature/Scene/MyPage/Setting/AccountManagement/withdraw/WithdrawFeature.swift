@@ -107,8 +107,8 @@ struct WithdrawFeature {
                 state.isWithdrawing = false
                 state.withdrawErrorMessage = error.localizedDescription
                 print("❌ 회원탈퇴 API 호출 실패: \(error.localizedDescription)")
-                return .none
-                
+                return .send(.routeToLoginScreen)
+
             case .routeToLoginScreen:
                 print("🔄 로그인 화면으로 이동 요청")
                 return .none
