@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Mixpanel
 
 @Reducer
 struct InfoStepFeature {
@@ -194,6 +195,21 @@ struct InfoStepFeature {
                 state.isDisablePlusButton = false
                 return .none
             case .didTapNextButton:
+                if !state.isEditMode {
+                    guard let categoryName = state.selectedCategory.first?.title,
+                          let placeName = state.selectedPlace?.placeName else { return .none }
+                    let property = RegisterEvents.Review1Property(
+                        placeName: placeName,
+                        category: categoryName,
+                        menuCount: state.recommendTexts.count
+                    )
+                    
+                    Mixpanel.mainInstance().track(
+                        event: RegisterEvents.Name.reivew1Complete,
+                        properties: property.dictionary
+                    )
+                }
+                
                 return .none
             case .validateNextButton:
                 let isRecommendMenuInvalid = state.recommendTexts.contains(where: { $0.text.isEmpty })
