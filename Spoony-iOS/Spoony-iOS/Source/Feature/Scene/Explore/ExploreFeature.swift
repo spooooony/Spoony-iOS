@@ -276,6 +276,13 @@ struct ExploreFeature {
                 state.isAlertPresented = true
                 return .none
             case .binding(\.selectedSort):
+                let property = ExploreEvents.SortSelectedProperty(sortType: state.selectedSort)
+                
+                Mixpanel.mainInstance().track(
+                    event: ExploreEvents.Name.sortSelected,
+                    properties: property.dictionary
+                )
+                
                 return .send(.refreshFilteredFeed)
             case .binding:
                 return .none
