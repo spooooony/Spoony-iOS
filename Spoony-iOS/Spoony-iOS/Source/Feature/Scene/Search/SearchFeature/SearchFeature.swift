@@ -6,7 +6,9 @@
 //
 
 import Foundation
+
 import ComposableArchitecture
+import Mixpanel
 
 @Reducer
 struct SearchFeature {
@@ -124,6 +126,33 @@ struct SearchFeature {
                 state.isSearching = false
                 state.searchResults = results
                 state.errorMessage = nil
+                
+                let trimmed = state.searchText.replacingOccurrences(of: " ", with: "")
+                var locationType: MapEvents.LoacationType = .unKnown
+                
+                if let lastChar = trimmed.last {
+                    locationType = .unKnown
+                    switch lastChar {
+                    case "구":
+                        locationType = .gu
+                    case "동":
+                        locationType = .dong
+                    case "역":
+                        locationType = .yeok
+                    default:
+                        locationType = .unKnown
+                    }
+                    
+                    let property = MapEvents.MapSearchedProperty(
+                        locationType: locationType,
+                        searchTerm: state.searchText
+                    )
+                    
+                    Mixpanel.mainInstance().track(
+                        event: MapEvents.Name.mapSearched,
+                        properties: property.dictionary
+                    )
+                }
                 
                 if results.isEmpty {
                     state.errorMessage = "검색 결과가 없습니다"
