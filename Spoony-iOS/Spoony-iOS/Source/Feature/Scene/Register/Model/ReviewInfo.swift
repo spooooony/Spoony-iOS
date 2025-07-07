@@ -8,6 +8,8 @@
 import Foundation
 
 struct ReviewInfo: Equatable {
+    let userId: Int
+    let savedCount: Int
     let uploadImages: [UploadImage]
     let menuList: [String]
     let description: String
