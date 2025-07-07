@@ -7,6 +7,8 @@
 
 import Foundation
 
+import Mixpanel
+
 protocol AuthProtocol {
     func login(platform: String, token: String) async throws -> Bool
     func signup(
@@ -50,6 +52,11 @@ final class DefaultAuthService: AuthProtocol {
                                 platform: platform
                             )
                         }
+                        
+                        if let userId = UserManager.shared.userId {
+                            Mixpanel.mainInstance().identify(distinctId: "\(userId)")
+                        }
+                        
                         continuation.resume(returning: data.exists)
                     } catch {
                         continuation.resume(throwing: error)
@@ -87,6 +94,8 @@ final class DefaultAuthService: AuthProtocol {
                             continuation.resume(throwing: SNError.noData)
                             return
                         }
+                        UserManager.shared.userId = data.user.userId
+                        Mixpanel.mainInstance().identify(distinctId: "\(data.user.userId)")
                         
                         let user = data.user.userName
                         let token = data.jwtTokenDto

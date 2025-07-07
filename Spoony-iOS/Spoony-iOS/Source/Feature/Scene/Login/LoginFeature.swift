@@ -67,6 +67,10 @@ struct LoginFeature {
                         event: ConversionAnalysisEvents.Name.loginsuccess
                     )
                     
+                    if let userId = UserManager.shared.userId {
+                        Mixpanel.mainInstance().identify(distinctId: "\(userId)")
+                    }
+                    
                     return .send(.routToTabCoordinatorScreen)
                 } else {
                     return .none

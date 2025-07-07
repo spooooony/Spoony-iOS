@@ -19,7 +19,7 @@ enum UserDefaultsKeys: String, CaseIterable {
 }
 
 final class UserManager {
-    @UserDefaultWrapper(key: .userId) public var userId: String?
+    @UserDefaultWrapper(key: .userId) public var userId: Int?
     @UserDefaultWrapper(key: .recentSearches) public var recentSearches: [String]?
     
     @UserDefaultWrapper(key: .exploreUserRecentSearches) public var exploreUserRecentSearches: [String]?
