@@ -339,6 +339,19 @@ struct MapFeature {
             case let .selectCategory(category):
                 state.selectedCategories = [category]
                 
+                let property = CommonEvents.FilterAppliedProperty(
+                    pageApplied: .map,
+                    localReviewFilter: false,
+                    regionFilters: [],
+                    categoryFilters: [category.title],
+                    ageGroupFilters: []
+                )
+                
+                Mixpanel.mainInstance().track(
+                    event: CommonEvents.Name.filterApplied,
+                    properties: property.dictionary
+                )
+                
                 return .send(.applyFilters)
                 
             case .applyFilters:
