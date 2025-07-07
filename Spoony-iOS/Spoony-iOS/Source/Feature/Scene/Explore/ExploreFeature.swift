@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import Mixpanel
 
 @Reducer
 struct ExploreFeature {
@@ -156,6 +157,19 @@ struct ExploreFeature {
                         )
                         let list = result.toEntity()
                         let cursor = result.nextCursor
+                        
+                        let property = CommonEvents.FilterAppliedProperty(
+                            pageApplied: .explore,
+                            localReviewFilter: !state.selectedFilter.selectedLocal.isEmpty,
+                            regionFilters: state.selectedFilter.selectedLocations.map { $0.title },
+                            categoryFilters:state.selectedFilter.selectedCategories.map { $0.title },
+                            ageGroupFilters: state.selectedFilter.selectedAges.map { $0.title }
+                        )
+                        
+                        Mixpanel.mainInstance().track(
+                            event: CommonEvents.Name.filterApplied,
+                            properties: property.dictionary
+                        )
                         
                         await send(.setFeed(list, cursor))
                     } catch {
