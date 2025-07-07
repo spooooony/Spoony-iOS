@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import Mixpanel
 
 @Reducer
 struct ReviewStepFeature {
@@ -113,6 +114,22 @@ struct ReviewStepFeature {
                 let imageError = [.error, .initial].contains(state.uploadImageErrorState)
                 state.isDisableNextButton = imageError || state.isWeakPointTextError || state.isDetailTextError
                 return .none
+            case .didTapNextButton:
+                if !state.isEditMode {
+                    let property = RegisterEvents.Review2Property(
+                        reviewLength: state.detailText.count,
+                        photoCount: state.uploadImages.count,
+                        hasDisappointment: !state.weakPointText.isEmpty
+                    )
+                    
+                    Mixpanel.mainInstance().track(
+                        event: RegisterEvents.Name.reivew2Complete,
+                        properties: property.dictionary
+                    )
+                }
+                
+                return .none
+                
             default: return .none
             }
         }
