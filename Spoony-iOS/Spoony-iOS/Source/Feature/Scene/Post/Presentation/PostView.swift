@@ -442,7 +442,7 @@ extension PostView {
                 let appName: String = "Spoony"
                 guard let url = URL(string: "nmap://place?lat=\(store.latitude)&lng=\(store.longitude)&name=\(store.placeName)&appname=\(appName)") else { return }
                 let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
-                
+                store.send(.mixpanelEvent )
                 if UIApplication.shared.canOpenURL(url) {
                     UIApplication.shared.open(url)
                 } else {

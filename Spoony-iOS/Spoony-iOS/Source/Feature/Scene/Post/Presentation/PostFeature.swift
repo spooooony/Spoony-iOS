@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Mixpanel
 
 enum PostError: Error {
     case noData
@@ -29,7 +30,6 @@ enum PostError: Error {
 
 @Reducer
 struct PostFeature {
-    
     @ObservableState
     struct State: Equatable {
         var isZzim: Bool = false
@@ -71,7 +71,6 @@ struct PostFeature {
         var isDrawingSpoon: Bool = false
         var drawnSpoon: SpoonDrawResponse? = nil
         var spoonDrawError: String? = nil
-        
     }
     
     enum Action {
@@ -93,6 +92,8 @@ struct PostFeature {
         case dismissToast
         
         case error(PostError)
+        
+        case mixpanelEvent
         
         case routeToPreviousScreen
         case routeToReportScreen(Int)
@@ -128,6 +129,7 @@ struct PostFeature {
                 
             case .viewAppear(let postId):
                 state.isLoading = true
+                
                 return .run { [postId] send in
                     do {
                         let data = try await postUseCase.getPost(postId: postId)
@@ -150,6 +152,11 @@ struct PostFeature {
                 return .none
                 
             case .scoopButtonTapped:
+                let property = makeReviewProperty(&state)
+                Mixpanel.mainInstance().track(
+                    event: ReviewEvents.Name.spoonUseIntent,
+                    properties: property.dictionary
+                )
                 return .run { [postId = state.postId] send in
                     do {
                         let data = try await postUseCase.scoopPost(postId: postId)
@@ -178,10 +185,20 @@ struct PostFeature {
                 if isScrap {
                     state.zzimCount += 1
                     state.isZzim.toggle()
+                    let property = makeReviewProperty(&state)
+                    Mixpanel.mainInstance().track(
+                        event: ReviewEvents.Name.placeMapSaved,
+                        properties: property.dictionary
+                    )
                     return .send(.showToast("내 지도에 저장되었어요."))
                 } else {
                     state.zzimCount -= 1
                     state.isZzim.toggle()
+                    let property = makeReviewProperty(&state)
+                    Mixpanel.mainInstance().track(
+                        event: ReviewEvents.Name.placeMapRemoved,
+                        properties: property.dictionary
+                    )
                     return .send(.showToast("내 지도에서 삭제되었어요."))
                 }
                 
@@ -198,6 +215,33 @@ struct PostFeature {
             case .followActionResponse(let result):
                 switch result {
                 case .success:
+                    let property = CommonEvents.ReviewUserFollowInteractionProperty(
+                        reviewId: state.postId,
+                        authorUserId: state.userId,
+                        placeId: 1,
+                        placeName: state.placeName,
+                        category: state.categoryName,
+                        menuCount: state.menuList.count,
+                        satisfaction: state.value,
+                        reviewLength: state.description.count,
+                        photoCount: state.photoUrlList.count,
+                        hasDisappointment: !state.cons.isEmpty,
+                        savedCount: state.zzimCount,
+                        entryPoint: .explore
+                    )
+                    
+                    if state.isFollowing {
+                        Mixpanel.mainInstance().track(
+                            event: CommonEvents.Name.unfollowUserFromReview,
+                            properties: property.dictionary
+                        )
+                    } else {
+                        Mixpanel.mainInstance().track(
+                            event: CommonEvents.Name.followUserFromReview,
+                            properties: property.dictionary
+                        )
+                    }
+                    
                     state.isFollowing.toggle() // ✅ follow 상태 변경
                     return .none
                 case .failure(let error):
@@ -209,7 +253,7 @@ struct PostFeature {
                 if isSuccess {
                     state.isScoop = true
                     state.spoonCount = max(0, state.spoonCount - 1)
-//                    return .send(.showToast("떠먹기에 성공했어요!"))
+                    //                    return .send(.showToast("떠먹기에 성공했어요!"))
                     return .none
                 } else {
                     return .send(.showToast("남은 스푼이 없어요 ㅠ.ㅠ"))
@@ -233,6 +277,16 @@ struct PostFeature {
             case .error(let error):
                 return .send(.showToast(error.description))
                 
+            case .mixpanelEvent:
+                let property = makeReviewProperty(&state)
+                
+                Mixpanel.mainInstance().track(
+                    event: ReviewEvents.Name.directionClicked,
+                    properties: property.dictionary
+                )
+                
+                return .none
+                
             case .routeToReportScreen:
                 return .none
                 
@@ -250,13 +304,29 @@ struct PostFeature {
                 
             case .showUseSpoonPopup:
                 if state.spoonCount <= 0 {
+                    Mixpanel.mainInstance().track(event: ReviewEvents.Name.spoonUseFailed)
+                    
                     return .send(.showToast("남은 스푼이 없어요 ㅠ.ㅠ"))
                 }
+                let property = makeReviewProperty(&state)
+                
+                Mixpanel.mainInstance().track(
+                    event: ReviewEvents.Name.spoonUseIntent,
+                    properties: property.dictionary
+                )
+                
                 state.isUseSpoonPopupVisible = true
                 return .none
                 
             case .confirmUseSpoonPopup:
                 state.isUseSpoonPopupVisible = false
+                // 확인할래요
+                let property = makeReviewProperty(&state)
+                
+                Mixpanel.mainInstance().track(
+                    event: ReviewEvents.Name.spoonUsed,
+                    properties: property.dictionary
+                )
                 return .run { [postId = state.postId] send in
                     do {
                         let isSuccess = try await postUseCase.scoopPost(postId: postId)
@@ -324,6 +394,16 @@ struct PostFeature {
             case let .spoonDrawResponse(.success(response)):
                 state.isDrawingSpoon = false
                 state.drawnSpoon = response
+                
+                let property = SpoonEvents.SpoonReceivedProperty(
+                    spoonCount: response.spoonType.spoonAmount
+                )
+                
+                Mixpanel.mainInstance().track(
+                    event: SpoonEvents.Name.spoonReceived,
+                    properties: property.dictionary
+                )
+                
                 return .send(.fetchSpoonCount)
                 
             case .fetchSpoonCount:
@@ -377,5 +457,49 @@ struct PostFeature {
         state.value = data.value
         state.cons = data.cons
         state.isFollowing = data.isFollowing
+        
+        let property = CommonEvents.ReviewViewedProperty(
+            reviewId: state.postId,
+            authorUserId: state.userId,
+            // MARK: - 임시
+            placeId: 1,
+            placeName: state.placeName,
+            category: state.categoryName,
+            menuCount: state.menuList.count,
+            satisfaction: state.value,
+            reviewLength: state.description.count,
+            photoCount: state.photoUrlList.count,
+            hasDisappointment: !state.cons.isEmpty,
+            savedCount: state.zzimCount,
+            isSelfReview: state.isMine,
+            isFollowedUserReview: state.isFollowing,
+            isSavedReview: state.isZzim,
+            // MARK: - 임시
+            entryPoint: .explore
+        )
+        
+        Mixpanel.mainInstance().track(
+            event: CommonEvents.Name.reviewViewed,
+            properties: property.dictionary
+        )
+    }
+    
+    private func makeReviewProperty(_ state: inout State) -> ReviewEvents.ReviewProperty {
+        let property = ReviewEvents.ReviewProperty(
+            reviewId: state.postId,
+            authorUserId: state.userId,
+            placeId: 1,
+            placeName: state.placeName,
+            category: state.categoryName,
+            menuCount: state.menuList.count,
+            satisfactionScore: state.value,
+            reviewLength: state.description.count,
+            photoCount: state.photoUrlList.count,
+            hasDisappointment: !state.cons.isEmpty,
+            savedCount: state.zzimCount,
+            isFollowingAuthor: state.isFollowing
+        )
+        
+        return property
     }
 }
