@@ -30,7 +30,6 @@ struct CommonEvents {
         case review
         case followList = "followed_list"
         case followingList = "following_list"
-        //TODO: 이거 뭐임?
         case gnbMyPage = "gnb_mypage"
     }
     
@@ -185,7 +184,7 @@ struct CommonEvents {
     }
     
     struct FilterAppliedProperty: MixpanelProperty {
-        let pageApplied: String
+        let pageApplied: EntryPoint
         let localReviewFilter: Bool
         let regionFilters: [String]
         let categoryFilters: [String]
@@ -193,7 +192,7 @@ struct CommonEvents {
         
         var dictionary: [String: MixpanelType] {
             [
-                "page_applied": pageApplied,
+                "page_applied": pageApplied.rawValue,
                 "local_review_filter": localReviewFilter,
                 "region_filters": regionFilters,
                 "category_filters": categoryFilters,
