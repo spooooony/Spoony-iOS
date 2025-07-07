@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+
 import ComposableArchitecture
+import Mixpanel
 
 @Reducer
 struct OtherProfileFeature {
@@ -130,6 +132,18 @@ struct OtherProfileFeature {
                 state.followingCount = response.followingCount
                 state.followerCount = response.followerCount
                 state.isFollowing = response.isFollowing
+                
+                let property = CommonEvents.ProfileViewedProperty(
+                    profileUserId: response.userId,
+                    isSelfProfile: false,
+                    isFollowingProfileUser: response.isFollowing,
+                    entryPoint: .gnbMyPage
+                )
+                
+                Mixpanel.mainInstance().track(
+                    event: CommonEvents.Name.profileViewed,
+                    properties: property.dictionary
+                )
                 return .none
                 
             case let .userInfoResponse(.failure(error)):
@@ -173,6 +187,22 @@ struct OtherProfileFeature {
             case let .selectReviewFilter(filterType):
                 state.selectedReviewFilter = filterType
                 // 필터 변경 시 즉시 API 호출하여 새로운 데이터 로드
+                
+                if filterType == .local {
+                    let property = CommonEvents.FilterAppliedProperty(
+                        pageApplied: .userProfile,
+                        localReviewFilter: true,
+                        regionFilters: [],
+                        categoryFilters: [],
+                        ageGroupFilters: []
+                    )
+                    
+                    Mixpanel.mainInstance().track(
+                        event: CommonEvents.Name.filterApplied,
+                        properties: property.dictionary
+                    )
+                }
+                
                 return .send(.fetchUserReviews)
                 
             case .followButtonTapped:
@@ -187,6 +217,28 @@ struct OtherProfileFeature {
                 }
                 
             case .followActionResponse(.success):
+                if state.isFollowing {
+                    let property = CommonEvents.UnfollowUserProperty(
+                        unfollowedUserId: state.userId,
+                        entryPoint: .userProfile
+                    )
+                    
+                    Mixpanel.mainInstance().track(
+                        event: CommonEvents.Name.unfollowUser,
+                        properties: property.dictionary
+                    )
+                } else {
+                    let property = CommonEvents.FollowUserProperty(
+                        followedUserId: state.userId,
+                        entryPoint: .userProfile
+                    )
+                    
+                    Mixpanel.mainInstance().track(
+                        event: CommonEvents.Name.followUser,
+                        properties: property.dictionary
+                    )
+                }
+                
                 state.isFollowing.toggle()
                 state.followerCount += state.isFollowing ? 1 : -1
                 return .none

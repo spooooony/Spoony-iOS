@@ -6,8 +6,10 @@
 //
 
 import Foundation
+
 import ComposableArchitecture
 import CoreLocation
+import Mixpanel
 
 @Reducer
 struct MapFeature {
@@ -195,6 +197,16 @@ struct MapFeature {
             case let .spoonDrawResponse(.success(response)):
                 state.isDrawingSpoon = false
                 state.drawnSpoon = response
+                
+                let property = SpoonEvents.SpoonReceivedProperty(
+                    spoonCount: response.spoonType.spoonAmount
+                )
+                
+                Mixpanel.mainInstance().track(
+                    event: SpoonEvents.Name.spoonReceived,
+                    properties: property.dictionary
+                )
+                
                 return .none
                 
             case let .spoonDrawResponse(.failure(error)):
@@ -326,6 +338,19 @@ struct MapFeature {
                 
             case let .selectCategory(category):
                 state.selectedCategories = [category]
+                
+                let property = CommonEvents.FilterAppliedProperty(
+                    pageApplied: .map,
+                    localReviewFilter: false,
+                    regionFilters: [],
+                    categoryFilters: [category.title],
+                    ageGroupFilters: []
+                )
+                
+                Mixpanel.mainInstance().track(
+                    event: CommonEvents.Name.filterApplied,
+                    properties: property.dictionary
+                )
                 
                 return .send(.applyFilters)
                 

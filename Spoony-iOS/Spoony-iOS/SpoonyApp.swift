@@ -14,7 +14,8 @@ import ComposableArchitecture
 
 @main
 struct SpoonyApp: App {
-    @StateObject private var navigationManager = NavigationManager()
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+//    @StateObject private var navigationManager = NavigationManager()
     
     init() {
         NMFAuthManager.shared().ncpKeyId = Config.naverMapsClientId
@@ -31,7 +32,7 @@ struct SpoonyApp: App {
 //            .onAppear {
 //                KeychainManager.delete(key: .accessToken)
 //            }
-            .environmentObject(navigationManager)
+//            .environmentObject(navigationManager)
             .onOpenURL(perform: { url in
                 if AuthApi.isKakaoTalkLoginUrl(url) {
                     _ = AuthController.handleOpenUrl(url: url)
