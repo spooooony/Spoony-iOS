@@ -16,6 +16,7 @@
 		7893B4822DF6A03900B62E48 /* NetworkingMacros in Frameworks */ = {isa = PBXBuildFile; productRef = 7893B4812DF6A03900B62E48 /* NetworkingMacros */; };
 		78AD4F082D4299110090E9E3 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */; };
 		78E985B42D564A9D00E02ABB /* FlexSheet in Frameworks */ = {isa = PBXBuildFile; productRef = 78E985B32D564A9D00E02ABB /* FlexSheet */; };
+		AD7F64682E17C2D6002F3F61 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = AD7F64672E17C2D6002F3F61 /* Mixpanel */; };
 		ADCF6DE12D9C03D1002F15E8 /* TCACoordinators in Frameworks */ = {isa = PBXBuildFile; productRef = ADCF6DE02D9C03D1002F15E8 /* TCACoordinators */; };
 		CB6B894C2D8149F400DF264B /* KakaoSDK in Frameworks */ = {isa = PBXBuildFile; productRef = CB6B894B2D8149F400DF264B /* KakaoSDK */; };
 		CB6B894E2D8149F400DF264B /* KakaoSDKAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CB6B894D2D8149F400DF264B /* KakaoSDKAuth */; };
@@ -46,6 +47,7 @@
 			files = (
 				CB6B89502D8149F400DF264B /* KakaoSDKCert in Frameworks */,
 				CB6B89542D8149F400DF264B /* KakaoSDKCommon in Frameworks */,
+				AD7F64682E17C2D6002F3F61 /* Mixpanel in Frameworks */,
 				787B5B072D32DA0F0017A378 /* Moya in Frameworks */,
 				CB6B89522D8149F400DF264B /* KakaoSDKCertCore in Frameworks */,
 				787B5B0A2D32DA500017A378 /* NMapsMap in Frameworks */,
@@ -124,6 +126,7 @@
 				CB6B89532D8149F400DF264B /* KakaoSDKCommon */,
 				ADCF6DE02D9C03D1002F15E8 /* TCACoordinators */,
 				7893B4812DF6A03900B62E48 /* NetworkingMacros */,
+				AD7F64672E17C2D6002F3F61 /* Mixpanel */,
 			);
 			productName = SpoonMe;
 			productReference = 78C002082D1D9FC400DA101C /* Spoony-iOS.app */;
@@ -162,6 +165,7 @@
 				7156E2DF2D74773300F0C5E7 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				CB6B894A2D8149F400DF264B /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
 				ADCF6DDF2D9C03D1002F15E8 /* XCRemoteSwiftPackageReference "TCACoordinators" */,
+				AD7F64662E17C2D6002F3F61 /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 78C002092D1D9FC400DA101C /* Products */;
@@ -502,6 +506,14 @@
 				minimumVersion = 1.0.4;
 			};
 		};
+		AD7F64662E17C2D6002F3F61 /* XCRemoteSwiftPackageReference "mixpanel-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mixpanel/mixpanel-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.8.0;
+			};
+		};
 		ADCF6DDF2D9C03D1002F15E8 /* XCRemoteSwiftPackageReference "TCACoordinators" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/johnpatrickmorgan/TCACoordinators.git";
@@ -554,6 +566,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 78E985B22D564A9D00E02ABB /* XCRemoteSwiftPackageReference "FlexSheet" */;
 			productName = FlexSheet;
+		};
+		AD7F64672E17C2D6002F3F61 /* Mixpanel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AD7F64662E17C2D6002F3F61 /* XCRemoteSwiftPackageReference "mixpanel-swift" */;
+			productName = Mixpanel;
 		};
 		ADCF6DE02D9C03D1002F15E8 /* TCACoordinators */ = {
 			isa = XCSwiftPackageProductDependency;

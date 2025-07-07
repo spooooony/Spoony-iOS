@@ -5,8 +5,10 @@
 //  Created by 최안용 on 3/21/25.
 //
 
-import ComposableArchitecture
 import Foundation
+
+import ComposableArchitecture
+import Mixpanel
 
 @Reducer
 struct RegisterFeature {
@@ -15,6 +17,8 @@ struct RegisterFeature {
         static let initialState = State()
                        
         var postId: Int?
+        var userId: Int?
+        var savedCount: Int?
         var currentStep: RegisterStep = .start
         var isLoading: Bool = false
         var isPosting: Bool = false
@@ -107,6 +111,8 @@ struct RegisterFeature {
                 state.reviewStepState.weakPointText = reviewInfo.cons
                 state.reviewStepState.uploadImages = reviewInfo.uploadImages
                 state.reviewStepState.selectableCount = 5 - reviewInfo.uploadImages.count
+                state.userId = reviewInfo.userId
+                state.savedCount = reviewInfo.savedCount
                 state.isLoading = false
                 return .send(.infoStepAction(.loadSelectedCategory))
             case .updateIsLoading(let isLoading):
@@ -212,12 +218,41 @@ struct RegisterFeature {
             case .registrationSuccessful:
                 state.currentStep = .end
                 state.isRegistrationSuccess = true
-                    
+                
                 if state.reviewStepState.isEditMode {
                     guard let postId = state.postId else {
                         // 여기 뭐로 분기하지
                         return .send(.routeToPreviousScreen)
                     }
+                    
+                    guard let userId = state.userId,
+                          let savedCount = state.savedCount,
+                          let placeName = state.infoStepState.selectedPlace?.placeName,
+                          let category = state.infoStepState.selectedCategory.first?.title else {
+                        return .none
+                    }
+                    
+                    let property = CommonEvents.ReviewEditProperty(
+                        reviewId: postId,
+                        authorUserId: userId,
+                        placeId: 1,
+                        placeName: placeName,
+                        category: category,
+                        menuCount: state.infoStepState.recommendTexts.count,
+                        satisfaction: state.infoStepState.satisfaction,
+                        reviewLength: state.reviewStepState.detailText.count,
+                        photoCount: state.reviewStepState.uploadImages.count,
+                        hasDisappointment: !state.reviewStepState.weakPointText.isEmpty,
+                        savedCount: savedCount,
+                        entryPoint: .review
+                        
+                    )
+                    
+                    Mixpanel.mainInstance().track(
+                        event: CommonEvents.Name.reviewEdited,
+                        properties: property.dictionary
+                    )
+                    
                     return .send(.routeToPostScreen(postId))
                 } else {
                     return .send(.presentPopup)

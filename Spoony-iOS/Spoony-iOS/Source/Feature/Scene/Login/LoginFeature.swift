@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import Mixpanel
 
 enum SocialType: String {
     case KAKAO
@@ -62,6 +63,14 @@ struct LoginFeature {
                 return .send(.routToTabCoordinatorScreen)
             case .onAppear:
                 if authenticationManager.checkAutoLogin() {
+                    Mixpanel.mainInstance().track(
+                        event: ConversionAnalysisEvents.Name.loginsuccess
+                    )
+                    
+                    if let userId = UserManager.shared.userId {
+                        Mixpanel.mainInstance().identify(distinctId: "\(userId)")
+                    }
+                    
                     return .send(.routToTabCoordinatorScreen)
                 } else {
                     return .none
@@ -95,8 +104,15 @@ struct LoginFeature {
                     do {
                         let isExists = try await authService.login(platform: type.rawValue, token: token)
                         if isExists {
+                            Mixpanel.mainInstance().track(
+                                event: ConversionAnalysisEvents.Name.loginsuccess
+                            )
                             await send(.routToTabCoordinatorScreen)
                         } else {
+                            Mixpanel.mainInstance().track(
+                                event: ConversionAnalysisEvents.Name.signupCompleted,
+                                properties: ConversionAnalysisEvents.SignupProperty(method: type).dictionary
+                            )
                             await send(.routToTermsOfServiceScreen)
                         }
                     } catch {

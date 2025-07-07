@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import Mixpanel
 
 @Reducer
 struct ExploreSearchFeature {
@@ -99,8 +100,13 @@ struct ExploreSearchFeature {
                 }
                 return .none
             case .updateSearchStateFromSearchResult(let reviewList, let userList):
+                var property = ExploreEvents.ExploreSearchProperty(
+                    searchTargetType: .review,
+                    searchTerm: state.searchText
+                )
                 switch state.viewType {
                 case .user:
+                    property.searchTargetType = .user
                     guard let userList else { return .none }
                     state.userResult = userList
                     
@@ -110,6 +116,7 @@ struct ExploreSearchFeature {
                         state.searchState = .searchResult
                     }
                 case .review:
+                    property.searchTargetType = .review
                     guard let reviewList else { return .none }
                     state.reviewResult = reviewList
                     
@@ -119,6 +126,12 @@ struct ExploreSearchFeature {
                         state.searchState = .searchResult
                     }
                 }
+                
+                Mixpanel.mainInstance().track(
+                    event: ExploreEvents.Name.exploreSearched,
+                    properties: property.dictionary
+                )
+                
                 return .none
             case .allDeleteButtonTapped:
                 switch state.viewType {

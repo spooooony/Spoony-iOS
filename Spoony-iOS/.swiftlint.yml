@@ -29,4 +29,8 @@ file_length:
     warning: 600 # 600줄 넘어가면 경고 입니다 ^_^
     error: 1200 # 1200줄 은 진짜 에러 입니다 ^^ 혼나요
 
+type_body_length:
+  warning: 500
+  error: 1200
+
 force_cast: warning # 강제 캐스팅도 경고 입니다 ^^

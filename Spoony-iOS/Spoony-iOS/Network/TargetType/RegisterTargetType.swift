@@ -80,12 +80,25 @@ extension RegisterTargetType: TargetType {
     var headers: [String: String]? {
         switch self {
         case .searchPlace, .getRegisterCategories, .validatePlace, .getReviewInfo:
-            return Config.defaultHeader
+//            return Config.defaultHeader
+            return HeaderType.auth.value
         case .registerPost, .editPost:
-            return [
-                "Content-Type": "multipart/form-data",
-                "Authorization": "Bearer \(Config.fixedAccessToken)"
-            ]
+            switch KeychainManager.read(key: .accessToken) {
+            case .success(let token):
+                guard let token else {
+                    print("Access Token Nil Error")
+                    return [:]
+                }
+                
+                return [
+                    "Content-Type": "multipart/form-data",
+                    "Authorization": "Bearer \(token)"
+                ]
+            case .failure(let error):
+                print("Keychain Read Error: \(error)")
+                return [:]
+            }
+            
         }
     }
 }

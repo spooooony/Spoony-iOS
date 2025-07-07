@@ -8,6 +8,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import Mixpanel
 
 @Reducer
 struct EditProfileFeature {
@@ -30,6 +31,11 @@ struct EditProfileFeature {
         var isLoadError: Bool = false
         var isChangeNickname: Bool = false
         
+        var initImageLevel: Int = 1
+        var initBio: String = ""
+        var initBirthDate: [String] = ["", "", ""]
+        var initSubRegion: Region?
+        
         // 나중에 삭제
         var nicknameErrorState: NicknameTextFieldErrorState = .initial
         
@@ -50,6 +56,8 @@ struct EditProfileFeature {
         case didTapProfileImage(ProfileImage)
         case checkNickname
         case updateLoadError
+        
+        case sendMixpanelEvent
         
         // MARK: - TabRootCoordinator Action
         case routeToPreviousScreen
@@ -118,6 +126,11 @@ struct EditProfileFeature {
                 state.selectedSubLocation = state.regionList.first(where: { $0.regionName == profileInfo.regionName })
                 state.isLoading = false
                 
+                state.initImageLevel = profileInfo.imageLevel
+                state.initBio = profileInfo.introduction
+                state.initBirthDate = profileInfo.birthDate
+                state.initSubRegion = profileInfo.selectedSubLocation
+
                 return .none
                 
             case .profileImagesResponse(let profileImages):
@@ -152,6 +165,7 @@ struct EditProfileFeature {
                     let success = try await mypageService.editProfileInfo(request: reqeust)
                     
                     if success {
+                        await send(.sendMixpanelEvent)
                         await send(.routeToPreviousScreen)
                     } else {
                         await send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
@@ -159,6 +173,41 @@ struct EditProfileFeature {
                     }
                 }
                 .cancellable(id: CancelID.editProfile, cancelInFlight: true)
+                
+            case .sendMixpanelEvent:
+                var property = MyPageEvents.ProfileUpdateProperty(fields: [])
+                
+                for field in MyPageEvents.UpdateFiled.allCases {
+                    switch field {
+                    case .profileImage:
+                        if state.initImageLevel != state.imageLevel {
+                            property.fields.append(.profileImage)
+                        }
+                    case .nickname:
+                        if state.userNickname != state.savedNickname {
+                            property.fields.append(.nickname)
+                        }
+                    case .bio:
+                        if state.introduction != state.initBio {
+                            property.fields.append(.bio)
+                        }
+                    case .birthdate:
+                        if state.birthDate != state.initBirthDate {
+                            property.fields.append(.birthdate)
+                        }
+                    case .activeRegion:
+                        if state.selectedSubLocation != state.initSubRegion {
+                            property.fields.append(.activeRegion)
+                        }
+                    }
+                }
+                
+                Mixpanel.mainInstance().track(
+                    event: MyPageEvents.Name.profileUpdate,
+                    properties: property.dictionary
+                )
+                
+                return .none
                 
             case .checkNickname:
                 if state.isChangeNickname {
@@ -196,6 +245,9 @@ struct EditProfileFeature {
                 
             case .didTapQuesetionButton:
                 state.isPresentProfileBottomSheet = true
+                
+                Mixpanel.mainInstance().track(event: MyPageEvents.Name.spoonViewd)
+                
                 return .none
                 
             case .didTapProfileImage(let image):

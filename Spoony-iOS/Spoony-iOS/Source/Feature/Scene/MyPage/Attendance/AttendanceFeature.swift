@@ -6,7 +6,9 @@
 //
 
 import Foundation
+
 import ComposableArchitecture
+import Mixpanel
 
 @Reducer
 struct AttendanceFeature {
@@ -225,6 +227,15 @@ struct AttendanceFeature {
                 state.isDrawingSpoon = false
                 state.drawnSpoon = response
                 UserManager.shared.updateLastVisitDate()
+                
+                let property = SpoonEvents.SpoonReceivedProperty(
+                    spoonCount: response.spoonType.spoonAmount
+                )
+                
+                Mixpanel.mainInstance().track(
+                    event: SpoonEvents.Name.spoonReceived,
+                    properties: property.dictionary
+                )
                 
                 return .merge(
                     .send(.fetchSpoonCount),

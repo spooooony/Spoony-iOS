@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+
 import ComposableArchitecture
+import Mixpanel
 
 enum OnboardingStep: Int {
     case nickname = 1
@@ -75,9 +77,29 @@ struct OnboardingFeature {
                 switch state.currentStep {
                 case .nickname:
                     state.currentStep = .information
+                    Mixpanel.mainInstance().track(event: OnboardingEvents.Name.onboarding1Completed)
                 case .information:
                     state.currentStep = .introduce
+                    let property = OnboardingEvents.Onboarding1CompletedProperty(
+                        birthdateEntered: !state.birth[0].isEmpty,
+                        activeRegionEntered: state.subRegion != nil
+                    )
+                    
+                    Mixpanel.mainInstance().track(
+                        event: OnboardingEvents.Name.onboarding2Completed,
+                        properties: property.dictionary
+                    )
                 case .introduce:
+                    let property = OnboardingEvents.Onboarding3CompletedProperty(
+                        bioLength: state.introduceText.count
+                    )
+
+                    
+                    Mixpanel.mainInstance().track(
+                        event: OnboardingEvents.Name.onboarding3Completed,
+                        properties: property.dictionary
+                    )
+                    
                     return .send(.signup)
                 case .finish:
                     UserManager.shared.completeOnboarding()
@@ -106,9 +128,13 @@ struct OnboardingFeature {
                     state.subRegion = nil
                     state.infoError = true
                     state.currentStep = .introduce
+                    
+                    Mixpanel.mainInstance().track(event: OnboardingEvents.Name.onboarding2Skiped)
                 case .introduce:
                     state.introduceText = ""
                     state.introduceError = true
+                    
+                    Mixpanel.mainInstance().track(event: OnboardingEvents.Name.onboarding3Skiped)
                     return .send(.signup)
                 case .finish:
                     break

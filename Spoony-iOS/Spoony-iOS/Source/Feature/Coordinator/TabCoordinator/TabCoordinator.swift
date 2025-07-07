@@ -8,7 +8,9 @@
 import Foundation
 
 import ComposableArchitecture
+import Mixpanel
 import TCACoordinators
+
 
 @Reducer
 struct TabCoordinator {
@@ -76,6 +78,11 @@ struct TabCoordinator {
                 } else if tab == .explore {
                     state.explore.routes.goBackToRoot()
                 }
+                
+                Mixpanel.mainInstance().track(
+                    event: CommonEvents.Name.tabEntered,
+                    properties: CommonEvents.TabEnteredProperty(tabName: tab).dictionary
+                )
                 
                 state.selectedTab = tab
                 return .none

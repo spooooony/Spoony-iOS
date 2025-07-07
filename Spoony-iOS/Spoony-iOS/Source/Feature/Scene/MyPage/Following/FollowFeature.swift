@@ -6,7 +6,9 @@
 //
 
 import Foundation
+
 import ComposableArchitecture
+import Mixpanel
 
 @Reducer
 struct FollowFeature {
@@ -124,8 +126,30 @@ struct FollowFeature {
                         // 현재 팔로잉 화면에서 언팔 시 isFollowing만 토글
                         state.followingList[index].isFollowing.toggle()
                     }
-
                 }
+                
+                if isFollowing {
+                    let property = CommonEvents.UnfollowUserProperty(
+                        unfollowedUserId: userId,
+                        entryPoint: state.currentTab == 0 ? .followList : .followingList
+                    )
+                    
+                    Mixpanel.mainInstance().track(
+                        event: CommonEvents.Name.unfollowUser,
+                        properties: property.dictionary
+                    )
+                } else {
+                    let property = CommonEvents.FollowUserProperty(
+                        followedUserId: userId,
+                        entryPoint: state.currentTab == 0 ? .followList : .followingList
+                    )
+                    
+                    Mixpanel.mainInstance().track(
+                        event: CommonEvents.Name.followUser,
+                        properties: property.dictionary
+                    )
+                }
+                
                 return .run { _ in
                     do {
                         try await followUseCase.toggleFollow(userId: userId, isFollowing: isFollowing)

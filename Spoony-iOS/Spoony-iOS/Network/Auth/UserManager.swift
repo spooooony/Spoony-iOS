@@ -15,10 +15,11 @@ enum UserDefaultsKeys: String, CaseIterable {
     case lastAppVisitDate = "lastAppVisitDate"
     case hasCompletedOnboarding = "hasCompletedOnboarding"
     case lastHomeVisitDate = "lastHomeVisitDate"
+    case isFirstOpen = "isFirstOpen"
 }
 
 final class UserManager {
-    @UserDefaultWrapper(key: .userId) public var userId: String?
+    @UserDefaultWrapper(key: .userId) public var userId: Int?
     @UserDefaultWrapper(key: .recentSearches) public var recentSearches: [String]?
     
     @UserDefaultWrapper(key: .exploreUserRecentSearches) public var exploreUserRecentSearches: [String]?
@@ -28,10 +29,19 @@ final class UserManager {
     @UserDefaultWrapper(key: .hasCompletedOnboarding) public var hasCompletedOnboarding: Bool?
     
     @UserDefaultWrapper(key: .lastHomeVisitDate) private var lastHomeVisitDate: Date?
+    @UserDefaultWrapper(key: .isFirstOpen) private var isFirstOpen: Bool?
     
     static let shared = UserManager()
     
     private init() { }
+    
+    func isFirstOpenApp() -> Bool {
+        guard let isFirstOpen = isFirstOpen else {
+            self.isFirstOpen = true
+            return true
+        }
+        return !isFirstOpen
+    }
     
     func setSearches(_ key: SearchType, _ text: String) {
         var list: [String]?

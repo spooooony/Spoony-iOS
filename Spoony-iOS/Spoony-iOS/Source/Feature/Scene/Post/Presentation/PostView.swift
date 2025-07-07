@@ -270,17 +270,10 @@ extension PostView {
     private var reviewSection: some View {
         VStack(alignment: .leading, spacing: 18.adjustedH) {
             
-            Text((store.isScoop || store.isMine)
-                 ? store.description.splitZeroWidthSpace()
-                 : (
-                    store.description.count > 120
-                    ? "\(store.description.prefix(120))...".splitZeroWidthSpace()
-                    : store.description.splitZeroWidthSpace()
-                 )
-            )
-            .customFont(.body2m)
-            .frame(width: 335.adjusted, alignment: .leading)
-            .foregroundStyle(.black)
+            Text(store.description.splitZeroWidthSpace())
+                .customFont(.body2m)
+                .frame(width: 335.adjusted, alignment: .leading)
+                .foregroundStyle(.black)
             
             Text(store.date.toKoreanDateString)
                 .customFont(.caption1m)
@@ -288,7 +281,6 @@ extension PostView {
         }
         .padding(EdgeInsets(top: 0, leading: 20.adjusted, bottom: 18.adjustedH, trailing: 20.adjusted))
         .frame(maxWidth: .infinity, alignment: .leading)
-        
     }
     
     private var placeInfoSection: some View {
@@ -442,7 +434,7 @@ extension PostView {
                 let appName: String = "Spoony"
                 guard let url = URL(string: "nmap://place?lat=\(store.latitude)&lng=\(store.longitude)&name=\(store.placeName)&appname=\(appName)") else { return }
                 let appStoreURL = URL(string: "http://itunes.apple.com/app/id311867728?mt=8")!
-                
+                store.send(.mixpanelEvent )
                 if UIApplication.shared.canOpenURL(url) {
                     UIApplication.shared.open(url)
                 } else {

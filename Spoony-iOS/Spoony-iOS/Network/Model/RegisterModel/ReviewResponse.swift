@@ -8,6 +8,8 @@
 import Foundation
 
 struct ReviewResponse: Codable {
+    let userId: Int
+    let zzimCount: Int
     let photoUrlList: [String]
     let menuList: [String]
     let description: String
@@ -21,6 +23,8 @@ struct ReviewResponse: Codable {
 extension ReviewResponse {
     func toModel() -> ReviewInfo {
         return .init(
+            userId: userId,
+            savedCount: zzimCount,
             uploadImages: photoUrlList.map { .init(image: nil, imageData: nil, url: $0) },
             menuList: menuList,
             description: description,

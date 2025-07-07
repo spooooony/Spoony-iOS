@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+
 import ComposableArchitecture
+import Mixpanel
 import TCACoordinators
 
 @Reducer
@@ -117,6 +119,19 @@ struct ProfileFeature {
                 state.reviewCount = response.reviewCount
                 state.followingCount = response.followingCount
                 state.followerCount = response.followerCount
+                
+                let property = CommonEvents.ProfileViewedProperty(
+                    profileUserId: response.userId,
+                    isSelfProfile: true,
+                    isFollowingProfileUser: response.isFollowing,
+                    entryPoint: .gnbMyPage
+                )
+                
+                Mixpanel.mainInstance().track(
+                    event: CommonEvents.Name.profileViewed,
+                    properties: property.dictionary
+                )
+                
                 return .none
                 
             case let .userInfoResponse(.failure(error)):

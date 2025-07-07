@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ExploreSearchViewType: CaseIterable {
+enum ExploreSearchViewType: String, CaseIterable {
     case user
     case review
     

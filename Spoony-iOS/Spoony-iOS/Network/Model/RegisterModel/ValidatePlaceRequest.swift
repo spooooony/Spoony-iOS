@@ -8,7 +8,6 @@
 import Foundation
 
 struct ValidatePlaceRequest: Encodable {
-    let userId: Int
     let latitude: Double
     let longitude: Double
 }
