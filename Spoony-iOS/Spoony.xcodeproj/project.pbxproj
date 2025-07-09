@@ -29,7 +29,7 @@
 		71F8F73E2D230EF100B822F3 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		71F8F8B72D27EE0700B822F3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		78AD4F072D4299110090E9E3 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
-		78C002082D1D9FC400DA101C /* Spoony-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Spoony-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		78C002082D1D9FC400DA101C /* Spoony.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Spoony.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -87,7 +87,7 @@
 		78C002092D1D9FC400DA101C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				78C002082D1D9FC400DA101C /* Spoony-iOS.app */,
+				78C002082D1D9FC400DA101C /* Spoony.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		78C002072D1D9FC400DA101C /* Spoony-iOS */ = {
+		78C002072D1D9FC400DA101C /* Spoony */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 78C002162D1D9FC500DA101C /* Build configuration list for PBXNativeTarget "Spoony-iOS" */;
+			buildConfigurationList = 78C002162D1D9FC500DA101C /* Build configuration list for PBXNativeTarget "Spoony" */;
 			buildPhases = (
 				78C002042D1D9FC400DA101C /* Sources */,
 				78C002052D1D9FC400DA101C /* Frameworks */,
@@ -111,7 +111,7 @@
 			fileSystemSynchronizedGroups = (
 				78C0020A2D1D9FC400DA101C /* Spoony-iOS */,
 			);
-			name = "Spoony-iOS";
+			name = Spoony;
 			packageProductDependencies = (
 				787B5B032D32D9C50017A378 /* Kingfisher */,
 				787B5B062D32DA0F0017A378 /* Moya */,
@@ -129,7 +129,7 @@
 				AD7F64672E17C2D6002F3F61 /* Mixpanel */,
 			);
 			productName = SpoonMe;
-			productReference = 78C002082D1D9FC400DA101C /* Spoony-iOS.app */;
+			productReference = 78C002082D1D9FC400DA101C /* Spoony.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -147,7 +147,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 78C002032D1D9FC300DA101C /* Build configuration list for PBXProject "Spoony-iOS" */;
+			buildConfigurationList = 78C002032D1D9FC300DA101C /* Build configuration list for PBXProject "Spoony" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -172,7 +172,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				78C002072D1D9FC400DA101C /* Spoony-iOS */,
+				78C002072D1D9FC400DA101C /* Spoony */,
 			);
 		};
 /* End PBXProject section */
@@ -364,6 +364,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Spoony;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "주변 맛집 정보를 불러오기 위해 위치 정보를 사용하도록 허용합니다.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen.storyboard";
@@ -409,6 +410,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Spoony;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "주변 맛집 정보를 불러오기 위해 위치 정보를 사용하도록 허용합니다.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen.storyboard";
@@ -437,7 +439,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		78C002032D1D9FC300DA101C /* Build configuration list for PBXProject "Spoony-iOS" */ = {
+		78C002032D1D9FC300DA101C /* Build configuration list for PBXProject "Spoony" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				78C002142D1D9FC500DA101C /* Debug */,
@@ -446,7 +448,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		78C002162D1D9FC500DA101C /* Build configuration list for PBXNativeTarget "Spoony-iOS" */ = {
+		78C002162D1D9FC500DA101C /* Build configuration list for PBXNativeTarget "Spoony" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				78C002172D1D9FC500DA101C /* Debug */,

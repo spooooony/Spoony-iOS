@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "78C002072D1D9FC400DA101C"
-               BuildableName = "Spoony-iOS.app"
-               BlueprintName = "Spoony-iOS"
-               ReferencedContainer = "container:Spoony-iOS.xcodeproj">
+               BuildableName = "Spoony.app"
+               BlueprintName = "Spoony"
+               ReferencedContainer = "container:Spoony.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "78C002072D1D9FC400DA101C"
-            BuildableName = "Spoony-iOS.app"
-            BlueprintName = "Spoony-iOS"
-            ReferencedContainer = "container:Spoony-iOS.xcodeproj">
+            BuildableName = "Spoony.app"
+            BlueprintName = "Spoony"
+            ReferencedContainer = "container:Spoony.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "78C002072D1D9FC400DA101C"
-            BuildableName = "Spoony-iOS.app"
-            BlueprintName = "Spoony-iOS"
-            ReferencedContainer = "container:Spoony-iOS.xcodeproj">
+            BuildableName = "Spoony.app"
+            BlueprintName = "Spoony"
+            ReferencedContainer = "container:Spoony.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
