@@ -13,6 +13,7 @@ struct ProfileImageResponse: Codable {
 
 struct ImageResponse: Codable {
     let imageLevel: Int
+    let spoonName: String
     let unlockCondition: String
     let imageUrl: String
     let isUnlocked: Bool
@@ -23,6 +24,7 @@ extension ProfileImageResponse {
         return images.map {
             ProfileImage(
                 url: $0.imageUrl,
+                spoonName: $0.spoonName,
                 imageLevel: $0.imageLevel,
                 unlockCondition: $0.unlockCondition,
                 isUnlocked: $0.isUnlocked
