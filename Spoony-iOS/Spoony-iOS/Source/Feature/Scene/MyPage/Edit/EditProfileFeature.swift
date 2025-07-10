@@ -268,7 +268,7 @@ struct EditProfileFeature {
             case .updateLoadError:
                 state.isLoadError = true
                 state.isDisableRegisterButton = true
-                state.profileImages = [.init(url: "", imageLevel: 1, unlockCondition: "", isUnlocked: true)]
+                state.profileImages = [.init(url: "", spoonName: "", imageLevel: 1, unlockCondition: "", isUnlocked: true)]
                 return .none
             }
         }

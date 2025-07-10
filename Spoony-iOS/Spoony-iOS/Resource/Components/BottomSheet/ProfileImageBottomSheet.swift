@@ -118,7 +118,7 @@ private struct ProfileImageCell: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("프로필 이미지_1 이름 (미정)")
+                    Text("\(image.spoonName)")
                         .lineLimit(1)
                         .font(.body1sb)
                         .foregroundStyle(.spoonBlack)
@@ -143,5 +143,5 @@ private struct ProfileImageCell: View {
 }
 
 #Preview {
-    ProfileImageBottomSheet(isPresented: .constant(true), profileImages: [.init(url: "https://sojoong.joins.com/wp-content/uploads/sites/4/2024/12/01.jpg", imageLevel: 0, unlockCondition: "내 리뷰가 다른 유저들의 지도에 1000번 저장", isUnlocked: true)])
+    ProfileImageBottomSheet(isPresented: .constant(true), profileImages: [.init(url: "https://sojoong.joins.com/wp-content/uploads/sites/4/2024/12/01.jpg", spoonName: "", imageLevel: 0, unlockCondition: "내 리뷰가 다른 유저들의 지도에 1000번 저장", isUnlocked: true)])
 }
