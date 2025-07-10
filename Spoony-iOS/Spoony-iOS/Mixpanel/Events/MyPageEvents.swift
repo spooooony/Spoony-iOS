@@ -25,7 +25,7 @@ struct MyPageEvents {
     struct ProfileUpdateProperty: MixpanelProperty {
         var fields: [UpdateFiled]
         
-        var dictionary: [String : MixpanelType] {
+        var dictionary: [String: MixpanelType] {
             ["profile_updated": fields.map { $0.rawValue }]
         }
     }
