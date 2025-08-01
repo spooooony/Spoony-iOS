@@ -29,10 +29,6 @@ struct SpoonyApp: App {
                     AppCoordinator()
                 }
             )
-//            .onAppear {
-//                KeychainManager.delete(key: .accessToken)
-//            }
-//            .environmentObject(navigationManager)
             .onOpenURL(perform: { url in
                 if AuthApi.isKakaoTalkLoginUrl(url) {
                     _ = AuthController.handleOpenUrl(url: url)

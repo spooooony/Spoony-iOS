@@ -16,30 +16,74 @@ protocol SocialLoginServiceProtocol {
     func appleLogin() async throws -> String
 }
 
+final class Resumable {
+    private var isResumed = false
+    private let lock = NSLock()
+    private let continuation: CheckedContinuation<String, Error>
+    
+    init(continuation: CheckedContinuation<String, any Error>) {
+        self.continuation = continuation
+    }
+    
+    func resume(throwing: Error) {
+        lock.lock()
+        defer { lock.unlock() }
+        
+        guard !isResumed else { return }
+        isResumed = true
+        continuation.resume(throwing: throwing)
+    }
+    
+    func resume(returning: String) {
+        lock.lock()
+        defer { lock.unlock() }
+        
+        guard !isResumed else { return }
+        isResumed = true
+        continuation.resume(returning: returning)
+    }
+}
+
 final class DefaultSocialLoginService: NSObject, SocialLoginServiceProtocol {
     private var appleLoginContinuation: CheckedContinuation<String, Error>?
 
     func kakaoLogin() async throws -> String {
+        try await kakaoLoginLogic()
+    }
+    
+    private func kakaoLoginLogic() async throws -> String {
         return try await withCheckedThrowingContinuation { continuation in
+            let resumable = Resumable(continuation: continuation)
             let resultHandler: (OAuthToken?, Error?) -> Void = { oauthToken, error in
                 if let error = error {
-                    continuation.resume(throwing: error)
+                    resumable.resume(throwing: error)
                 } else if let oauthToken = oauthToken {
                     let token = oauthToken.accessToken
-                    #if DEBUG
+#if DEBUG
                     print("kakao token: \(token)")
-                    #endif
-                    
-                    continuation.resume(returning: token)
+#endif
+                    resumable.resume(returning: token)
                 }
             }
+            
+            let cancellationTask = Task {
+                try? await Task.sleep(for: .seconds(5))
+                resumable.resume(throwing: CancellationError())
+            }
+            
             Task { @MainActor in
                 // 앱으로 로그인
                 if UserApi.isKakaoTalkLoginAvailable() {
-                    UserApi.shared.loginWithKakaoTalk(completion: resultHandler)
+                    UserApi.shared.loginWithKakaoTalk { token, error in
+                        resultHandler(token, error)
+                        cancellationTask.cancel()
+                    }
                 } else {
                     // 웹으로 로그인
-                    UserApi.shared.loginWithKakaoAccount(completion: resultHandler)
+                    UserApi.shared.loginWithKakaoAccount { token, error in
+                        resultHandler(token, error)
+                        cancellationTask.cancel()
+                    }
                 }
             }
         }
