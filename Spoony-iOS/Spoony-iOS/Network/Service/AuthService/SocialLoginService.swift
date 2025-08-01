@@ -67,7 +67,7 @@ final class DefaultSocialLoginService: NSObject, SocialLoginServiceProtocol {
             }
             
             let cancellationTask = Task {
-                try? await Task.sleep(for: .seconds(8))
+                try? await Task.sleep(for: .seconds(5))
                 resumable.resume(throwing: CancellationError())
             }
             
@@ -86,8 +86,6 @@ final class DefaultSocialLoginService: NSObject, SocialLoginServiceProtocol {
                     }
                 }
             }
-            
-            
         }
     }
     
