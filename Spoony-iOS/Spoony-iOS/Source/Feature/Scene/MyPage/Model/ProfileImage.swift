@@ -9,6 +9,7 @@ import Foundation
 
 struct ProfileImage: Equatable, Hashable {
     let url: String
+    let spoonName: String
     let imageLevel: Int
     let unlockCondition: String
     var isUnlocked: Bool
