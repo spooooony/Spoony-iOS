@@ -84,7 +84,7 @@ struct LoginFeature {
                         authenticationManager.setToken(.KAKAO, result)
                         await send(.login(.KAKAO, result))
                     } catch {
-                        await send(.error(LoginError.kakaoTokenError))
+//                        await send(.error(LoginError.kakaoTokenError))
                     }
                 }
             case .appleLoginButtonTapped:
@@ -96,7 +96,7 @@ struct LoginFeature {
                         authenticationManager.setToken(.APPLE, result)
                         await send(.login(.APPLE, result))
                     } catch {
-                        await send(.error(LoginError.appleTokenError))
+//                        await send(.error(LoginError.appleTokenError))
                     }
                 }
             case .login(let type, let token):

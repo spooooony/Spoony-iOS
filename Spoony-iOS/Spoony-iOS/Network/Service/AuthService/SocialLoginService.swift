@@ -66,23 +66,23 @@ final class DefaultSocialLoginService: NSObject, SocialLoginServiceProtocol {
                 }
             }
             
-            let cancellationTask = Task {
-                try? await Task.sleep(for: .seconds(5))
-                resumable.resume(throwing: CancellationError())
-            }
+//            let cancellationTask = Task {
+//                try? await Task.sleep(for: .seconds(5))
+//                resumable.resume(throwing: CancellationError())
+//            }
             
             Task { @MainActor in
                 // 앱으로 로그인
                 if UserApi.isKakaoTalkLoginAvailable() {
                     UserApi.shared.loginWithKakaoTalk { token, error in
                         resultHandler(token, error)
-                        cancellationTask.cancel()
+//                        cancellationTask.cancel()
                     }
                 } else {
                     // 웹으로 로그인
                     UserApi.shared.loginWithKakaoAccount { token, error in
                         resultHandler(token, error)
-                        cancellationTask.cancel()
+//                        cancellationTask.cancel()
                     }
                 }
             }

@@ -23,11 +23,11 @@ struct LoginView: View {
                     .padding(.bottom, 330)
                     .padding(.top, 200)
                 
-                Image(.imageKakaoLogin)
-                    .onTapGesture {
-                        store.send(.kakaoLoginButtonTapped)
-                    }
-                    .padding(.bottom, 16)
+//                Image(.imageKakaoLogin)
+//                    .onTapGesture {
+//                        store.send(.kakaoLoginButtonTapped)
+//                    }
+//                    .padding(.bottom, 16)
                 
                 Image(.imageAppleLogin)
                     .onTapGesture {
