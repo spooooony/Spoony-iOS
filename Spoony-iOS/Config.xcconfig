@@ -1,9 +1,0 @@
-//
-//  Config.xcconfig
-//  Spoony-iOS
-//
-//  Created by 최주리 on 3/13/25.
-//
-
-// 카카오
-KAKAO_APP_KEY = ba0829da39ec55cb663bb9aa70cbe4b2
