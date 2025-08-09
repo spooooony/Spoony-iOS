@@ -32,8 +32,7 @@ final class DefaultAuthService: AuthProtocol {
     func login(platform: String, token: String) async throws -> Bool {
         return try await withCheckedThrowingContinuation { continuation in
             
-            provider.request(.login(platform: platform, token: token)) { [weak self] result in
-                guard let self else { return }
+            provider.request(.login(platform: platform, token: token)) { result in
                 
                 switch result {
                 case .success(let response):

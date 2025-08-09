@@ -129,7 +129,7 @@ struct MapFeature {
     @Dependency(\.homeService) var homeService
     @Dependency(\.registerService) private var registerService
     @Dependency(\.myPageService) private var myPageService
-    @Dependency(\.locationManager) private var locationManager
+    private let locationManager = CLLocationManager()
     
     var body: some ReducerOf<Self> {
         BindingReducer()

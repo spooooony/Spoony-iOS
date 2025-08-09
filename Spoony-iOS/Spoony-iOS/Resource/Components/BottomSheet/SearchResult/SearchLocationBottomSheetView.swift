@@ -9,15 +9,15 @@ import SwiftUI
 import ComposableArchitecture
 
 struct SearchLocationBottomSheetView: View {
-    @ObservedObject var viewModel: HomeViewModel
     @State private var currentStyle: BottomSheetStyle = .half
     private let store: StoreOf<MapFeature>
     private let locationTitle: String
+    private let pickList: [PickListCardResponse]
     
-    init(viewModel: HomeViewModel, store: StoreOf<MapFeature>, locationTitle: String = "") {
-        self.viewModel = viewModel
+    init(store: StoreOf<MapFeature>, locationTitle: String = "", pickList: [PickListCardResponse] = []) {
         self.store = store
         self.locationTitle = locationTitle
+        self.pickList = pickList
     }
     
     var body: some View {
@@ -32,7 +32,7 @@ struct SearchLocationBottomSheetView: View {
                     HStack(spacing: 4) {
                         Text(locationTitle)
                             .customFont(.body2b)
-                        Text("\(viewModel.pickList.count)")
+                        Text("\(pickList.count)")
                             .customFont(.body2b)
                             .foregroundColor(.gray500)
                     }
@@ -44,13 +44,13 @@ struct SearchLocationBottomSheetView: View {
                 
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0) {
-                        ForEach(viewModel.pickList, id: \.placeId) { place in
+                        ForEach(pickList, id: \.placeId) { place in
                             BottomSheetListItem(pickCard: place)
                                 .onTapGesture {
                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                         currentStyle = .full
                                     }
-                                    viewModel.fetchFocusedPlace(placeId: place.placeId)
+                                    store.send(.fetchFocusedPlace(placeId: place.placeId))
                                 }
                         }
                         
