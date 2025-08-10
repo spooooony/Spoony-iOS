@@ -11,14 +11,12 @@ import CoreLocation
 
 struct SearchLocationView: View {
     @Bindable private var store: StoreOf<SearchLocationFeature>
-    @State private var viewModel: HomeViewModel
     
     @State private var locationManager = CLLocationManager()
     @State private var locationDelegate: LocationManagerDelegate?
     
     init(store: StoreOf<SearchLocationFeature>) {
         self.store = store
-        self._viewModel = State(initialValue: HomeViewModel(service: DefaultHomeService()))
     }
     
     var body: some View {
@@ -128,16 +126,9 @@ struct SearchLocationView: View {
             
             store.send(.onAppear)
             store.send(.map(.fetchUserInfo))
-            
-            Task {
-                await viewModel.fetchLocationList(locationId: store.locationId)
-            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
             store.send(.forceMoveCameraToSearchLocation)
-        }
-        .onChange(of: store.pickList) { _, newPickList in
-            viewModel.pickList = newPickList
         }
     }
     

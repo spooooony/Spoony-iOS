@@ -10,16 +10,16 @@ import SwiftUI
 import ComposableArchitecture
 
 struct FlexibleListBottomSheet: View {
-    @ObservedObject var viewModel: HomeViewModel
     private let store: StoreOf<MapFeature>
+    private let pickList: [PickListCardResponse]
     @State private var currentStyle: BottomSheetStyle = .half
     @State private var offset: CGFloat = 0
     @GestureState private var isDragging: Bool = false
     @State private var isScrollEnabled: Bool = false
     
-    init(viewModel: HomeViewModel, store: StoreOf<MapFeature>) {
-        self.viewModel = viewModel
+    init(store: StoreOf<MapFeature>, pickList: [PickListCardResponse] = []) {
         self.store = store
+        self.pickList = pickList
     }
     
     var body: some View {
@@ -34,7 +34,7 @@ struct FlexibleListBottomSheet: View {
                     HStack(spacing: 4) {
                         Text("\(store.userName)님의 찐맛집")
                             .customFont(.body2b)
-                        Text("\(viewModel.pickList.count)")
+                        Text("\(pickList.count)")
                             .customFont(.body2b)
                             .foregroundColor(.gray500)
                     }
@@ -47,14 +47,14 @@ struct FlexibleListBottomSheet: View {
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0) {
                         // Lint 오류로 인해 100자가 넘어도 무시하고 넘겨주세요!
-                        ForEach(Array(viewModel.pickList.enumerated()), id: \.element.placeId) { _, pickCard in
+                        ForEach(Array(pickList.enumerated()), id: \.element.placeId) { _, pickCard in
                             BottomSheetListItem(pickCard: pickCard)
                                 .onTapGesture {
                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                         currentStyle = .full
                                         isScrollEnabled = true
                                     }
-                                    viewModel.fetchFocusedPlace(placeId: pickCard.placeId)
+                                    store.send(.fetchFocusedPlace(placeId: pickCard.placeId))
                                 }
                         }
                         

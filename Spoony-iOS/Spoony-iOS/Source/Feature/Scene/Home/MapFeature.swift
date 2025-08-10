@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import UIKit
 import ComposableArchitecture
 import CoreLocation
 import Mixpanel
@@ -46,6 +46,8 @@ struct MapFeature {
         var spoonDrawError: String? = nil
         
         var isAuthenticationChecked: Bool = false
+        var showLocationPermissionAlert: Bool = false
+        var locationErrorMessage: String? = nil
         
         static func == (lhs: State, rhs: State) -> Bool {
             lhs.pickList == rhs.pickList &&
@@ -71,11 +73,15 @@ struct MapFeature {
             lhs.isDrawingSpoon == rhs.isDrawingSpoon &&
             lhs.drawnSpoon == rhs.drawnSpoon &&
             lhs.spoonDrawError == rhs.spoonDrawError &&
-            lhs.isAuthenticationChecked == rhs.isAuthenticationChecked
+            lhs.isAuthenticationChecked == rhs.isAuthenticationChecked &&
+            lhs.showLocationPermissionAlert == rhs.showLocationPermissionAlert &&
+            lhs.locationErrorMessage == rhs.locationErrorMessage
         }
     }
     
-    enum Action {
+    enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        
         case routToSearchScreen
         case routeToExploreTab
         case routeToPostView(postId: Int)
@@ -112,15 +118,27 @@ struct MapFeature {
         case setShowDailySpoonPopup(Bool)
         case drawDailySpoon
         case spoonDrawResponse(TaskResult<SpoonDrawResponse>)
+        
+        case requestLocationPermission
+        case locationPermissionResponse(CLAuthorizationStatus)
+        case locationError(Error)
+        case setShowLocationPermissionAlert(Bool)
+        case openSettings
     }
     
     @Dependency(\.homeService) var homeService
     @Dependency(\.registerService) private var registerService
     @Dependency(\.myPageService) private var myPageService
+    private let locationManager = CLLocationManager()
     
     var body: some ReducerOf<Self> {
+        BindingReducer()
+        
         Reduce { state, action in
             switch action {
+            case .binding:
+                return .none
+                
             case .checkAuthentication:
                 return .run { send in
                     let hasToken = TokenManager.shared.currentToken != nil
@@ -407,20 +425,69 @@ struct MapFeature {
                 }
 
             case .moveToUserLocation:
-                guard let userLocation = state.userLocation else {
+                switch locationManager.authorizationStatus {
+                case .authorizedWhenInUse, .authorizedAlways:
+                    if state.isLocationFocused {
+                        return .send(.toggleGPSTracking)
+                    } else {
+                        guard let userLocation = state.userLocation else {
+                            locationManager.requestLocation()
+                            return .none
+                        }
+                        print("📍 현재 사용자 위치: \(userLocation.coordinate.latitude), \(userLocation.coordinate.longitude)")
+                        state.isLocationFocused = true
+                        state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
+                        return .send(.clearFocusedPlaces)
+                    }
+                case .denied, .restricted:
+                    return .send(.setShowLocationPermissionAlert(true))
+                case .notDetermined:
+                    return .send(.requestLocationPermission)
+                @unknown default:
                     return .none
                 }
-                
-                print("📍 현재 사용자 위치: \(userLocation.coordinate.latitude), \(userLocation.coordinate.longitude)")
-                state.isLocationFocused = true
-                state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
-                
-                return .send(.clearFocusedPlaces)
 
             case let .focusedPlaceResponse(.failure(error)):
                 state.isLoading = false
                 print("포커스 장소 조회 실패: \(error)")
                 return .none
+                
+            case .requestLocationPermission:
+                return .run { send in
+                    switch locationManager.authorizationStatus {
+                    case .notDetermined:
+                        locationManager.requestWhenInUseAuthorization()
+                    default:
+                        await send(.locationPermissionResponse(locationManager.authorizationStatus))
+                    }
+                }
+                
+            case let .locationPermissionResponse(status):
+                switch status {
+                case .authorizedWhenInUse, .authorizedAlways:
+                    locationManager.startUpdatingLocation()
+                case .denied, .restricted:
+                    locationManager.stopUpdatingLocation()
+                default:
+                    break
+                }
+                return .none
+                
+            case let .locationError(error):
+                state.locationErrorMessage = error.localizedDescription
+                print("위치 오류: \(error.localizedDescription)")
+                return .none
+                
+            case let .setShowLocationPermissionAlert(show):
+                state.showLocationPermissionAlert = show
+                return .none
+                
+            case .openSettings:
+                return .run { _ in
+                    if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                        await UIApplication.shared.open(settingsUrl)
+                    }
+                }
             }
         }
     }
