@@ -33,7 +33,6 @@ struct LoginFeature {
         
         var socialType: SocialType = .KAKAO
         var token: String = ""
-        var isLoading: Bool = false
     }
     
     enum Action {
@@ -76,8 +75,6 @@ struct LoginFeature {
                     return .none
                 }
             case .kakaoLoginButtonTapped:
-//                state.isLoading = true
-                
                 return .run { send in
                     do {
                         let result = try await socialLoginService.kakaoLogin()
@@ -88,8 +85,6 @@ struct LoginFeature {
                     }
                 }
             case .appleLoginButtonTapped:
-//                state.isLoading = true
-                
                 return .run { send in
                     do {
                         let result = try await socialLoginService.appleLogin()
@@ -124,16 +119,13 @@ struct LoginFeature {
                 print(error.localizedDescription)
                 #endif
                 
-//                state.isLoading = false
                 return .send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
                 
             // 회원 가입 Flow
             case .routToTermsOfServiceScreen:
-//                state.isLoading = false
                 return .none
             // 로그인 성공
             case .routToTabCoordinatorScreen:
-//                state.isLoading = false
                 return .none
             case .presentToast:
                 return .none

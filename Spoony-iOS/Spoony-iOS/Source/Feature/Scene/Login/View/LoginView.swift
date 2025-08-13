@@ -23,11 +23,11 @@ struct LoginView: View {
                     .padding(.bottom, 330)
                     .padding(.top, 200)
                 
-//                Image(.imageKakaoLogin)
-//                    .onTapGesture {
-//                        store.send(.kakaoLoginButtonTapped)
-//                    }
-//                    .padding(.bottom, 16)
+                Image(.imageKakaoLogin)
+                    .onTapGesture {
+                        store.send(.kakaoLoginButtonTapped)
+                    }
+                    .padding(.bottom, 16)
                 
                 Image(.imageAppleLogin)
                     .onTapGesture {
@@ -35,15 +35,7 @@ struct LoginView: View {
                     }
                     .padding(.bottom, 70)
             }
-            
-            if store.state.isLoading {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle())
-                    .transition(.opacity)
-                    .animation(.easeInOut, value: store.state.isLoading)
-            }
         }
-        .allowsHitTesting(!store.state.isLoading)
         .onAppear {
             store.send(.onAppear)
         }
