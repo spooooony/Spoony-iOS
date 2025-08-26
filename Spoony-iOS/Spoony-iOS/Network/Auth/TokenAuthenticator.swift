@@ -9,22 +9,74 @@ import Foundation
 
 import Alamofire
 
+fileprivate actor RefreshActor {
+    private var isRefreshing = false
+    // actor는 한 번에 하나의 접근만 일어나서 동시에 여러 스레드에서 해당 변수에 접근해도 data race 발생 X
+    private var currentTask: Task<TokenCredential, Error>?
+    
+    func performRefresh(refreshToken: String, service: RefreshProtocol) async throws -> TokenCredential {
+        return try await refresh(refreshToken: refreshToken, service: service)
+    }
+    
+    private func refresh(refreshToken: String, service: RefreshProtocol) async throws -> TokenCredential {
+        let currentRefreshToken = TokenManager.shared.currentRefreshToken ?? ""
+        
+        // 이미 refresh 됨
+        if refreshToken != currentRefreshToken {
+            return TokenCredential(
+                accessToken: TokenManager.shared.currentToken ?? "",
+                refreshToken: currentRefreshToken
+            )
+        }
+        
+        // 이미 진행 중인 refresh task가 있으면 해당 task의 결과를 return
+        // refresh가 한 번만 호출되도록 보장
+        if let currentTask {
+            return try await currentTask.value
+        }
+        
+        // refresh하는 Task를 생성
+        let newTask = Task { () throws -> TokenCredential in
+            defer { currentTask = nil }
+            do {
+                let tokenSet = try await service.refresh(token: refreshToken)
+                
+                _ = KeychainManager.create(key: .accessToken, value: tokenSet.accessToken)
+                _ = KeychainManager.create(key: .refreshToken, value: tokenSet.refreshToken)
+                return tokenSet
+            } catch {
+                await MainActor.run {
+                    _ = KeychainManager.delete(key: .accessToken)
+                    _ = KeychainManager.delete(key: .refreshToken)
+                    _ = KeychainManager.delete(key: .socialType)
+                    NotificationCenter.default.post(name: .loginNotification, object: nil)
+                }
+                
+                throw error
+            }
+        }
+        currentTask = newTask
+        return try await newTask.value
+    }
+}
+
 final class TokenAuthenticator: Authenticator {
     private let refreshService: RefreshProtocol
+    private let refreshManager = RefreshActor()
     
     init(refreshService: RefreshProtocol) {
         self.refreshService = refreshService
     }
-
+    
     // 1) 요청하기 전 호출되어 헤더에 JWT 토큰 추가
     // credential 무시하고 매번 최신 토큰 사용
     func apply(_ credential: TokenCredential, to urlRequest: inout URLRequest) {
         let currentToken = TokenManager.shared.currentToken ?? ""
         urlRequest.headers.add(.authorization(bearerToken: currentToken))
         
-        #if DEBUG
+#if DEBUG
         print("🔑 API 요청 시 사용되는 토큰: \(currentToken.prefix(30))...")
-        #endif
+#endif
     }
     
     // 2) api 요청 후 응답의 상태코드가 401이면 true를 리턴하며 refresh 프로세스 계속 진행
@@ -52,19 +104,10 @@ final class TokenAuthenticator: Authenticator {
         
         Task {
             do {
-                let tokenSet = try await refreshService.refresh(token: refreshToken)
+                let result = try await refreshManager.performRefresh(refreshToken: refreshToken, service: refreshService)
                 
-                _ = KeychainManager.create(key: .accessToken, value: tokenSet.accessToken)
-                _ = KeychainManager.create(key: .refreshToken, value: tokenSet.refreshToken)
-                
-                completion(.success(tokenSet))
+                completion(.success(result))
             } catch {
-                await MainActor.run {
-                    _ = KeychainManager.delete(key: .accessToken)
-                    _ = KeychainManager.delete(key: .refreshToken)
-                    _ = KeychainManager.delete(key: .socialType)
-                    NotificationCenter.default.post(name: .loginNotification, object: nil)
-                }
                 completion(.failure(error))
             }
         }
