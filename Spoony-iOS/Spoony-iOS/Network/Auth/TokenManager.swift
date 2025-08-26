@@ -12,20 +12,10 @@ final class TokenManager {
     private init() {}
     
     var currentToken: String? {
-        switch KeychainManager.read(key: .accessToken) {
-        case .success(let token):
-            return token
-        case .failure:
-            return nil
-        }
+        return KeychainManager.read(key: .accessToken)
     }
     
     var currentRefreshToken: String? {
-        switch KeychainManager.read(key: .refreshToken) {
-        case .success(let token):
-            return token
-        case .failure:
-            return nil
-        }
+        return KeychainManager.read(key: .refreshToken)
     }
 }
