@@ -8,8 +8,8 @@
 import SwiftUI
 
 enum SortType: String, CaseIterable {
-    case createdAt = "latest"
-    case zzimCount = "most_saved"
+    case createdAt
+    case zzimCount
     
     var title: String {
         switch self {
@@ -17,6 +17,15 @@ enum SortType: String, CaseIterable {
             "최신순"
         case .zzimCount:
             "저장 많은 순"
+        }
+    }
+    
+    var mixpanelKey: String {
+        switch self {
+        case .createdAt:
+            "latest"
+        case .zzimCount:
+            "most_saved"
         }
     }
 }
