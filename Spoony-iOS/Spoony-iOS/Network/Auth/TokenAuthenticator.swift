@@ -53,6 +53,10 @@ final class TokenAuthenticator: Authenticator {
         Task {
             do {
                 let tokenSet = try await refreshService.refresh(token: refreshToken)
+                
+                _ = KeychainManager.create(key: .accessToken, value: tokenSet.accessToken)
+                _ = KeychainManager.create(key: .refreshToken, value: tokenSet.refreshToken)
+                
                 completion(.success(tokenSet))
             } catch {
                 await MainActor.run {
