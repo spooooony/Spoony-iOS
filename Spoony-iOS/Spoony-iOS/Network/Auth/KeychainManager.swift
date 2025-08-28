@@ -53,15 +53,10 @@ struct KeychainManager {
         var result: AnyObject?
         let status = SecItemCopyMatching(query, &result)
         
-        if status == errSecSuccess {
-            guard let data = result as? Data,
-                  let value = String(data: data, encoding: String.Encoding.utf8)
-            else { return "" }
-            
-            return value
-        } else {
-            return ""
-        }
+        guard let data = result as? Data,
+              let value = String(data: data, encoding: String.Encoding.utf8) else { return nil }
+        
+        return value
     }
     
     static func delete(key: KeychainType) -> Result<Void, KeychainError> {

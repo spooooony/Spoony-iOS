@@ -9,7 +9,7 @@ import Foundation
 
 import Alamofire
 
-struct TokenCredential: AuthenticationCredential {
+struct TokenCredential: AuthenticationCredential, Equatable {
     let accessToken: String
     let refreshToken: String
     // 필수

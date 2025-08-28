@@ -10,15 +10,10 @@ import Foundation
 import Alamofire
 
 fileprivate actor RefreshActor {
-    private var isRefreshing = false
     // actor는 한 번에 하나의 접근만 일어나서 동시에 여러 스레드에서 해당 변수에 접근해도 data race 발생 X
     private var currentTask: Task<TokenCredential, Error>?
     
-    func performRefresh(refreshToken: String, service: RefreshProtocol) async throws -> TokenCredential {
-        return try await refresh(refreshToken: refreshToken, service: service)
-    }
-    
-    private func refresh(refreshToken: String, service: RefreshProtocol) async throws -> TokenCredential {
+    func refresh(refreshToken: String, service: RefreshProtocol) async throws -> TokenCredential {
         let currentRefreshToken = TokenManager.shared.currentRefreshToken ?? ""
         
         // 이미 refresh 됨
@@ -45,10 +40,11 @@ fileprivate actor RefreshActor {
                 _ = KeychainManager.create(key: .refreshToken, value: tokenSet.refreshToken)
                 return tokenSet
             } catch {
+                _ = KeychainManager.delete(key: .accessToken)
+                _ = KeychainManager.delete(key: .refreshToken)
+                _ = KeychainManager.delete(key: .socialType)
+                
                 await MainActor.run {
-                    _ = KeychainManager.delete(key: .accessToken)
-                    _ = KeychainManager.delete(key: .refreshToken)
-                    _ = KeychainManager.delete(key: .socialType)
                     NotificationCenter.default.post(name: .loginNotification, object: nil)
                 }
                 
@@ -69,13 +65,11 @@ final class TokenAuthenticator: Authenticator {
     }
     
     // 1) 요청하기 전 호출되어 헤더에 JWT 토큰 추가
-    // credential 무시하고 매번 최신 토큰 사용
     func apply(_ credential: TokenCredential, to urlRequest: inout URLRequest) {
-        let currentToken = TokenManager.shared.currentToken ?? ""
-        urlRequest.headers.add(.authorization(bearerToken: currentToken))
+        urlRequest.headers.add(.authorization(bearerToken: credential.accessToken))
         
 #if DEBUG
-        print("🔑 API 요청 시 사용되는 토큰: \(currentToken.prefix(30))...")
+        print("🔑 API 요청 시 사용되는 토큰: \(credential.accessToken.prefix(30))...")
 #endif
     }
     
@@ -89,8 +83,7 @@ final class TokenAuthenticator: Authenticator {
     // 같은 경우: token 만료 -> refresh()
     // 다른 경우: apply부터 다시 호출하여 최신 token으로 재시도
     func isRequest(_ urlRequest: URLRequest, authenticatedWith credential: TokenCredential) -> Bool {
-        let currentToken = TokenManager.shared.currentToken ?? ""
-        let headerToken = HTTPHeader.authorization(bearerToken: currentToken).value
+        let headerToken = HTTPHeader.authorization(bearerToken: credential.accessToken).value
         return urlRequest.headers["Authorization"] == headerToken
     }
     
@@ -100,11 +93,9 @@ final class TokenAuthenticator: Authenticator {
         for session: Alamofire.Session,
         completion: @escaping @Sendable (Result<TokenCredential, any Error>) -> Void
     ) {
-        let refreshToken = TokenManager.shared.currentRefreshToken ?? ""
-        
         Task {
             do {
-                let result = try await refreshManager.performRefresh(refreshToken: refreshToken, service: refreshService)
+                let result = try await refreshManager.refresh(refreshToken: credential.refreshToken, service: refreshService)
                 
                 completion(.success(result))
             } catch {

@@ -79,7 +79,7 @@ struct ProfileFeature {
                 state.isLoading = true
                 state.errorMessage = nil
 
-                if let token = KeychainManager.read(key: .accessToken) { } else {
+                if KeychainManager.read(key: .accessToken) == nil {
                     state.isLoading = false
                     state.errorMessage = "로그인이 필요합니다."
                     return .none

@@ -30,7 +30,7 @@ final class AuthenticationManager: ObservableObject {
         let token = KeychainManager.read(key: .accessToken)
         self.socialToken = token
         
-        if let token, let social {
+        if token == nil {
             print("⛔️자동 로그인 실패")
             return false
         }
