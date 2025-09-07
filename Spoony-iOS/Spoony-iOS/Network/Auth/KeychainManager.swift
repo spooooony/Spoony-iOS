@@ -43,7 +43,7 @@ struct KeychainManager {
         }
     }
     
-    static func read(key: KeychainType) -> Result<String?, KeychainError> {
+    static func read(key: KeychainType) -> String? {
         let query: NSDictionary = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: key.rawValue,
@@ -51,17 +51,10 @@ struct KeychainManager {
         ]
         
         var result: AnyObject?
-        let status = SecItemCopyMatching(query, &result)
+        guard let data = result as? Data,
+              let value = String(data: data, encoding: String.Encoding.utf8) else { return nil }
         
-        if status == errSecSuccess {
-            guard let data = result as? Data,
-                  let value = String(data: data, encoding: String.Encoding.utf8)
-            else { return .failure(.invalidData) }
-            
-            return .success(value)
-        } else {
-            return .failure(.failedToRead)
-        }
+        return value
     }
     
     static func delete(key: KeychainType) -> Result<Void, KeychainError> {
@@ -71,7 +64,7 @@ struct KeychainManager {
         ]
         
         let status = SecItemDelete(query)
-
+        
         if status == noErr {
             return .success(())
         } else {
@@ -102,11 +95,7 @@ struct KeychainManager {
         }
         
         // 저장 후 바로 읽어보기 테스트
-        switch KeychainManager.read(key: .accessToken) {
-        case .success(let token):
-            print("✅ Access Token read test: \(token?.prefix(30) ?? "nil")")
-        case .failure(let error):
-            print("❌ Access Token read test failed: \(error)")
-        }
+        print("✅ Access Token \(KeychainManager.read(key: .accessToken) ?? "")")
+        print("✅ Refresh Token \(KeychainManager.read(key: .refreshToken) ?? "")")
     }
 }
