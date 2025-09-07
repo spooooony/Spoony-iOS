@@ -47,12 +47,19 @@ struct KeychainManager {
         let query: NSDictionary = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: key.rawValue,
-            kSecReturnData: kCFBooleanTrue as Any // CFData 타입으로 불러오라는 의미
+            kSecReturnData: kCFBooleanTrue as Any,
+            kSecMatchLimit: kSecMatchLimitOne
         ]
         
         var result: AnyObject?
-        guard let data = result as? Data,
-              let value = String(data: data, encoding: String.Encoding.utf8) else { return nil }
+        let status = SecItemCopyMatching(query, &result)
+        
+        guard status == errSecSuccess,
+              let data = result as? Data,
+              let value = String(data: data, encoding: .utf8) else {
+            print("⛔️ Keychain read failed with status: \(status)")
+            return nil
+        }
         
         return value
     }
