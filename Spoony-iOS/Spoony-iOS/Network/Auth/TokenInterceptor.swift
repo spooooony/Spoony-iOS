@@ -28,10 +28,6 @@ actor RefreshActor {
         return refreshTask
     }
     
-    func setRefreshTask(_ task: Task<TokenCredential, Error>) {
-        refreshTask = task
-    }
-    
     func completePendingRequests(with result: RetryResult) {
         for pendingRequest in pendingRequests {
             pendingRequest.completion(result)
@@ -45,7 +41,7 @@ actor RefreshActor {
         return pendingRequests.count
     }
     
-    func shouldStartRefresh(currentRefreshToken: String) -> Bool {
+    func setTaskIfNeeded(currentRefreshToken: String, task: Task<TokenCredential, Error>?) -> Bool {
         if refreshTask != nil { return false }
         
         if let last = latestRefreshToken, last != currentRefreshToken {
@@ -53,6 +49,7 @@ actor RefreshActor {
         }
         
         latestRefreshToken = currentRefreshToken
+        refreshTask = task
         return true
     }
 }
@@ -132,20 +129,19 @@ extension TokenInterceptor {
             return
         }
         
-        let shouldStart = await refreshActor.shouldStartRefresh(currentRefreshToken: refreshToken)
+        let refreshTask = Task<TokenCredential, Error> {
+            try await refreshService.refresh(token: refreshToken)
+        }
+        
+        let shouldStart = await refreshActor.setTaskIfNeeded(currentRefreshToken: refreshToken, task: refreshTask)
+        
         if !shouldStart {
             await refreshActor.completePendingRequests(with: .retry)
             return
         }
         
-        let refreshTask = Task<TokenCredential, Error> {
-            try await refreshService.refresh(token: refreshToken)
-        }
-        
-        // Actor에 Task 등록
-        await refreshActor.setRefreshTask(refreshTask)
-        
         do {
+            print("🔄 토큰 갱신 요청 !!")
             let newTokenSet = try await refreshTask.value
             
             // 성공 처리
