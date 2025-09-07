@@ -22,19 +22,16 @@ struct Providers {
 
 extension MoyaProvider {
     convenience init(withAuth: Bool) {
-        if withAuth {
-            let credential = TokenCredential(
-                accessToken: TokenManager.shared.currentToken ?? "",
-                refreshToken: TokenManager.shared.currentRefreshToken ?? ""
-            )
-            let authenticator = TokenAuthenticator(refreshService: DefaultRefreshService.shared)
-            let interceptor = AuthenticationInterceptor(authenticator: authenticator, credential: credential)
-            self.init(
-                session: Session(interceptor: interceptor),
-                plugins: [SpoonyLoggingPlugin()]
-            )
-        } else {
-            self.init(plugins: [SpoonyLoggingPlugin()])
+            if withAuth {
+                // 커스텀 TokenInterceptor 사용 (Authenticator 불필요!)
+                let tokenInterceptor = TokenInterceptor(refreshService: DefaultRefreshService.shared)
+                
+                self.init(
+                    session: Session(interceptor: tokenInterceptor),
+                    plugins: [SpoonyLoggingPlugin()]
+                )
+            } else {
+                self.init(plugins: [SpoonyLoggingPlugin()])
+            }
         }
-    }
 }
