@@ -34,8 +34,10 @@ actor RefreshActor {
             return (task, false)
         }
         
-        if let last = latestRefreshToken, last != refreshToken {
-            return (refreshTask!, false)
+        if let last = latestRefreshToken,
+           let task = refreshTask,
+           last != refreshToken {
+            return (task, false)
         }
         
         latestRefreshToken = refreshToken
@@ -43,7 +45,7 @@ actor RefreshActor {
         refreshTask = task
         return (task, true)
     }
-
+    
     func completePendingRequests(with result: RetryResult) {
         for pendingRequest in pendingRequests {
             pendingRequest.completion(result)
@@ -136,7 +138,7 @@ extension TokenInterceptor {
                 accessToken: newTokenSet.accessToken,
                 refreshToken: newTokenSet.refreshToken
             )
-        
+            
             #if DEBUG
             let count = await refreshActor.getPendingRequestCount()
             print("🔄 토큰 갱신 성공, 대기 중인 \(count)개 요청 재시도")
@@ -151,9 +153,9 @@ extension TokenInterceptor {
             #endif
             
             TokenManager.shared.deleteTokens()
-            await MainActor.run {
-                NotificationCenter.default.post(name: .loginNotification, object: nil)
-            }
+            //            await MainActor.run {
+            NotificationCenter.default.post(name: .loginNotification, object: nil)
+            //            }
             await refreshActor.completePendingRequests(with: .doNotRetry)
         }
     }
