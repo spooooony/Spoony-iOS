@@ -23,15 +23,32 @@ actor RefreshActor {
     
     private init() { }
     
-    func addPendingRequest(_ request: PendingRequest) -> Task<TokenCredential, Error>? {
+    func addRequestAndStartRefresh(
+        request: PendingRequest,
+        refreshToken: String,
+        inputTask: () -> Task<TokenCredential, Error>
+    ) -> (Task<TokenCredential, Error>, Bool) {
         pendingRequests.append(request)
-        return refreshTask
+        
+        if let task = refreshTask {
+            return (task, false)
+        }
+        
+        if let last = latestRefreshToken, last != refreshToken {
+            return (refreshTask!, false)
+        }
+        
+        latestRefreshToken = refreshToken
+        let task = inputTask()
+        refreshTask = task
+        return (task, true)
     }
-    
+
     func completePendingRequests(with result: RetryResult) {
         for pendingRequest in pendingRequests {
             pendingRequest.completion(result)
         }
+        
         pendingRequests.removeAll()
         refreshTask = nil
         latestRefreshToken = nil
@@ -39,18 +56,6 @@ actor RefreshActor {
     
     func getPendingRequestCount() -> Int {
         return pendingRequests.count
-    }
-    
-    func setTaskIfNeeded(currentRefreshToken: String, task: Task<TokenCredential, Error>?) -> Bool {
-        if refreshTask != nil { return false }
-        
-        if let last = latestRefreshToken, last != currentRefreshToken {
-            return false
-        }
-        
-        latestRefreshToken = currentRefreshToken
-        refreshTask = task
-        return true
     }
 }
 
@@ -68,10 +73,6 @@ final class TokenInterceptor: RequestInterceptor {
         
         if let accessToken = TokenManager.shared.currentToken {
             urlRequest.headers.add(.authorization(bearerToken: accessToken))
-            
-#if DEBUG
-            print("🔑 API 요청에 토큰 추가: \(accessToken.prefix(30))...")
-#endif
         }
         
         completion(.success(urlRequest))
@@ -83,14 +84,13 @@ final class TokenInterceptor: RequestInterceptor {
             return
         }
         
-        // 401 Unauthorized가 아니면 재시도하지 않음
         guard response.statusCode == 401 else {
             completion(.doNotRetry)
             return
         }
         
         #if DEBUG
-        print("🔄 401 응답 받음, 토큰 갱신 시도: \(request.request?.url?.absoluteString ?? "missing url")")
+        print("🔄 401 응답 받음: \(request.request?.url?.absoluteString ?? "missing url")")
         #endif
         
         handleTokenRefresh(for: request, completion: completion)
@@ -103,46 +103,33 @@ extension TokenInterceptor {
         for request: Request,
         completion: @escaping (RetryResult) -> Void
     ) {
+        guard let refreshToken = TokenManager.shared.currentRefreshToken else {
+            completion(.doNotRetry)
+            return
+        }
+        
         let pendingRequest = PendingRequest(request: request, completion: completion)
+        
         Task {
-            // Actor에서 request 저장하면서 현재 진행 중인 작업이 있는지 받아옴
-            let existingTask = await refreshActor.addPendingRequest(pendingRequest)
-            
-            // 이미 진행 중인 작업이 있으면 기다림
-            if let task = existingTask {
-                do {
-                    _ = try await task.value
-                } catch {
-                    completion(.doNotRetry)
+            let (task, isNew) = await refreshActor.addRequestAndStartRefresh(
+                request: pendingRequest,
+                refreshToken: refreshToken
+            ) {
+                Task {
+                    try await refreshService.refresh(token: refreshToken)
                 }
-                return
             }
             
             // 새로운 refresh 작업 시작
-            await startTokenRefresh()
+            if isNew {
+                await startTokenRefresh(task: task)
+            }
         }
     }
     
-    private func startTokenRefresh() async {
-        guard let refreshToken = TokenManager.shared.currentRefreshToken else {
-            await refreshActor.completePendingRequests(with: .doNotRetry)
-            return
-        }
-        
-        let refreshTask = Task<TokenCredential, Error> {
-            try await refreshService.refresh(token: refreshToken)
-        }
-        
-        let shouldStart = await refreshActor.setTaskIfNeeded(currentRefreshToken: refreshToken, task: refreshTask)
-        
-        if !shouldStart {
-            await refreshActor.completePendingRequests(with: .retry)
-            return
-        }
-        
+    private func startTokenRefresh(task: Task<TokenCredential, Error>) async {
         do {
-            print("🔄 토큰 갱신 요청 !!")
-            let newTokenSet = try await refreshTask.value
+            let newTokenSet = try await task.value
             
             // 성공 처리
             TokenManager.shared.updateTokens(
