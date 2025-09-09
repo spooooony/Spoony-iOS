@@ -59,9 +59,12 @@ struct EditProfileFeature {
         
         case sendMixpanelEvent
         
-        // MARK: - TabRootCoordinator Action
-        case routeToPreviousScreen
-        case presentToast(message: String)
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate: Equatable {
+            case routeToPreviousScreen
+            case presentToast(message: String)
+        }
     }
     
     private enum CancelID {
@@ -95,6 +98,7 @@ struct EditProfileFeature {
                 return .none
                 
             case .binding: return .none
+                
             case .onAppear:
                 state.isLoading = true
                 return .run { send in
@@ -110,7 +114,7 @@ struct EditProfileFeature {
                         await send(.profileInfoResponse(info))
                     } catch {
                         await send(.updateLoadError)
-                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
+                        await send(.delegate(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요.")))
                     }
                 }
                 .cancellable(id: CancelID.profileLoad, cancelInFlight: true)
@@ -166,10 +170,10 @@ struct EditProfileFeature {
                     
                     if success {
                         await send(.sendMixpanelEvent)
-                        await send(.routeToPreviousScreen)
+                        await send(.delegate(.routeToPreviousScreen))
                     } else {
-                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
-                        await send(.routeToPreviousScreen)
+                        await send(.delegate(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요.")))
+                        await send(.delegate(.routeToPreviousScreen))
                     }
                 }
                 .cancellable(id: CancelID.editProfile, cancelInFlight: true)
@@ -254,22 +258,25 @@ struct EditProfileFeature {
                 state.imageLevel = image.imageLevel
                 return .none
                 
-            case .routeToPreviousScreen:
-                return .merge(
-                    .cancel(id: CancelID.profileLoad),
-                    .cancel(id: CancelID.editProfile),
-                    .cancel(id: CancelID.nicknameCheck)
-                )
-                
-            case .presentToast:
-                state.isLoading = false
-                return .none
-                
             case .updateLoadError:
                 state.isLoadError = true
                 state.isDisableRegisterButton = true
                 state.profileImages = [.init(url: "", spoonName: "", imageLevel: 1, unlockCondition: "", isUnlocked: true)]
                 return .none
+                
+            case let .delegate(action):
+                switch action {
+                case .routeToPreviousScreen:
+                    return .merge(
+                        .cancel(id: CancelID.profileLoad),
+                        .cancel(id: CancelID.editProfile),
+                        .cancel(id: CancelID.nicknameCheck)
+                    )
+                    
+                case .presentToast:
+                    state.isLoading = false
+                    return .none
+                }
             }
         }
     }
