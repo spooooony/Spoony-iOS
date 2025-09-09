@@ -22,7 +22,7 @@ struct AccountManagementView: View {
                     style: .detail,
                     title: "계정 관리",
                     onBackTapped: {
-                        store.send(.routeToPreviousScreen)
+                        store.send(.delegate(.routeToPreviousScreen))
                     }
                 ).background(Color.white)
                 
