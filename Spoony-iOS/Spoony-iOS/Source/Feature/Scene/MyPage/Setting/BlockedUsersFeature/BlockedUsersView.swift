@@ -21,7 +21,7 @@ struct BlockedUsersView: View {
                 style: .detail,
                 title: "차단한 유저",
                 onBackTapped: {
-                    store.send(.routeToPreviousScreen)
+                    store.send(.delegate(.routeToPreviousScreen))
                 }
             )
             
