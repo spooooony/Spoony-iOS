@@ -69,8 +69,8 @@ struct PostFeature {
         
         var showDailySpoonPopup: Bool = false
         var isDrawingSpoon: Bool = false
-        var drawnSpoon: SpoonDrawResponse? = nil
-        var spoonDrawError: String? = nil
+        var drawnSpoon: SpoonDrawResponse?
+        var spoonDrawError: String?
     }
     
     enum Action {
@@ -95,12 +95,6 @@ struct PostFeature {
         
         case mixpanelEvent
         
-        case routeToPreviousScreen
-        case routeToReportScreen(Int)
-        case routeToEditReviewScreen(Int)
-        case routeToUserProfileScreen(Int)
-        case routeToMyProfileScreen
-        
         case showUseSpoonPopup
         case confirmUseSpoonPopup
         case dismissUseSpoonPopup
@@ -110,13 +104,23 @@ struct PostFeature {
         case dismissDeletePopup
         
         case spoonTapped
-        case routeToAttendanceView
         
         case setShowDailySpoonPopup(Bool)
         case drawDailySpoon
         case spoonDrawResponse(TaskResult<SpoonDrawResponse>)
         case fetchSpoonCount
         case spoonCountResponse(TaskResult<Int>)
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToPreviousScreen
+            case routeToReportScreen(Int)
+            case routeToEditReviewScreen(Int)
+            case routeToUserProfileScreen(Int)
+            case routeToMyProfileScreen
+            case routeToAttendanceView
+        }
     }
     
     @Dependency(\.postUseCase) var postUseCase: PostUseCase
@@ -269,7 +273,7 @@ struct PostFeature {
                 return .none
                 
             case .editButtonTapped:
-                return .send(.routeToEditReviewScreen(state.postId))
+                return .send(.delegate(.routeToEditReviewScreen(state.postId)))
                 
             case .dismissToast:
                 state.toast = nil
@@ -285,21 +289,6 @@ struct PostFeature {
                     properties: property.dictionary
                 )
                 
-                return .none
-                
-            case .routeToReportScreen:
-                return .none
-                
-            case .routeToPreviousScreen:
-                return .none
-                
-            case .routeToEditReviewScreen:
-                return .none
-                
-            case .routeToUserProfileScreen:
-                return .none
-                
-            case .routeToMyProfileScreen:
                 return .none
                 
             case .showUseSpoonPopup:
@@ -350,7 +339,7 @@ struct PostFeature {
                     do {
                         try await postUseCase.deletePost(postId: postId)
                         await send(.showToast("삭제가 완료되었어요."))
-                        await send(.routeToPreviousScreen)
+                        await send(.delegate(.routeToPreviousScreen))
                     } catch {
                         await send(.showToast("삭제에 실패했어요. 다시 시도해주세요."))
                     }
@@ -367,7 +356,7 @@ struct PostFeature {
                     return .send(.setShowDailySpoonPopup(true))
                 } else {
                     print("🔍 스푼 뽑기을 했으면 AttendanceView로 이동")
-                    return .send(.routeToAttendanceView)
+                    return .send(.delegate(.routeToAttendanceView))
                 }
                 
             case let .setShowDailySpoonPopup(show):
@@ -425,8 +414,11 @@ struct PostFeature {
                 print("Spoon count fetch error: \(error)")
                 return .none
                 
-            case .routeToAttendanceView:
+            case .delegate(.routeToAttendanceView):
                 state.showAttendanceView = true
+                return .none
+                
+            case .delegate:
                 return .none
             }
         }
