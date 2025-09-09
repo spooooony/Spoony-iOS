@@ -54,15 +54,19 @@ struct ExploreSearchFeature {
         
         case error(SNError)
         
-        // MARK: - Navigation
-        case routeToPreviousScreen
         case presentAlert(AlertType, Alert)
-        case routeToEditReviewScreen(Int)
-        case routeToPostScreen(FeedEntity)
-        case routeToUserProfileScreen(Int)
-        case routeToMyProfileScreen
-        case routeToPostReportScreen(Int)
-        case presentToast(message: String)
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate: Equatable {
+            case routeToPreviousScreen
+            case routeToEditReviewScreen(Int)
+            case routeToPostScreen(FeedEntity)
+            case routeToUserProfileScreen(Int)
+            case routeToMyProfileScreen
+            case routeToPostReportScreen(Int)
+            case presentToast(message: String)
+        }
     }
     
     @Dependency(\.exploreService) var exploreService: ExploreProtocol
@@ -236,13 +240,13 @@ struct ExploreSearchFeature {
                         await send(.error(SNError.networkFail))
                     }
                 }
+                
             case .deleteReviewResult(let success):
                 if !success {
                     return .send(.error(SNError.networkFail))
                 }
                 return .send(.setRecentSearchList)
-            case .routeToEditReviewScreen:
-                return .none
+                
             case .binding(\.searchText):
                 let trimmedText = state.searchText.replacingOccurrences(of: " ", with: "")
                 if !trimmedText.isEmpty {
@@ -251,25 +255,19 @@ struct ExploreSearchFeature {
                     return .send(.updateSearchStateFromRecentSearches)
                 }
                 return .none
-            case .routeToPreviousScreen:
-                return .none
+                            
             case let .presentAlert(type, alert):
                 state.alertType = type
                 state.alert = alert
                 state.isAlertPresented = true
                 return .none
-            case .routeToPostScreen:
-                return .none
-            case .routeToUserProfileScreen:
-                return .none
+
             case .binding:
                 return .none
             case .error:
-                return .send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
-            case .presentToast:
-                return .none
+                return .send(.delegate(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요.")))
                 
-            default:
+            case .delegate:
                 return .none
             }
         }
