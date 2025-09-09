@@ -11,7 +11,6 @@ import ComposableArchitecture
 import Mixpanel
 import TCACoordinators
 
-
 @Reducer
 struct TabCoordinator {
     @ObservableState
@@ -35,22 +34,24 @@ struct TabCoordinator {
         case explore(ExploreCoordinator.Action)
         case myPage(MyPageCoordinator.Action)
         case tabSelected(TabType)
+        case changeSelectedTab(TabType)
         
-        case routeToLoginScreen
-        
-        case switchToExploreTab
-        
-        case routeToRegister
-        case routeToEditReview(Int)
-        case routeToSettings
-        case routeToAttendance
-        case routeToEditProfile
-        case routeToPost(Int)
-        case routeToPostReport(Int)
-        case routeToUserReport(Int)
-        case routeToRoot
-        
-        case presentToast(message: String)
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToLoginScreen
+            case routeToRegisterScreen
+            case routeToEditReviewScreen(Int)
+            case routeToSettingsScreen
+            case routeToAttendanceScreen
+            case routeToEditProfileScreen
+            case routeToPostScreen(Int)
+            case routeToPostReportScreen(Int)
+            case routeToUserReportScreen(Int)
+            case routeToFollowScreen(Int)
+            case presentToast(message: String)
+            case presentPopup
+        }
     }
     
     var body: some ReducerOf<Self> {
@@ -72,9 +73,10 @@ struct TabCoordinator {
             switch action {
             case .binding:
                 return .none
+                
             case let .tabSelected(tab):
                 if tab == .register {
-                    return .send(.routeToRegister)
+                    return .send(.delegate(.routeToRegisterScreen))
                 } else if tab == .explore {
                     state.explore.routes.goBackToRoot()
                 }
@@ -86,93 +88,120 @@ struct TabCoordinator {
                 
                 state.selectedTab = tab
                 return .none
-                
-            // 탭 이동 액션들
-            case .switchToExploreTab:
-                state.selectedTab = .explore
-                return .none
-         
-            // map 관련
-            case .map(.router(.routeAction(id: _, action: .map(.routeToExploreTab)))):
-                return .send(.switchToExploreTab)
-                
-            case .map(.routeToExploreTab):
-                return .send(.switchToExploreTab)
-                
-            case .map(.routeToPostScreen(let postId)):
-                return .send(.routeToPost(postId))
             
-            // explore 관련
-            case .explore(.tabSelected(let tab)):
-                return .send(.tabSelected(tab))
-                
-            case .explore(.routeToPostScreen(let post)):
-                return .send(.routeToPost(post))
-                
-            case .explore(.routeToPostReportScreen(let postId)):
-                return .send(.routeToPostReport(postId))
-                
-            case .explore(.routeToUserReportScreen(let userId)):
-                return .send(.routeToUserReport(userId))
-                
-            case .explore(.routeToEditReviewScreen(let postId)):
-                return .send(.routeToEditReview(postId))
-                
-            case .explore(.presentToast(let message)):
-                return .send(.presentToast(message: message))
-                
-            case .explore(.router(.routeAction(id: _, action: .myProfile(.routeToRegister)))):
-                return .send(.routeToRegister)
-            case .explore(.router(.routeAction(id: _, action: .myProfile(.routeToEditProfileScreen)))):
-                return .send(.routeToEditProfile)
-            case .explore(.router(.routeAction(id: _, action: .myProfile(.routeToAttendanceScreen)))):
-                return .send(.routeToAttendance)
-            case .explore(.router(.routeAction(id: _, action: .myProfile(.routeToEditReviewScreen(let postId))))):
-                return .send(.routeToEditReview(postId))
-            case .explore(.router(.routeAction(id: _, action: .myProfile(.routeToSettingsScreen)))):
-                return .send(.routeToSettings)
-            
-            // mypage 관련
-            case .myPage(.router(.routeAction(id: _, action: .profile(.routeToRegister)))):
-                return .send(.routeToRegister)
-                
-            case .myPage(.router(.routeAction(id: _, action: .profile(.routeToEditReviewScreen(let postId))))):
-                return .send(.routeToEditReview(postId))
-                
-            case .myPage(.routeToPostScreen(let postId)):
-                return .send(.routeToPost(postId))
-                
-            case .myPage(.router(.routeAction(id: _, action: .profile(.routeToSettingsScreen)))):
-                return .send(.routeToSettings)
-                
-            case .myPage(.router(.routeAction(id: _, action: .profile(.routeToAttendanceScreen)))):
-                return .send(.routeToAttendance)
-                
-            case .myPage(.router(.routeAction(id: _, action: .profile(.routeToEditProfileScreen)))):
-                return .send(.routeToEditProfile)
-                
-            case .myPage(.routeToLoginScreen):
-                return .send(.routeToLoginScreen)
+            case let .map(action):
+                switch action {
+                case .delegate(let routeAction):
+                    switch routeAction {
+                    case .routeToPostScreen(let postId):
+                        return .send(.delegate(.routeToPostScreen(postId)))
+                        
+                    case .changeSelectedTab(let tab):
+                        return .send(.changeSelectedTab(tab))
+                    }
                     
-            case .myPage(.router(.routeAction(id: _, action: .otherProfile(.routeToPostReportScreen(let postId))))):
-                return .send(.routeToPostReport(postId))
+                default:
+                    return .none
+                }
                 
-            case .myPage(.router(.routeAction(id: _, action: .otherProfile(.routeToUserReportScreen(let userId))))):
-                return .send(.routeToUserReport(userId))
+            case let .explore(action):
+                switch action {
+                case .delegate(let routeAction):
+                    switch routeAction {
+                    case .changeSelectedTab(let tab):
+                        return .send(.changeSelectedTab(tab))
+                        
+                    case .routeToPostScreen(let postId):
+                        return .send(.delegate(.routeToPostScreen(postId)))
+                        
+                    case .routeToPostReportScreen(let postId):
+                        return .send(.delegate(.routeToPostReportScreen(postId)))
+                        
+                    case .routeToUserReportScreen(let userId):
+                        return .send(.delegate(.routeToUserReportScreen(userId)))
+                        
+                    case .routeToEditReviewScreen(let postId):
+                        return .send(.delegate(.routeToEditReviewScreen(postId)))
+                        
+                    case .routeToReviewDetail(let postId):
+                        return .send(.delegate(.routeToPostScreen(postId)))
+                        
+                    case .routeToFollowScreen(tab: let tab):
+                        return .send(.delegate(.routeToFollowScreen(tab)))
+                        
+                    case .routeToRegisterScreen:
+                        return .send(.delegate(.routeToRegisterScreen))
+                        
+                    case .routeToSettingsScreen:
+                        return .send(.delegate(.routeToSettingsScreen))
+                        
+                    case .routeToAttendanceScreen:
+                        return .send(.delegate(.routeToAttendanceScreen))
+                        
+                    case .routeToEditProfileScreen:
+                        return .send(.delegate(.routeToEditProfileScreen))
+                        
+                    case .presentToast(message: let message):
+                        return .send(.delegate(.presentToast(message: message)))
+                    }
+                    
+                default:
+                    return .none
+                }
                 
-            case .routeToLoginScreen:
+            case let .myPage(action):
+                switch action {
+                case .delegate(let routeAction):
+                    switch routeAction {
+                    case .routeToRegisterScreen:
+                        return .send(.delegate(.routeToRegisterScreen))
+                        
+                    case .routeToEditReviewScreen(let postId):
+                        return .send(.delegate(.routeToEditReviewScreen(postId)))
+                        
+                    case .routeToPostScreen(let postId):
+                        return .send(.delegate(.routeToPostScreen(postId)))
+                        
+                    case .routeToLoginScreen:
+                        return .send(.delegate(.routeToLoginScreen))
+                        
+                    case .routeToSettingsScreen:
+                        return .send(.delegate(.routeToSettingsScreen))
+                        
+                    case .routeToEditProfileScreen:
+                        return .send(.delegate(.routeToEditProfileScreen))
+                        
+                    case .routeToAttendanceScreen:
+                        return .send(.delegate(.routeToAttendanceScreen))
+                        
+                    case .routeToPostReportScreen(let postId):
+                        return .send(.delegate(.routeToPostReportScreen(postId)))
+                        
+                    case .routeToUserReportScreen(let userId):
+                        return .send(.delegate(.routeToUserReportScreen(userId)))
+                        
+                    case .routeToReviewDetail(let postId):
+                        return .send(.delegate(.routeToPostScreen(postId)))
+                        
+                    case .routeToFollowScreen(tab: let tab):
+                        return .send(.delegate(.routeToFollowScreen(tab)))
+                        
+                    case .presentPopup:
+                        return .send(.delegate(.presentPopup))
+                        
+                    case .presentToast(let message):
+                        return .send(.delegate(.presentToast(message: message)))
+                    }
+                    
+                default:
+                    return .none
+                }
+                
+            case .changeSelectedTab(let tab):
+                state.selectedTab = tab
                 return .none
                 
-            case .presentToast:
-                return .none
-                
-            case .routeToRoot:
-                state.map.routes = [.root(.map(.initialState), embedInNavigationView: false)]
-                state.explore.routes = [.root(.explore(.initialState), embedInNavigationView: false)]
-                state.myPage.routes = [.root(.profile(.initialState), embedInNavigationView: false)]
-                return .none
-                
-            default:
+            case .delegate:
                 return .none
             }
         }
