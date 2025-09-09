@@ -46,7 +46,7 @@ struct EditProfileImageView: View {
                 }
                 .onFailure { _ in
                     isFail = true
-                    store.send(.presentToast(message: "이미지 로드에 실패했습니다!"))
+                    store.send(.delegate(.presentToast(message: "이미지 로드에 실패했습니다!")))
                 }
                 .resizable()
                 .fade(duration: 0.3)
@@ -54,7 +54,7 @@ struct EditProfileImageView: View {
             Circle().fill(.gray200)
                 .onAppear {
                     if !store.isLoadError {
-                        store.send(.presentToast(message: "이미지 로드에 실패했습니다!"))
+                        store.send(.delegate(.presentToast(message: "이미지 로드에 실패했습니다!")))
                     }
                 }
         }
