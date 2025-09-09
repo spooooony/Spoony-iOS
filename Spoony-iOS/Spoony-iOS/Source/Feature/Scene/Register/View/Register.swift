@@ -72,7 +72,7 @@ extension Register {
             HStack(spacing: 0) {
                 Button {
                     if store.state.currentStep == .start {
-                        store.send(.routeToPreviousScreen)
+                        store.send(.delegate(.routeToPreviousScreen))
                     } else {
                         store.send(.reviewStepAction(.movePreviousView))
                     }
