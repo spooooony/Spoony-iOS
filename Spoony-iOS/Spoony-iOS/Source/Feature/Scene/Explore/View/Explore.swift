@@ -228,11 +228,11 @@ extension Explore {
                     ExploreCell(
                         feed: feed,
                         onReport: { feed in
-                            store.send(.routeToReportScreen(feed.postId))
+                            store.send(.delegate(.routeToReportScreen(feed.postId)))
                         }
                     )
                     .onTapGesture {
-                        store.send(.routeToPostScreen(feed))
+                        store.send(.delegate(.routeToPostScreen(feed)))
                     }
                 }
             }
@@ -254,21 +254,21 @@ extension Explore {
                                 store.send(.deleteMyReview(feed.postId))
                             },
                             onEdit: { feed in
-                                store.send(.routeToEditReviewScreen(feed.postId))
+                                store.send(.delegate(.routeToEditReviewScreen(feed.postId)))
                             }
                         )
                         .onTapGesture {
-                            store.send(.routeToPostScreen(feed))
+                            store.send(.delegate(.routeToPostScreen(feed)))
                         }
                     } else {
                         ExploreCell(
                             feed: feed,
                             onReport: { feed in
-                                store.send(.routeToReportScreen(feed.postId))
+                                store.send(.delegate(.routeToReportScreen(feed.postId)))
                             }
                         )
                         .onTapGesture {
-                            store.send(.routeToPostScreen(feed))
+                            store.send(.delegate(.routeToPostScreen(feed)))
                         }
                     }
                 }
