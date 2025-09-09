@@ -55,7 +55,7 @@ struct AgreeView: View {
                 case .notDetermined:
                     locationManager.requestWhenInUseAuthorization()
                 default:
-                    store.send(.routToOnboardingScreen)
+                    store.send(.delegate(.routeToOnboardingScreen))
                 }
             }
             .padding(.bottom, 20)
@@ -65,7 +65,7 @@ struct AgreeView: View {
             locationManager.delegate = locationDelegate
         }
         .onChange(of: locationManager.authorizationStatus) {
-            store.send(.routToOnboardingScreen)
+            store.send(.delegate(.routeToOnboardingScreen))
         }
     }
 }
