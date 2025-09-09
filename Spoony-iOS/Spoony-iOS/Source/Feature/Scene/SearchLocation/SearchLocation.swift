@@ -46,7 +46,7 @@ struct SearchLocationView: View {
                         style: .locationTitle,
                         title: store.locationTitle,
                         onBackTapped: {
-                            store.send(.routeToHomeScreen)
+                            store.send(.delegate(.routeToHomeScreen))
                         }
                     )
                     .frame(height: 56.adjusted)
@@ -90,7 +90,7 @@ struct SearchLocationView: View {
                                 set: { store.send(.map(.setCurrentPage($0))) }
                             ),
                             onCardTapped: { place in
-                                store.send(.routeToPostDetail(postId: place.postId))
+                                store.send(.delegate(.routeToPostDetail(postId: place.postId)))
                             }
                         )
                         .padding(.bottom, 12)
