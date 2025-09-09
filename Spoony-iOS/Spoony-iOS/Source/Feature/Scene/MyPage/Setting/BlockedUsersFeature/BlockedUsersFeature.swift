@@ -16,7 +16,7 @@ struct BlockedUsersFeature {
         
         var blockedUsers: [BlockedUserModel] = []
         var isLoading: Bool = false
-        var errorMessage: String? = nil
+        var errorMessage: String?
         var processingUserIds: Set<Int> = []
         
         var unblockedUserIds: Set<Int> = []
@@ -24,7 +24,6 @@ struct BlockedUsersFeature {
     }
     
     enum Action {
-        case routeToPreviousScreen
         case onAppear
         case fetchBlockedUsers
         case fetchBlockedUsersResponse(TaskResult<BlockedUsersResponse>)
@@ -33,6 +32,12 @@ struct BlockedUsersFeature {
         case reblockUser(Int)
         case reblockUserResponse(userId: Int, TaskResult<Void>)
         case onScrollEvent
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToPreviousScreen
+        }
     }
     
     @Dependency(\.myPageService) var myPageService
@@ -41,9 +46,6 @@ struct BlockedUsersFeature {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .routeToPreviousScreen:
-                return .none
-                
             case .onAppear:
                 return .send(.fetchBlockedUsers)
                 
@@ -117,6 +119,9 @@ struct BlockedUsersFeature {
                     state.blockedUsers.removeAll { userIdsToRemove.contains($0.userId) }
                     state.unblockedUserIds.removeAll()
                 }
+                return .none
+                
+            case .delegate:
                 return .none
             }
         }
