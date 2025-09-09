@@ -44,7 +44,7 @@ struct Home: View {
                         store.send(.setShowDailySpoonPopup(true))
                     },
                     tappedAction: {
-                        store.send(.routToSearchScreen)
+                        store.send(.delegate(.routeToSearchScreen))
                     }
                 )
                 .frame(height: 56.adjusted)
