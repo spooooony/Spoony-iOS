@@ -32,7 +32,7 @@ struct Report: View {
                 style: .detail,
                 title: "신고하기",
                 onBackTapped: {
-                    store.send(.routeToPreviousScreen)
+                    store.send(.delegate(.routeToPreviousScreen))
                 }
             )
             Divider()
@@ -69,7 +69,7 @@ struct Report: View {
             alert: store.alert,
             confirmAction: nil,
             afterAction: {
-                store.send(.routeToRoot)
+                store.send(.delegate(.routeToRoot))
             }
         )
     }
