@@ -18,7 +18,7 @@ struct ExploreCoordinatorView: View {
     }
     
     var body: some View {
-        TCARouter(store.scope(state: \.routes, action: \.router)) { screen in            
+        TCARouter(store.scope(state: \.routes, action: \.router)) { screen in  
             switch screen.case {
             case .explore(let store):
                 Explore(store: store)
