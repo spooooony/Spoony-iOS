@@ -109,8 +109,10 @@ extension NMapViewCoordinator: UIGestureRecognizerDelegate {
      * @return true: 제스처가 터치 처리
      *         false: 다른 핸들러에게 전달
      */
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
-                          shouldReceive touch: UITouch) -> Bool {
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldReceive touch: UITouch
+    ) -> Bool {
         
         // 터치 포인트 획득
         let touchPoint = touch.location(in: gestureRecognizer.view)
@@ -153,8 +155,10 @@ extension NMapViewCoordinator: UIGestureRecognizerDelegate {
      * @return true: 동시 인식 허용
      *         false: 동시 인식 차단
      */
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
-                          shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
         // 지도의 팬, 줌 제스처와 탭 제스처가 충돌하지 않도록 허용
         return true
     }
