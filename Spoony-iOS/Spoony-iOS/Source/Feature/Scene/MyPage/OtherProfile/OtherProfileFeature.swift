@@ -25,16 +25,16 @@ struct OtherProfileFeature {
         var isFollowing: Bool = false
         var isBlocked: Bool = false
         var isLoading: Bool = false
-        var errorMessage: String? = nil
+        var errorMessage: String?
         
-        var reviews: [FeedEntity]? = nil
+        var reviews: [FeedEntity]?
         var isLoadingReviews: Bool = false
-        var reviewsErrorMessage: String? = nil
+        var reviewsErrorMessage: String?
         
         var isMenuPresented: Bool = false
         var showUnblockAlert: Bool = false
         
-        var toast: Toast? = nil
+        var toast: Toast?
         
         var isAlertPresented: Bool = false
         var alertType: AlertType = .normalButtonTwo
@@ -72,13 +72,8 @@ struct OtherProfileFeature {
         case userInfoResponse(TaskResult<UserInfoResponse>)
         case fetchUserReviews
         case userReviewsResponse(TaskResult<[FeedEntity]>)
-        case routeToPreviousScreen
         case followButtonTapped
         case followActionResponse(TaskResult<Void>)
-        
-        case routeToFollowingScreen
-        case routeToFollowerScreen
-        case routeToFollowScreen(tab: Int)
         
         case kebabMenuTapped
         case menuItemSelected(String)
@@ -91,15 +86,23 @@ struct OtherProfileFeature {
         case confirmUnblock
         case blockActionResponse(TaskResult<Void>)
         case unblockActionResponse(TaskResult<Void>)
-        case routeToReviewDetail(Int)
-        
+                
         case hideToast
-        case routeToPostReportScreen(Int)
-        case routeToUserReportScreen(Int)
-        
         case presentAlert(AlertType, Alert)
-        
         case selectReviewFilter(ReviewFilterType)
+        
+        case routeToFollowingScreen
+        case routeToFollowerScreen
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToReviewDetail(Int)
+            case routeToPreviousScreen
+            case routeToFollowScreen(tab: Int)
+            case routeToPostReportScreen(Int)
+            case routeToUserReportScreen(Int)
+        }
     }
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
@@ -248,10 +251,10 @@ struct OtherProfileFeature {
                 return .none
                 
             case .routeToFollowingScreen:
-                return .send(.routeToFollowScreen(tab: 1))
+                return .send(.delegate(.routeToFollowScreen(tab: 1)))
                 
             case .routeToFollowerScreen:
-                return .send(.routeToFollowScreen(tab: 0))
+                return .send(.delegate(.routeToFollowScreen(tab: 0)))
                 
             case .kebabMenuTapped:
                 state.isMenuPresented.toggle()
@@ -297,7 +300,7 @@ struct OtherProfileFeature {
                 )
                 
             case .reportUser:
-                return .send(.routeToUserReportScreen(state.userId))
+                return .send(.delegate(.routeToUserReportScreen(state.userId)))
                 
             case .confirmAction:
                 if state.isBlocked {
@@ -352,9 +355,6 @@ struct OtherProfileFeature {
                 state.toast = nil
                 return .none
                 
-            case .routeToPreviousScreen, .routeToReviewDetail, .routeToUserReportScreen, .routeToPostReportScreen, .routeToFollowScreen:
-                return .none
-                
             case let .presentAlert(type, alert):
                 state.alertType = type
                 state.alert = alert
@@ -362,6 +362,9 @@ struct OtherProfileFeature {
                 return .none
                 
             case .binding:
+                return .none
+                
+            case .delegate:
                 return .none
             }
         }
