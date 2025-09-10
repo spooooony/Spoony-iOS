@@ -9,7 +9,7 @@ import Foundation
 import Moya
 
 enum AuthTargetType {
-    case login(platform: String, token: String)
+    case login(platform: String, token: String, code: String?)
     case signup(SignupRequest, token: String)
     case logout
     case withdraw
@@ -48,9 +48,18 @@ extension AuthTargetType: TargetType {
     
     var task: Moya.Task {
         switch self {
-        case .login(let platform, _):
+        case .login(let platform, _, let code):
+            var parameters: [String: String] = [:]
+            if let code {
+                parameters = [
+                    "platform": platform,
+                    "authCode": code
+                ]
+            } else {
+                parameters = ["platform": platform]
+            }
             return .requestParameters(
-                parameters: ["platform": platform],
+                parameters:parameters,
                 encoding: JSONEncoding.default
             )
         case .signup(let request, _):
@@ -62,7 +71,7 @@ extension AuthTargetType: TargetType {
     
     var headers: [String: String]? {
         switch self {
-        case .login(_, let token), .refresh(let token):
+        case .login(_, let token, _), .refresh(let token):
             return [
                 "Content-Type": "application/json",
                 "Authorization": "Bearer \(token)"

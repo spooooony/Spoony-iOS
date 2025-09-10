@@ -187,16 +187,29 @@ struct OnboardingFeature {
                     do {
                         guard let token = authenticationManager.socialToken
                         else { return }
+                        let user: String
+                        if let code = authenticationManager.appleCode {
+                            user = try await authService.signup(
+                                platform: authenticationManager.socialType.rawValue,
+                                userName: state.nicknameText,
+                                birth: birthString,
+                                regionId: state.subRegion?.id ?? nil,
+                                introduction: state.introduceText,
+                                token: token,
+                                code: code
+                            )
+                        } else {
+                            user = try await authService.signup(
+                                platform: authenticationManager.socialType.rawValue,
+                                userName: state.nicknameText,
+                                birth: birthString,
+                                regionId: state.subRegion?.id ?? nil,
+                                introduction: state.introduceText,
+                                token: token,
+                                code: nil
+                            )
+                        }
                         
-                        let user = try await authService.signup(
-                            platform: authenticationManager.socialType.rawValue,
-                            userName: state.nicknameText,
-                            birth: birthString,
-                            regionId: state.subRegion?.id ?? nil,
-                            introduction: state.introduceText,
-                            token: token
-                        )
-                    
                         await send(.setUserNickname(user))
                     } catch {
                         await send(.error(SNError.networkFail))

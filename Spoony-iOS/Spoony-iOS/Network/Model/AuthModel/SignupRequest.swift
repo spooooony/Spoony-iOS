@@ -13,4 +13,5 @@ struct SignupRequest: Encodable {
     let birth: String?
     let regionId: Int?
     let introduction: String?
+    let authCode: String?
 }

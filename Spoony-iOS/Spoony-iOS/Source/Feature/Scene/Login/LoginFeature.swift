@@ -41,7 +41,7 @@ struct LoginFeature {
         case onAppear
         case kakaoLoginButtonTapped
         case appleLoginButtonTapped
-        case login(SocialType, String)
+        case login(SocialType, String, String?)
 
         case error(Error)
         
@@ -79,7 +79,7 @@ struct LoginFeature {
                     do {
                         let result = try await socialLoginService.kakaoLogin()
                         authenticationManager.setToken(.KAKAO, result)
-                        await send(.login(.KAKAO, result))
+                        await send(.login(.KAKAO, result, nil))
                     } catch {
 //                        await send(.error(LoginError.kakaoTokenError))
                     }
@@ -88,16 +88,16 @@ struct LoginFeature {
                 return .run { send in
                     do {
                         let result = try await socialLoginService.appleLogin()
-                        authenticationManager.setToken(.APPLE, result)
-                        await send(.login(.APPLE, result))
+                        authenticationManager.setToken(.APPLE, result.token, result.code)
+                        await send(.login(.APPLE, result.token, result.code))
                     } catch {
 //                        await send(.error(LoginError.appleTokenError))
                     }
                 }
-            case .login(let type, let token):
+            case let .login(type, token, code):
                 return .run { send in
                     do {
-                        let isExists = try await authService.login(platform: type.rawValue, token: token)
+                        let isExists = try await authService.login(platform: type.rawValue, token: token, code: code)
                         if isExists {
                             Mixpanel.mainInstance().track(
                                 event: ConversionAnalysisEvents.Name.loginsuccess

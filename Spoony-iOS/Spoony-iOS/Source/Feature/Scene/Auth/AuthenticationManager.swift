@@ -16,10 +16,12 @@ final class AuthenticationManager: ObservableObject {
     
     private(set) var socialToken: String?
     private(set) var socialType: SocialType = .KAKAO
+    private(set) var appleCode: String?
     
-    func setToken(_ type: SocialType, _ token: String) {
+    func setToken(_ type: SocialType, _ token: String, _ code: String? = nil) {
         self.socialType = type
         self.socialToken = token
+        self.appleCode = code
     }
     
     func checkAutoLogin() -> Bool {

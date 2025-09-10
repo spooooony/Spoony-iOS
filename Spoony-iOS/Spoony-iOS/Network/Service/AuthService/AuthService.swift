@@ -10,14 +10,15 @@ import Foundation
 import Mixpanel
 
 protocol AuthProtocol {
-    func login(platform: String, token: String) async throws -> Bool
+    func login(platform: String, token: String, code: String?) async throws -> Bool
     func signup(
         platform: String,
         userName: String,
         birth: String?,
         regionId: Int?,
         introduction: String?,
-        token: String
+        token: String,
+        code: String?
     ) async throws -> String
     func nicknameDuplicateCheck(userName: String) async throws -> Bool
     func getRegionList() async throws -> RegionListResponse
@@ -29,10 +30,10 @@ final class DefaultAuthService: AuthProtocol {
     let provider = Providers.authProvider
     let myPageProvider = Providers.myPageProvider
     
-    func login(platform: String, token: String) async throws -> Bool {
+    func login(platform: String, token: String, code: String?) async throws -> Bool {
         return try await withCheckedThrowingContinuation { continuation in
             
-            provider.request(.login(platform: platform, token: token)) { result in
+            provider.request(.login(platform: platform, token: token, code: code)) { result in
                 
                 switch result {
                 case .success(let response):
@@ -73,7 +74,8 @@ final class DefaultAuthService: AuthProtocol {
         birth: String?,
         regionId: Int?,
         introduction: String?,
-        token: String
+        token: String,
+        code: String? = nil
     ) async throws -> String {
         return try await withCheckedThrowingContinuation { continuation in
             let request: SignupRequest = .init(
@@ -81,8 +83,10 @@ final class DefaultAuthService: AuthProtocol {
                 userName: userName,
                 birth: birth,
                 regionId: regionId,
-                introduction: introduction
+                introduction: introduction,
+                authCode: code
             )
+            print("request: \(request)")
             provider.request(.signup(request, token: token)) { result in
                 switch result {
                 case .success(let response):
@@ -197,7 +201,7 @@ final class DefaultAuthService: AuthProtocol {
 }
 
 final class MockAuthService: AuthProtocol {
-    func login(platform: String, token: String) async throws -> Bool {
+    func login(platform: String, token: String, code: String?) async throws -> Bool {
         return false
     }
     
@@ -207,7 +211,8 @@ final class MockAuthService: AuthProtocol {
         birth: String?,
         regionId: Int?,
         introduction: String?,
-        token: String
+        token: String,
+        code: String?
     ) async throws -> String {
         return "nickname"
     }
