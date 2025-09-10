@@ -52,12 +52,11 @@ struct RegisterFeature {
         // MARK: - Child Action
         case infoStepAction(InfoStepFeature.Action)
         case reviewStepAction(ReviewStepFeature.Action)
-        
-        
+                
         // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
         case delegate(Delegate)
         enum Delegate: Equatable {
-            case presentPopup
+            case presentPopup(PopupType)
             case presentToast(message: String)
             case routeToPostScreen(Int)
             case routeToPreviousScreen
@@ -277,7 +276,7 @@ struct RegisterFeature {
                     
                     return .send(.delegate(.routeToPostScreen(postId)))
                 } else {
-                    return .send(.delegate(.presentPopup))
+                    return .send(.delegate(.presentPopup(.registerSuccess)))
                 }
                 
             case .delegate:
