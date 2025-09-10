@@ -29,12 +29,7 @@ final class DefaultRefreshService: RefreshProtocol {
                             continuation.resume(throwing: SNError.noData)
                             return
                         }
-                        
-                        KeychainManager.saveKeychain(
-                            access: dto.accessToken,
-                            refresh: dto.refreshToken,
-                            platform: AuthenticationManager.shared.socialType.rawValue
-                        )
+                    
                         let tokenSet: TokenCredential = .init(
                             accessToken: dto.accessToken,
                             refreshToken: dto.refreshToken

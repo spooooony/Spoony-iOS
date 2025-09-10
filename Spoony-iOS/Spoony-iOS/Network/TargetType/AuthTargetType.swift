@@ -62,29 +62,10 @@ extension AuthTargetType: TargetType {
     
     var headers: [String: String]? {
         switch self {
-        case .login(_, let token), .refresh(let token):
-            return [
-                "Content-Type": "application/json",
-                "Authorization": "Bearer \(token)"
-            ]
-        case .signup(_, let token):
-            return [
-                "Content-Type": "application/json",
-                "Authorization": "Bearer \(token)"
-            ]
+        case .login(_, let token), .refresh(let token), .signup(_, let token):
+            return HeaderType.token(token).value
         case .logout, .withdraw:
-            var headers = ["Content-Type": "application/json"]
-            
-            switch KeychainManager.read(key: .accessToken) {
-            case .success(let token):
-                if let token = token {
-                    headers["Authorization"] = "Bearer \(token)"
-                }
-            case .failure(let error):
-                print("Failed to read access token: \(error)")
-            }
-            
-            return headers
+            return HeaderType.auth.value
         }
     }
 }

@@ -79,16 +79,9 @@ struct ProfileFeature {
                 state.isLoading = true
                 state.errorMessage = nil
                 
-                switch KeychainManager.read(key: .accessToken) {
-                case .success(let token):
-                    if token == nil {
-                        state.isLoading = false
-                        state.errorMessage = "로그인이 필요합니다."
-                        return .none
-                    }
-                case .failure(let error):
+                if KeychainManager.read(key: .accessToken) == nil {
                     state.isLoading = false
-                    state.errorMessage = "인증 정보를 불러올 수 없습니다: \(error.localizedDescription)"
+                    state.errorMessage = "로그인이 필요합니다."
                     return .none
                 }
                 
