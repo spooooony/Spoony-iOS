@@ -50,7 +50,7 @@ struct TabCoordinator {
             case routeToUserReportScreen(Int)
             case routeToFollowScreen(Int)
             case presentToast(message: String)
-            case presentPopup
+            case presentPopup(PopupType)
         }
     }
     
@@ -186,8 +186,8 @@ struct TabCoordinator {
                     case .routeToFollowScreen(tab: let tab):
                         return .send(.delegate(.routeToFollowScreen(tab)))
                         
-                    case .presentPopup:
-                        return .send(.delegate(.presentPopup))
+                    case .presentPopup(let type):
+                        return .send(.delegate(.presentPopup(type)))
                         
                     case .presentToast(let message):
                         return .send(.delegate(.presentToast(message: message)))
