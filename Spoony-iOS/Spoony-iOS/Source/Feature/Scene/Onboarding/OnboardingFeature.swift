@@ -96,7 +96,6 @@ struct OnboardingFeature {
                     let property = OnboardingEvents.Onboarding3CompletedProperty(
                         bioLength: state.introduceText.count
                     )
-
                     
                     Mixpanel.mainInstance().track(
                         event: OnboardingEvents.Name.onboarding3Completed,

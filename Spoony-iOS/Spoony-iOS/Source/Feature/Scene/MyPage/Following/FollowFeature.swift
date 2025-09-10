@@ -23,7 +23,7 @@ struct FollowFeature {
         var followingCount: Int = 0
         var isLoading: Bool = false
         var initialTab: Int = 0
-        var targetUserId: Int? = nil
+        var targetUserId: Int?
         var currentTab: Int = 0
         
         static let initialState = State()
