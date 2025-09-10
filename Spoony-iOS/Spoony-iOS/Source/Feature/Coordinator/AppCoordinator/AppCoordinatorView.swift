@@ -12,7 +12,6 @@ import TCACoordinators
 
 struct AppCoordinatorView: View {
     private let store: StoreOf<AppCoordinator>
-    @StateObject private var authManager = AuthenticationManager.shared
     
     init(store: StoreOf<AppCoordinator>) {
         self.store = store
