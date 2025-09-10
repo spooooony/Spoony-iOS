@@ -11,21 +11,39 @@ final class TokenManager {
     static let shared = TokenManager()
     private init() {}
     
+    private var cachedAccessToken: String?
+    private var cachedRefreshToken: String?
+    
     var currentToken: String? {
-        switch KeychainManager.read(key: .accessToken) {
-        case .success(let token):
+        cachedAccessToken ?? {
+            let token = KeychainManager.read(key: .accessToken)
+            cachedAccessToken = token
             return token
-        case .failure:
-            return nil
-        }
+        }()
     }
     
     var currentRefreshToken: String? {
-        switch KeychainManager.read(key: .refreshToken) {
-        case .success(let token):
+        cachedRefreshToken ?? {
+            let token = KeychainManager.read(key: .refreshToken)
+            cachedRefreshToken = token
             return token
-        case .failure:
-            return nil
-        }
+        }()
+    }
+    
+    func updateTokens(accessToken: String, refreshToken: String) {
+        _ = KeychainManager.create(key: .accessToken, value: accessToken)
+        _ = KeychainManager.create(key: .refreshToken, value: refreshToken)
+        
+        cachedAccessToken = accessToken
+        cachedRefreshToken = refreshToken
+    }
+    
+    func deleteTokens() {
+        _ = KeychainManager.delete(key: .accessToken)
+        _ = KeychainManager.delete(key: .refreshToken)
+        _ = KeychainManager.delete(key: .socialType)
+        
+        cachedAccessToken = nil
+        cachedRefreshToken = nil
     }
 }
