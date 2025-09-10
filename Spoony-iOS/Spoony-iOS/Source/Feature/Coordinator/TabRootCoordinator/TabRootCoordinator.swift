@@ -55,181 +55,279 @@ struct TabRootCoordinator {
         
         case updateToast(Toast?)
         case updatePopup(PopupType?)
-        case routeToLogin
         case routeToRoot
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToLoginScreen
+        }
     }
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-                
-            case .router(.routeAction(id: _, action: .tab(.routeToRegister))):
-                state.routes.push(.registerAndEdit(.initialState))
-                return .none
-            
-            case .router(.routeAction(id: _, action: .registerAndEdit(.routeToPreviousScreen))):
-                state.routes.goBack()
-                return .none
-                
-            case .router(.routeAction(id: _, action: .registerAndEdit(.routeToPostScreen(let postId)))):
-                if state.routes.count >= 3 {
-                    if case .post = state.routes[1].screen {
+            case let .router(.routeAction(id: _, action: childDelegateAction)):
+                switch childDelegateAction {
+                case .tab(.delegate(let routeAction)):
+                    switch routeAction {                    
+                    case .routeToLoginScreen:
+                        return .send(.delegate(.routeToLoginScreen))
+                        
+                    case .routeToRegisterScreen:
+                        state.routes.push(.registerAndEdit(.initialState))
+                        return .none
+                        
+                    case .routeToEditReviewScreen(let postId):
+                        state.routes.push(.registerAndEdit(.init(postId: postId)))
+                        return .none
+                        
+                    case .routeToSettingsScreen:
+                        state.routes.push(.settings(.initialState))
+                        return .none
+                        
+                    case .routeToAttendanceScreen:
+                        state.routes.push(.attendance(.initialState))
+                        return .none
+                        
+                    case .routeToEditProfileScreen:
+                        state.routes.push(.editProfile(.initialState))
+                        return .none
+                        
+                    case .routeToPostScreen(let postId):
+                        state.routes.push(.post(.init(postId: postId )))
+                        return .none
+                        
+                    case .routeToPostReportScreen(let postId):
+                        state.routes.push(.report(.init(postId: postId)))
+                        return .none
+                        
+                    case .routeToUserReportScreen(let userId):
+                        state.routes.push(.report(.init(targetUserId: userId)))
+                        return .none
+                        
+                    case .routeToFollowScreen(let tab):
+                        if case let .profile(otherProfileStore) = state.routes.last?.screen {
+                            let followState = FollowFeature.State(
+                                initialTab: tab,
+                                targetUserId: otherProfileStore.userId
+                            )
+                            state.routes.push(.follow(followState))
+                        }
+                        return .none
+                        
+                    case .presentToast(message: let message):
+                        state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH)
+                        return .none
+                        
+                    case .presentPopup(let type):
+                        state.popup = type
+                        return .none
+                    }
+                    
+                case .registerAndEdit(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .presentPopup(let type):
+                        state.popup = type
+                        return .none
+                    case .presentToast(message: let message):
+                        state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH)
+                        return .none
+                        
+                    case .routeToPostScreen(let postId):
+                        state.routes.push(.post(.init(postId: postId)))
+                        return .none
+                        
+                    case .routeToPreviousScreen:
                         state.routes.goBack()
                         return .none
                     }
+                    
+                case .settings(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .routeToAccountManagementScreen:
+                        state.routes.push(.accountManagement(.initialState))
+                        return .none
+                        
+                    case .routeToBlockedUsersScreen:
+                        state.routes.push(.blockedUsers(.initialState))
+                        return .none
+                        
+                    case .routeToPreviousScreen:
+                        state.routes.goBack()
+                        return .none
+                    }
+                    
+                case .editProfile(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .routeToPreviousScreen:
+                        state.routes.goBack()
+                        return .none
+                        
+                    case .presentToast(message: let message):
+                        state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH)
+                        return .none
+                    }
+                    
+                case .accountManagement(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .routeToWithdrawScreen:
+                        state.routes.push(.withdraw(.initialState))
+                        return .none
+                        
+                    case .routeToPreviousScreen:
+                        state.routes.goBack()
+                        return .none
+                        
+                    case .routeToLoginScreen:
+                        return .send(.delegate(.routeToLoginScreen))
+                    }
+                    
+                case .blockedUsers(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .routeToPreviousScreen:
+                        state.routes.goBack()
+                        return .none
+                    }
+                    
+                case .withdraw(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .routeToLoginScreen:
+                        return .send(.delegate(.routeToLoginScreen))
+                        
+                    case .routeToPreviousScreen:
+                        state.routes.goBack()
+                        return .none
+                    }
+                    
+                case .attendance(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .routeToPreviousScreen:
+                        state.routes.goBack()
+                        return .none
+                    }
+                    
+                case .post(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .routeToPreviousScreen:
+                        state.routes.goBack()
+                        return .none
+                        
+                    case .routeToReportScreen(let postId):
+                        state.routes.push(.report(.init(postId: postId)))
+                        return .none
+                        
+                    case .routeToEditReviewScreen(let postId):
+                        state.routes.push(.registerAndEdit(.init(postId: postId)))
+                        return .none
+                        
+                    case .routeToUserProfileScreen(let userId):
+                        state.routes.push(.profile(.init(userId: userId)))
+                        return .none
+                        
+                    case .routeToMyProfileScreen:
+                        state.routes.push(.myProfile(.init(isRootView: false)))
+                        return .none
+                        
+                    case .routeToAttendanceView:
+                        state.routes.push(.attendance(.initialState))
+                        return .none
+                    }
+                    
+                case .report(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .routeToPreviousScreen:
+                        state.routes.goBack()
+                        return .none
+                    case .routeToRoot:
+                        state.routes.goBackToRoot()
+                        return .none
+                        
+                    case .presentToast(message: let message):
+                        state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH)
+                        return .none
+                    }
+                    
+                case .profile(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .routeToReviewDetail(let postId):
+                        state.routes.push(.post(.init(postId: postId)))
+                        return .none
+                        
+                    case .routeToPreviousScreen:
+                        state.routes.goBack()
+                        return .none
+                        
+                    case .routeToFollowScreen(tab: let tab):
+                        if case let .profile(otherProfileStore) = state.routes.last?.screen {
+                            let followState = FollowFeature.State(initialTab: tab, targetUserId: otherProfileStore.userId)
+                            state.routes.push(.follow(followState))
+                        }
+                        return .none
+                        
+                    case .routeToPostReportScreen(let postId):
+                        state.routes.push(.report(.init(postId: postId)))
+                        return .none
+                        
+                    case .routeToUserReportScreen(let userId):
+                        state.routes.push(.report(.init(targetUserId: userId)))
+                        return .none
+                    }
+                    
+                case .follow(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .routeToPreviousScreen:
+                        state.routes.goBack()
+                        return .none
+                        
+                    case .routeToUserProfileScreen(userId: let userId):
+                        state.routes.push(.profile(.init(userId: userId)))
+                        return .none
+                        
+                    case .routeToMyProfileScreen:
+                        state.routes.push(.myProfile(.initialState))
+                        return .none
+                    }
+                    
+                case .myProfile(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .routeToFollowScreen(tab: let tab):
+                        let followState = FollowFeature.State(initialTab: tab)
+                        state.routes.push(.follow(followState))
+                        return .none
+                        
+                    case .routeToSettingsScreen:
+                        state.routes.push(.settings(.initialState))
+                        return .none
+                        
+                    case .routeToAttendanceScreen:
+                        state.routes.push(.attendance(.initialState))
+                        return .none
+                        
+                    case .routeToEditProfileScreen:
+                        state.routes.push(.editProfile(.initialState))
+                        return .none
+                        
+                    case .routeToEditReviewScreen(let postId):
+                        state.routes.push(.registerAndEdit(.init(postId: postId)))
+                        return .none
+                        
+                    case .routeToRegister:
+                        state.routes.push(.registerAndEdit(.initialState))
+                        return .none
+                        
+                    case .routeToPreviousScreen:
+                        state.routes.goBack()
+                        return .none
+                        
+                    case .routeToReviewDetail(let postId):
+                        state.routes.push(.post(.init(postId: postId)))
+                        return .none
+                    }
+                    
+                default:
+                    return .none
                 }
-                
-                return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
-                    $0.pop()
-                    $0.push(.post(PostFeature.State(postId: postId)))
-                }
-                
-            case .router(.routeAction(id: _, action: .tab(.routeToEditReview(let postId)))):
-                state.routes.push(.registerAndEdit(.init(postId: postId)))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .tab(.routeToSettings))):
-                state.routes.push(.settings(.initialState))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .tab(.routeToAttendance))):
-                state.routes.push(.attendance(.initialState))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .tab(.routeToEditProfile))):
-                state.routes.push(.editProfile(.initialState))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .tab(.routeToPost(let post)))):
-                state.routes.push(.post(PostFeature.State(postId: post)))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .post(.routeToUserProfileScreen(let user)))):
-                state.routes.push(.profile(OtherProfileFeature.State(userId: user)))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .post(.routeToMyProfileScreen))):
-                state.routes.push(.myProfile(.init(isRootView: false)))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .tab(.routeToUserReport(let userId)))):
-                state.routes.push(.report(ReportFeature.State(targetUserId: userId)))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .tab(.routeToPostReport(let postId)))):
-                state.routes.push(.report(ReportFeature.State(postId: postId)))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .settings(.routeToAccountManagementScreen))):
-                state.routes.push(.accountManagement(.initialState))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .settings(.routeToBlockedUsersScreen))):
-                state.routes.push(.blockedUsers(.initialState))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .accountManagement(.routeToWithdrawScreen))):
-                state.routes.push(.withdraw(.initialState))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .accountManagement(.routeToLoginScreen))):
-                return .send(.routeToLogin)
-                
-            case .router(.routeAction(id: _, action: .withdraw(.routeToLoginScreen))):
-                 return .send(.routeToLogin)
-                
-            case .routeToLogin:
-                return .none
-
-            case .router(.routeAction(id: _, action: .post(.routeToEditReviewScreen(let postId)))):
-                state.routes.push(.registerAndEdit(.init(postId: postId)))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .post(.routeToReportScreen(let postId)))):
-                state.routes.push(.report(ReportFeature.State(postId: postId)))
-                return .none
-            
-            // profile
-            case .router(.routeAction(id: _, action: .profile(.routeToUserReportScreen(let userId)))):
-                state.routes.push(.report(ReportFeature.State(targetUserId: userId)))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .profile(.routeToPostReportScreen(let postId)))):
-                state.routes.push(.report(ReportFeature.State(postId: postId)))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .profile(.routeToReviewDetail(let postId)))):
-                state.routes.push(.post(PostFeature.State(postId: postId)))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .profile(.routeToFollowScreen(let tab)))):
-                if case let .profile(otherProfileStore) = state.routes.last?.screen {
-                    let followState = FollowFeature.State(initialTab: tab, targetUserId: otherProfileStore.userId)
-                    state.routes.push(.follow(followState))
-                }
-                return .none
-                
-            // follow
-            case .router(.routeAction(id: _, action: .follow(.routeToUserProfileScreen(let user)))):
-                state.routes.push(.profile(OtherProfileFeature.State(userId: user)))
-                return .none
-            case .router(.routeAction(id: _, action: .follow(.routeToMyProfileScreen))):
-                state.routes.push(.myProfile(.init(isRootView: false)))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .settings(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .accountManagement(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .blockedUsers(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .editProfile(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .withdraw(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .attendance(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .post(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .report(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .profile(.routeToPreviousScreen))),
-                    .router(.routeAction(id: _, action: .follow(.routeToPreviousScreen))):
-                state.routes.goBack()
-                return .none
-                
-            //myPage
-            case .router(.routeAction(id: _, action: .myProfile(.routeToReviewDetail(let postId)))):
-                state.routes.push(.post(PostFeature.State(postId: postId)))
-                return .none
-            case .router(.routeAction(id: _, action: .myProfile(.routeToFollowScreen(let tab)))):
-                let followState = FollowFeature.State(initialTab: tab)
-                state.routes.push(.follow(.initialState))
-                return .none
-            case .router(.routeAction(id: _, action: .myProfile(.routeToRegister))):
-                state.routes.push(.registerAndEdit(.initialState))
-                return .none
-            case .router(.routeAction(id: _, action: .myProfile(.routeToSettingsScreen))):
-                state.routes.push(.settings(.initialState))
-                return .none
-            case .router(.routeAction(id: _, action: .myProfile(.routeToAttendanceScreen))):
-                state.routes.push(.attendance(.initialState))
-                return .none
-            case .router(.routeAction(id: _, action: .myProfile(.routeToEditProfileScreen))):
-                state.routes.push(.editProfile(.initialState))
-                return .none
-            case .router(.routeAction(id: _, action: .myProfile(.routeToEditReviewScreen(let postId)))):
-                state.routes.push(.registerAndEdit(.init(postId: postId)))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .myProfile(.routeToPreviousScreen))):
-                state.routes.goBack()
-                return .none
-                
-            // toast
-            case .updateToast(let toast):
-                state.toast = toast
-                return .none
-                
-            case .router(.routeAction(id: _, action: .registerAndEdit(.presentToast(message: let message)))),
-                    .router(.routeAction(id: _, action: .editProfile(.presentToast(message: let message)))),
-                    .router(.routeAction(id: _, action: .tab(.presentToast(message: let message)))):
-                state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH  )
-                return .none
-                
-            // popup
+                // popup
             case .popupAction(let type):
                 switch type {
                 case .useSpoon, .delete:
@@ -240,34 +338,13 @@ struct TabRootCoordinator {
                 case .registerSuccess:
                     state.routes.goBack()
                     return .concatenate(
-                                .send(.router(.routeAction(id: 0, action: .tab(.switchToExploreTab))))
-                            )
+                        .send(.router(.routeAction(id: 0, action: .tab(.changeSelectedTab(.explore)))))
+                    )
                 }
                 
             case .updatePopup(let popup):
                 state.popup = popup
                 return .none
-                
-            case .router(.routeAction(id: _, action: .registerAndEdit(.presentPopup))):
-                state.popup = .registerSuccess
-                return .none
-                
-//            case .router(.routeAction(id: _, action: .registerAndEdit(.presentPopup)))
-                
-                // 출석체크
-            case .router(.routeAction(id: _, action: .post(.routeToAttendanceView))):
-                state.routes.push(.attendance(.initialState))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .report(.routeToRoot))):
-                return .send(.routeToRoot)
-                
-            case .routeToRoot:
-                repeat {
-                    state.routes.goBack()
-                } while state.routes.count > 1
-                
-                return .concatenate(.send(.router(.routeAction(id: 0, action: .tab(.routeToRoot)))))
                 
             default: return .none
             }
