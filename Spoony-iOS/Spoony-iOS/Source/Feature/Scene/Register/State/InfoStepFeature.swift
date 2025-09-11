@@ -77,7 +77,7 @@ struct InfoStepFeature {
         // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
         case delegate(Delegate)
         enum Delegate: Equatable {
-            case presentToast(message: String)
+            case presentToast(ToastType)
         }
     }
     
@@ -95,7 +95,7 @@ struct InfoStepFeature {
                         
                         await send(.categoryResponse(categories))
                     } catch {
-                        await send(.delegate(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요.")))
+                        await send(.delegate(.presentToast(.serverError)))
                         await send(.updateIsLoadError(true))
                     }
                 }
@@ -135,13 +135,13 @@ struct InfoStepFeature {
                         
                         await send(.searchPlaceResponse(places))
                     } catch {
-                        await send(.delegate(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요.")))
+                        await send(.delegate(.presentToast(.serverError)))
                     }
                 }
             case .searchPlaceResponse(let places):
                 state.isDropDownPresented = !places.isEmpty
                 state.searchedPlaces = places
-                return places.isEmpty ? .send(.delegate(.presentToast(message: "검색 결과가 없습니다."))) : .none
+                return places.isEmpty ? .send(.delegate(.presentToast(.noSearchResult))) : .none
             case .didTapPlaceInfoCell(let place):
                 let request = ValidatePlaceRequest(
                     latitude: place.latitude,
@@ -154,7 +154,7 @@ struct InfoStepFeature {
                         
                         if isDuplicate {
                             await send(.updatePlace(nil))
-                            await send(.delegate(.presentToast(message: "앗! 이미 등록한 맛집이에요")))
+                            await send(.delegate(.presentToast(.alreadyRegistered)))
                         } else {
                             await send(.updatePlace(place))
                         }
@@ -185,7 +185,7 @@ struct InfoStepFeature {
                         
                         await send(.updatePlusButtonState)
                     } catch {
-                        await send(.delegate(.presentToast(message: "알 수 없는 오류 발생")))
+                        await send(.delegate(.presentToast(.unknownError)))
                     }
                 }
             case .didTapRecommendDeleteButton(let text):

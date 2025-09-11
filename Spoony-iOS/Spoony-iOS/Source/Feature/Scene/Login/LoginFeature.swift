@@ -50,7 +50,7 @@ struct LoginFeature {
         enum Delegate {
             case routeToTermsOfServiceScreen
             case routeToTabCoordinatorScreen
-            case presentToast(message: String)
+            case presentToast(ToastType)
         }
     }
         
@@ -123,7 +123,7 @@ struct LoginFeature {
                 print(error.localizedDescription)
                 #endif
                 
-                return .send(.delegate(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요.")))
+                return .send(.delegate(.presentToast(.serverError)))
                 
             case .delegate:
                 return .none

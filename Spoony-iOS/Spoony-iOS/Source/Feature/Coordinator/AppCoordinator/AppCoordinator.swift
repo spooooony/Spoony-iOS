@@ -43,8 +43,8 @@ struct AppCoordinator {
                 switch childDelegateAction {
                 case .auth(.delegate(let routeAction)):
                     switch routeAction {
-                    case .presentToast(message: let message):
-                        state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH)
+                    case .presentToast(let type):
+                        state.toast = .init(message: type.message)
                         return .none
                         
                     case .routeToTabCoordinatorScreen:
@@ -58,8 +58,8 @@ struct AppCoordinator {
                     
                 case .onboarding(.delegate(let routeAction)):
                     switch routeAction {
-                    case .presentToast(message: let message):
-                        state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH)
+                    case .presentToast(let type):
+                        state.toast = .init(message: type.message)
                         return .none
                         
                     case .routeToTabCoordinatorScreen:

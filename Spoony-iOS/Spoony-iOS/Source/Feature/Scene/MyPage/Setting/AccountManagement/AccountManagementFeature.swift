@@ -34,7 +34,7 @@ struct AccountManagementFeature {
         var currentLoginType: LoginType
         var isAlertPresented: Bool = false
         var isLoggingOut: Bool = false
-        var logoutErrorMessage: String? = nil
+        var logoutErrorMessage: String?
     }
     
     enum Action: BindableAction {
@@ -58,6 +58,10 @@ struct AccountManagementFeature {
         }
     }
     
+    enum CancleID {
+        case route
+    }
+    
     @Dependency(\.authService) var authService: AuthProtocol
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
     
@@ -75,6 +79,7 @@ struct AccountManagementFeature {
                         TaskResult { try await myPageService.getUserInfo() }
                     ))
                 }
+                .cancellable(id: CancleID.route, cancelInFlight: true)
                 
             case let .userInfoResponse(.success(response)):
                 state.currentLoginType = LoginType.from(platform: response.platform)
@@ -129,7 +134,10 @@ struct AccountManagementFeature {
                     UserManager.shared.exploreUserRecentSearches = nil
                     UserManager.shared.exploreReviewRecentSearches = nil
                     
-                    return .send(.delegate(.routeToLoginScreen))
+                    return .concatenate(
+                        .cancel(id: CancleID.route),
+                        .send(.delegate(.routeToLoginScreen))
+                    )
                 } else {
                     state.logoutErrorMessage = "로그아웃에 실패했습니다."
                 }
@@ -145,5 +153,6 @@ struct AccountManagementFeature {
                 return .none
             }
         }
+        ._printChanges()
     }
 }

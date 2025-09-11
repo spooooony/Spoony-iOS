@@ -44,7 +44,7 @@ struct MyPageCoordinator {
             case routeToReviewDetail(Int)
             case routeToFollowScreen(tab: Int)
             case presentPopup(PopupType)
-            case presentToast(String)
+            case presentToast(ToastType)
         }
     }
     
@@ -91,6 +91,9 @@ struct MyPageCoordinator {
                         
                     case .routeToUserReportScreen(let userId):
                         return .send(.delegate(.routeToUserReportScreen(userId)))
+                        
+                    case .presentToast(let type):
+                        return .send(.delegate(.presentToast(type)))
                     }
                     
                 // MARK: - Profile Screen
@@ -130,8 +133,8 @@ struct MyPageCoordinator {
                     case .presentPopup(let type):
                         return .send(.delegate(.presentPopup(type)))
                         
-                    case .presentToast(let message):
-                        return .send(.delegate(.presentToast(message)))
+                    case .presentToast(let type):
+                        return .send(.delegate(.presentToast(type)))
                         
                     case .routeToPostScreen(let postId):
                         return .send(.delegate(.routeToPostScreen(postId)))

@@ -38,7 +38,6 @@ struct PostFeature {
         var zzimCount: Int = 0
         var isLoading: Bool = false
         var successService: Bool = true
-        var toast: Toast?
         var showAttendanceView: Bool = false
         
         var userId: Int = 0
@@ -88,11 +87,6 @@ struct PostFeature {
         
         case editButtonTapped
         
-        case showToast(String)
-        case dismissToast
-        
-        case error(PostError)
-        
         case mixpanelEvent
         
         case showUseSpoonPopup
@@ -120,6 +114,7 @@ struct PostFeature {
             case routeToUserProfileScreen(Int)
             case routeToMyProfileScreen
             case routeToAttendanceView
+            case presentToast(ToastType)
         }
     }
     
@@ -151,7 +146,7 @@ struct PostFeature {
                     updateState(&state, with: data)
                 case .failure(let error):
                     state.successService = false
-                    return .send(.showToast("\(error.description)"))
+                    return .send(.delegate(.presentToast(.serverError)))
                 }
                 return .none
                 
@@ -166,7 +161,7 @@ struct PostFeature {
                         let data = try await postUseCase.scoopPost(postId: postId)
                         await send(.scoopButtonTappedResponse(isSuccess: data))
                     } catch {
-                        await send(.error(.spoonError))
+                        await send(.delegate(.presentToast(.spoonError)))
                     }
                 }
                 
@@ -181,7 +176,7 @@ struct PostFeature {
                             await send(.zzimButtonResponse(isScrap: true))
                         }
                     } catch {
-                        await send(.error(.zzimError))
+                        await send(.delegate(.presentToast(.zzimError)))
                     }
                 }
                 
@@ -194,7 +189,7 @@ struct PostFeature {
                         event: ReviewEvents.Name.placeMapSaved,
                         properties: property.dictionary
                     )
-                    return .send(.showToast("내 지도에 저장되었어요."))
+                    return .send(.delegate(.presentToast(.savedToMap)))
                 } else {
                     state.zzimCount -= 1
                     state.isZzim.toggle()
@@ -203,7 +198,7 @@ struct PostFeature {
                         event: ReviewEvents.Name.placeMapRemoved,
                         properties: property.dictionary
                     )
-                    return .send(.showToast("내 지도에서 삭제되었어요."))
+                    return .send(.delegate(.presentToast(.deletedFromMap)))
                 }
                 
             case .followButtonTapped(let userId, let isFollowing):
@@ -257,30 +252,14 @@ struct PostFeature {
                 if isSuccess {
                     state.isScoop = true
                     state.spoonCount = max(0, state.spoonCount - 1)
-                    //                    return .send(.showToast("떠먹기에 성공했어요!"))
                     return .none
                 } else {
-                    return .send(.showToast("남은 스푼이 없어요 ㅠ.ㅠ"))
+                    return .send(.delegate(.presentToast(.noSpoon)))
                 }
-                
-            case .showToast(let message):
-                state.toast = Toast(
-                    style: .gray,
-                    message: message,
-                    yOffset: 539.adjustedH
-                )
-                
-                return .none
-                
+
             case .editButtonTapped:
                 return .send(.delegate(.routeToEditReviewScreen(state.postId)))
-                
-            case .dismissToast:
-                state.toast = nil
-                return .none
-            case .error(let error):
-                return .send(.showToast(error.description))
-                
+        
             case .mixpanelEvent:
                 let property = makeReviewProperty(&state)
                 
@@ -295,7 +274,7 @@ struct PostFeature {
                 if state.spoonCount <= 0 {
                     Mixpanel.mainInstance().track(event: ReviewEvents.Name.spoonUseFailed)
                     
-                    return .send(.showToast("남은 스푼이 없어요 ㅠ.ㅠ"))
+                    return .send(.delegate(.presentToast(.noSpoon)))
                 }
                 let property = makeReviewProperty(&state)
                 
@@ -321,7 +300,7 @@ struct PostFeature {
                         let isSuccess = try await postUseCase.scoopPost(postId: postId)
                         await send(.scoopButtonTappedResponse(isSuccess: isSuccess))
                     } catch {
-                        await send(.error(.spoonError))
+                        await send(.delegate(.presentToast(.spoonError)))
                     }
                 }
                 
@@ -338,10 +317,10 @@ struct PostFeature {
                 return .run { [postId = state.postId] send in
                     do {
                         try await postUseCase.deletePost(postId: postId)
-                        await send(.showToast("삭제가 완료되었어요."))
+                        await send(.delegate(.presentToast(.reviewDeleteSuccess)))
                         await send(.delegate(.routeToPreviousScreen))
                     } catch {
-                        await send(.showToast("삭제에 실패했어요. 다시 시도해주세요."))
+                        await send(.delegate(.presentToast(.reviewDeleteFail)))
                     }
                 }
                 

@@ -63,7 +63,7 @@ struct EditProfileFeature {
         case delegate(Delegate)
         enum Delegate: Equatable {
             case routeToPreviousScreen
-            case presentToast(message: String)
+            case presentToast(ToastType)
         }
     }
     
@@ -114,7 +114,7 @@ struct EditProfileFeature {
                         await send(.profileInfoResponse(info))
                     } catch {
                         await send(.updateLoadError)
-                        await send(.delegate(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요.")))
+                        await send(.delegate(.presentToast(.serverError)))
                     }
                 }
                 .cancellable(id: CancelID.profileLoad, cancelInFlight: true)
@@ -172,7 +172,7 @@ struct EditProfileFeature {
                         await send(.sendMixpanelEvent)
                         await send(.delegate(.routeToPreviousScreen))
                     } else {
-                        await send(.delegate(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요.")))
+                        await send(.delegate(.presentToast(.serverError)))
                         await send(.delegate(.routeToPreviousScreen))
                     }
                 }

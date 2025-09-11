@@ -45,7 +45,7 @@ struct ExploreCoordinator {
             case routeToSettingsScreen
             case routeToAttendanceScreen
             case routeToEditProfileScreen
-            case presentToast(message: String)
+            case presentToast(ToastType)
         }
     }
     
@@ -69,8 +69,8 @@ struct ExploreCoordinator {
                     case .routeToEditReviewScreen(let postId):
                         return .send(.delegate(.routeToEditReviewScreen(postId)))
                         
-                    case .presentToast(message: let message):
-                        return .send(.delegate(.presentToast(message: message)))
+                    case .presentToast(let type):
+                        return .send(.delegate(.presentToast(type)))
                         
                     case .changeSelectedTab(let tab):
                         return .send(.delegate(.changeSelectedTab(tab)))
@@ -152,6 +152,9 @@ struct ExploreCoordinator {
                     case .routeToPreviousScreen:
                         state.routes.goBack()
                         return .none
+                        
+                    case .presentToast(let type):
+                        return .send(.delegate(.presentToast(type)))
                     }
                     
                 // MARK: - Search Screen RouteAction
@@ -178,8 +181,8 @@ struct ExploreCoordinator {
                         state.routes.goBack()
                         return .none
                         
-                    case .presentToast(let message):
-                        return .send(.delegate(.presentToast(message: message)))
+                    case .presentToast(let type):
+                        return .send(.delegate(.presentToast(type)))
                     }
                     
                 default:

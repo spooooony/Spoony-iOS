@@ -34,8 +34,6 @@ struct OtherProfileFeature {
         var isMenuPresented: Bool = false
         var showUnblockAlert: Bool = false
         
-        var toast: Toast?
-        
         var isAlertPresented: Bool = false
         var alertType: AlertType = .normalButtonTwo
         var alert: Alert = .init(
@@ -87,7 +85,6 @@ struct OtherProfileFeature {
         case blockActionResponse(TaskResult<Void>)
         case unblockActionResponse(TaskResult<Void>)
                 
-        case hideToast
         case presentAlert(AlertType, Alert)
         case selectReviewFilter(ReviewFilterType)
         
@@ -102,6 +99,7 @@ struct OtherProfileFeature {
             case routeToFollowScreen(tab: Int)
             case routeToPostReportScreen(Int)
             case routeToUserReportScreen(Int)
+            case presentToast(ToastType)
         }
     }
     
@@ -328,33 +326,22 @@ struct OtherProfileFeature {
                 state.isBlocked = true
                 state.isFollowing = false
                 state.reviews = []
-                state.toast = Toast(
-                    style: .gray,
-                    message: "해당 유저가 차단되었어요.",
-                    yOffset: UIScreen.main.bounds.height - 200.adjustedH
-                )
-
-                return .run { send in
-                    try await Task.sleep(nanoseconds: 2_000_000_000)
-                    await send(.hideToast)
-                }
-                
+                return .send(.delegate(.presentToast(.blockUser)))
+           
             case let .blockActionResponse(.failure(error)):
                 print("Block action failed: \(error.localizedDescription)")
                 return .none
                 
             case .unblockActionResponse(.success):
                 state.isBlocked = false
-                return .send(.fetchUserReviews)
-                
+                return .merge(
+                    .send(.delegate(.presentToast(.unBlockUser))),
+                    .send(.fetchUserReviews)
+                )
             case let .unblockActionResponse(.failure(error)):
                 print("Unblock action failed: \(error.localizedDescription)")
                 return .none
-                
-            case .hideToast:
-                state.toast = nil
-                return .none
-                
+
             case let .presentAlert(type, alert):
                 state.alertType = type
                 state.alert = alert

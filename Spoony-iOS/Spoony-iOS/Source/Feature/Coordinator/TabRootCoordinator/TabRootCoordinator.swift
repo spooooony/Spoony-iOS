@@ -115,8 +115,8 @@ struct TabRootCoordinator {
                         }
                         return .none
                         
-                    case .presentToast(message: let message):
-                        state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH)
+                    case .presentToast(let type):
+                        state.toast = .init(message: type.message)
                         return .none
                         
                     case .presentPopup(let type):
@@ -129,8 +129,8 @@ struct TabRootCoordinator {
                     case .presentPopup(let type):
                         state.popup = type
                         return .none
-                    case .presentToast(message: let message):
-                        state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH)
+                    case .presentToast(let type):
+                        state.toast = .init(message: type.message)
                         return .none
                         
                     case .routeToPostScreen(let postId):
@@ -163,8 +163,8 @@ struct TabRootCoordinator {
                         state.routes.goBack()
                         return .none
                         
-                    case .presentToast(message: let message):
-                        state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH)
+                    case .presentToast(let type):
+                        state.toast = .init(message: type.message)
                         return .none
                     }
                     
@@ -231,6 +231,10 @@ struct TabRootCoordinator {
                     case .routeToAttendanceView:
                         state.routes.push(.attendance(.initialState))
                         return .none
+                        
+                    case .presentToast(let type):
+                        state.toast = .init(message: type.message)
+                        return .none
                     }
                     
                 case .report(.delegate(let routeAction)):
@@ -242,8 +246,8 @@ struct TabRootCoordinator {
                         state.routes.goBackToRoot()
                         return .none
                         
-                    case .presentToast(message: let message):
-                        state.toast = .init(style: .gray, message: message, yOffset: 665.adjustedH)
+                    case .presentToast(let type):
+                        state.toast = .init(message: type.message)
                         return .none
                     }
                     
@@ -270,6 +274,9 @@ struct TabRootCoordinator {
                         
                     case .routeToUserReportScreen(let userId):
                         state.routes.push(.report(.init(targetUserId: userId)))
+                        return .none
+                    case .presentToast(let type):
+                        state.toast = .init(message: type.message)
                         return .none
                     }
                     

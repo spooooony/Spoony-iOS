@@ -49,7 +49,7 @@ struct TabCoordinator {
             case routeToPostReportScreen(Int)
             case routeToUserReportScreen(Int)
             case routeToFollowScreen(Int)
-            case presentToast(message: String)
+            case presentToast(ToastType)
             case presentPopup(PopupType)
         }
     }
@@ -141,8 +141,8 @@ struct TabCoordinator {
                     case .routeToEditProfileScreen:
                         return .send(.delegate(.routeToEditProfileScreen))
                         
-                    case .presentToast(message: let message):
-                        return .send(.delegate(.presentToast(message: message)))
+                    case .presentToast(let type):
+                        return .send(.delegate(.presentToast(type)))
                     }
                     
                 default:
@@ -189,8 +189,8 @@ struct TabCoordinator {
                     case .presentPopup(let type):
                         return .send(.delegate(.presentPopup(type)))
                         
-                    case .presentToast(let message):
-                        return .send(.delegate(.presentToast(message: message)))
+                    case .presentToast(let type):
+                        return .send(.delegate(.presentToast(type)))
                     }
                     
                 default:

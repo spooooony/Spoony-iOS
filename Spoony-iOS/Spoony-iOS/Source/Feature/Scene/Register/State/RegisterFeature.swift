@@ -57,7 +57,7 @@ struct RegisterFeature {
         case delegate(Delegate)
         enum Delegate: Equatable {
             case presentPopup(PopupType)
-            case presentToast(message: String)
+            case presentToast(ToastType)
             case routeToPostScreen(Int)
             case routeToPreviousScreen
         }
@@ -91,7 +91,7 @@ struct RegisterFeature {
                         } catch {
                             await send(.infoStepAction(.updateIsLoadError(true)))
                             await send(.updateIsLoading(false))
-                            await send(.delegate(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요.")))
+                            await send(.delegate(.presentToast(.serverError)))
                         }
                     }
                 }
@@ -136,8 +136,8 @@ struct RegisterFeature {
                     state.currentStep = .end
                     return .none
                     
-                case .delegate(.presentToast(let message)):
-                    return .send(.delegate(.presentToast(message: message)))
+                case .delegate(.presentToast(let type)):
+                    return .send(.delegate(.presentToast(type)))
                     
                 default:
                     return .none
@@ -193,14 +193,14 @@ struct RegisterFeature {
                         imagesData: images
                     ) else {
                         await send(.updateIsPosting(false))
-                        await send(.delegate(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요.")))
+                        await send(.delegate(.presentToast(.serverError)))
                         return
                     }
                     
                     if success {
                         await send(.registrationSuccessful)
                     } else {
-                        await send(.delegate(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요.")))
+                        await send(.delegate(.presentToast(.serverError)))
                     }
                 }
             case let .editPostRequest(selectedCategory):
@@ -225,7 +225,7 @@ struct RegisterFeature {
                         imagesData: images
                     ) else {
                         await send(.updateIsPosting(false))
-                        await send(.delegate(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요.")))
+                        await send(.delegate(.presentToast(.serverError)))
                         return
                     }
                     
@@ -233,7 +233,7 @@ struct RegisterFeature {
                         await send(.registrationSuccessful)
                     } else {
                         await send(.updateIsPosting(false))
-                        await send(.delegate(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요.")))
+                        await send(.delegate(.presentToast(.serverError)))
                     }
                 }
             case .registrationSuccessful:

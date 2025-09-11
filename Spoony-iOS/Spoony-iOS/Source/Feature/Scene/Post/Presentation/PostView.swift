@@ -60,14 +60,6 @@ struct PostView: View {
                     dropDownView
                 })
                 .scrollIndicators(.hidden)
-                .toastView(toast: Binding(
-                    get: { store.toast },
-                    set: { newValue in
-                        if newValue == nil {
-                            store.send(.dismissToast)
-                        }
-                    }
-                ))
                 .onAppear {
                     store.send(.viewAppear(postId: postId))
                 }
