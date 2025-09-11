@@ -9,11 +9,11 @@ import Foundation
 import SwiftUI
 
 public struct Toast: Equatable {
-    var style: ToastStyle
+    var style: ToastStyle = .gray
     var message: String
     var duration: Double = 2.5
     var width: Double = .infinity
-    var yOffset: CGFloat = 638
+    var yOffset: CGFloat = 665.adjustedH
 }
 
 public enum ToastStyle {
