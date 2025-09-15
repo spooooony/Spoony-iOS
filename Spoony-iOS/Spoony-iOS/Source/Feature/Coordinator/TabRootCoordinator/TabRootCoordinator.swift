@@ -278,6 +278,9 @@ struct TabRootCoordinator {
                     case .presentToast(let type):
                         state.toast = .init(message: type.message)
                         return .none
+                    case .routeToRoot:
+                        state.routes.goBackToRoot()
+                        return .none
                     }
                     
                 case .follow(.delegate(let routeAction)):
@@ -348,6 +351,10 @@ struct TabRootCoordinator {
                         .send(.router(.routeAction(id: 0, action: .tab(.changeSelectedTab(.explore)))))
                     )
                 }
+                
+            case .updateToast(let toast):
+                state.toast = toast
+                return .none
                 
             case .updatePopup(let popup):
                 state.popup = popup

@@ -155,6 +155,9 @@ struct ExploreCoordinator {
                         
                     case .presentToast(let type):
                         return .send(.delegate(.presentToast(type)))
+                    case .routeToRoot:
+                        state.routes.goBackToRoot()
+                        return .none
                     }
                     
                 // MARK: - Search Screen RouteAction

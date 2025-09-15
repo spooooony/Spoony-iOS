@@ -58,7 +58,7 @@ private extension OtherProfileView {
         CustomNavigationBar(
             style: store.isBlocked ? .detail : .detailWithKebab,
             title: "",
-            onBackTapped: { store.send(.delegate(.routeToPreviousScreen)) },
+            onBackTapped: { store.send(.backButtonTapped) },
             onKebabTapped: store.isBlocked ? nil : { store.send(.kebabMenuTapped) }
         )
         .padding(.bottom, 3)

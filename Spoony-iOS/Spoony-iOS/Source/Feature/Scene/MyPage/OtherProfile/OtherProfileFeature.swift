@@ -73,6 +73,7 @@ struct OtherProfileFeature {
         case followButtonTapped
         case followActionResponse(TaskResult<Void>)
         
+        case backButtonTapped
         case kebabMenuTapped
         case menuItemSelected(String)
         case dismissMenu
@@ -95,6 +96,7 @@ struct OtherProfileFeature {
         case delegate(Delegate)
         enum Delegate {
             case routeToReviewDetail(Int)
+            case routeToRoot
             case routeToPreviousScreen
             case routeToFollowScreen(tab: Int)
             case routeToPostReportScreen(Int)
@@ -347,6 +349,13 @@ struct OtherProfileFeature {
                 state.alert = alert
                 state.isAlertPresented = true
                 return .none
+                
+            case .backButtonTapped:
+                if state.isBlocked {
+                    return .send(.delegate(.routeToRoot))
+                } else {
+                    return .send(.delegate(.routeToPreviousScreen))
+                }
                 
             case .binding:
                 return .none
