@@ -64,7 +64,7 @@ struct ProfileView: View {
             if !store.isRootView {
                 Image(.icArrowLeftGray700)
                     .onTapGesture {
-                        store.send(.routeToPreviousScreen)
+                        store.send(.delegate(.routeToPreviousScreen))
                     }
                     .padding(.leading, 16)
             }
@@ -73,10 +73,10 @@ struct ProfileView: View {
                 style: .settingContent,
                 spoonCount: store.spoonCount,
                 spoonTapped: {
-                    store.send(.routeToAttendanceScreen)
+                    store.send(.delegate(.routeToAttendanceScreen))
                 },
                 tappedAction: {
-                    store.send(.routeToSettingsScreen)
+                    store.send(.delegate(.routeToSettingsScreen))
                 }
             )
             .padding(.leading, -6)
@@ -266,7 +266,7 @@ struct ProfileHeaderView: View {
     
     private var editProfileButton: some View {
         Button(action: {
-            store.send(.routeToEditProfileScreen)
+            store.send(.delegate(.routeToEditProfileScreen))
         }) {
             Text("프로필 수정")
                 .customFont(.body2sb)
@@ -358,12 +358,12 @@ struct ProfileReviewsView: View {
                         store.send(.deleteReview(postId))
                     },
                     onEdit: { feed in
-                        store.send(.routeToEditReviewScreen(feed.postId))
+                        store.send(.delegate(.routeToEditReviewScreen(feed.postId)))
                     }
                 )
                 .padding(.horizontal, 20)
                 .onTapGesture {
-                    store.send(.routeToReviewDetail(review.postId))
+                    store.send(.delegate(.routeToReviewDetail(review.postId)))
                 }
             }
         }
@@ -391,7 +391,7 @@ struct ProfileReviewsView: View {
                 isIcon: false,
                 disabled: .constant(false)
             ) {
-                store.send(.routeToRegister)
+                store.send(.delegate(.routeToRegister))
             }
             .padding(.horizontal, 20)
         }

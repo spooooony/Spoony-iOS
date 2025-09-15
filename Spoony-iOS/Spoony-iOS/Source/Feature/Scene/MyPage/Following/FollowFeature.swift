@@ -23,7 +23,7 @@ struct FollowFeature {
         var followingCount: Int = 0
         var isLoading: Bool = false
         var initialTab: Int = 0
-        var targetUserId: Int? = nil
+        var targetUserId: Int?
         var currentTab: Int = 0
         
         static let initialState = State()
@@ -43,9 +43,14 @@ struct FollowFeature {
         case followingsResponse(Result<FollowListDTO, Error>)
         case followButtonTapped(userId: Int, isFollowing: Bool)
         case followActionResponse(Result<Void, Error>)
-        case routeToPreviousScreen
-        case routeToUserProfileScreen(userId: Int)
-        case routeToMyProfileScreen
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToPreviousScreen
+            case routeToUserProfileScreen(userId: Int)
+            case routeToMyProfileScreen
+        }
     }
     
     // MARK: - Dependencies
@@ -168,11 +173,8 @@ struct FollowFeature {
                     print("❌ 팔로우 로직 실패 : \(error.localizedDescription)")
                     return .none
                 }
-            case .routeToUserProfileScreen:
-                return .none
-            case .routeToPreviousScreen:
-                return .none
-            case .routeToMyProfileScreen:
+                
+            case .delegate:
                 return .none
             }
         }

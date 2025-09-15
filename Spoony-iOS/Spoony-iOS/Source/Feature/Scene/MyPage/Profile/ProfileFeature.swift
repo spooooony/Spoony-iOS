@@ -26,18 +26,18 @@ struct ProfileFeature {
         var followingCount: Int = 0
         var followerCount: Int = 0
         var isLoading: Bool = false
-        var errorMessage: String? = nil
+        var errorMessage: String?
         
-        var reviews: [FeedEntity]? = nil
+        var reviews: [FeedEntity]?
         var isLoadingReviews: Bool = false
-        var reviewsErrorMessage: String? = nil
+        var reviewsErrorMessage: String?
         
         var showDeleteAlert: Bool = false
         var showDeleteConfirm: Bool = false
-        var reviewToDeleteId: Int? = nil
+        var reviewToDeleteId: Int?
         
         var isLoadingSpoonCount: Bool = false
-        var spoonCountErrorMessage: String? = nil
+        var spoonCountErrorMessage: String?
         
         var isRootView: Bool = true
     }
@@ -49,24 +49,30 @@ struct ProfileFeature {
         case userReviewsResponse(TaskResult<[FeedEntity]>)
         case fetchSpoonCount
         case spoonCountResponse(TaskResult<Int>)
-        case routeToFollowingScreen
-        case routeToFollowerScreen
-        case routeToFollowScreen(tab: Int)
-        case routeToSettingsScreen
-        case routeToAttendanceScreen
-        case routeToEditProfileScreen
-        case routeToEditReviewScreen(Int)
-        case routeToRegister
-        case routeToPreviousScreen
-        
+                
         case deleteReview(Int)
         case confirmDeleteReview
         case cancelDeleteReview
         case reviewDeleted(TaskResult<Bool>)
-        case routeToReviewDetail(Int)
-        
+                
         case retryFetchUserInfo
         case clearError
+        
+        case routeToFollowingScreen
+        case routeToFollowerScreen
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToFollowScreen(tab: Int)
+            case routeToSettingsScreen
+            case routeToAttendanceScreen
+            case routeToEditProfileScreen
+            case routeToEditReviewScreen(Int)
+            case routeToRegister
+            case routeToPreviousScreen
+            case routeToReviewDetail(Int)
+        }
     }
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
@@ -243,12 +249,12 @@ struct ProfileFeature {
                 return .none
 
             case .routeToFollowingScreen:
-                return .send(.routeToFollowScreen(tab: 1))
+                return .send(.delegate(.routeToFollowScreen(tab: 1)))
                 
             case .routeToFollowerScreen:
-                return .send(.routeToFollowScreen(tab: 0))
+                return .send(.delegate(.routeToFollowScreen(tab: 0)))
                 
-            case .routeToFollowScreen, .routeToEditProfileScreen, .routeToSettingsScreen, .routeToAttendanceScreen, .routeToEditReviewScreen, .routeToRegister, .routeToReviewDetail, .routeToPreviousScreen:
+            case .delegate:
                 return .none
             }
         }

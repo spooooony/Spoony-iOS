@@ -45,10 +45,13 @@ struct LoginFeature {
 
         case error(Error)
         
-        // MARK: Navigation Action
-        case routToTermsOfServiceScreen
-        case routToTabCoordinatorScreen
-        case presentToast(message: String)
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToTermsOfServiceScreen
+            case routeToTabCoordinatorScreen
+            case presentToast(ToastType)
+        }
     }
         
     private let authenticationManager = AuthenticationManager.shared
@@ -59,7 +62,7 @@ struct LoginFeature {
         Reduce { state, action in
             switch action {
             case .tempHomeButtonTapped:
-                return .send(.routToTabCoordinatorScreen)
+                return .send(.delegate(.routeToTabCoordinatorScreen))
             case .onAppear:
                 if authenticationManager.checkAutoLogin() {
                     Mixpanel.mainInstance().track(
@@ -70,7 +73,7 @@ struct LoginFeature {
                         Mixpanel.mainInstance().identify(distinctId: "\(userId)")
                     }
                     
-                    return .send(.routToTabCoordinatorScreen)
+                    return .send(.delegate(.routeToTabCoordinatorScreen))
                 } else {
                     return .none
                 }
@@ -102,32 +105,27 @@ struct LoginFeature {
                             Mixpanel.mainInstance().track(
                                 event: ConversionAnalysisEvents.Name.loginsuccess
                             )
-                            await send(.routToTabCoordinatorScreen)
+                            await send(.delegate(.routeToTabCoordinatorScreen))
                         } else {
                             Mixpanel.mainInstance().track(
                                 event: ConversionAnalysisEvents.Name.signupCompleted,
                                 properties: ConversionAnalysisEvents.SignupProperty(method: type).dictionary
                             )
-                            await send(.routToTermsOfServiceScreen)
+                            await send(.delegate(.routeToTermsOfServiceScreen))
                         }
                     } catch {
                         await send(.error(LoginError.serverLoginError))
                     }
                 }
+                
             case .error(let error):
                 #if DEBUG
                 print(error.localizedDescription)
                 #endif
                 
-                return .send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
+                return .send(.delegate(.presentToast(.serverError)))
                 
-            // 회원 가입 Flow
-            case .routToTermsOfServiceScreen:
-                return .none
-            // 로그인 성공
-            case .routToTabCoordinatorScreen:
-                return .none
-            case .presentToast:
+            case .delegate:
                 return .none
             }
         }

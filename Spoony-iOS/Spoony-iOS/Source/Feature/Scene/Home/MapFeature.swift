@@ -20,13 +20,13 @@ struct MapFeature {
         var pickList: [PickListCardResponse] = []
         var filteredPickList: [PickListCardResponse] = []
         var focusedPlaces: [CardPlace] = []
-        var selectedPlace: CardPlace? = nil
+        var selectedPlace: CardPlace?
         
         var currentPage: Int = 0
         var isLoading: Bool = false
         var isLocationFocused: Bool = false
-        var userLocation: CLLocation? = nil
-        var selectedLocation: (latitude: Double, longitude: Double)? = nil
+        var userLocation: CLLocation?
+        var selectedLocation: (latitude: Double, longitude: Double)?
         var hasInitialLocationFocus: Bool = false
         
         var categories: [CategoryChip] = []
@@ -42,12 +42,12 @@ struct MapFeature {
         
         var showDailySpoonPopup: Bool = false
         var isDrawingSpoon: Bool = false
-        var drawnSpoon: SpoonDrawResponse? = nil
-        var spoonDrawError: String? = nil
+        var drawnSpoon: SpoonDrawResponse?
+        var spoonDrawError: String?
         
         var isAuthenticationChecked: Bool = false
         var showLocationPermissionAlert: Bool = false
-        var locationErrorMessage: String? = nil
+        var locationErrorMessage: String?
         
         static func == (lhs: State, rhs: State) -> Bool {
             lhs.pickList == rhs.pickList &&
@@ -81,10 +81,6 @@ struct MapFeature {
     
     enum Action: BindableAction {
         case binding(BindingAction<State>)
-        
-        case routToSearchScreen
-        case routeToExploreTab
-        case routeToPostView(postId: Int)
         
         case fetchPickList
         case pickListResponse(TaskResult<ResturantpickListResponse>)
@@ -124,6 +120,14 @@ struct MapFeature {
         case locationError(Error)
         case setShowLocationPermissionAlert(Bool)
         case openSettings
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToSearchScreen
+            case routeToPostView(postId: Int)
+            case changeSelectedTab(TabType)
+        }
     }
     
     @Dependency(\.homeService) var homeService
@@ -153,9 +157,6 @@ struct MapFeature {
                 } else {
                     return .none
                 }
-                
-            case .routeToExploreTab:
-                return .none
                 
             case .fetchUserInfo:
                 return .run { send in
@@ -230,12 +231,6 @@ struct MapFeature {
             case let .spoonDrawResponse(.failure(error)):
                 state.isDrawingSpoon = false
                 state.spoonDrawError = error.localizedDescription
-                return .none
-                
-            case .routToSearchScreen:
-                return .none
-                
-            case let .routeToPostView(postId):
                 return .none
                 
             case .fetchPickList:
@@ -488,6 +483,8 @@ struct MapFeature {
                         await UIApplication.shared.open(settingsUrl)
                     }
                 }
+            case .delegate:
+                return .none
             }
         }
     }

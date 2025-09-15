@@ -38,7 +38,6 @@ struct PostFeature {
         var zzimCount: Int = 0
         var isLoading: Bool = false
         var successService: Bool = true
-        var toast: Toast?
         var showAttendanceView: Bool = false
         
         var userId: Int = 0
@@ -69,8 +68,8 @@ struct PostFeature {
         
         var showDailySpoonPopup: Bool = false
         var isDrawingSpoon: Bool = false
-        var drawnSpoon: SpoonDrawResponse? = nil
-        var spoonDrawError: String? = nil
+        var drawnSpoon: SpoonDrawResponse?
+        var spoonDrawError: String?
     }
     
     enum Action {
@@ -88,18 +87,7 @@ struct PostFeature {
         
         case editButtonTapped
         
-        case showToast(String)
-        case dismissToast
-        
-        case error(PostError)
-        
         case mixpanelEvent
-        
-        case routeToPreviousScreen
-        case routeToReportScreen(Int)
-        case routeToEditReviewScreen(Int)
-        case routeToUserProfileScreen(Int)
-        case routeToMyProfileScreen
         
         case showUseSpoonPopup
         case confirmUseSpoonPopup
@@ -110,13 +98,24 @@ struct PostFeature {
         case dismissDeletePopup
         
         case spoonTapped
-        case routeToAttendanceView
         
         case setShowDailySpoonPopup(Bool)
         case drawDailySpoon
         case spoonDrawResponse(TaskResult<SpoonDrawResponse>)
         case fetchSpoonCount
         case spoonCountResponse(TaskResult<Int>)
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToPreviousScreen
+            case routeToReportScreen(Int)
+            case routeToEditReviewScreen(Int)
+            case routeToUserProfileScreen(Int)
+            case routeToMyProfileScreen
+            case routeToAttendanceView
+            case presentToast(ToastType)
+        }
     }
     
     @Dependency(\.postUseCase) var postUseCase: PostUseCase
@@ -147,7 +146,7 @@ struct PostFeature {
                     updateState(&state, with: data)
                 case .failure(let error):
                     state.successService = false
-                    return .send(.showToast("\(error.description)"))
+                    return .send(.delegate(.presentToast(.serverError)))
                 }
                 return .none
                 
@@ -162,7 +161,7 @@ struct PostFeature {
                         let data = try await postUseCase.scoopPost(postId: postId)
                         await send(.scoopButtonTappedResponse(isSuccess: data))
                     } catch {
-                        await send(.error(.spoonError))
+                        await send(.delegate(.presentToast(.spoonError)))
                     }
                 }
                 
@@ -177,7 +176,7 @@ struct PostFeature {
                             await send(.zzimButtonResponse(isScrap: true))
                         }
                     } catch {
-                        await send(.error(.zzimError))
+                        await send(.delegate(.presentToast(.zzimError)))
                     }
                 }
                 
@@ -190,7 +189,7 @@ struct PostFeature {
                         event: ReviewEvents.Name.placeMapSaved,
                         properties: property.dictionary
                     )
-                    return .send(.showToast("내 지도에 저장되었어요."))
+                    return .send(.delegate(.presentToast(.savedToMap)))
                 } else {
                     state.zzimCount -= 1
                     state.isZzim.toggle()
@@ -199,7 +198,7 @@ struct PostFeature {
                         event: ReviewEvents.Name.placeMapRemoved,
                         properties: property.dictionary
                     )
-                    return .send(.showToast("내 지도에서 삭제되었어요."))
+                    return .send(.delegate(.presentToast(.deletedFromMap)))
                 }
                 
             case .followButtonTapped(let userId, let isFollowing):
@@ -253,30 +252,14 @@ struct PostFeature {
                 if isSuccess {
                     state.isScoop = true
                     state.spoonCount = max(0, state.spoonCount - 1)
-                    //                    return .send(.showToast("떠먹기에 성공했어요!"))
                     return .none
                 } else {
-                    return .send(.showToast("남은 스푼이 없어요 ㅠ.ㅠ"))
+                    return .send(.delegate(.presentToast(.noSpoon)))
                 }
-                
-            case .showToast(let message):
-                state.toast = Toast(
-                    style: .gray,
-                    message: message,
-                    yOffset: 539.adjustedH
-                )
-                
-                return .none
-                
+
             case .editButtonTapped:
-                return .send(.routeToEditReviewScreen(state.postId))
-                
-            case .dismissToast:
-                state.toast = nil
-                return .none
-            case .error(let error):
-                return .send(.showToast(error.description))
-                
+                return .send(.delegate(.routeToEditReviewScreen(state.postId)))
+        
             case .mixpanelEvent:
                 let property = makeReviewProperty(&state)
                 
@@ -287,26 +270,11 @@ struct PostFeature {
                 
                 return .none
                 
-            case .routeToReportScreen:
-                return .none
-                
-            case .routeToPreviousScreen:
-                return .none
-                
-            case .routeToEditReviewScreen:
-                return .none
-                
-            case .routeToUserProfileScreen:
-                return .none
-                
-            case .routeToMyProfileScreen:
-                return .none
-                
             case .showUseSpoonPopup:
                 if state.spoonCount <= 0 {
                     Mixpanel.mainInstance().track(event: ReviewEvents.Name.spoonUseFailed)
                     
-                    return .send(.showToast("남은 스푼이 없어요 ㅠ.ㅠ"))
+                    return .send(.delegate(.presentToast(.noSpoon)))
                 }
                 let property = makeReviewProperty(&state)
                 
@@ -332,7 +300,7 @@ struct PostFeature {
                         let isSuccess = try await postUseCase.scoopPost(postId: postId)
                         await send(.scoopButtonTappedResponse(isSuccess: isSuccess))
                     } catch {
-                        await send(.error(.spoonError))
+                        await send(.delegate(.presentToast(.spoonError)))
                     }
                 }
                 
@@ -349,10 +317,10 @@ struct PostFeature {
                 return .run { [postId = state.postId] send in
                     do {
                         try await postUseCase.deletePost(postId: postId)
-                        await send(.showToast("삭제가 완료되었어요."))
-                        await send(.routeToPreviousScreen)
+                        await send(.delegate(.presentToast(.reviewDeleteSuccess)))
+                        await send(.delegate(.routeToPreviousScreen))
                     } catch {
-                        await send(.showToast("삭제에 실패했어요. 다시 시도해주세요."))
+                        await send(.delegate(.presentToast(.reviewDeleteFail)))
                     }
                 }
                 
@@ -367,7 +335,7 @@ struct PostFeature {
                     return .send(.setShowDailySpoonPopup(true))
                 } else {
                     print("🔍 스푼 뽑기을 했으면 AttendanceView로 이동")
-                    return .send(.routeToAttendanceView)
+                    return .send(.delegate(.routeToAttendanceView))
                 }
                 
             case let .setShowDailySpoonPopup(show):
@@ -425,8 +393,11 @@ struct PostFeature {
                 print("Spoon count fetch error: \(error)")
                 return .none
                 
-            case .routeToAttendanceView:
+            case .delegate(.routeToAttendanceView):
                 state.showAttendanceView = true
+                return .none
+                
+            case .delegate:
                 return .none
             }
         }

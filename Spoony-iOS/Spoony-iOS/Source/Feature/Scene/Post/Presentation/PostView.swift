@@ -35,7 +35,7 @@ struct PostView: View {
                     style: .detailWithChip,
                     spoonCount: store.spoonCount,
                     onBackTapped: {
-                        store.send(.routeToPreviousScreen)
+                        store.send(.delegate(.routeToPreviousScreen))
                     },
                     spoonTapped: {
                         store.send(.spoonTapped)
@@ -60,14 +60,6 @@ struct PostView: View {
                     dropDownView
                 })
                 .scrollIndicators(.hidden)
-                .toastView(toast: Binding(
-                    get: { store.toast },
-                    set: { newValue in
-                        if newValue == nil {
-                            store.send(.dismissToast)
-                        }
-                    }
-                ))
                 .onAppear {
                     store.send(.viewAppear(postId: postId))
                 }
@@ -228,10 +220,10 @@ extension PostView {
         .onTapGesture {
             if store.isMine {
                 print("내 페이지로")
-                store.send(.routeToMyProfileScreen)
+                store.send(.delegate(.routeToMyProfileScreen))
             } else {
                 print("남의 페이지로")
-                store.send(.routeToUserProfileScreen(store.userId))
+                store.send(.delegate(.routeToUserProfileScreen(store.userId)))
             }
         }
     }
@@ -464,7 +456,7 @@ extension PostView {
                         switch selected {
                         case "수정하기":
                             // TODO: 수정 액션
-                            store.send(.routeToEditReviewScreen(store.postId))
+                            store.send(.delegate(.routeToEditReviewScreen(store.postId)))
                             print("수정하기 탭됨")
                         case "삭제하기":
                             store.send(.showDeletePopup)
@@ -474,7 +466,7 @@ extension PostView {
                         }
                     } else {
                         if selected == "신고하기" {
-                            store.send(.routeToReportScreen(store.postId))
+                            store.send(.delegate(.routeToReportScreen(store.postId)))
                         }
                     }
                 }

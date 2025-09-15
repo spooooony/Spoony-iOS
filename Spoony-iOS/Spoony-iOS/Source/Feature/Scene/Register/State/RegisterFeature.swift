@@ -45,7 +45,6 @@ struct RegisterFeature {
         case updateIsPosting(Bool)
         case updateStep(RegisterStep)
         case registrationSuccessful
-        case onDisappear
         case registerPostRequest(_ selectedPlace: PlaceInfo, _ selectedCategory: CategoryChip)
         case editPostRequest(_ selectedCategory: CategoryChip)
         case reviewInfoResponse(_ response: ReviewInfo)
@@ -53,13 +52,15 @@ struct RegisterFeature {
         // MARK: - Child Action
         case infoStepAction(InfoStepFeature.Action)
         case reviewStepAction(ReviewStepFeature.Action)
-        
-        // MARK: - TabCoordinator Action
-        case presentPopup
-        case presentToast(message: String)
-        
-        case routeToPostScreen(Int)
-        case routeToPreviousScreen
+                
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate: Equatable {
+            case presentPopup(PopupType)
+            case presentToast(ToastType)
+            case routeToPostScreen(Int)
+            case routeToPreviousScreen
+        }
     }
         
     @Dependency(\.registerService) var network: RegisterServiceType
@@ -90,11 +91,12 @@ struct RegisterFeature {
                         } catch {
                             await send(.infoStepAction(.updateIsLoadError(true)))
                             await send(.updateIsLoading(false))
-                            await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
+                            await send(.delegate(.presentToast(.serverError)))
                         }
                     }
                 }
                 return .none
+                
             case .reviewInfoResponse(let reviewInfo):
                 state.infoStepState.selectedPlace = PlaceInfo(
                     placeName: reviewInfo.placeName,
@@ -115,35 +117,54 @@ struct RegisterFeature {
                 state.savedCount = reviewInfo.savedCount
                 state.isLoading = false
                 return .send(.infoStepAction(.loadSelectedCategory))
+                
             case .updateIsLoading(let isLoading):
                 state.isLoading = isLoading
                 return .none
+                
             case .updateIsPosting(let isPosting):
                 state.isPosting = isPosting
                 return .none
+                
             case .updateStep(let step):
                 state.currentStep = step
                 return .none
-            case .infoStepAction(.didTapNextButton):
-                state.currentStep = .end
-                return .none
-            case let .infoStepAction(.presentToast(message)):
-                return .send(.presentToast(message: message))
-            case .reviewStepAction(.didTapNextButton):                
-                guard let selectedPlace = state.infoStepState.selectedPlace,
-                      let selectedCategory = state.infoStepState.selectedCategory.first else {
+                
+            case let .infoStepAction(action):
+                switch action {
+                case .didTapNextButton:
+                    state.currentStep = .end
+                    return .none
+                    
+                case .delegate(.presentToast(let type)):
+                    return .send(.delegate(.presentToast(type)))
+                    
+                default:
                     return .none
                 }
-                                
-                if state.infoStepState.isEditMode {
-                    return .send(.editPostRequest(selectedCategory))
-                } else {
-                    return .send(.registerPostRequest(selectedPlace, selectedCategory))
+                
+            case let .reviewStepAction(action):
+                switch action {
+                case .didTapNextButton:
+                    guard let selectedPlace = state.infoStepState.selectedPlace,
+                          let selectedCategory = state.infoStepState.selectedCategory.first else {
+                        return .none
+                    }
+                                    
+                    if state.infoStepState.isEditMode {
+                        return .send(.editPostRequest(selectedCategory))
+                    } else {
+                        return .send(.registerPostRequest(selectedPlace, selectedCategory))
+                    }
+                    
+                case .movePreviousView:
+                    state.currentStep = .start
+                    return .none
+                                 
+                default:
+                    return .none
                 }
-            case .reviewStepAction(.movePreviousView):
-                state.currentStep = .start
-                return .none
-
+                            
             case let .registerPostRequest(selectedPlace, selectedCategory):
                 let trimmed = state.reviewStepState.weakPointText.trimmingCharacters(in: .whitespacesAndNewlines)
                 let cons = trimmed.isEmpty ? nil : trimmed
@@ -172,14 +193,14 @@ struct RegisterFeature {
                         imagesData: images
                     ) else {
                         await send(.updateIsPosting(false))
-                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
+                        await send(.delegate(.presentToast(.serverError)))
                         return
                     }
                     
                     if success {
                         await send(.registrationSuccessful)
                     } else {
-                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
+                        await send(.delegate(.presentToast(.serverError)))
                     }
                 }
             case let .editPostRequest(selectedCategory):
@@ -204,7 +225,7 @@ struct RegisterFeature {
                         imagesData: images
                     ) else {
                         await send(.updateIsPosting(false))
-                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
+                        await send(.delegate(.presentToast(.serverError)))
                         return
                     }
                     
@@ -212,7 +233,7 @@ struct RegisterFeature {
                         await send(.registrationSuccessful)
                     } else {
                         await send(.updateIsPosting(false))
-                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
+                        await send(.delegate(.presentToast(.serverError)))
                     }
                 }
             case .registrationSuccessful:
@@ -222,7 +243,7 @@ struct RegisterFeature {
                 if state.reviewStepState.isEditMode {
                     guard let postId = state.postId else {
                         // 여기 뭐로 분기하지
-                        return .send(.routeToPreviousScreen)
+                        return .send(.delegate(.routeToPreviousScreen))
                     }
                     
                     guard let userId = state.userId,
@@ -253,11 +274,16 @@ struct RegisterFeature {
                         properties: property.dictionary
                     )
                     
-                    return .send(.routeToPostScreen(postId))
+                    return .send(.delegate(.routeToPostScreen(postId)))
                 } else {
-                    return .send(.presentPopup)
+                    return .send(.delegate(.presentPopup(.registerSuccess)))
                 }
-            default: return .none
+                
+            case .delegate:
+                return .none
+                
+            case .binding:
+                return .none
             }
         }
     }

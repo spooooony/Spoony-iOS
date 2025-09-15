@@ -20,10 +20,10 @@ struct SearchLocationFeature {
         
         var pickList: [PickListCardResponse] = []
         var focusedPlaces: [CardPlace] = []
-        var selectedPlace: CardPlace? = nil
+        var selectedPlace: CardPlace?
         var isLoading: Bool = true
-        var userLocation: CLLocation? = nil
-        var selectedLocation: (latitude: Double, longitude: Double)? = nil
+        var userLocation: CLLocation?
+        var selectedLocation: (latitude: Double, longitude: Double)?
         var mapState: MapFeature.State = .initialState
         
         static func == (lhs: State, rhs: State) -> Bool {
@@ -59,13 +59,18 @@ struct SearchLocationFeature {
         case fetchLocationList
         case fetchLocationListResponse(TaskResult<ResturantpickListResponse>)
         case selectPlace(CardPlace?)
-        case routeToHomeScreen
-        case routeToPostDetail(postId: Int)
-        case routeToExploreTab  
         case updatePlaces(focusedPlaces: [CardPlace])
         case setSelectedLocation(latitude: Double, longitude: Double)
         case forceMoveCameraToSearchLocation
         case map(MapFeature.Action)
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate: Equatable {
+            case routeToHomeScreen
+            case routeToPostDetail(postId: Int)
+            case changeSelectedTab(TabType)
+        }
     }
     
     @Dependency(\.homeService) var homeService
@@ -126,17 +131,7 @@ struct SearchLocationFeature {
             case let .selectPlace(place):
                 state.selectedPlace = place
                 return .none
-                
-            case .routeToHomeScreen:
-                return .none
-                
-            case .routeToPostDetail:
-                return .none
-                
-            case .routeToExploreTab:  // 새로 추가된 액션 처리
-                print("🟡 [SearchLocationFeature] .routeToExploreTab 액션 받음")
-                return .none
-                
+
             case let .updatePlaces(focusedPlaces):
                 state.focusedPlaces = focusedPlaces
                 if !focusedPlaces.isEmpty {
@@ -162,11 +157,14 @@ struct SearchLocationFeature {
                 }
                 return .none
                 
-            case .map(.routeToExploreTab):  // MapFeature에서 오는 액션 전파
+            case .map(.delegate(.changeSelectedTab(let tab))):  // MapFeature에서 오는 액션 전파
                 print("🟡 [SearchLocationFeature] map의 .routeToExploreTab 액션 전파")
-                return .send(.routeToExploreTab)
+                return .send(.delegate(.changeSelectedTab(tab)))
                 
-            case .map(_):
+            case .map:
+                return .none
+                
+            case .delegate:
                 return .none
             }
         }

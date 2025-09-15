@@ -23,7 +23,7 @@ struct WithdrawView: View {
                     style: .detail,
                     title: "회원 탈퇴",
                     onBackTapped: {
-                        store.send(.routeToPreviousScreen)
+                        store.send(.delegate(.routeToPreviousScreen))
                     }
                 ).background(Color.white)
                 

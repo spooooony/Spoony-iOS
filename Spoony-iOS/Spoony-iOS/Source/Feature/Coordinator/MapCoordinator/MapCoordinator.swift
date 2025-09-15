@@ -24,64 +24,78 @@ struct MapCoordinator {
         static let initialState = State(routes: [.root(.map(.initialState), embedInNavigationView: true)])
         
         var routes: [Route<MapScreen.State>]
-        var selectedLocationId: Int?
     }
     
     enum Action {
         case router(IndexedRouterActionOf<MapScreen>)
-        case locationSelected(Int)
         
-        case routeToPostScreen(Int)
-        case routeToExploreTab
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToPostScreen(Int)
+            case changeSelectedTab(TabType)
+            
+        }        
     }
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case let .router(.routeAction(id: _, action: .map(.routeToPostView(postId: postId)))):
-                return .send(.routeToPostScreen(postId))
-                
-            case .router(.routeAction(id: _, action: .map(.routToSearchScreen))):
-                state.routes.push(.search(.initialState))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .map(.routeToExploreTab))):
-                return .send(.routeToExploreTab)
-                
-            case .router(.routeAction(id: _, action: .searchLocation(.routeToExploreTab))):
-                return .send(.routeToExploreTab)
-                
-            case let .router(.routeAction(id: _, action: .searchLocation(.routeToPostDetail(postId: postId)))):
-                return .send(.routeToPostScreen(postId))
-                
-            case let .locationSelected(locationId):
-                state.selectedLocationId = locationId
-                return .none
-                
-            case .router(.routeAction(id: _, action: .search(.selectLocation(let result)))):
-                let locationState = SearchLocationFeature.State(
-                    locationId: result.locationId,
-                    locationTitle: result.title,
-                    searchedLatitude: result.latitude,
-                    searchedLongitude: result.longitude
-                )
-                
-                state.routes.push(.searchLocation(locationState))
-                return .none
-                
-            case .router(.routeAction(id: _, action: .searchLocation(.routeToHomeScreen))):
-                state.routes = [.root(.map(.initialState), embedInNavigationView: true)]
-                return .none
-                
-            case .router(.routeAction(id: _, action: .search(.routeToPreviousScreen))):
-                state.routes.goBack()
-                return .none
-                
-            case .routeToExploreTab:
-                return .none
+            case let .router(.routeAction(id: _, action: childDelegateAction)):
+                switch childDelegateAction {
+                // MARK: - Map Screen
+                case .map(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .changeSelectedTab(let tab):
+                        return .send(.delegate(.changeSelectedTab(tab)))
+                        
+                    case .routeToPostView(let postId):
+                        return .send(.delegate(.routeToPostScreen(postId)))
+                        
+                    case .routeToSearchScreen:
+                        state.routes.push(.search(.initialState))
+                        return .none
+                    }
+                    
+                // MARK: - Search Screen
+                case .search(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .routeToPreviousScreen:
+                        state.routes.goBack()
+                        return .none
+                        
+                    case .routeToSearchLocation(let result):
+                        let locationState = SearchLocationFeature.State(
+                            locationId: result.locationId,
+                            locationTitle: result.title,
+                            searchedLatitude: result.latitude,
+                            searchedLongitude: result.longitude
+                        )
+                        
+                        state.routes.push(.searchLocation(locationState))
+                        return .none
+                    }
+                    
+                // MARK: - SearchLocation Screen
+                case .searchLocation(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .changeSelectedTab(let tab):
+                        return .send(.delegate(.changeSelectedTab(tab)))
+                        
+                    case .routeToHomeScreen:
+                        state.routes.goBackToRoot()
+                        return .none
+                        
+                    case .routeToPostDetail(let postId):
+                        return .send(.delegate(.routeToPostScreen(postId)))
+                    }
+                    
+                default:
+                    return .none
+                }
                 
             default:
-                return .none
+                return .none            
             }
         }
         .forEachRoute(\.routes, action: \.router)

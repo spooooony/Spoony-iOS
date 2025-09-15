@@ -60,9 +60,12 @@ struct OnboardingFeature {
         
         case error(Error)
         
-        // MARK: - Navigation
-        case routToTabCoordinatorScreen
-        case presentToast(message: String)
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToTabCoordinatorScreen
+            case presentToast(ToastType)
+        }
     }
     
     private let authenticationManager = AuthenticationManager.shared
@@ -93,7 +96,6 @@ struct OnboardingFeature {
                     let property = OnboardingEvents.Onboarding3CompletedProperty(
                         bioLength: state.introduceText.count
                     )
-
                     
                     Mixpanel.mainInstance().track(
                         event: OnboardingEvents.Name.onboarding3Completed,
@@ -103,7 +105,7 @@ struct OnboardingFeature {
                     return .send(.signup)
                 case .finish:
                     UserManager.shared.completeOnboarding()
-                    return .send(.routToTabCoordinatorScreen)
+                    return .send(.delegate(.routeToTabCoordinatorScreen))
                 }
                 return .none
                 
@@ -140,6 +142,7 @@ struct OnboardingFeature {
                     break
                 }
                 return .none
+                
             case .infoStepViewOnAppear:
                 return .run { send in
                     do {
@@ -149,6 +152,7 @@ struct OnboardingFeature {
                         await send(.error(SNError.networkFail))
                     }
                 }
+                
             case .checkNickname:
                 if state.nicknameErrorState == .noError {
                     return .run { [state] send in
@@ -170,12 +174,15 @@ struct OnboardingFeature {
                     state.nicknameError = false
                 }
                 return .none
+                
             case .setNicknameError(let error):
                 state.nicknameErrorState = error
                 return .none
+                
             case .setRegion(let list):
                 state.regionList = list
                 return .none
+                
             case .signup:
                 state.isLoading = true
                 return .run { [state] send in
@@ -215,32 +222,36 @@ struct OnboardingFeature {
                         await send(.error(SNError.networkFail))
                     }
                 }
+                
             case .setUserNickname(let nickname):
                 state.isLoading = false
                 state.userNickname = nickname
                 state.currentStep = .finish
                 UserManager.shared.hasCompletedOnboarding = true
                 return .none
+                
             case .error:
                 state.isLoading = false
-                return .send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
-            case .routToTabCoordinatorScreen:
-                return .none
+                return .send(.delegate(.presentToast(.serverError)))
+                
             case .binding(\.subRegion):
                 if state.subRegion != nil {
                     state.infoError = false
                 }
                 return .none
             case .binding(\.birth):
+                
                 guard let year = state.birth.first else { return .none }
                 
                 if !year.isEmpty {
                     state.infoError = false
                 }
                 return .none
+                
             case .binding:
                 return .none
-            case .presentToast:
+                
+            case .delegate:
                 return .none
             }
         }

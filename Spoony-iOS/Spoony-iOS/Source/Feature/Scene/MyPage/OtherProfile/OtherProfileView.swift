@@ -23,7 +23,6 @@ struct OtherProfileView: View {
         .task { store.send(.onAppear) }
         .edgesIgnoringSafeArea(.bottom)
         .navigationBarBackButtonHidden()
-        .toastView(toast: Binding(get: { store.toast }, set: { _ in }))
         .alertView(
             isPresented: $store.isAlertPresented,
             alertType: store.alertType,
@@ -59,7 +58,7 @@ private extension OtherProfileView {
         CustomNavigationBar(
             style: store.isBlocked ? .detail : .detailWithKebab,
             title: "",
-            onBackTapped: { store.send(.routeToPreviousScreen) },
+            onBackTapped: { store.send(.backButtonTapped) },
             onKebabTapped: store.isBlocked ? nil : { store.send(.kebabMenuTapped) }
         )
         .padding(.bottom, 3)
@@ -367,11 +366,11 @@ private extension OtherProfileView {
         LazyVStack(spacing: 18) {
             ForEach(reviews) { review in
                 ExploreCell(feed: review, onReport: { feed in
-                    store.send(.routeToPostReportScreen(feed.postId))
+                    store.send(.delegate(.routeToPostReportScreen(feed.postId)))
                 })
                     .padding(.horizontal, 20)
                     .onTapGesture {
-                        store.send(.routeToReviewDetail(review.postId))
+                        store.send(.delegate(.routeToReviewDetail(review.postId)))
                     }
             }
         }

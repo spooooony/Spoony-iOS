@@ -66,7 +66,7 @@ struct AttendanceView: View {
                 title: "출석체크",
                 spoonCount: store.spoonCount,
                 onBackTapped: {
-                    store.send(.routeToPreviousScreen)
+                    store.send(.delegate(.routeToPreviousScreen))
                 }
             )
             

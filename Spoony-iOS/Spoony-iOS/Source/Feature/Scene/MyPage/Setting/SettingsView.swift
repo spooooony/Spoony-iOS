@@ -23,7 +23,7 @@ struct SettingsView: View {
                 style: .detail,
                 title: "설정",
                 onBackTapped: {
-                    store.send(.routeToPreviousScreen)
+                    store.send(.delegate(.routeToPreviousScreen))
                 }
             )
             
@@ -41,19 +41,19 @@ struct SettingsView: View {
                 }
                 
                 settingsRow(title: "서비스 이용약관", hasArrow: true) {
-                    URLHelper.openURL(Config.termsOfServiceURL)
+                    store.send(.didTapServiceTerms)
                 }
                 
                 settingsRow(title: "개인정보 처리 방침", hasArrow: true) {
-                    URLHelper.openURL(Config.privacyPolicyURL)
+                    store.send(.didTapPrivacyPolicy)
                 }
                 
                 settingsRow(title: "위치기반서비스 이용약관", hasArrow: true) {
-                    URLHelper.openURL(Config.locationServicesURL)
+                    store.send(.didTapLocationServices)
                 }
                 
                 settingsRow(title: "1:1 문의", hasArrow: true) {
-                    URLHelper.openURL(Config.inquiryURL)
+                    store.send(.didTapInquiry)
                 }
                 Spacer()
             }

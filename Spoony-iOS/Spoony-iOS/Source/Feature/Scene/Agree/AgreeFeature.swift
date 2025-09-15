@@ -29,8 +29,11 @@ struct AgreeFeature {
         case unSelectedAgreeTapped(AgreeType)
         case selectedAgreesChanged
         
-        // MARK: Navigation Action
-        case routToOnboardingScreen
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToOnboardingScreen
+        }
     }
     
     var body: some ReducerOf<Self> {
@@ -45,6 +48,7 @@ struct AgreeFeature {
                     state.selectedAgrees = AgreeType.allCases
                 }
                 return .send(.selectedAgreesChanged)
+                
             case .agreeURLTapped(let type):
                 switch type {
                 case .age:
@@ -57,25 +61,29 @@ struct AgreeFeature {
                     URLHelper.openURL(Config.locationServicesURL)
                 }
                 return .none
+                
             case .selectedAgreeTapped(let agree):
                 if let index = state.selectedAgrees.firstIndex(of: agree) {
                     state.selectedAgrees.remove(at: index)
                     return .send(.selectedAgreesChanged)
                 }
                 return .none
+                
             case .unSelectedAgreeTapped(let agree):
                 state.selectedAgrees.append(agree)
                 return .send(.selectedAgreesChanged)
+                
             case .selectedAgreesChanged:
                 state.allCheckboxFilled = state.selectedAgrees.count == AgreeType.allCases.count
                 state.isDisableButton = !state.allCheckboxFilled
                 return .none
+                
             case .binding:
                 return .none
-            case .routToOnboardingScreen:
+
+            case .delegate:
                 return .none
             }
-            
         }
     }
     
