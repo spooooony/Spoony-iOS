@@ -139,7 +139,12 @@ struct ReviewStepFeature {
 extension ReviewStepFeature {
     private func transferImage(_ item: PhotoPickerType) async -> UploadImage? {
         guard let data = try? await item.loadTransferable(type: Data.self),
-              let jpegData = UIImageType(data: data)?.downscaleTOjpegData(maxBytes: 1_000_000),
+              let originalImage = UIImageType(data: data) else { return nil }
+        
+        // TODO: Vision Framework를 사용한 음식 중앙 정렬
+        // let centeredImage = await originalImage.centerFoodObject()
+        
+        guard let jpegData = originalImage.downscaleTOjpegData(maxBytes: 1_000_000),
               let image = UIImageType(data: jpegData) else { return nil }
         
         let uploadImage = UploadImage(image: ImageType(uiImage: image), imageData: jpegData)
