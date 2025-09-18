@@ -23,6 +23,7 @@ enum ToastType {
     case userError
     case reviewDeleteSuccess
     case reviewDeleteFail
+    case imageLoadFailed
     
     var message: String {
         switch self {
@@ -56,6 +57,8 @@ enum ToastType {
             return "삭제가 완료되었어요."
         case .reviewDeleteFail:
             return "삭제에 실패했어요. 다시 시도해주세요."
+        case .imageLoadFailed:
+            return "일부 이미지를 불러오는 데 오류가 발생했습니다."
         }
     }
 }
