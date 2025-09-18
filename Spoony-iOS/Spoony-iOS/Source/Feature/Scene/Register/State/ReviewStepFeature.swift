@@ -100,6 +100,11 @@ struct ReviewStepFeature {
                     await send(.updateUploadImages(uploadImages))
                     await send(.removePickerItems)
                 }
+            case .binding(\.weakPointText):
+                if state.weakPointText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    state.weakPointText = ""
+                }
+                return .none
             case .binding(\.isWeakPointTextError), .binding(\.isDetailTextError):
                 return .send(.validateNextButton)
             case .didTapPhotoDeleteIcon(let image):
