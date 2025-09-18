@@ -5,6 +5,8 @@
 //  Created by 최안용 on 3/21/25.
 //
 
+import Foundation
+
 import ComposableArchitecture
 import Mixpanel
 
@@ -42,7 +44,7 @@ struct InfoStepFeature {
         // MARK: - 만족도 property
         var satisfaction: Double = 50.0
         
-        var keyboardHeight: SizeValueType = 0
+        var keyboardHeight: CGFloat = 0
         var isDisableNextButton: Bool = true
     }
     
@@ -72,7 +74,7 @@ struct InfoStepFeature {
         
         case validateNextButton
         case didTapBackground
-        case updateKeyboardHeight(SizeValueType)
+        case updateKeyboardHeight(CGFloat)
         
         // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
         case delegate(Delegate)
