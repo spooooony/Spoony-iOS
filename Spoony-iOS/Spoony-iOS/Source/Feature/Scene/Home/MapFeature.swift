@@ -168,6 +168,7 @@ struct MapFeature {
                 
             case let .userInfoResponse(.success(userInfo)):
                 state.userName = userInfo.userName
+                UserManager.shared.userName = userInfo.userName
                 
                 if !state.isAuthenticationChecked {
                     return .send(.authenticationChecked(true))

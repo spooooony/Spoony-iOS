@@ -9,6 +9,7 @@ import Foundation
 
 enum UserDefaultsKeys: String, CaseIterable {
     case userId = "userId"
+    case userName = "userName"
     case recentSearches = "RecentSearches"
     case exploreUserRecentSearches = "exploreUserRecentSearches"
     case exploreReviewRecentSearches = "exploreReviewRecentSearches"
@@ -20,6 +21,7 @@ enum UserDefaultsKeys: String, CaseIterable {
 
 final class UserManager {
     @UserDefaultWrapper(key: .userId) public var userId: Int?
+    @UserDefaultWrapper(key: .userName) public var userName: String?
     @UserDefaultWrapper(key: .recentSearches) public var recentSearches: [String]?
     
     @UserDefaultWrapper(key: .exploreUserRecentSearches) public var exploreUserRecentSearches: [String]?
