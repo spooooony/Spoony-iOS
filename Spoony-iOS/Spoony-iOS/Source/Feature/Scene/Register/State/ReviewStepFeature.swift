@@ -85,7 +85,7 @@ struct ReviewStepFeature {
                         var results: [(Int, UploadImage?)] = []
                         
                         for await result in group {
-                            if let image = result.1 {
+                            if result.1 != nil {
                                 results.append(result)
                             } else {
                                 await send(.imageLoadFaied)
