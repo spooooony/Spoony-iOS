@@ -49,7 +49,7 @@ struct Register: View {
                 )
             }
         }
-        .disabled(store.state.isLoading)
+        .disabled(store.state.isLoading || store.state.isPosting)
         .overlay {
             if store.state.isPosting {
                 VStack {
