@@ -219,7 +219,7 @@ struct SearchLocationBottomSheetListView: View {
                         .padding(.top, 10)
                     
                     HStack(spacing: 4) {
-                        Text(locationTitle)
+                        Text((UserManager.shared.userName ?? "양수정") + "님의 찐맛집")
                             .customFont(.body2b)
                         Text("\(pickList.count)")
                             .customFont(.body2b)

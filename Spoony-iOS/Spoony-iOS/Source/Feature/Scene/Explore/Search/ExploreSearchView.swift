@@ -235,7 +235,7 @@ extension ExploreSearchView {
                 Text(user.userName)
                     .customFont(.body2m)
                 if let region = user.regionName {
-                    Text("\(region) 스푼")
+                    Text("서울 \(region) 스푼")
                         .customFont(.caption1m)
                         .foregroundStyle(.gray400)
                 }
