@@ -161,7 +161,7 @@ struct RegisterFeature {
                     state.currentStep = .start
                     return .none
                                  
-                case .imageLoadFaied:
+                case .imageLoadFailed:
                     return .send(.delegate(.presentToast(.imageLoadFailed)))
                     
                 default:
