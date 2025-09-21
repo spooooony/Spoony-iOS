@@ -52,7 +52,7 @@ struct ReviewStepFeature {
         case movePreviousView
         case didTapPhotoDeleteIcon(UploadImage)
         case updateUploadImages([UploadImage])
-        case imageLoadFaied
+        case imageLoadFailed
         case removePickerItems
         case validateNextButton
     }
@@ -88,7 +88,7 @@ struct ReviewStepFeature {
                             if result.1 != nil {
                                 results.append(result)
                             } else {
-                                await send(.imageLoadFaied)
+                                await send(.imageLoadFailed)
                             }
                         }
                         
@@ -149,7 +149,7 @@ struct ReviewStepFeature {
                 
                 return .none
                 
-            case .imageLoadFaied:
+            case .imageLoadFailed:
                 state.selectableCount += 1
                 return .none
                 
