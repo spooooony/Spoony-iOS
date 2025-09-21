@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import PhotosUI
+import SwiftUI
 
 import ComposableArchitecture
 import Mixpanel
@@ -32,7 +34,7 @@ struct ReviewStepFeature {
         
         // MARK: - 이미지 업로드 관련 property
         var selectableCount = 5
-        var pickerItems: [PhotoPickerType] = []
+        var pickerItems: [PhotosPickerItem] = []
         var uploadImages: [UploadImage] = []
         var uploadImageErrorState: UploadImageErrorState = .initial
         var deleteImagesUrl: [String] = []
@@ -50,6 +52,7 @@ struct ReviewStepFeature {
         case movePreviousView
         case didTapPhotoDeleteIcon(UploadImage)
         case updateUploadImages([UploadImage])
+        case imageLoadFailed
         case removePickerItems
         case validateNextButton
     }
@@ -71,21 +74,37 @@ struct ReviewStepFeature {
                 
                 let pickerItems = state.pickerItems
                 return .run { [pickerItems] send in
-                    let uploadImages = await withTaskGroup(of: UploadImage?.self) { group in
-                        for item in pickerItems {
+                    let uploadImages = await withTaskGroup(of: (Int, UploadImage?).self) { group in
+                        for (index, item) in pickerItems.enumerated() {
                             group.addTask {
-                                await transferImage(item)
+                                let image = await transferImage(item)
+                                return (index, image)
                             }
                         }
                         
-                        return await group
-                            .reduce(into: [UploadImage?](), { $0.append($1) })
-                            .compactMap { $0 }
+                        var results: [(Int, UploadImage?)] = []
+                        
+                        for await result in group {
+                            if result.1 != nil {
+                                results.append(result)
+                            } else {
+                                await send(.imageLoadFailed)
+                            }
+                        }
+                        
+                        return results
+                            .sorted { $0.0 < $1.0 }
+                            .compactMap { $0.1 }
                     }
                     
                     await send(.updateUploadImages(uploadImages))
                     await send(.removePickerItems)
                 }
+            case .binding(\.weakPointText):
+                if state.weakPointText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    state.weakPointText = ""
+                }
+                return .none
             case .binding(\.isWeakPointTextError), .binding(\.isDetailTextError):
                 return .send(.validateNextButton)
             case .didTapPhotoDeleteIcon(let image):
@@ -130,6 +149,10 @@ struct ReviewStepFeature {
                 
                 return .none
                 
+            case .imageLoadFailed:
+                state.selectableCount += 1
+                return .none
+                
             default: return .none
             }
         }
@@ -137,12 +160,12 @@ struct ReviewStepFeature {
 }
 
 extension ReviewStepFeature {
-    private func transferImage(_ item: PhotoPickerType) async -> UploadImage? {
+    private func transferImage(_ item: PhotosPickerItem) async -> UploadImage? {
         guard let data = try? await item.loadTransferable(type: Data.self),
-              let jpegData = UIImageType(data: data)?.downscaleTOjpegData(maxBytes: 1_000_000),
-              let image = UIImageType(data: jpegData) else { return nil }
+              let jpegData = UIImage(data: data)?.downscaleTOjpegData(maxBytes: 1_000_000),
+              let image = UIImage(data: jpegData) else { return nil }
         
-        let uploadImage = UploadImage(image: ImageType(uiImage: image), imageData: jpegData)
+        let uploadImage = UploadImage(image: Image(uiImage: image), imageData: jpegData)
         
         return uploadImage
     }
