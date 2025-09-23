@@ -32,8 +32,8 @@ struct OnboardingFinishView: View {
                 .customFont(.title2)
                 .padding(.top, 4)
             
-            LottieView(animation: .named("onboarding"))
-                .looping()
+            LottieView(animation: .named("json"))
+                .playing(loopMode: .loop)
                 .frame(width: 335.adjusted, height: 406.adjustedH)
                 .padding(.top, 37)
             Spacer()
