@@ -37,6 +37,7 @@ struct SpoonType: Codable, Equatable {
     let spoonAmount: Int
     let probability: Double
     let spoonImage: String
+    let spoonGetImage: String
 }
 
 struct SpoonCountResponse: Codable {

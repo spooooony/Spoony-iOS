@@ -155,7 +155,7 @@ struct SpoonDrawPopupView: View {
                 .padding(.vertical, 16)
       
             VStack(spacing: 2) {
-                AsyncImage(url: URL(string: spoon.spoonType.spoonImage)) { image in
+                AsyncImage(url: URL(string: spoon.spoonType.spoonGetImage)) { image in
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -213,7 +213,8 @@ struct SpoonDrawPopupView: View {
                 spoonName: "tea",
                 spoonAmount: 1,
                 probability: 40,
-                spoonImage: "test_image"
+                spoonImage: "test_image",
+                spoonGetImage: "test_image"
             ),
             localDate: "2025-06-01",
             weekStartDate: "2025-05-26",

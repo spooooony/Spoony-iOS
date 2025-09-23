@@ -161,7 +161,8 @@ struct SpoonAttendanceView: View {
                     spoonName: "diamond",
                     spoonAmount: 4,
                     probability: 10.0,
-                    spoonImage: "https://spoony-storage.s3.ap-northeast-2.amazonaws.com/spoon/spoon_dia.png"
+                    spoonImage: "https://spoony-storage.s3.ap-northeast-2.amazonaws.com/spoon/spoon_dia.png",
+                    spoonGetImage: "https://spoony-storage.s3.ap-northeast-2.amazonaws.com/spoon/spoon_dia.png"
                 ),
                 localDate: "2025-06-04",
                 weekStartDate: "2025-06-02",

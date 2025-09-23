@@ -20,7 +20,7 @@ struct AttendanceInfoSheetView: View {
                     
                     HStack(spacing: 8) {
                             
-                            Image("VSpoon")
+                        Image(.vSpoon)
                             .frame(width: 100.adjusted, height: 100.adjustedH)
                          
                         VStack(alignment: .leading, spacing: 8.adjusted) {
