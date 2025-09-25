@@ -118,8 +118,8 @@ struct PostFeature {
         }
     }
     
-    @Dependency(\.postService) var postService: PostService
-    @Dependency(\.followUseCase) var followUseCase: FollowUseCase
+    @Dependency(\.postService) var postService: PostServiceProtocol
+    @Dependency(\.followService) var followService: FollowServiceProtocol
     @Dependency(\.homeService) var homeService
     
     var body: some ReducerOf<Self> {
@@ -217,7 +217,7 @@ struct PostFeature {
             case .followButtonTapped(let userId, let isFollowing):
                 return .run { send in
                     do {
-                        try await followUseCase.toggleFollow(userId: userId, isFollowing: isFollowing)
+                        try await followService.toggleFollow(userId: userId, isFollowing: isFollowing)
                         await send(.followActionResponse(.success(())))
                     } catch {
                         await send(.followActionResponse(.failure(error)))

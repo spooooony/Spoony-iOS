@@ -8,5 +8,5 @@
 import Dependencies
 
 enum PostServiceKey: DependencyKey {
-    static let liveValue: PostService = DefaultPostService()
+    static let liveValue: PostServiceProtocol = DefaultPostService()
 }

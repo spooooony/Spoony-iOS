@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol PostService {
+protocol PostServiceProtocol {
     func getPost(postId: Int) async throws -> PostResponseDTO
     func scrapPost(postId: Int) async throws
     func unScrapPost(postId: Int) async throws
@@ -17,7 +17,7 @@ protocol PostService {
     func deletePost(postId: Int) async throws
 }
 
-struct DefaultPostService: PostService {
+struct DefaultPostService: PostServiceProtocol {
     let provider = Providers.postProvider
 }
 

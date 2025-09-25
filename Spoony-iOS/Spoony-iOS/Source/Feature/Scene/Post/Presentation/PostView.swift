@@ -557,7 +557,7 @@ struct PostScrapButton: View {
     
     let store = Store(initialState: PostFeature.State()) {
         PostFeature()
-            .dependency(\.postUseCase, PostUseCaseKey.testValue)
+            .dependency(\.postService, PostServiceKey.liveValue)
     }
     
     return PostView(postId: 51, store: store)

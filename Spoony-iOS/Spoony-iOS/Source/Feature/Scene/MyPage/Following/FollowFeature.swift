@@ -55,7 +55,7 @@ struct FollowFeature {
     
     // MARK: - Dependencies
     
-    @Dependency(\.followUseCase) var followUseCase
+    @Dependency(\.followService) var followService
     
     // MARK: - Body
     
@@ -70,9 +70,9 @@ struct FollowFeature {
                         do {
                             let followers: FollowListDTO
                             if let userId = targetUserId {
-                                followers = try await followUseCase.getFollowers(userId: userId)
+                                followers = try await followService.getFollowers(userId: userId)
                             } else {
-                                followers = try await followUseCase.getMyFollowers()
+                                followers = try await followService.getMyFollowers()
                             }
                             await send(.followersResponse(.success(followers)))
                         } catch {
@@ -83,9 +83,9 @@ struct FollowFeature {
                         do {
                             let followings: FollowListDTO
                             if let userId = targetUserId {
-                                followings = try await followUseCase.getFollowings(userId: userId)
+                                followings = try await followService.getFollowings(userId: userId)
                             } else {
-                                followings = try await followUseCase.getMyFollowings()
+                                followings = try await followService.getMyFollowings()
                             }
                             await send(.followingsResponse(.success(followings)))
                         } catch {
@@ -157,7 +157,7 @@ struct FollowFeature {
                 
                 return .run { _ in
                     do {
-                        try await followUseCase.toggleFollow(userId: userId, isFollowing: isFollowing)
+                        try await followService.toggleFollow(userId: userId, isFollowing: isFollowing)
                         // ✅ 성공했지만 새로고침은 하지 않음
 //                        await send(.followActionResponse(.success(())))
                     } catch {

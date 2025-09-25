@@ -5,7 +5,7 @@
 //  Created by 이명진 on 2/7/25.
 //
 
-// ** 레거시 추후 삭제 예정 **
+// MARK: ** 레거시 추후 삭제 예정 **
 protocol PostUseCase {
     func getPost(postId: Int) async throws -> PostModel
     func scrapPost(postId: Int) async throws
@@ -17,12 +17,12 @@ protocol PostUseCase {
 }
 
 struct PostUseCaseImpl {
-    private let postRepository: PostService
+    private let postRepository: PostServiceProtocol
     private let homeService: HomeServiceType
     
     // TDOO: HomeService 리팩토링 되면 코드 수정
     init(
-        postRepository: PostService = DefaultPostService(),
+        postRepository: PostServiceProtocol = DefaultPostService(),
         homeService: HomeServiceType = DefaultHomeService()
     ) {
         self.postRepository = postRepository
