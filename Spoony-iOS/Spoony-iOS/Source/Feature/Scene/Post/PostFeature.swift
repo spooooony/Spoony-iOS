@@ -118,8 +118,8 @@ struct PostFeature {
         }
     }
     
-    @Dependency(\.postUseCase) var postUseCase: PostUseCase
-    @Dependency(\.followUseCase) var followUseCase: FollowUseCase
+    @Dependency(\.postService) var postService: PostServiceProtocol
+    @Dependency(\.followService) var followService: FollowServiceProtocol
     @Dependency(\.homeService) var homeService
     
     var body: some ReducerOf<Self> {
@@ -131,7 +131,20 @@ struct PostFeature {
                 
                 return .run { [postId] send in
                     do {
-                        let data = try await postUseCase.getPost(postId: postId)
+                        print("🔍 1. get spoonCount")
+                        let spoonCount = try await homeService.fetchSpoonCount()
+                        print("✅ 1. spoonCount =", spoonCount)
+                        
+                        print("🔍 2. getPost 함수 실행")
+                        let postData = try await postService.getPost(postId: postId)
+                        print("✅ 2. postData = \(postData)")
+                        
+                        print("🔍 3. get userInfo")
+                        let userInfo = try await postService.getOtherUserInfo(userId: postData.userId)
+                        print("✅ 3. userInfo =", userInfo.userName)
+                        
+                        let data = PostModel(postDto: postData, userInfo: userInfo, spoonCount: spoonCount)
+                        
                         await send(.fetchInitialResponse(.success(data)))
                     } catch {
                         await send(.fetchInitialResponse(.failure(.userError)))
@@ -158,7 +171,7 @@ struct PostFeature {
                 )
                 return .run { [postId = state.postId] send in
                     do {
-                        let data = try await postUseCase.scoopPost(postId: postId)
+                        let data = try await postService.scoopPost(postId: postId)
                         await send(.scoopButtonTappedResponse(isSuccess: data))
                     } catch {
                         await send(.delegate(.presentToast(.spoonError)))
@@ -169,10 +182,10 @@ struct PostFeature {
                 return .run { [postId = state.postId, isZzim] send in
                     do {
                         if isZzim {
-                            try await postUseCase.unScrapPost(postId: postId)
+                            try await postService.unScrapPost(postId: postId)
                             await send(.zzimButtonResponse(isScrap: false))
                         } else {
-                            try await postUseCase.scrapPost(postId: postId)
+                            try await postService.scrapPost(postId: postId)
                             await send(.zzimButtonResponse(isScrap: true))
                         }
                     } catch {
@@ -204,7 +217,7 @@ struct PostFeature {
             case .followButtonTapped(let userId, let isFollowing):
                 return .run { send in
                     do {
-                        try await followUseCase.toggleFollow(userId: userId, isFollowing: isFollowing)
+                        try await followService.toggleFollow(userId: userId, isFollowing: isFollowing)
                         await send(.followActionResponse(.success(())))
                     } catch {
                         await send(.followActionResponse(.failure(error)))
@@ -297,7 +310,7 @@ struct PostFeature {
                 )
                 return .run { [postId = state.postId] send in
                     do {
-                        let isSuccess = try await postUseCase.scoopPost(postId: postId)
+                        let isSuccess = try await postService.scoopPost(postId: postId)
                         await send(.scoopButtonTappedResponse(isSuccess: isSuccess))
                     } catch {
                         await send(.delegate(.presentToast(.spoonError)))
@@ -316,7 +329,7 @@ struct PostFeature {
                 state.isDeletePopupVisible = false
                 return .run { [postId = state.postId] send in
                     do {
-                        try await postUseCase.deletePost(postId: postId)
+                        try await postService.deletePost(postId: postId)
                         await send(.delegate(.presentToast(.reviewDeleteSuccess)))
                         await send(.delegate(.routeToPreviousScreen))
                     } catch {

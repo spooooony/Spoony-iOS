@@ -106,7 +106,7 @@ struct OtherProfileFeature {
     }
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
-    @Dependency(\.followUseCase) var followUseCase: FollowUseCase
+    @Dependency(\.followService) var followService: FollowServiceProtocol
     @Dependency(\.blockService) var blockService: BlockServiceProtocol
     
     var body: some ReducerOf<Self> {
@@ -215,7 +215,7 @@ struct OtherProfileFeature {
                 
                 return .run { [userId = state.userId, isFollowing = state.isFollowing] send in
                     await send(.followActionResponse(
-                        TaskResult { try await followUseCase.toggleFollow(userId: userId, isFollowing: isFollowing) }
+                        TaskResult { try await followService.toggleFollow(userId: userId, isFollowing: isFollowing) }
                     ))
                 }
                 

@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - PostResponseDTO
 
-struct PostResponseDTO: Codable {
+struct PostResponseDTO: Codable, Equatable {
     let postId: Int
     let userId: Int
     let photoUrlList: [String]
