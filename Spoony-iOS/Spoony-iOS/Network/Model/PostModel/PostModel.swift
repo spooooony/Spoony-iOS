@@ -31,7 +31,7 @@ struct PostModel: Codable {
     let cons: String
     let isFollowing: Bool
     
-    public init(postDto: PostResponseDTO, userInfo: UserInfoResponseDTO, spoonCount: Int) {
+    init(postDto: PostResponseDTO, userInfo: UserInfoResponseDTO, spoonCount: Int) {
         self.userId = userInfo.userId
         self.postId = postDto.postId
         self.photoUrlList = postDto.photoUrlList

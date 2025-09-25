@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - UserData
 
-struct UserInfoResponseDTO: Codable {
+struct UserInfoResponseDTO: Codable, Equatable {
     let userId: Int
     let platform: String
     let platformId: String

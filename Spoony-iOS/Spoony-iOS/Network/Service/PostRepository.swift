@@ -7,13 +7,25 @@
 
 import Foundation
 
-struct DefaultPostRepository: PostRepositoryInterface { }
+protocol PostService {
+    func getPost(postId: Int) async throws -> PostResponseDTO
+    func scrapPost(postId: Int) async throws
+    func unScrapPost(postId: Int) async throws
+    func scoopPost(postId: Int) async throws -> Bool
+    func getMyUserInfo() async throws -> UserInfoResponseDTO
+    func getOtherUserInfo(userId: Int) async throws -> UserInfoResponseDTO
+    func deletePost(postId: Int) async throws
+}
 
-extension DefaultPostRepository {
+struct DefaultPostService: PostService {
+    let provider = Providers.postProvider
+}
+
+extension DefaultPostService {
     
     public func getPost(postId: Int) async throws -> PostResponseDTO {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.postProvider.request(.getPost(postId: postId)) { result in
+            provider.request(.getPost(postId: postId)) { result in
                 switch result {
                 case .success(let response):
                     do {
@@ -43,7 +55,7 @@ extension DefaultPostRepository {
     
     public func scoopPost(postId: Int) async throws -> Bool {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.postProvider.request(.scoopPost(postId: postId)) { result in
+            provider.request(.scoopPost(postId: postId)) { result in
                 switch result {
                 case .success(let response):
                     do {
@@ -69,7 +81,7 @@ extension DefaultPostRepository {
     
     func deletePost(postId: Int) async throws {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.postProvider.request(.deletePost(postId: postId)) { result in
+            provider.request(.deletePost(postId: postId)) { result in
                 switch result {
                 case .success(let response):
                     do {
@@ -90,7 +102,7 @@ extension DefaultPostRepository {
     // 공용 로직들을 여기에 추가
     private func requestUserInfo(targetType: PostTargetType) async throws -> UserInfoResponseDTO {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.postProvider.request(targetType) { result in
+            provider.request(targetType) { result in
                 switch result {
                 case .success(let response):
                     do {
@@ -112,7 +124,7 @@ extension DefaultPostRepository {
     
     private func requestPostAction(targetType: PostTargetType) async throws {
         return try await withCheckedThrowingContinuation { continuation in
-            Providers.postProvider.request(targetType) { result in
+            provider.request(targetType) { result in
                 switch result {
                 case .success(let response):
                     do {

@@ -13,9 +13,16 @@ extension DependencyValues {
         set { self[MyPageServiceKey.self] = newValue }
     }
     
+    // 레거시 * 사용 안함 *
     var postUseCase: PostUseCase {
         get { self[PostUseCaseKey.self] }
         set { self[PostUseCaseKey.self] = newValue }
+    }
+    //
+    
+    var postService: PostService {
+        get { self[PostServiceKey.self] }
+        set { self[PostServiceKey.self] = newValue }
     }
     
     var homeService: HomeServiceType {
