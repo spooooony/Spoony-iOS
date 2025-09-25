@@ -47,7 +47,7 @@ struct FilteringBottomSheet: View {
                 }
                 .scrollIndicators(.hidden)
                 .coordinateSpace(name: "scroll")
-                .gesture(
+                .simultaneousGesture(
                     DragGesture()
                         .onChanged({ _ in
                             isSegmentTapped = false
