@@ -12,6 +12,9 @@ import CoreLocation
 struct Home: View {
     @Bindable private var store: StoreOf<MapFeature>
     
+    @State private var locationManager = CLLocationManager()
+    @State private var locationDelegate: LocationManagerDelegate?
+    
     init(store: StoreOf<MapFeature>) {
         self.store = store
     }
@@ -184,6 +187,9 @@ struct Home: View {
             store.send(.fetchCategories)
             store.send(.requestLocationPermission)
         }
+        .onAppear {
+            setupLocationManager()
+        }
         .overlay {
             if store.showDailySpoonPopup {
                 SpoonDrawPopupView(
@@ -214,5 +220,17 @@ struct Home: View {
         } message: {
             Text("현재 위치를 확인하려면 위치 권한이 필요합니다. 설정에서 위치 권한을 허용해주세요.")
         }
+    }
+}
+
+private extension Home {
+    private func setupLocationManager() {
+        locationDelegate = LocationManagerDelegate(onLocationUpdate: { location in
+            store.send(.updateUserLocation(location))
+        })
+        locationManager.delegate = locationDelegate
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
     }
 }
