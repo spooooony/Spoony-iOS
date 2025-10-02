@@ -10,17 +10,21 @@ import SwiftUI
 import ComposableArchitecture
 
 struct SplashView: View {
-    private var store: StoreOf<SplashFeature>
+    let store: StoreOf<SplashFeature>
     
     var body: some View {
         VStack {
             Spacer()
             Image(.spoonyLogo)
+                .resizable()
+                .frame(width: 105.adjusted, height: 151.adjustedH)
             Spacer()
         }
+        .frame(maxWidth: .infinity)
         .ignoresSafeArea()
+        .background(.main400)
         .onAppear {
-            store.send(.onAppear)
+            store.send(.viewAction(.onAppear))
         }
     }
 }

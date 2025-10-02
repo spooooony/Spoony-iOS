@@ -11,14 +11,14 @@ protocol RefreshUseCaseProtocol {
     func execute() async throws
 }
 
-struct DefaultRefreshUseCase: RefreshUseCaseProtocol {
-    func execute() async throws {
-        // repository에서 가져오기
+struct RefreshUseCase: RefreshUseCaseProtocol {
+    private let repository: SplashInterface
+    
+    init(repository: SplashInterface) {
+        self.repository = repository
     }
-}
-
-struct MockRefreshUseCase: RefreshUseCaseProtocol {
+    
     func execute() async throws {
-        print("mock refresh !")
+        try await repository.refresh()
     }
 }

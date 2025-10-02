@@ -10,7 +10,9 @@ import ComposableArchitecture
 @Reducer
 struct SplashFeature {
     @ObservableState
-    struct State { }
+    struct State: Equatable {
+        static let initialState = State()
+    }
     
     enum Action {
         case viewAction(ViewAction)
