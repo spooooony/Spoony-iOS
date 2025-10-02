@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Mixpanel
 
 @Reducer
 struct SplashFeature {
@@ -61,6 +62,12 @@ struct SplashFeature {
                     await send(.privateAction(.refreshResult(result)))
                 }
             case .privateAction(.refreshResult(.success)):
+                Mixpanel.mainInstance().track(
+                    event: ConversionAnalysisEvents.Name.loginsuccess
+                )
+                if let userId = UserManager.shared.userId {
+                    Mixpanel.mainInstance().identify(distinctId: "\(userId)")
+                }
                 return .send(.delegate(.routeToHome))
             case .privateAction(.refreshResult(.failure)):
                 return .send(.delegate(.routeToLogin))
