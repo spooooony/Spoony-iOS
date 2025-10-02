@@ -14,17 +14,17 @@ struct SplashView: View {
     
     var body: some View {
         VStack {
-            Spacer()
-            Image(.spoonyLogo)
-                .resizable()
-                .frame(width: 105.adjusted, height: 151.adjustedH)
-            Spacer()
-        }
-        .frame(maxWidth: .infinity)
-        .ignoresSafeArea()
-        .background(.main400)
-        .onAppear {
-            store.send(.viewAction(.onAppear))
+            Color.main400
+                .ignoresSafeArea()
+                .overlay {
+                    Image(.spoonyLogo)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 200)
+                }
+                .onAppear {
+                    store.send(.viewAction(.onAppear))
+                }
         }
     }
 }
