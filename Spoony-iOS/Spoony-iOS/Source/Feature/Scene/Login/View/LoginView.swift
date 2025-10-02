@@ -36,9 +36,6 @@ struct LoginView: View {
                     .padding(.bottom, 70)
             }
         }
-        .onAppear {
-            store.send(.onAppear)
-        }
     }
 }
 

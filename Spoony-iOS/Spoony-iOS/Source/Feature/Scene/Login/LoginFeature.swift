@@ -37,8 +37,6 @@ struct LoginFeature {
     
     enum Action {
         case tempHomeButtonTapped
-        
-        case onAppear
         case kakaoLoginButtonTapped
         case appleLoginButtonTapped
         case login(SocialType, String, String?)
@@ -63,20 +61,6 @@ struct LoginFeature {
             switch action {
             case .tempHomeButtonTapped:
                 return .send(.delegate(.routeToTabCoordinatorScreen))
-            case .onAppear:
-                if authenticationManager.checkAutoLogin() {
-                    Mixpanel.mainInstance().track(
-                        event: ConversionAnalysisEvents.Name.loginsuccess
-                    )
-                    
-                    if let userId = UserManager.shared.userId {
-                        Mixpanel.mainInstance().identify(distinctId: "\(userId)")
-                    }
-                    
-                    return .send(.delegate(.routeToTabCoordinatorScreen))
-                } else {
-                    return .none
-                }
             case .kakaoLoginButtonTapped:
                 return .run { send in
                     do {
