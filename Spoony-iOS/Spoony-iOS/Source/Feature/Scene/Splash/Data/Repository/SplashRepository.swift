@@ -15,7 +15,7 @@ struct SplashRepository: SplashInterface {
     }
     
     func checkAutoLogin() -> Bool {
-        if let _ = KeychainManager.read(key: .accessToken) else {
+        if let _ = KeychainManager.read(key: .accessToken) {
             return true
         } else {
             return false
