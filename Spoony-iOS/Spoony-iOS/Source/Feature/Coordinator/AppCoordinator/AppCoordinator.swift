@@ -12,6 +12,7 @@ import TCACoordinators
 
 @Reducer(state: .equatable)
 enum AppScreen {
+    case splash(SplashFeature)
     case auth(LoginFeature)
     case termsOfService(AgreeFeature)
     case onboarding(OnboardingFeature)
@@ -22,7 +23,7 @@ enum AppScreen {
 struct AppCoordinator {
     @ObservableState
     struct State: Equatable {
-        static let initialState = State(routes: [.root(.auth(.initialState), embedInNavigationView: false)])
+        static let initialState = State(routes: [.root(.splash(.initialState), embedInNavigationView: false)])
         
         var routes: [Route<AppScreen.State>]
         
@@ -41,6 +42,15 @@ struct AppCoordinator {
             switch action {
             case let .router(.routeAction(id: _, action: childDelegateAction)):
                 switch childDelegateAction {
+                case .splash(.delegate(let routeAction)):
+                    switch routeAction {
+                    case .routeToHome:
+                        state.routes = [.root(.tabRootCoordinator(.initialState), embedInNavigationView: false)]
+                        return .none
+                    case .routeToLogin:
+                        state.routes = [.root(.auth(.initialState), embedInNavigationView: false)]
+                        return .none
+                    }
                 case .auth(.delegate(let routeAction)):
                     switch routeAction {
                     case .presentToast(let type):

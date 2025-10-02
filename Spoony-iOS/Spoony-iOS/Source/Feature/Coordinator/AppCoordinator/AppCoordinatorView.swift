@@ -20,6 +20,8 @@ struct AppCoordinatorView: View {
     var body: some View {
         TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
             switch screen.case {
+            case let .splash(store):
+                SplashView(store: store)
             case let .auth(store):
                 LoginView(store: store)
                 
