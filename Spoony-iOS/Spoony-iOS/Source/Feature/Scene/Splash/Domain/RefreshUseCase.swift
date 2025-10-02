@@ -13,7 +13,7 @@ protocol RefreshUseCaseProtocol {
 
 struct DefaultRefreshUseCase: RefreshUseCaseProtocol {
     func execute() async throws {
-        
+        // repository에서 가져오기
     }
 }
 
