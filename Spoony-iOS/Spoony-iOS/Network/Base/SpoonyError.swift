@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum SNError: Error {
+enum SNError: Error, Codable, Equatable {
     case networkFail
     case decodeError
     case noData

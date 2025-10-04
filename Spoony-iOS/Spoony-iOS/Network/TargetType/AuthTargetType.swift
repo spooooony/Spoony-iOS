@@ -59,7 +59,7 @@ extension AuthTargetType: TargetType {
                 parameters = ["platform": platform]
             }
             return .requestParameters(
-                parameters:parameters,
+                parameters: parameters,
                 encoding: JSONEncoding.default
             )
         case .signup(let request, _):

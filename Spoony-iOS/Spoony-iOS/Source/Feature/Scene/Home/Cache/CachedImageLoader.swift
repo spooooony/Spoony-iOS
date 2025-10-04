@@ -75,7 +75,7 @@ class CachedImageLoader: ObservableObject {
                 } else {
                     if !Task.isCancelled {
                         await MainActor.run {
-                            self.loadError = APIError.decodingError
+                            self.loadError = SNError.decodeError
                             self.isLoading = false
                         }
                     }

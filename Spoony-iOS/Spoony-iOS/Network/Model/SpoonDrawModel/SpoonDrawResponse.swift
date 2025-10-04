@@ -10,16 +10,12 @@ import Foundation
 struct SpoonDrawResponseWrapper: Codable, Equatable {
     let success: Bool
     let data: SpoonDrawData?
-    let error: APIError?
+    let error: SNError?
     
     struct SpoonDrawData: Codable, Equatable {
         let spoonDrawResponseDTOList: [SpoonDrawResponse]
         let spoonBalance: Int
         let weeklyBalance: Int
-    }
-    
-    struct APIError: Codable, Equatable {
-        let message: String
     }
 }
 

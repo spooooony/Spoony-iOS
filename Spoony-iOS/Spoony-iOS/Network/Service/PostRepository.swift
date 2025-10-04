@@ -22,26 +22,18 @@ struct DefaultPostService: PostServiceProtocol {
 }
 
 extension DefaultPostService {
-    
     public func getPost(postId: Int) async throws -> PostResponseDTO {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.getPost(postId: postId)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<PostResponseDTO>.self)
-                        if let data = responseDto.data {
-                            continuation.resume(returning: data)
-                        } else {
-                            continuation.resume(throwing: SNError.decodeError)
-                        }
-                    } catch {
-                        continuation.resume(throwing: SNError.etc)
-                    }
-                case .failure:
-                    continuation.resume(throwing: SNError.networkFail)
-                }
+        do {
+            let result = try await self.provider.request(.getPost(postId: postId))
+                .map(to: BaseResponse<PostResponseDTO>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
@@ -54,20 +46,13 @@ extension DefaultPostService {
     }
     
     public func scoopPost(postId: Int) async throws -> Bool {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.scoopPost(postId: postId)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        _ = try response.map(BaseResponse<BlankData>.self)
-                        continuation.resume(returning: true)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
+        do {
+            let result = try await provider.request(.scoopPost(postId: postId))
+                .map(to: BaseResponse<BlankData>.self)
+            
+            return true
+        } catch {
+            throw error
         }
     }
     
@@ -80,20 +65,13 @@ extension DefaultPostService {
     }
     
     func deletePost(postId: Int) async throws {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.deletePost(postId: postId)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        _ = try response.map(BaseResponse<BlankData>.self)
-                        continuation.resume()
-                    } catch {
-                        continuation.resume(throwing: SNError.decodeError)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
+        do {
+            let result = try await provider.request(.deletePost(postId: postId))
+                .map(to: BaseResponse<BlankData>.self)
+            
+            return
+        } catch {
+            throw error
         }
     }
     
@@ -101,42 +79,28 @@ extension DefaultPostService {
     
     // 공용 로직들을 여기에 추가
     private func requestUserInfo(targetType: PostTargetType) async throws -> UserInfoResponseDTO {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(targetType) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<UserInfoResponseDTO>.self)
-                        if let data = responseDto.data {
-                            continuation.resume(returning: data)
-                        } else {
-                            continuation.resume(throwing: SNError.decodeError)
-                        }
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure:
-                    continuation.resume(throwing: PostError.userError)
-                }
+        do {
+            let result = try await provider.request(targetType)
+                .map(to: BaseResponse<UserInfoResponseDTO>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
     private func requestPostAction(targetType: PostTargetType) async throws {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(targetType) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        _ = try response.map(BaseResponse<BlankData>.self)
-                        continuation.resume()
-                    } catch {
-                        continuation.resume(throwing: SNError.decodeError)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
+        do {
+            let result = try await provider.request(targetType)
+                .map(to: BaseResponse<BlankData>.self)
+            
+            return
+        } catch {
+            throw error
         }
     }
 }
