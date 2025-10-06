@@ -37,7 +37,7 @@ extension MoyaProvider {
 
 extension MoyaProvider {
     func request(_ target: Target) async throws -> NetworkResponse {
-        return try await withUnsafeThrowingContinuation { continuation in
+        return try await withCheckedThrowingContinuation { continuation in
             request(target) { result in
                 switch result {
                 case .success(let response):
