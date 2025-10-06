@@ -267,7 +267,7 @@ struct AttendanceFeature {
                     state.updateAttendedWeekdays()
                     
                     return .send(.checkDailyVisit)
-                } else if let errorMessage = response.error?.message {
+                } else if let errorMessage = response.error?.description {
                     state.errorMessage = errorMessage
                 }
                 return .none

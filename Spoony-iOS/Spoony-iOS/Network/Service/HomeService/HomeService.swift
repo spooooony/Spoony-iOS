@@ -20,107 +20,77 @@ final class DefaultHomeService: HomeServiceType {
     let provider = Providers.homeProvider
 
     func fetchPickList() async throws -> ResturantpickListResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.getMapList) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<ResturantpickListResponse>.self)
-                        guard let data = responseDto.data
-                        else { throw SNError.decodeError }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await provider.request(.getMapList)
+                .map(to: BaseResponse<ResturantpickListResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
     func fetchSpoonCount() async throws -> Int {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.getSpoonCount) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<SpoonCountResponse>.self)
-                        guard let data = responseDto.data
-                        else { throw SNError.decodeError }
-                        
-                        continuation.resume(returning: data.spoonAmount)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await provider.request(.getSpoonCount)
+                .map(to: BaseResponse<SpoonCountResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data.spoonAmount
+        } catch {
+            throw error
         }
     }
 
     func fetchFocusedPlace(placeId: Int) async throws -> MapFocusResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.getMapFocus(placeId: placeId)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<MapFocusResponse>.self)
-                        guard let data = responseDto.data
-                        else { throw SNError.decodeError }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await provider.request(.getMapFocus(placeId: placeId))
+                .map(to: BaseResponse<MapFocusResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
     func fetchLocationList(locationId: Int) async throws -> ResturantpickListResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.getLocationList(locationId: locationId)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<ResturantpickListResponse>.self)
-                        guard let data = responseDto.data
-                        else { throw SNError.decodeError }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await provider.request(.getLocationList(locationId: locationId))
+                .map(to: BaseResponse<ResturantpickListResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
     func drawDailySpoon() async throws -> SpoonDrawResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.drawSpoon) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<SpoonDrawResponse>.self)
-                        guard let data = responseDto.data
-                        else { throw SNError.decodeError }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await provider.request(.drawSpoon)
+                .map(to: BaseResponse<SpoonDrawResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
 }

@@ -17,70 +17,49 @@ final class DefaultBlockService: BlockServiceProtocol {
     private let provider = Providers.myPageProvider
     
     func blockUser(userId: Int) async throws {
-        try await withCheckedThrowingContinuation { continuation in
+        do {
             let request = TargetUserRequest(targetUserId: userId)
-            provider.request(.blockUser(request: request)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let dto = try response.map(BaseResponse<BlankData>.self)
-                        if dto.success {
-                            continuation.resume()
-                        } else {
-                            continuation.resume(throwing: SNError.etc)
-                        }
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+            let result = try await self.provider.request(.blockUser(request: request))
+                .map(to: BaseResponse<BlankData>.self)
+            
+            if result.success {
+                return
+            } else {
+                throw SNError.etc
             }
+        } catch {
+            throw error
         }
     }
     
     func unblockUser(userId: Int) async throws {
-        try await withCheckedThrowingContinuation { continuation in
+        do {
             let request = TargetUserRequest(targetUserId: userId)
-            provider.request(.unblockUser(request: request)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let dto = try response.map(BaseResponse<BlankData>.self)
-                        if dto.success {
-                            continuation.resume()
-                        } else {
-                            continuation.resume(throwing: SNError.etc)
-                        }
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+            let result = try await provider.request(.unblockUser(request: request))
+                .map(to: BaseResponse<BlankData>.self)
+            
+            if result.success {
+                return
+            } else {
+                throw SNError.etc
             }
+        } catch {
+            throw error
         }
     }
     
     func getBlockedUsers() async throws -> [BlockedUserModel] {
-        try await withCheckedThrowingContinuation { continuation in
-            provider.request(.getBlockedUsers) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let dto = try response.map(BaseResponse<BlockedUsersResponse>.self)
-                        guard let data = dto.data else {
-                            continuation.resume(throwing: SNError.noData)
-                            return
-                        }
-                        continuation.resume(returning: data.users)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await provider.request(.getBlockedUsers)
+                .map(to: BaseResponse<BlockedUsersResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data.users
+        } catch {
+            throw error
         }
     }
 }

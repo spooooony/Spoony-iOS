@@ -41,7 +41,7 @@ final class DefaultExploreService: ExploreProtocol {
         sort: SortType,
         cursor: String?
     ) async throws -> FilteredFeedResponse {
-        return try await withCheckedThrowingContinuation { continuation in
+        do {
             let request: FilteredFeedRequest = .init(
                 isLocal: isLocal,
                 categoryIds: category,
@@ -50,123 +50,92 @@ final class DefaultExploreService: ExploreProtocol {
                 sortBy: sort.rawValue,
                 cursor: cursor
             )
-            provider.request(.getFilteredFeedList(request)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<FilteredFeedResponse>.self)
-                        guard let data = responseDto.data
-                        else { throw SNError.decodeError }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+            
+            let result = try await provider.request(.getFilteredFeedList(request))
+                .map(to: BaseResponse<FilteredFeedResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
 
     func getFollowingFeedList() async throws -> FeedListResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.getFollowingFeedList) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<FeedListResponse>.self)
-                        guard let data = responseDto.data
-                        else { throw SNError.decodeError }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await provider.request(.getFollowingFeedList)
+                .map(to: BaseResponse<FeedListResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
     func getCategoryList() async throws -> CategoryListResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            registerProvider.request(.getRegisterCategories) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<CategoryListResponse>.self)
-                        guard let data = responseDto.data else { return }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await registerProvider.request(.getRegisterCategories)
+                .map(to: BaseResponse<CategoryListResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
     func getRegionList() async throws -> RegionListResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            mypageProvider.request(.getUserRegion) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<RegionListResponse>.self)
-                        guard let data = responseDto.data else { return }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await mypageProvider.request(.getUserRegion)
+                .map(to: BaseResponse<RegionListResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
     func searchUser(keyword: String) async throws -> UserSimpleListResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            mypageProvider.request(.searchUser(query: keyword)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<UserSimpleListResponse>.self)
-                        guard let data = responseDto.data else { return }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await mypageProvider.request(.searchUser(query: keyword))
+                .map(to: BaseResponse<UserSimpleListResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
     func searchReview(keyword: String) async throws -> ReviewSearchListResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.searchPost(query: keyword)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<ReviewSearchListResponse>.self)
-                        guard let data = responseDto.data else { return }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await provider.request(.searchPost(query: keyword))
+                .map(to: BaseResponse<ReviewSearchListResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+                
+            return data
+        } catch {
+            throw error
         }
     }
 }

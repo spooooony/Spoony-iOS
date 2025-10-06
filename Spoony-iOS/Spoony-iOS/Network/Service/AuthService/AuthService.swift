@@ -31,40 +31,29 @@ final class DefaultAuthService: AuthProtocol {
     let myPageProvider = Providers.myPageProvider
     
     func login(platform: String, token: String, code: String?) async throws -> Bool {
-        return try await withCheckedThrowingContinuation { continuation in
+        do {
+            let result = try await provider.request(.login(platform: platform, token: token, code: code))
+                .map(to: BaseResponse<LoginResponse>.self)
             
-            provider.request(.login(platform: platform, token: token, code: code)) { result in
-                
-                switch result {
-                case .success(let response):
-                    do {
-                        let dto = try response.map(BaseResponse<LoginResponse>.self)
-                        guard let data = dto.data
-                        else {
-                            continuation.resume(throwing: SNError.noData)
-                            return
-                        }
-                        
-                        if let token = data.jwtTokenDto {
-                            KeychainManager.saveKeychain(
-                                access: token.accessToken,
-                                refresh: token.refreshToken,
-                                platform: platform
-                            )
-                        }
-                        
-                        if let userId = UserManager.shared.userId {
-                            Mixpanel.mainInstance().identify(distinctId: "\(userId)")
-                        }
-                        
-                        continuation.resume(returning: data.exists)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            if let token = data.jwtTokenDto {
+                KeychainManager.saveKeychain(
+                    access: token.accessToken,
+                    refresh: token.refreshToken,
+                    platform: platform
+                )
+            }
+            
+            if let userId = UserManager.shared.userId {
+                Mixpanel.mainInstance().identify(distinctId: "\(userId)")
+            }
+            
+            return data.exists
+        } catch {
+            throw error
         }
     }
     
@@ -77,7 +66,7 @@ final class DefaultAuthService: AuthProtocol {
         token: String,
         code: String? = nil
     ) async throws -> String {
-        return try await withCheckedThrowingContinuation { continuation in
+        do {
             let request: SignupRequest = .init(
                 platform: platform,
                 userName: userName,
@@ -86,116 +75,79 @@ final class DefaultAuthService: AuthProtocol {
                 introduction: introduction,
                 authCode: code
             )
-            print("request: \(request)")
-            provider.request(.signup(request, token: token)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let dto = try response.map(BaseResponse<SignupResponse>.self)
-                        guard let data = dto.data
-                        else {
-                            continuation.resume(throwing: SNError.noData)
-                            return
-                        }
-                        UserManager.shared.userId = data.user.userId
-                        Mixpanel.mainInstance().identify(distinctId: "\(data.user.userId)")
-                        
-                        let user = data.user.userName
-                        let token = data.jwtTokenDto
-                        KeychainManager.saveKeychain(
-                            access: token.accessToken,
-                            refresh: token.refreshToken,
-                            platform: platform
-                        )
-                        
-                        continuation.resume(returning: user)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+            
+            let result = try await provider.request(.signup(request, token: token))
+                .map(to: BaseResponse<SignupResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            UserManager.shared.userId = data.user.userId
+            Mixpanel.mainInstance().identify(distinctId: "\(data.user.userId)")
+            
+            let user = data.user.userName
+            let token = data.jwtTokenDto
+            KeychainManager.saveKeychain(
+                access: token.accessToken,
+                refresh: token.refreshToken,
+                platform: platform
+            )
+            
+            return user
+        } catch {
+            throw error
         }
     }
     
     func nicknameDuplicateCheck(userName: String) async throws -> Bool {
-        return try await withCheckedThrowingContinuation { continuation in
-            myPageProvider.request(.nicknameDuplicateCheck(query: userName)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let dto = try response.map(BaseResponse<Bool>.self)
-                        guard let data = dto.data
-                        else {
-                            continuation.resume(throwing: SNError.noData)
-                            return
-                        }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await myPageProvider.request(.nicknameDuplicateCheck(query: userName))
+                .map(to: BaseResponse<Bool>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
     func getRegionList() async throws -> RegionListResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            myPageProvider.request(.getUserRegion) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<RegionListResponse>.self)
-                        guard let data = responseDto.data else { return }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await myPageProvider.request(.getUserRegion)
+                .map(to: BaseResponse<RegionListResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
     func logout() async throws -> Bool {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.logout) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let dto = try response.map(BaseResponse<BlankData>.self)
-                        continuation.resume(returning: dto.success)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
+        do {
+            let result = try await provider.request(.logout)
+                .map(to: BaseResponse<BlankData>.self)
+            
+            return result.success
+        } catch {
+            throw error
         }
     }
     
     func withdraw() async throws -> Bool {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.withdraw) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let dto = try response.map(BaseResponse<BlankData>.self)
-                        continuation.resume(returning: dto.success)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
+        do {
+            let result = try await provider.request(.withdraw)
+                .map(to: BaseResponse<BlankData>.self)
+            return result.success
+        } catch {
+            throw error
         }
     }
 }

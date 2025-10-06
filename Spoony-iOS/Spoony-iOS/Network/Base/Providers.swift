@@ -34,3 +34,24 @@ extension MoyaProvider {
         }
     }
 }
+
+extension MoyaProvider {
+    func request(_ target: Target) async throws -> NetworkResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            request(target) { result in
+                switch result {
+                case .success(let response):
+                    continuation.resume(
+                        returning: NetworkResponse(
+                            statusCode: response.statusCode,
+                            data: response.data,
+                            response: response.response
+                        )
+                    )
+                case .failure(let error):
+                    continuation.resume(throwing: SNError.networkFail)
+                }
+            }
+        }
+    }
+}
