@@ -71,6 +71,7 @@ struct OnboardingFeature {
     private let authenticationManager = AuthenticationManager.shared
     @Dependency(\.authService) var authService: AuthProtocol
     @Dependency(\.fetchRegionUseCase) var fetchRegionUseCase: FetchRegionUseCaseProtocol
+    @Dependency(\.checkNicknameDuplicateUseCase) var chekcNicknameDuplicateUseCase: CheckNicknameDuplicateUseCaseProtocol
     
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -158,7 +159,7 @@ struct OnboardingFeature {
                 if state.nicknameErrorState == .noError {
                     return .run { [state] send in
                         do {
-                            let isDuplicated = try await authService.nicknameDuplicateCheck(userName: state.nicknameText)
+                            let isDuplicated = try await chekcNicknameDuplicateUseCase.execute(nickname: state.nicknameText)
                             
                             if isDuplicated {
                                 await send(.setNicknameError(.duplicateNicknameError))
