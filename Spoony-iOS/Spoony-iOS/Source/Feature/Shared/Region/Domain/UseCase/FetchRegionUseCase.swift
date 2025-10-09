@@ -6,7 +6,7 @@
 //
 
 protocol FetchRegionUseCaseProtocol {
-    func fetchRegionList() async throws -> [Region]
+    func execute() async throws -> [Region]
 }
 
 struct FetchRegionUseCase: FetchRegionUseCaseProtocol {
@@ -16,7 +16,7 @@ struct FetchRegionUseCase: FetchRegionUseCaseProtocol {
         self.repository = repository
     }
     
-    func fetchRegionList() async throws -> [Region] {
+    func execute() async throws -> [Region] {
         return try await repository.fetchRegionList()
     }
 }

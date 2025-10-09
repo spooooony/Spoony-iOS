@@ -70,6 +70,7 @@ struct OnboardingFeature {
     
     private let authenticationManager = AuthenticationManager.shared
     @Dependency(\.authService) var authService: AuthProtocol
+    @Dependency(\.fetchRegionUseCase) var fetchRegionUseCase: FetchRegionUseCaseProtocol
     
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -146,7 +147,7 @@ struct OnboardingFeature {
             case .infoStepViewOnAppear:
                 return .run { send in
                     do {
-                        let list = try await authService.getRegionList().toEntity()
+                        let list = try await fetchRegionUseCase.execute()
                         await send(.setRegion(list))
                     } catch {
                         await send(.error(SNError.networkFail))
