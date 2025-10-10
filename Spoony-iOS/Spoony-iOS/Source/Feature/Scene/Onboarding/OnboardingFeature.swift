@@ -44,14 +44,21 @@ struct OnboardingFeature {
     }
     
     enum Action: BindableAction {
+        case viewAction(ViewAction)
+        case privateAction(PrivateAction)
+        case delegate(Delegate)
         case binding(BindingAction<State>)
+    }
+    
+    enum ViewAction {
+        case infoStepViewOnAppear
         case tappedNextButton
         case tappedBackButton
         case tappedSkipButton
-        
-        case infoStepViewOnAppear
-        
         case checkNickname
+    }
+    
+    enum PrivateAction {
         case signup
         
         case setUserNickname(String)
@@ -59,26 +66,24 @@ struct OnboardingFeature {
         case setRegion([Region])
         
         case error(Error)
-        
-        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
-        case delegate(Delegate)
-        enum Delegate {
-            case routeToTabCoordinatorScreen
-            case presentToast(ToastType)
-        }
     }
     
-    private let authenticationManager = AuthenticationManager.shared
-    @Dependency(\.authService) var authService: AuthProtocol
+    enum Delegate: Equatable {
+        case routeToTabCoordinatorScreen
+        case presentToast(ToastType)
+    }
+
     @Dependency(\.fetchRegionUseCase) var fetchRegionUseCase: FetchRegionUseCaseProtocol
     @Dependency(\.checkNicknameDuplicateUseCase) var chekcNicknameDuplicateUseCase: CheckNicknameDuplicateUseCaseProtocol
+    @Dependency(\.signUpUseCase) var signUpUseCase: SignUpUseCaseProtocol
     
     var body: some ReducerOf<Self> {
         BindingReducer()
         
         Reduce { state, action in
             switch action {
-            case .tappedNextButton:
+            // MARK: - viewAction
+            case .viewAction(.tappedNextButton):
                 switch state.currentStep {
                 case .nickname:
                     state.currentStep = .information
@@ -104,14 +109,13 @@ struct OnboardingFeature {
                         properties: property.dictionary
                     )
                     
-                    return .send(.signup)
+                    return .send(.privateAction(.signup))
                 case .finish:
-                    UserManager.shared.completeOnboarding()
                     return .send(.delegate(.routeToTabCoordinatorScreen))
                 }
                 return .none
                 
-            case .tappedBackButton:
+            case .viewAction(.tappedBackButton):
                 switch state.currentStep {
                 case .nickname,
                         .finish:
@@ -123,7 +127,7 @@ struct OnboardingFeature {
                 }
                 return .none
                 
-            case .tappedSkipButton:
+            case .viewAction(.tappedSkipButton):
                 switch state.currentStep {
                 case .nickname:
                     break
@@ -139,35 +143,35 @@ struct OnboardingFeature {
                     state.introduceError = true
                     
                     Mixpanel.mainInstance().track(event: OnboardingEvents.Name.onboarding3Skiped)
-                    return .send(.signup)
+                    return .send(.privateAction(.signup))
                 case .finish:
                     break
                 }
                 return .none
                 
-            case .infoStepViewOnAppear:
+            case .viewAction(.infoStepViewOnAppear):
                 return .run { send in
                     do {
                         let list = try await fetchRegionUseCase.execute()
-                        await send(.setRegion(list))
+                        await send(.privateAction(.setRegion(list)))
                     } catch {
-                        await send(.error(SNError.networkFail))
+                        await send(.privateAction(.error(SNError.networkFail)))
                     }
                 }
                 
-            case .checkNickname:
+            case .viewAction(.checkNickname):
                 if state.nicknameErrorState == .noError {
                     return .run { [state] send in
                         do {
                             let isDuplicated = try await chekcNicknameDuplicateUseCase.execute(nickname: state.nicknameText)
                             
                             if isDuplicated {
-                                await send(.setNicknameError(.duplicateNicknameError))
+                                await send(.privateAction(.setNicknameError(.duplicateNicknameError)))
                             } else {
-                                await send(.setNicknameError(.avaliableNickname))
+                                await send(.privateAction(.setNicknameError(.avaliableNickname)))
                             }
                         } catch {
-                            await send(.error(SNError.networkFail))
+                            await send(.privateAction(.error(SNError.networkFail)))
                         }
                     }
                 }
@@ -177,15 +181,16 @@ struct OnboardingFeature {
                 }
                 return .none
                 
-            case .setNicknameError(let error):
+            // MARK: - privateAction
+            case .privateAction(.setNicknameError(let error)):
                 state.nicknameErrorState = error
                 return .none
                 
-            case .setRegion(let list):
+            case .privateAction(.setRegion(let list)):
                 state.regionList = list
                 return .none
                 
-            case .signup:
+            case .privateAction(.signup):
                 state.isLoading = true
                 return .run { [state] send in
                     var birthString = ""
@@ -194,55 +199,39 @@ struct OnboardingFeature {
                     }
                     
                     do {
-                        guard let token = authenticationManager.socialToken
-                        else { return }
-                        let user: String
-                        if let code = authenticationManager.appleCode {
-                            user = try await authService.signup(
-                                platform: authenticationManager.socialType.rawValue,
-                                userName: state.nicknameText,
-                                birth: birthString,
-                                regionId: state.subRegion?.id ?? nil,
-                                introduction: state.introduceText,
-                                token: token,
-                                code: code
-                            )
-                        } else {
-                            user = try await authService.signup(
-                                platform: authenticationManager.socialType.rawValue,
-                                userName: state.nicknameText,
-                                birth: birthString,
-                                regionId: state.subRegion?.id ?? nil,
-                                introduction: state.introduceText,
-                                token: token,
-                                code: nil
-                            )
-                        }
+                        let signUpInfo = SignUpEntity(
+                            userName: state.nicknameText,
+                            birth: birthString,
+                            regionId: state.subRegion?.id ?? nil,
+                            introduction: state.introduceText
+                        )
+                        let nickname = try await signUpUseCase.execute(info: signUpInfo)
+
+                        Mixpanel.mainInstance().identify(distinctId: String(UserManager.shared.userId ?? 0))
                         
-                        await send(.setUserNickname(user))
+                        await send(.privateAction(.setUserNickname(nickname)))
                     } catch {
-                        await send(.error(SNError.networkFail))
+                        await send(.privateAction(.error(SNError.networkFail)))
                     }
                 }
                 
-            case .setUserNickname(let nickname):
+            case .privateAction(.setUserNickname(let nickname)):
                 state.isLoading = false
                 state.userNickname = nickname
                 state.currentStep = .finish
-                UserManager.shared.hasCompletedOnboarding = true
                 return .none
                 
-            case .error:
+            case .privateAction(.error):
                 state.isLoading = false
                 return .send(.delegate(.presentToast(.serverError)))
                 
+            // MARK: - Binding
             case .binding(\.subRegion):
                 if state.subRegion != nil {
                     state.infoError = false
                 }
                 return .none
             case .binding(\.birth):
-                
                 guard let year = state.birth.first else { return .none }
                 
                 if !year.isEmpty {
@@ -250,10 +239,7 @@ struct OnboardingFeature {
                 }
                 return .none
                 
-            case .binding:
-                return .none
-                
-            case .delegate:
+            default:
                 return .none
             }
         }

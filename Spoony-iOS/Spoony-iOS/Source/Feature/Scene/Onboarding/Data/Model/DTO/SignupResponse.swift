@@ -32,7 +32,6 @@ extension SignupResponse {
 }
 
 extension SignupResponse.UserResponse {
-    
     struct RegionResponse: Codable {
         let regionId: Int
         let regionName: String

@@ -28,7 +28,7 @@ struct NicknameStepView: View {
             .padding(.top, 28)
             .focused($isFocused)
             .onSubmit {
-                store.send(.checkNickname)
+                store.send(.viewAction(.checkNickname))
                 hideKeyboard()
             }
             
@@ -40,7 +40,7 @@ struct NicknameStepView: View {
                 title: "다음",
                 disabled: $store.nicknameError
             ) {
-                store.send(.tappedNextButton)
+                store.send(.viewAction(.tappedNextButton))
             }
             .padding(.bottom, 20)
         }

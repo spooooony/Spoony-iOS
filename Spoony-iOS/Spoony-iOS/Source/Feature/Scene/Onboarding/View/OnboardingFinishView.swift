@@ -44,7 +44,7 @@ struct OnboardingFinishView: View {
                     .foregroundStyle(.gray400)
                 
                 SpoonyButton(style: .primary, size: .xlarge, title: "스푸니 시작하기 ", disabled: .constant(false)) {
-                    store.send(.tappedNextButton)
+                    store.send(.viewAction(.tappedNextButton))
                 }
             }
             .padding(.bottom, 20)

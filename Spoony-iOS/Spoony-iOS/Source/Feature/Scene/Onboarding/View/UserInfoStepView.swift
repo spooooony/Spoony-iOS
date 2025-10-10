@@ -10,8 +10,6 @@ import ComposableArchitecture
 
 struct UserInfoStepView: View {
     @Bindable private var store: StoreOf<OnboardingFeature>
-    
-    private var isRegionSelected: Bool = true
 
     init(store: StoreOf<OnboardingFeature>) {
         self.store = store
@@ -30,7 +28,7 @@ struct UserInfoStepView: View {
                 title: "다음",
                 disabled: $store.state.infoError
             ) {
-                store.send(.tappedNextButton)
+                store.send(.viewAction(.tappedNextButton))
             }
             .padding(.bottom, 20)
         }

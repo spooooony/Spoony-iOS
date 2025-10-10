@@ -29,7 +29,7 @@ struct OnboardingView: View {
                     case .information:
                         UserInfoStepView(store: store)
                             .onAppear {
-                                store.send(.infoStepViewOnAppear)
+                                store.send(.viewAction(.infoStepViewOnAppear))
                             }
                     case .introduce:
                         UserIntroduceView(store: store)
@@ -45,7 +45,7 @@ struct OnboardingView: View {
                 hideKeyboard()
                 
                 if store.state.currentStep == .nickname {
-                    store.send(.checkNickname)
+                    store.send(.viewAction(.checkNickname))
                 }
             }
         }
@@ -59,9 +59,9 @@ extension OnboardingView {
             CustomNavigationBar(
                 style: .onboarding,
                 onBackTapped: {
-                    store.send(.tappedBackButton)
+                    store.send(.viewAction(.tappedBackButton))
                 }, tappedAction: {
-                    store.send(.tappedSkipButton)
+                    store.send(.viewAction(.tappedSkipButton))
                 })
             .isHidden(store.state.currentStep == .nickname)
             .padding(.horizontal, -20)

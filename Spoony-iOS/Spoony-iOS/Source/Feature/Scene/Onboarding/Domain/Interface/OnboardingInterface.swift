@@ -7,4 +7,5 @@
 
 protocol OnboardingInterface {
     func checkNicknameDuplicate(nickname: String) async throws -> Bool
+    func signup(info: SignUpEntity) async throws -> String
 }

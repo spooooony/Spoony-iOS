@@ -32,7 +32,7 @@ struct UserIntroduceView: View {
             Spacer()
             
             SpoonyButton(style: .primary, size: .xlarge, title: "다음", disabled: $store.state.introduceError) {
-                store.send(.tappedNextButton)
+                store.send(.viewAction(.tappedNextButton))
             }
             .padding(.bottom, 20)
         }
