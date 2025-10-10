@@ -1,5 +1,5 @@
 //
-//  PlaceInfoType.swift
+//  PlaceInfoCase.swift
 //  Spoony-iOS
 //
 //  Created by 최안용 on 1/17/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum PlaceInfoType {
+enum PlaceInfoCase {
     case listCell
     case selectedCell
     case editModeCell

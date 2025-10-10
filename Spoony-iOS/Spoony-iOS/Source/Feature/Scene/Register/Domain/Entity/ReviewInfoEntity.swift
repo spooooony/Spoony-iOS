@@ -1,5 +1,5 @@
 //
-//  ReviewInfo.swift
+//  ReviewInfoEntity.swift
 //  Spoony-iOS
 //
 //  Created by 최안용 on 5/7/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ReviewInfo: Equatable {
+struct ReviewInfoEntity: Equatable {
     let userId: Int
     let savedCount: Int
     let uploadImages: [UploadImage]

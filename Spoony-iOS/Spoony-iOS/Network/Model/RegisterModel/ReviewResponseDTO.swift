@@ -1,5 +1,5 @@
 //
-//  ReviewResponse.swift
+//  ReviewResponseDTO.swift
 //  Spoony-iOS
 //
 //  Created by 최안용 on 5/5/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ReviewResponse: Codable {
+struct ReviewResponseDTO: Codable {
     let userId: Int
     let zzimCount: Int
     let photoUrlList: [String]
@@ -20,8 +20,8 @@ struct ReviewResponse: Codable {
     let categoryColorResponse: CategoryColorResponse
 }
 
-extension ReviewResponse {
-    func toModel() -> ReviewInfo {
+extension ReviewResponseDTO {
+    func toEntity() -> ReviewInfoEntity {
         return .init(
             userId: userId,
             savedCount: zzimCount,

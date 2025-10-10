@@ -36,7 +36,7 @@ struct ReviewStepFeature {
         var selectableCount = 5
         var pickerItems: [PhotosPickerItem] = []
         var uploadImages: [UploadImage] = []
-        var uploadImageErrorState: UploadImageErrorState = .initial
+        var uploadImageErrorState: UploadImageErrorCase = .initial
         var deleteImagesUrl: [String] = []
         
         // MARK: - 아쉬운 점 관련 property

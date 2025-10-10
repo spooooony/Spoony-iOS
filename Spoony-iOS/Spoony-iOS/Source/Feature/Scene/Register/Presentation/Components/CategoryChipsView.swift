@@ -10,10 +10,10 @@ import SwiftUI
 import Kingfisher
 
 struct CategoryChipsView: View {
-    private var category: CategoryChip
+    private var category: CategoryChipEntity
     private var isSelected: Bool
     
-    init(category: CategoryChip, isSelected: Bool = false) {
+    init(category: CategoryChipEntity, isSelected: Bool = false) {
         self.category = category
         self.isSelected = isSelected
     }

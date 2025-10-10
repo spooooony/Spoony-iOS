@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct PlaceInfoCell: View {
-    let placeInfo: PlaceInfo
-    let placeInfoType: PlaceInfoType
+    let placeInfo: PlaceInfoEntity
+    let placeInfoType: PlaceInfoCase
     let action: (() -> Void)?
     
     init(
-        placeInfo: PlaceInfo,
-        placeInfoType: PlaceInfoType,
+        placeInfo: PlaceInfoEntity,
+        placeInfoType: PlaceInfoCase,
         action: (() -> Void)? = nil
     ) {
         self.placeInfo = placeInfo

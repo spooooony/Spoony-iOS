@@ -28,13 +28,13 @@ struct InfoStepFeature {
         var isLoadError: Bool = false
         
         // MARK: - 카테고리 관련 property
-        var selectedCategory: [CategoryChip] = []
-        var categories: [CategoryChip] = []
+        var selectedCategory: [CategoryChipEntity] = []
+        var categories: [CategoryChipEntity] = []
 
         // MARK: - 검색 관련 property
         var placeText: String = ""
-        var searchedPlaces: [PlaceInfo] = []
-        var selectedPlace: PlaceInfo?
+        var searchedPlaces: [PlaceInfoEntity] = []
+        var selectedPlace: PlaceInfoEntity?
         var isDropDownPresented: Bool = false
         
         // MARK: - 추천 메뉴 관련 property
@@ -55,16 +55,16 @@ struct InfoStepFeature {
         case updateIsLoadError(Bool)
         
         // MARK: - 카테고리 관련 이벤트
-        case categoryResponse([CategoryChip])
+        case categoryResponse([CategoryChipEntity])
         case loadSelectedCategory
         
         // MARK: - 검색 관련 이벤트
         case didTapSearchDeleteIcon
         case didTapKeyboardEnter
-        case searchPlaceResponse([PlaceInfo])
-        case didTapPlaceInfoCell(PlaceInfo)
+        case searchPlaceResponse([PlaceInfoEntity])
+        case didTapPlaceInfoCell(PlaceInfoEntity)
         case didTapPlaceInfoCellIcon
-        case updatePlace(PlaceInfo?)
+        case updatePlace(PlaceInfoEntity?)
         case didTapNextButton
         
         // MARK: - 추천 메뉴 관련 이벤트
@@ -83,7 +83,9 @@ struct InfoStepFeature {
         }
     }
     
-    @Dependency(\.registerService) var network: RegisterServiceType
+    @Dependency(\.getCategoriesUseCase) var getCategoriesUseCase: GetCategoriesUseCaseProtocol
+    @Dependency(\.searchPlaceUseCase) var searchPlaceUseCase: SearchPlaceUseCaseProtocol
+    @Dependency(\.validatePlaceUseCase) var validatePlaceUseCase: ValidatePlaceUseCaseProtocol
     
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -93,7 +95,7 @@ struct InfoStepFeature {
             case .onAppear:
                 return .run { send in
                     do {
-                        let categories = try await network.getRegisterCategories().toModel()
+                        let categories = try await getCategoriesUseCase.execute()
                         
                         await send(.categoryResponse(categories))
                     } catch {
@@ -133,7 +135,7 @@ struct InfoStepFeature {
                 
                 return .run { [searchText] send in
                     do {
-                        let places = try await network.searchPlace(query: searchText).toModel()
+                        let places = try await searchPlaceUseCase.execute(query: searchText)
                         
                         await send(.searchPlaceResponse(places))
                     } catch {
@@ -145,14 +147,12 @@ struct InfoStepFeature {
                 state.searchedPlaces = places
                 return places.isEmpty ? .send(.delegate(.presentToast(.noSearchResult))) : .none
             case .didTapPlaceInfoCell(let place):
-                let request = ValidatePlaceRequest(
-                    latitude: place.latitude,
-                    longitude: place.longitude
-                )
-                
-                return .run { [request] send in
+                return .run { [latitude = place.latitude, longitude = place.longitude] send in
                     do {
-                        let isDuplicate = try await network.validatePlace(request: request).duplicate
+                        let isDuplicate = try await validatePlaceUseCase.execute(
+                            latitude: latitude,
+                            longitude: longitude
+                        )
                         
                         if isDuplicate {
                             await send(.updatePlace(nil))

@@ -1,5 +1,5 @@
 //
-//  RegisterPostRequest.swift
+//  RegisterPostRequestDTO.swift
 //  Spoony-iOS
 //
 //  Created by 최안용 on 1/22/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RegisterPostRequest: Codable {
+struct RegisterPostRequestDTO: Codable {
     let title: String
     let description: String
     let value: Double

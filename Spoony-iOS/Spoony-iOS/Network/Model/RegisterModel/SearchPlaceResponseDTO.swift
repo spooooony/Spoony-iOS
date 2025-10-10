@@ -1,5 +1,5 @@
 //
-//  SearchPlaceResponse.swift
+//  SearchPlaceResponseDTO.swift
 //  Spoony-iOS
 //
 //  Created by 최안용 on 1/21/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct SearchPlaceResponse: Codable {
+struct SearchPlaceResponseDTO: Codable {
     let placeList: [PlaceResponse]
 }
 
@@ -19,8 +19,8 @@ struct PlaceResponse: Codable {
     let longitude: Double
 }
 
-extension SearchPlaceResponse {
-    func toModel() -> [PlaceInfo] {
+extension SearchPlaceResponseDTO {
+    func toEntity() -> [PlaceInfoEntity] {
         return placeList.map {
             .init(
                 placeName: $0.placeName,
