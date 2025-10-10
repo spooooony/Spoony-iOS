@@ -10,21 +10,21 @@ import Foundation
 import Moya
 
 protocol RegisterServiceType {
-    func searchPlace(query: String) async throws -> SearchPlaceResponse
-    func validatePlace(request: ValidatePlaceRequest) async throws -> ValidatePlaceResponse
-    func registerPost(request: RegisterPostRequest, imagesData: [Data]) async throws -> Bool
-    func editPost(request: EditPostRequest, imagesData: [Data]) async throws -> Bool
+    func searchPlace(query: String) async throws -> SearchPlaceResponseDTO
+    func validatePlace(request: ValidatePlaceRequestDTO) async throws -> ValidatePlaceResponseDTO
+    func registerPost(request: RegisterPostRequestDTO, imagesData: [Data]) async throws -> Bool
+    func editPost(request: EditPostRequestDTO, imagesData: [Data]) async throws -> Bool
     func getRegisterCategories() async throws -> CategoryListResponse
-    func getReviewInfo(postId: Int) async throws -> ReviewResponse
+    func getReviewInfo(postId: Int) async throws -> ReviewResponseDTO
 }
 
 final class RegisterService: RegisterServiceType {
     private let provider = Providers.registerProvider
     
-    func searchPlace(query: String) async throws -> SearchPlaceResponse {
+    func searchPlace(query: String) async throws -> SearchPlaceResponseDTO {
         do {
             let result = try await provider.request(.searchPlace(query: query))
-                .map(to: BaseResponse<SearchPlaceResponse>.self)
+                .map(to: BaseResponse<SearchPlaceResponseDTO>.self)
             
             guard let data = result.data else {
                 throw SNError.noData
@@ -36,10 +36,10 @@ final class RegisterService: RegisterServiceType {
         }
     }
     
-    func validatePlace(request: ValidatePlaceRequest) async throws -> ValidatePlaceResponse {
+    func validatePlace(request: ValidatePlaceRequestDTO) async throws -> ValidatePlaceResponseDTO {
         do {
             let result = try await provider.request(.validatePlace(request: request))
-                .map(to: BaseResponse<ValidatePlaceResponse>.self)
+                .map(to: BaseResponse<ValidatePlaceResponseDTO>.self)
             
             guard let data = result.data else {
                 throw SNError.noData
@@ -51,7 +51,7 @@ final class RegisterService: RegisterServiceType {
         }
     }
     
-    func registerPost(request: RegisterPostRequest, imagesData: [Data]) async throws -> Bool {
+    func registerPost(request: RegisterPostRequestDTO, imagesData: [Data]) async throws -> Bool {
         do {
             let result = try await provider.request(.registerPost(request: request, imagesDate: imagesData))
                 .map(to: BaseResponse<BlankData>.self)
@@ -62,7 +62,7 @@ final class RegisterService: RegisterServiceType {
         }
     }
     
-    func editPost(request: EditPostRequest, imagesData: [Data]) async throws -> Bool {
+    func editPost(request: EditPostRequestDTO, imagesData: [Data]) async throws -> Bool {
         do {
             let result = try await provider.request(.editPost(request: request, imagesDate: imagesData))
                 .map(to: BaseResponse<BlankData>.self)
@@ -88,10 +88,10 @@ final class RegisterService: RegisterServiceType {
         }
     }
     
-    func getReviewInfo(postId: Int) async throws -> ReviewResponse {
+    func getReviewInfo(postId: Int) async throws -> ReviewResponseDTO {
         do {
             let result = try await provider.request(.getReviewInfo(postId: postId))
-                .map(to: BaseResponse<ReviewResponse>.self)
+                .map(to: BaseResponse<ReviewResponseDTO>.self)
             
             guard let data = result.data else {
                 throw SNError.noData
