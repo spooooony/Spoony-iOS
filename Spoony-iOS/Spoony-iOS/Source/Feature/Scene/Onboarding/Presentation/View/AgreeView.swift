@@ -29,7 +29,7 @@ struct AgreeView: View {
                 Spacer()
                 Image(store.state.allCheckboxFilled ? .icCheckboxfilledMain : .icCheckboxemptyGray400)
                     .onTapGesture {
-                        store.send(.allAgreeTapped)
+                        store.send(.viewAction(.allAgreeTapped))
                     }
             }
             .padding(.horizontal, 15)
@@ -72,7 +72,8 @@ struct AgreeView: View {
 
 struct AgreeSelectView: View {
     @Bindable private var store: StoreOf<AgreeFeature>
-    let type: AgreeType
+    private let type: AgreeType
+    
     private var isSelected: Bool {
         return store.state.selectedAgrees.contains(type)
     }
@@ -99,7 +100,7 @@ struct AgreeSelectView: View {
             .customFont(.body2m)
             .foregroundStyle(.gray600)
             .onTapGesture {
-                store.send(.agreeURLTapped(type))
+                store.send(.viewAction(.agreeURLTapped(type)))
             }
             Text(" (필수)")
                 .customFont(.body2m)
@@ -110,9 +111,9 @@ struct AgreeSelectView: View {
             Image(isSelected ? .icCheckboxfilledMain : .icCheckboxemptyGray400)
                 .onTapGesture {
                     if isSelected {
-                        store.send(.selectedAgreeTapped(type))
+                        store.send(.viewAction(.selectedAgreeTapped(type)))
                     } else {
-                        store.send(.unSelectedAgreeTapped(type))
+                        store.send(.viewAction(.unSelectedAgreeTapped(type)))
                     }
                 }
         }

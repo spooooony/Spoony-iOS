@@ -22,18 +22,25 @@ struct AgreeFeature {
     }
     
     enum Action: BindableAction {
+        case viewAction(ViewAction)
+        case privateAction(PrivateAction)
+        case delegate(Delegate)
         case binding(BindingAction<State>)
+    }
+    
+    enum ViewAction {
         case allAgreeTapped
         case agreeURLTapped(AgreeType)
         case selectedAgreeTapped(AgreeType)
         case unSelectedAgreeTapped(AgreeType)
+    }
+    
+    enum PrivateAction {
         case selectedAgreesChanged
-        
-        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
-        case delegate(Delegate)
-        enum Delegate {
-            case routeToOnboardingScreen
-        }
+    }
+    
+    enum Delegate: Equatable {
+        case routeToOnboardingScreen
     }
     
     var body: some ReducerOf<Self> {
@@ -41,15 +48,16 @@ struct AgreeFeature {
         
         Reduce { state, action in
             switch action {
-            case .allAgreeTapped:
+            // MARK: - viewAction
+            case .viewAction(.allAgreeTapped):
                 if state.allCheckboxFilled {
                     state.selectedAgrees = []
                 } else {
                     state.selectedAgrees = AgreeType.allCases
                 }
-                return .send(.selectedAgreesChanged)
+                return .send(.privateAction(.selectedAgreesChanged))
                 
-            case .agreeURLTapped(let type):
+            case .viewAction(.agreeURLTapped(let type)):
                 switch type {
                 case .age:
                     break
@@ -62,27 +70,24 @@ struct AgreeFeature {
                 }
                 return .none
                 
-            case .selectedAgreeTapped(let agree):
+            case .viewAction(.selectedAgreeTapped(let agree)):
                 if let index = state.selectedAgrees.firstIndex(of: agree) {
                     state.selectedAgrees.remove(at: index)
-                    return .send(.selectedAgreesChanged)
+                    return .send(.privateAction(.selectedAgreesChanged))
                 }
                 return .none
                 
-            case .unSelectedAgreeTapped(let agree):
+            case .viewAction(.unSelectedAgreeTapped(let agree)):
                 state.selectedAgrees.append(agree)
-                return .send(.selectedAgreesChanged)
-                
-            case .selectedAgreesChanged:
+                return .send(.privateAction(.selectedAgreesChanged))
+            
+            // MARK: - privateAction
+            case .privateAction(.selectedAgreesChanged):
                 state.allCheckboxFilled = state.selectedAgrees.count == AgreeType.allCases.count
                 state.isDisableButton = !state.allCheckboxFilled
                 return .none
                 
-            case .binding:
-                return .none
-
-            case .delegate:
-                return .none
+            default: return .none
             }
         }
     }
