@@ -19,7 +19,7 @@ struct RegisterFeature {
         var postId: Int?
         var userId: Int?
         var savedCount: Int?
-        var currentStep: RegisterStep = .start
+        var currentStep: RegisterStepCase = .start
         var isLoading: Bool = false
         var isPosting: Bool = false
         var isRegistrationSuccess: Bool = false
@@ -43,11 +43,11 @@ struct RegisterFeature {
         case onAppear
         case updateIsLoading(Bool)
         case updateIsPosting(Bool)
-        case updateStep(RegisterStep)
+        case updateStep(RegisterStepCase)
         case registrationSuccessful
-        case registerPostRequest(_ selectedPlace: PlaceInfo, _ selectedCategory: CategoryChip)
-        case editPostRequest(_ selectedCategory: CategoryChip)
-        case reviewInfoResponse(_ response: ReviewInfo)
+        case registerPostRequest(_ selectedPlace: PlaceInfoEntity, _ selectedCategory: CategoryChipEntity)
+        case editPostRequest(_ selectedCategory: CategoryChipEntity)
+        case reviewInfoResponse(_ response: ReviewInfoEntity)
         
         // MARK: - Child Action
         case infoStepAction(InfoStepFeature.Action)
@@ -63,7 +63,9 @@ struct RegisterFeature {
         }
     }
         
-    @Dependency(\.registerService) var network: RegisterServiceType
+    @Dependency(\.registerPostUseCase) var registerPostUseCase: RegisterPostUseCaseProtocol
+    @Dependency(\.getReviewInfoUseCase) var getReviewInfoUseCase: GetReviewInfoUseCaseProtocol
+    @Dependency(\.editPostUseCase) var editPostUseCase: EditPostUseCaseProtocol
     
     var body: some Reducer<State, Action> {
         BindingReducer()
@@ -86,7 +88,7 @@ struct RegisterFeature {
                     
                     return .run { [postId] send in
                         do {
-                            let reviewInfo = try await network.getReviewInfo(postId: postId).toModel()
+                            let reviewInfo = try await getReviewInfoUseCase.execute(postId: postId)
                             await send(.reviewInfoResponse(reviewInfo))
                         } catch {
                             await send(.infoStepAction(.updateIsLoadError(true)))
@@ -98,7 +100,7 @@ struct RegisterFeature {
                 return .none
                 
             case .reviewInfoResponse(let reviewInfo):
-                state.infoStepState.selectedPlace = PlaceInfo(
+                state.infoStepState.selectedPlace = PlaceInfoEntity(
                     placeName: reviewInfo.placeName,
                     placeAddress: "",
                     placeRoadAddress: reviewInfo.placeAddress,
@@ -150,7 +152,7 @@ struct RegisterFeature {
                           let selectedCategory = state.infoStepState.selectedCategory.first else {
                         return .none
                     }
-                                    
+                    
                     if state.infoStepState.isEditMode {
                         return .send(.editPostRequest(selectedCategory))
                     } else {
@@ -160,40 +162,34 @@ struct RegisterFeature {
                 case .movePreviousView:
                     state.currentStep = .start
                     return .none
-                                 
+                    
                 case .imageLoadFailed:
                     return .send(.delegate(.presentToast(.imageLoadFailed)))
                     
                 default:
                     return .none
                 }
-                            
+                
             case let .registerPostRequest(selectedPlace, selectedCategory):
                 let trimmed = state.reviewStepState.weakPointText.trimmingCharacters(in: .whitespacesAndNewlines)
                 let cons = trimmed.isEmpty ? nil : trimmed
                 
-                let request = RegisterPostRequest(
-                    title: "",
-                    description: state.reviewStepState.detailText,
-                    value: state.infoStepState.satisfaction,
-                    cons: cons,
-                    placeName: selectedPlace.placeName,
-                    placeAddress: selectedPlace.placeAddress,
-                    placeRoadAddress: selectedPlace.placeRoadAddress,
-                    latitude: selectedPlace.latitude,
-                    longitude: selectedPlace.longitude,
-                    categoryId: selectedCategory.id,
-                    menuList: state.infoStepState.recommendTexts.map { $0.text }
-                )
-                
-                let images = state.reviewStepState.uploadImages.compactMap { $0.imageData }
-                
                 state.isPosting = true
                 
-                return .run { [request, images] send in
-                    guard let success = try? await network.registerPost(
-                        request: request,
-                        imagesData: images
+                return .run { [state, selectedPlace, selectedCategory, cons] send in
+                    guard let success = try? await registerPostUseCase.execute(
+                        title: "",
+                        description: state.reviewStepState.detailText,
+                        value: state.infoStepState.satisfaction,
+                        cons: cons,
+                        placeName: selectedPlace.placeName,
+                        placeAddress: selectedPlace.placeAddress,
+                        placeRoadAddress: selectedPlace.placeRoadAddress,
+                        latitude: selectedPlace.latitude,
+                        longitude: selectedPlace.longitude,
+                        categoryId: selectedCategory.id,
+                        menuList: state.infoStepState.recommendTexts.map { $0.text },
+                        imagesData: state.reviewStepState.uploadImages.compactMap { $0.imageData }
                     ) else {
                         await send(.updateIsPosting(false))
                         await send(.delegate(.presentToast(.serverError)))
@@ -208,24 +204,18 @@ struct RegisterFeature {
                 }
             case let .editPostRequest(selectedCategory):
                 guard let postId = state.postId else { return .none }
-                let request = EditPostRequest(
-                    postId: postId,
-                    description: state.reviewStepState.detailText,
-                    value: state.infoStepState.satisfaction,
-                    cons: state.reviewStepState.weakPointText,
-                    categoryId: selectedCategory.id,
-                    menuList: state.infoStepState.recommendTexts.map { $0.text },
-                    deleteImageUrlList: state.reviewStepState.deleteImagesUrl
-                )
-                
-                let images = state.reviewStepState.uploadImages.compactMap { $0.imageData }
-                
                 state.isPosting = true
                 
-                return .run { [request, images] send in
-                    guard let success = try? await network.editPost(
-                        request: request,
-                        imagesData: images
+                return .run { [state, postId, selectedCategory] send in
+                    guard let success = try? await editPostUseCase.execute(
+                        postId: postId,
+                        description: state.reviewStepState.detailText,
+                        value: state.infoStepState.satisfaction,
+                        cons: state.reviewStepState.weakPointText,
+                        categoryId: selectedCategory.id,
+                        menuList: state.infoStepState.recommendTexts.map { $0.text },
+                        deleteImageUrlList: state.reviewStepState.deleteImagesUrl,
+                        imagesData: state.reviewStepState.uploadImages.compactMap { $0.imageData }
                     ) else {
                         await send(.updateIsPosting(false))
                         await send(.delegate(.presentToast(.serverError)))
