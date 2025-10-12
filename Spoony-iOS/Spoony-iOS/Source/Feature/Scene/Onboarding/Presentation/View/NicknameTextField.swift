@@ -9,10 +9,14 @@ import SwiftUI
 
 // TODO: SpoonyTextField에 합치기
 struct NicknameTextField: View {
-    @Binding var errorState: NicknameTextFieldErrorState
+    @Binding var errorState: NicknameErrorType
     @Binding var text: String
     @Binding var isError: Bool
     @FocusState private var isFocused: Bool
+    
+    private var errorModel: NicknameErrorTypeModel {
+        NicknameErrorTypeModel.typeToModel(from: errorState)
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -46,7 +50,7 @@ struct NicknameTextField: View {
             .padding(12)
             .background {
                 RoundedRectangle(cornerRadius: 8)
-                    .strokeBorder(errorState.errorColor, lineWidth: 1)
+                    .strokeBorder(errorModel.errorColor, lineWidth: 1)
             }
             .frame(height: 44.adjustedH)
             .onChange(of: text) { oldValue, newValue in
@@ -89,12 +93,12 @@ struct NicknameTextField: View {
     
     private var helperView: some View {
         HStack(spacing: 6) {
-            if let icon = errorState.icon {
+            if let icon = errorModel.icon {
                 icon
                     .resizable()
                     .frame(width: 16.adjusted, height: 16.adjustedH)
             }
-            if let message = errorState.errorMessage {
+            if let message = errorModel.errorMessage {
                 Text("\(message)")
                     .customFont(.caption1m)
             }
@@ -104,11 +108,11 @@ struct NicknameTextField: View {
             Text("\(text.count) / 10")
                 .customFont(.caption1m)
         }
-        .foregroundStyle(errorState.fontColor)
+        .foregroundStyle(errorModel.fontColor)
         .padding(.top, 8)
     }
     
-    private func checkInputError(_ input: String) -> NicknameTextFieldErrorState {
+    private func checkInputError(_ input: String) -> NicknameErrorType {
         
         let removeText = input.removeSpecialCharacter()
         if removeText !=  input {
@@ -125,66 +129,6 @@ struct NicknameTextField: View {
         }
         
         return .noError
-    }
-}
-
-enum NicknameTextFieldErrorState {
-    case duplicateNicknameError
-    case minimumInputError
-    case maximumInputError
-    case emojiError
-    case avaliableNickname
-    case noError
-    case initial
-    
-    var errorMessage: String? {
-        switch self {
-        case .duplicateNicknameError:
-            return "이미 사용 중인 닉네임이에요"
-        case .minimumInputError:
-            return "닉네임은 필수예요"
-        case .maximumInputError:
-            return "10자 이하로 입력해 주세요"
-        case .emojiError:
-            return "닉네임은 한글, 영문, 숫자만 사용할 수 있어요"
-        case .avaliableNickname:
-            return "사용 가능한 닉네임이에요"
-        case .noError, .initial:
-            return nil
-        }
-    }
-    
-    var fontColor: Color {
-        switch self {
-        case .avaliableNickname:
-                .green400
-        case .noError, .initial:
-                .gray500
-        default:
-                .error400
-        }
-    }
-    
-    var errorColor: Color {
-        switch self {
-        case .avaliableNickname:
-                .green400
-        case .noError, .initial:
-                .gray100
-        default:
-                .error400
-        }
-    }
-    
-    var icon: Image? {
-        switch self {
-        case .avaliableNickname:
-            Image(.icCheckGreen)
-        case .noError, .initial:
-            nil
-        default:
-            Image(.icErrorRed)
-        }
     }
 }
 

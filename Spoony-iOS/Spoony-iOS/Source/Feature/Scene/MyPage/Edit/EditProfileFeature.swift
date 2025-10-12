@@ -37,7 +37,7 @@ struct EditProfileFeature {
         var initSubRegion: Region?
         
         // 나중에 삭제
-        var nicknameErrorState: NicknameTextFieldErrorState = .initial
+        var nicknameErrorState: NicknameErrorType = .initial
         
         var isPresentProfileBottomSheet: Bool = false
         var isPresentBirthdateBottomSheet: Bool = false
@@ -51,7 +51,7 @@ struct EditProfileFeature {
         case didTapQuesetionButton
         case profileInfoResponse(ProfileInfo)
         case profileImagesResponse([ProfileImage])
-        case setNicknameError(NicknameTextFieldErrorState)
+        case setNicknameError(NicknameErrorType)
         case regionsResponse([Region])
         case didTapProfileImage(ProfileImage)
         case checkNickname

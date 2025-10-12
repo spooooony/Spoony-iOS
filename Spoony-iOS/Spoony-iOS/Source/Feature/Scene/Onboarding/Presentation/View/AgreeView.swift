@@ -72,10 +72,10 @@ struct AgreeView: View {
 
 struct AgreeSelectView: View {
     @Bindable private var store: StoreOf<AgreeFeature>
-    private let type: AgreeType
+    private let agreeTypeModel: AgreeModel
     
     private var isSelected: Bool {
-        return store.state.selectedAgrees.contains(type)
+        return store.state.selectedAgrees.contains(agreeTypeModel.type)
     }
     
     init(
@@ -83,24 +83,23 @@ struct AgreeSelectView: View {
         type: AgreeType
     ) {
         self.store = store
-        self.type = type
+        self.agreeTypeModel = AgreeModel.typeToModel(from: type)
     }
     
     var body: some View {
         HStack(spacing: 0) {
             Group {
-                if type.url != nil {
-                    Text(type.title)
+                if agreeTypeModel.hasURL {
+                    Text(agreeTypeModel.title)
                         .underline()
                 } else {
-                    Text(type.title)
-                        
+                    Text(agreeTypeModel.title)
                 }
             }
             .customFont(.body2m)
             .foregroundStyle(.gray600)
             .onTapGesture {
-                store.send(.viewAction(.agreeURLTapped(type)))
+                store.send(.viewAction(.agreeURLTapped(agreeTypeModel.type)))
             }
             Text(" (필수)")
                 .customFont(.body2m)
@@ -111,9 +110,9 @@ struct AgreeSelectView: View {
             Image(isSelected ? .icCheckboxfilledMain : .icCheckboxemptyGray400)
                 .onTapGesture {
                     if isSelected {
-                        store.send(.viewAction(.selectedAgreeTapped(type)))
+                        store.send(.viewAction(.selectedAgreeTapped(agreeTypeModel.type)))
                     } else {
-                        store.send(.viewAction(.unSelectedAgreeTapped(type)))
+                        store.send(.viewAction(.unSelectedAgreeTapped(agreeTypeModel.type)))
                     }
                 }
         }

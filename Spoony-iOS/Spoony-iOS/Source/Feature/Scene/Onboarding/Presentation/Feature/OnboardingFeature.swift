@@ -26,7 +26,7 @@ struct OnboardingFeature {
         var currentStep: OnboardingStep = .nickname
         var nicknameText: String = ""
         var nicknameError: Bool = true
-        var nicknameErrorState: NicknameTextFieldErrorState = .initial
+        var nicknameErrorState: NicknameErrorType = .initial
         
         var regionList: [Region] = []
         
@@ -62,7 +62,7 @@ struct OnboardingFeature {
         case signup
         
         case setUserNickname(String)
-        case setNicknameError(NicknameTextFieldErrorState)
+        case setNicknameError(NicknameErrorType)
         case setRegion([Region])
         
         case error(Error)
