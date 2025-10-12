@@ -9,7 +9,7 @@ import Dependencies
 
 enum CheckNicknameRepositoryKey: DependencyKey {
     static let liveValue: CheckNicknameInterface = CheckNicknameRepository(myPageService: MyPageService())
-    static let testValue: CheckNicknameInterface = CheckNicknameRepository()
+    static let testValue: CheckNicknameInterface = MockChekcNicknameRepository()
 }
 
 extension DependencyValues {

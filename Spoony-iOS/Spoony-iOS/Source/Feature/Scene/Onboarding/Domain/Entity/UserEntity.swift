@@ -7,6 +7,7 @@
 
 import Foundation
 
+// MARK: 실질적 사용 안하고 있음 !!!! 
 struct UserEntity {
     let userID: Int
     let imageLevel: Int
