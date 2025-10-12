@@ -17,7 +17,7 @@ struct SignupRequestDTO: Encodable {
 }
 
 extension SignupRequestDTO {
-    static func toDTO(from info: SignUpEntity, platform: String, code: String) -> Self {
+    static func toDTO(from info: SignUpEntity, platform: String, code: String?) -> Self {
         return .init(
             platform: platform,
             userName: info.userName,

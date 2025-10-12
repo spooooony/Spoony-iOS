@@ -6,9 +6,9 @@
 //
 
 struct RegionRepository: RegionInterface {
-    private let service: AuthProtocol
+    private let service: AuthServiceProtocol
     
-    init(service: AuthProtocol) {
+    init(service: AuthServiceProtocol) {
         self.service = service
     }
     

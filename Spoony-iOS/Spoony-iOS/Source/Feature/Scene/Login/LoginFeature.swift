@@ -54,7 +54,7 @@ struct LoginFeature {
         
     private let authenticationManager = AuthenticationManager.shared
     @Dependency(\.socialLoginService) var socialLoginService: SocialLoginServiceProtocol
-    @Dependency(\.authService) var authService: AuthProtocol
+    @Dependency(\.authService) var authService: AuthServiceProtocol
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in

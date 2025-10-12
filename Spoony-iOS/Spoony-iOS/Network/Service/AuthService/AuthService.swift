@@ -9,24 +9,16 @@ import Foundation
 
 import Mixpanel
 
-protocol AuthProtocol {
+protocol AuthServiceProtocol {
     func login(platform: String, token: String, code: String?) async throws -> Bool
-    func signup(
-        platform: String,
-        userName: String,
-        birth: String?,
-        regionId: Int?,
-        introduction: String?,
-        token: String,
-        code: String?
-    ) async throws -> String
+    func signup(info: SignupRequestDTO, token: String) async throws -> SignupResponseDTO
     func nicknameDuplicateCheck(userName: String) async throws -> Bool
     func getRegionList() async throws -> RegionListResponse
     func logout() async throws -> Bool
     func withdraw() async throws -> Bool
 }
 
-final class DefaultAuthService: AuthProtocol {
+final class AuthService: AuthServiceProtocol {
     let provider = Providers.authProvider
     let myPageProvider = Providers.myPageProvider
     
@@ -57,44 +49,16 @@ final class DefaultAuthService: AuthProtocol {
         }
     }
     
-    func signup(
-        platform: String,
-        userName: String,
-        birth: String?,
-        regionId: Int?,
-        introduction: String?,
-        token: String,
-        code: String? = nil
-    ) async throws -> String {
+    func signup(info: SignupRequestDTO, token: String) async throws -> SignupResponseDTO {
         do {
-            let request: SignupRequestDTO = .init(
-                platform: platform,
-                userName: userName,
-                birth: birth,
-                regionId: regionId,
-                introduction: introduction,
-                authCode: code
-            )
-            
-            let result = try await provider.request(.signup(request, token: token))
+            let result = try await provider.request(.signup(info, token: token))
                 .map(to: BaseResponse<SignupResponseDTO>.self)
             
             guard let data = result.data else {
                 throw SNError.noData
             }
-            
-            UserManager.shared.userId = data.user.userId
-            Mixpanel.mainInstance().identify(distinctId: "\(data.user.userId)")
-            
-            let user = data.user.userName
-            let token = data.jwtTokenDto
-            KeychainManager.saveKeychain(
-                access: token.accessToken,
-                refresh: token.refreshToken,
-                platform: platform
-            )
-            
-            return user
+
+            return data
         } catch {
             throw error
         }
@@ -149,39 +113,5 @@ final class DefaultAuthService: AuthProtocol {
         } catch {
             throw error
         }
-    }
-}
-
-final class MockAuthService: AuthProtocol {
-    func login(platform: String, token: String, code: String?) async throws -> Bool {
-        return false
-    }
-    
-    func signup(
-        platform: String,
-        userName: String,
-        birth: String?,
-        regionId: Int?,
-        introduction: String?,
-        token: String,
-        code: String?
-    ) async throws -> String {
-        return "nickname"
-    }
-    
-    func nicknameDuplicateCheck(userName: String) async throws -> Bool {
-        return false
-    }
-    
-    func getRegionList() async throws -> RegionListResponse {
-        return .init(regionList: [])
-    }
-    
-    func logout() async throws -> Bool {
-        return true
-    }
-    
-    func withdraw() async throws -> Bool {
-        return true
     }
 }

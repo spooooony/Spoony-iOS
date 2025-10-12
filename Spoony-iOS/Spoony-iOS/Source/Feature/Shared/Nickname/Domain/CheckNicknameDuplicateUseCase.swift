@@ -10,9 +10,9 @@ protocol CheckNicknameDuplicateUseCaseProtocol {
 }
 
 struct CheckNicknameDuplicateUseCase: CheckNicknameDuplicateUseCaseProtocol {
-    private let repository: OnboardingInterface
+    private let repository: CheckNicknameInterface
     
-    init(repository: OnboardingInterface) {
+    init(repository: CheckNicknameInterface) {
         self.repository = repository
     }
     

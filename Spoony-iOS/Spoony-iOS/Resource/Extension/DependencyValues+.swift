@@ -28,7 +28,7 @@ extension DependencyValues {
         set { self[SocialLoginServiceKey.self] = newValue }
     }
     
-    var authService: AuthProtocol {
+    var authService: AuthServiceProtocol {
         get { self[AuthServiceKey.self] }
         set { self[AuthServiceKey.self] = newValue }
     }

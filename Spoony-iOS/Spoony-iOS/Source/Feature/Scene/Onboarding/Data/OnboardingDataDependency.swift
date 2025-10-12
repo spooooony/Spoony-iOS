@@ -8,7 +8,7 @@
 import Dependencies
 
 enum OnboardingRepositoryKey: DependencyKey {
-    static let liveValue: OnboardingInterface = OnboardingRepository()
+    static let liveValue: OnboardingInterface = OnboardingRepository(authService: AuthService())
     static let testValue: OnboardingInterface = MockOnboardingRepository()
 }
 

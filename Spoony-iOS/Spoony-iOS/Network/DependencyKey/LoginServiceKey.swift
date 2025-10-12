@@ -12,6 +12,6 @@ enum SocialLoginServiceKey: DependencyKey {
 }
 
 enum AuthServiceKey: DependencyKey {
-    static let liveValue: AuthProtocol = DefaultAuthService()
-    static let testValue: AuthProtocol = MockAuthService()
+    static let liveValue: AuthServiceProtocol = AuthService()
+    static let testValue: AuthServiceProtocol = AuthService()
 }

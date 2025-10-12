@@ -6,27 +6,14 @@
 //
 
 struct OnboardingRepository: OnboardingInterface {
-    // MARK: - service
-    private let myPageProvider = Providers.myPageProvider
-    private let authProvider = Providers.authProvider
+    private let authService: AuthServiceProtocol
     
     // MARK: - persistence
     private let authenticationManager = AuthenticationManager.shared
     private let userManager = UserManager.shared
     
-    func checkNicknameDuplicate(nickname: String) async throws -> Bool {
-        do {
-            let result = try await myPageProvider.request(.nicknameDuplicateCheck(query: nickname))
-                .map(to: BaseResponse<Bool>.self)
-            
-            guard let data = result.data else {
-                throw SNError.noData
-            }
-            
-            return data
-        } catch {
-            throw error
-        }
+    init(authService: AuthServiceProtocol) {
+        self.authService = authService
     }
 
     func signup(info: SignUpEntity) async throws -> String {
@@ -38,30 +25,25 @@ struct OnboardingRepository: OnboardingInterface {
             let request: SignupRequestDTO
             
             if let code = authenticationManager.appleCode {
-                request = SignUpMapper.toDTO(from: info, platform: platform.rawValue, code: code)
+                request = SignupRequestDTO.toDTO(from: info, platform: platform.rawValue, code: code)
             } else {
-                request = SignUpMapper.toDTO(from: info, platform: platform.rawValue,code: nil)
+                request = SignupRequestDTO.toDTO(from: info, platform: platform.rawValue, code: nil)
             }
             
-            let result = try await authProvider.request(.signup(request, token: socialToken))
-                .map(to: BaseResponse<SignupResponseDTO>.self)
+            let result = try await authService.signup(info: request, token: socialToken)
             
-            guard let data = result.data else {
-                throw SNError.noData
-            }
-            
-            userManager.userId = data.user.userId
+            userManager.userId = result.user.userId
             userManager.completeOnboarding()
             
-            let user = data.user.userName
-            let token = data.jwtTokenDto
+            let name = result.user.userName
+            let token = result.jwtTokenDto
             KeychainManager.saveKeychain(
                 access: token.accessToken,
                 refresh: token.refreshToken,
                 platform: platform.rawValue
             )
             
-            return user
+            return name
         } catch {
             throw error
         }
@@ -69,10 +51,6 @@ struct OnboardingRepository: OnboardingInterface {
 }
 
 struct MockOnboardingRepository: OnboardingInterface {
-    func checkNicknameDuplicate(nickname: String) async throws -> Bool {
-        return true
-    }
-    
     func signup(info: SignUpEntity) async throws -> String {
         "대안용"
     }
