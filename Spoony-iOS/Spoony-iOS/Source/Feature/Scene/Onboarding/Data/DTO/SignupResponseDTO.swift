@@ -7,16 +7,6 @@
 
 import Foundation
 
-struct UserEntity {
-    let userID: Int
-    let imageLevel: Int
-    let level: Int
-    let userName: String
-    let region: Region?
-    let introduction: String?
-    let birth: String?
-}
-
 struct SignupResponseDTO: Codable {
     let user: UserResponse
     let jwtTokenDto: JWTResponse
