@@ -67,7 +67,7 @@ final class DefaultAuthService: AuthProtocol {
         code: String? = nil
     ) async throws -> String {
         do {
-            let request: SignupRequest = .init(
+            let request: SignupRequestDTO = .init(
                 platform: platform,
                 userName: userName,
                 birth: birth,
@@ -77,7 +77,7 @@ final class DefaultAuthService: AuthProtocol {
             )
             
             let result = try await provider.request(.signup(request, token: token))
-                .map(to: BaseResponse<SignupResponse>.self)
+                .map(to: BaseResponse<SignupResponseDTO>.self)
             
             guard let data = result.data else {
                 throw SNError.noData

@@ -1,5 +1,5 @@
 //
-//  SignupResponse.swift
+//  SignupResponseDTO.swift
 //  Spoony-iOS
 //
 //  Created by 최주리 on 5/3/25.
@@ -7,12 +7,12 @@
 
 import Foundation
 
-struct SignupResponse: Codable {
+struct SignupResponseDTO: Codable {
     let user: UserResponse
     let jwtTokenDto: JWTResponse
 }
 
-extension SignupResponse {
+extension SignupResponseDTO {
     struct UserResponse: Codable {
         let userId: Int
         let platform: String
@@ -31,7 +31,7 @@ extension SignupResponse {
     }
 }
 
-extension SignupResponse.UserResponse {
+extension SignupResponseDTO.UserResponse {
     struct RegionResponse: Codable {
         let regionId: Int
         let regionName: String

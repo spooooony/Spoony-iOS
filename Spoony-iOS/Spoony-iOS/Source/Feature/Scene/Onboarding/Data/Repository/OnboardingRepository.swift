@@ -35,7 +35,7 @@ struct OnboardingRepository: OnboardingInterface {
             guard let socialToken = authenticationManager.socialToken
             else { throw SNError.etc }
             
-            let request: SignupRequest
+            let request: SignupRequestDTO
             
             if let code = authenticationManager.appleCode {
                 request = SignUpMapper.toDTO(from: info, platform: platform.rawValue, code: code)
@@ -44,7 +44,7 @@ struct OnboardingRepository: OnboardingInterface {
             }
             
             let result = try await authProvider.request(.signup(request, token: socialToken))
-                .map(to: BaseResponse<SignupResponse>.self)
+                .map(to: BaseResponse<SignupResponseDTO>.self)
             
             guard let data = result.data else {
                 throw SNError.noData
