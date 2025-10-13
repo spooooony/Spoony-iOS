@@ -1,13 +1,13 @@
 //
-//  RegisterPostRequest.swift
-//  Spoony-iOS
+//  RegisterEntity.swift
+//  Spoony
 //
-//  Created by 최안용 on 1/22/25.
+//  Created by 최안용 on 10/13/25.
 //
 
 import Foundation
 
-struct RegisterPostRequest: Codable {
+struct RegisterEntity {
     let title: String
     let description: String
     let value: Double

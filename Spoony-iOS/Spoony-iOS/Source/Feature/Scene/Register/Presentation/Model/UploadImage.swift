@@ -11,5 +11,5 @@ struct UploadImage: Identifiable, Equatable {
     let id = UUID()
     let image: Image?
     let imageData: Data?
-    var url: String? = nil
+    var url: String?
 }

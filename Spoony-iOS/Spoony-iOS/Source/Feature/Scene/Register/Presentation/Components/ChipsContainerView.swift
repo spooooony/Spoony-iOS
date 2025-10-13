@@ -9,20 +9,20 @@ import SwiftUI
 
 struct ChipsContainerView: View {
     @State var totalHeight: CGFloat
-    @Binding var selectedItem: [CategoryChip]
+    @Binding var selectedItem: [CategoryChipEntity]
     let verticalSpacing: CGFloat
     let horizontalSpacing: CGFloat
-    let items: [CategoryChip]
-    var sortedItems: [CategoryChip] {
+    let items: [CategoryChipEntity]
+    var sortedItems: [CategoryChipEntity] {
         items.sorted { $0.id < $1.id }
     }
     
     init(
         totalHeight: CGFloat = .zero,
-        selectedItem: Binding<[CategoryChip]>,
+        selectedItem: Binding<[CategoryChipEntity]>,
         verticalSpacing: CGFloat = 8,
         horizontalSpacing: CGFloat = 6,
-        items: [CategoryChip]
+        items: [CategoryChipEntity]
     ) {
         self.totalHeight = totalHeight
         self._selectedItem = selectedItem

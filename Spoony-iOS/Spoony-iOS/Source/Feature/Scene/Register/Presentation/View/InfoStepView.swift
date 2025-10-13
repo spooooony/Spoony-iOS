@@ -111,7 +111,7 @@ extension InfoStepView {
                 Spacer()
             }
             if store.state.categories.isEmpty {
-                CategoryChipsView(category: CategoryChip.placeholder)
+                CategoryChipsView(category: CategoryChipEntity.placeholder)
                     .redacted(reason: .placeholder)
             } else {
                 ChipsContainerView(

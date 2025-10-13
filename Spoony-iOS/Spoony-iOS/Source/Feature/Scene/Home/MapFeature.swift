@@ -29,8 +29,8 @@ struct MapFeature {
         var selectedLocation: (latitude: Double, longitude: Double)?
         var hasInitialLocationFocus: Bool = false
         
-        var categories: [CategoryChip] = []
-        var selectedCategories: [CategoryChip] = []
+        var categories: [CategoryChipEntity] = []
+        var selectedCategories: [CategoryChipEntity] = []
         var spoonCount: Int = 0
         
         var currentBottomSheetStyle: BottomSheetStyle = .half
@@ -91,7 +91,7 @@ struct MapFeature {
         case fetchSpoonCount
         case spoonCountResponse(TaskResult<Int>)
         case fetchCategories
-        case categoriesResponse(TaskResult<[CategoryChip]>)
+        case categoriesResponse(TaskResult<[CategoryChipEntity]>)
         
         case fetchUserInfo
         case userInfoResponse(TaskResult<UserInfoResponse>)
@@ -102,7 +102,7 @@ struct MapFeature {
         case moveToUserLocation
         case updateUserLocation(CLLocation)
         case focusToLocation(CLLocationCoordinate2D)
-        case selectCategory(CategoryChip)
+        case selectCategory(CategoryChipEntity)
         case setBottomSheetStyle(BottomSheetStyle)
         case setSearchText(String)
         case applyFilters
@@ -305,7 +305,7 @@ struct MapFeature {
                     
                     switch categoryResponse {
                     case .success(let response):
-                        let categories = await TaskResult { try await response.toModel() }
+                        let categories = await TaskResult { try await response.toEntity() }
                         await send(.categoriesResponse(categories))
                     case .failure(let error):
                         print("Error fetching categories: \(error)")
@@ -490,7 +490,7 @@ struct MapFeature {
         }
     }
     
-    private func filterPickList(_ pickList: [PickListCardResponse], with categories: [CategoryChip]) -> [PickListCardResponse] {
+    private func filterPickList(_ pickList: [PickListCardResponse], with categories: [CategoryChipEntity]) -> [PickListCardResponse] {
         if categories.isEmpty || categories.contains(where: { $0.id == 0 }) {
             return pickList
         }

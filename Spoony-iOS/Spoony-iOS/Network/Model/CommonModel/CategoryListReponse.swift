@@ -21,7 +21,7 @@ struct CategoryResponse: Codable {
 }
 
 extension CategoryListResponse {
-    func toModel() async throws -> [CategoryChip] {
+    func toEntity() async throws -> [CategoryChipEntity] {
         categoryMonoList.map { category in
                 .init(
                     image: category.iconUrlNotSelected,

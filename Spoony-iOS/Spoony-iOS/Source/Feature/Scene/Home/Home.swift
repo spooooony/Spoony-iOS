@@ -55,14 +55,14 @@ struct Home: View {
                 HStack(spacing: 8) {
                     if store.categories.isEmpty {
                         ForEach(0..<4, id: \.self) { _ in
-                            CategoryChipsView(category: CategoryChip.placeholder)
+                            CategoryChipsView(category: CategoryChipEntity.placeholder)
                                 .redacted(reason: .placeholder)
                         }
                     } else {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
                                 CategoryChipsView(
-                                    category: CategoryChip(
+                                    category: CategoryChipEntity(
                                         image: "",
                                         selectedImage: "",
                                         title: "전체",
@@ -71,7 +71,7 @@ struct Home: View {
                                     isSelected: store.selectedCategories.isEmpty || store.selectedCategories.contains { $0.id == 0 }
                                 )
                                 .onTapGesture {
-                                    store.send(.selectCategory(CategoryChip(
+                                    store.send(.selectCategory(CategoryChipEntity(
                                         image: "",
                                         selectedImage: "",
                                         title: "전체",

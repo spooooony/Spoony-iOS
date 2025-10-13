@@ -63,7 +63,7 @@ struct ExploreFeature {
         case fetchFollowingFeed
         
         case setFeed([FeedEntity], String?)
-        case setFilterInfo(category: [CategoryChip], location: [Region])
+        case setFilterInfo(category: [CategoryChipEntity], location: [Region])
         
         case deleteMyReview(Int)
         case confirmDeleteReview
@@ -125,7 +125,7 @@ struct ExploreFeature {
                 
                 return .run { send in
                     do {
-                        let categories = try await exploreService.getCategoryList().toModel()
+                        let categories = try await exploreService.getCategoryList().toEntity()
                         let locations = try await exploreService.getRegionList().toEntity()
                         
                         await send(.setFilterInfo(category: categories, location: locations))

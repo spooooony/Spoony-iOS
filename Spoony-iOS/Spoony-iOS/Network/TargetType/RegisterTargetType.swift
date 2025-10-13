@@ -10,9 +10,9 @@ import Moya
 
 enum RegisterTargetType {
     case searchPlace(query: String)
-    case validatePlace(request: ValidatePlaceRequest)
-    case registerPost(request: RegisterPostRequest, imagesDate: [Data])
-    case editPost(request: EditPostRequest, imagesDate: [Data])
+    case validatePlace(request: ValidatePlaceRequestDTO)
+    case registerPost(request: RegisterPostRequestDTO, imagesDate: [Data])
+    case editPost(request: EditPostRequestDTO, imagesDate: [Data])
     case getRegisterCategories
     case getReviewInfo(postId: Int)
 }

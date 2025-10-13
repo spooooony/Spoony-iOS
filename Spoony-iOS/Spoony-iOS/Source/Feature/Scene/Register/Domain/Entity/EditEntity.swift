@@ -1,13 +1,13 @@
 //
-//  EditPostRequest.swift
-//  Spoony-iOS
+//  EditEntity.swift
+//  Spoony
 //
-//  Created by 최안용 on 5/7/25.
+//  Created by 최안용 on 10/13/25.
 //
 
 import Foundation
 
-struct EditPostRequest: Codable {
+struct EditEntity {
     let postId: Int
     let description: String
     let value: Double

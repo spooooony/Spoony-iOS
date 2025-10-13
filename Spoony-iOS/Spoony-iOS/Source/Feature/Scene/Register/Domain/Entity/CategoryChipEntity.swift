@@ -1,32 +1,32 @@
 //
-//  CategoryChip.swift
+//  CategoryChipEntity.swift
 //  Spoony-iOS
 //
 //  Created by 최안용 on 1/17/25.
 //
 
-import SwiftUI
+import Foundation
 
-struct CategoryChip: Equatable, Identifiable {
+struct CategoryChipEntity: Equatable, Identifiable {
     let image: String
     let selectedImage: String
     let title: String
     let id: Int
     
-    static func == (lhs: CategoryChip, rhs: CategoryChip) -> Bool {
+    static func == (lhs: CategoryChipEntity, rhs: CategoryChipEntity) -> Bool {
         lhs.id == rhs.id
     }
 }
 
-extension CategoryChip {
-    static let placeholder: CategoryChip = .init(
+extension CategoryChipEntity {
+    static let placeholder: CategoryChipEntity = .init(
         image: "",
         selectedImage: "",
         title: "중식",
         id: 0
     )
     
-    static func mock() -> [CategoryChip] {
+    static func mock() -> [CategoryChipEntity] {
         return [
             .init(image: "", selectedImage: "", title: "한식", id: 2),
             .init(image: "", selectedImage: "", title: "일식", id: 3),
