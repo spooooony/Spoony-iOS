@@ -17,41 +17,31 @@ enum EditPostUseCaseKey: DependencyKey {
 
 enum GetCategoriesUseCaseKey: DependencyKey {
     static var liveValue: GetCategoriesUseCaseProtocol = GetCategoriesUseCase(
-        repository: RegisterRepository(
-            service: DependencyValues().registerService
-        )
+        repository: DependencyValues().registerRepository
     )
 }
 
 enum GetReviewInfoUseCaseKey: DependencyKey {
     static var liveValue: GetReviewInfoUseCaseProtocol = GetReviewInfoUseCase(
-        repository: RegisterRepository(
-            service: DependencyValues().registerService
-        )
+        repository: DependencyValues().registerRepository
     )
 }
 
 enum RegisterPostUseCaseKey: DependencyKey {
     static var liveValue: RegisterPostUseCaseProtocol = RegisterPostUseCase(
-        repository: RegisterRepository(
-            service: DependencyValues().registerService
-        )
+        repository: DependencyValues().registerRepository
     )
 }
 
 enum SearchPlaceUseCaseKey: DependencyKey {
     static var liveValue: SearchPlaceUseCaseProtocol = SearchPlaceUseCase(
-        repository: RegisterRepository(
-            service: DependencyValues().registerService
-        )
+        repository: DependencyValues().registerRepository
     )
 }
 
 enum ValidatePlaceUseCaseKey: DependencyKey {
     static var liveValue: ValidatePlaceUseCaseProtocol = ValidatePlaceUseCase(
-        repository: RegisterRepository(
-            service: DependencyValues().registerService
-        )
+        repository: DependencyValues().registerRepository
     )
 }
 

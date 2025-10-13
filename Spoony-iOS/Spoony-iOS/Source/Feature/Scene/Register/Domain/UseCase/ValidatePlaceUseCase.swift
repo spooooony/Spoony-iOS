@@ -10,9 +10,9 @@ protocol ValidatePlaceUseCaseProtocol {
 }
 
 struct ValidatePlaceUseCase: ValidatePlaceUseCaseProtocol {
-    private let repository: RegisterRepository
+    private let repository: RegisterInterface
     
-    init(repository: RegisterRepository) {
+    init(repository: RegisterInterface) {
         self.repository = repository
     }
     
