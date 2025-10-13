@@ -62,7 +62,7 @@ struct AccountManagementFeature {
         case route
     }
     
-    @Dependency(\.authService) var authService: AuthProtocol
+    @Dependency(\.authService) var authService: AuthServiceProtocol
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
     
     var body: some ReducerOf<Self> {

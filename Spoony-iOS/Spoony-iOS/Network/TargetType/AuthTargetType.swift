@@ -10,7 +10,7 @@ import Moya
 
 enum AuthTargetType {
     case login(platform: String, token: String, code: String?)
-    case signup(SignupRequest, token: String)
+    case signup(SignupRequestDTO, token: String)
     case logout
     case withdraw
     case refresh(token: String)

@@ -41,7 +41,7 @@ struct WithdrawFeature {
         }
     }
     
-    @Dependency(\.authService) var authService: AuthProtocol
+    @Dependency(\.authService) var authService: AuthServiceProtocol
     
     var body: some ReducerOf<Self> {
         BindingReducer()

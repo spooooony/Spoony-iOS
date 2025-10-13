@@ -37,7 +37,7 @@ struct EditProfileFeature {
         var initSubRegion: Region?
         
         // 나중에 삭제
-        var nicknameErrorState: NicknameTextFieldErrorState = .initial
+        var nicknameErrorState: NicknameErrorType = .initial
         
         var isPresentProfileBottomSheet: Bool = false
         var isPresentBirthdateBottomSheet: Bool = false
@@ -51,7 +51,7 @@ struct EditProfileFeature {
         case didTapQuesetionButton
         case profileInfoResponse(ProfileInfo)
         case profileImagesResponse([ProfileImage])
-        case setNicknameError(NicknameTextFieldErrorState)
+        case setNicknameError(NicknameErrorType)
         case regionsResponse([Region])
         case didTapProfileImage(ProfileImage)
         case checkNickname
@@ -74,7 +74,8 @@ struct EditProfileFeature {
     }
     
     @Dependency(\.myPageService) var mypageService: MypageServiceProtocol
-    @Dependency(\.authService) var authService: AuthProtocol
+    @Dependency(\.authService) var authService: AuthServiceProtocol
+    @Dependency(\.checkNicknameDuplicateUseCase) var checkNicknameUseCase: CheckNicknameDuplicateUseCaseProtocol
     
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -224,7 +225,7 @@ struct EditProfileFeature {
                     if state.nicknameErrorState == .noError {
                         return .run { [state] send in
                             do {
-                                let isDuplicated = try await authService.nicknameDuplicateCheck(userName: state.userNickname)
+                                let isDuplicated = try await checkNicknameUseCase.execute(nickname: state.userNickname)
                                 
                                 if isDuplicated {
                                     await send(.setNicknameError(.duplicateNicknameError))
