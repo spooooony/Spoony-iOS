@@ -16,3 +16,17 @@ struct EditPostRequestDTO: Codable {
     let menuList: [String]
     let deleteImageUrlList: [String]
 }
+
+extension EditPostRequestDTO {
+    static func toDTO(from info: EditEntity) -> Self {
+        return .init(
+            postId: info.postId,
+            description: info.description,
+            value: info.value,
+            cons: info.cons,
+            categoryId: info.categoryId,
+            menuList: info.menuList,
+            deleteImageUrlList: info.deleteImageUrlList
+        )
+    }
+}

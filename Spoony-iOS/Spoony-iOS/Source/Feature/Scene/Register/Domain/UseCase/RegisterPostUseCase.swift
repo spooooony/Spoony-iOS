@@ -8,20 +8,7 @@
 import Foundation
 
 protocol RegisterPostUseCaseProtocol {
-    func execute(
-        title: String,
-        description: String,
-        value: Double,
-        cons: String?,
-        placeName: String,
-        placeAddress: String,
-        placeRoadAddress: String,
-        latitude: Double,
-        longitude: Double,
-        categoryId: Int,
-        menuList: [String],
-        imagesData: [Data]
-    ) async throws -> Bool
+    func execute(info: RegisterEntity, imagesData: [Data]) async throws -> Bool
 }
 
 struct RegisterPostUseCase: RegisterPostUseCaseProtocol {
@@ -31,33 +18,7 @@ struct RegisterPostUseCase: RegisterPostUseCaseProtocol {
         self.repository = repository
     }
     
-    func execute(
-        title: String,
-        description: String,
-        value: Double,
-        cons: String?,
-        placeName: String,
-        placeAddress: String,
-        placeRoadAddress: String,
-        latitude: Double,
-        longitude: Double,
-        categoryId: Int,
-        menuList: [String],
-        imagesData: [Data]
-    ) async throws -> Bool {
-        try await repository.registerPost(
-            title: title,
-            description: description,
-            value: value,
-            cons: cons,
-            placeName: placeName,
-            placeAddress: placeAddress,
-            placeRoadAddress: placeRoadAddress,
-            latitude: latitude,
-            longitude: longitude,
-            categoryId: categoryId,
-            menuList: menuList,
-            imagesData: imagesData
-        )
+    func execute(info: RegisterEntity, imagesData: [Data]) async throws -> Bool {
+        try await repository.registerPost(info: info, imagesData: imagesData)
     }
 }

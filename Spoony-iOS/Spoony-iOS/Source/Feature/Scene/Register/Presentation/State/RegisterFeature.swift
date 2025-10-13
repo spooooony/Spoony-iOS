@@ -78,7 +78,9 @@ struct RegisterFeature {
             ReviewStepFeature()
         }
         
-        Reduce { state, action in
+        Reduce {
+            state,
+            action in
             switch action {
             case .onAppear:
                 if state.infoStepState.isEditMode {
@@ -174,22 +176,28 @@ struct RegisterFeature {
                 let trimmed = state.reviewStepState.weakPointText.trimmingCharacters(in: .whitespacesAndNewlines)
                 let cons = trimmed.isEmpty ? nil : trimmed
                 
+                let info = RegisterEntity(
+                    title: "",
+                    description: state.reviewStepState.detailText,
+                    value: state.infoStepState.satisfaction,
+                    cons: cons,
+                    placeName: selectedPlace.placeName,
+                    placeAddress: selectedPlace.placeAddress,
+                    placeRoadAddress: selectedPlace.placeRoadAddress,
+                    latitude: selectedPlace.latitude,
+                    longitude: selectedPlace.longitude,
+                    categoryId: selectedCategory.id,
+                    menuList: state.infoStepState.recommendTexts.map { $0.text }
+                )
+                
+                let images = state.reviewStepState.uploadImages.compactMap { $0.imageData }
+                
                 state.isPosting = true
                 
-                return .run { [state, selectedPlace, selectedCategory, cons] send in
+                return .run { [info, images] send in
                     guard let success = try? await registerPostUseCase.execute(
-                        title: "",
-                        description: state.reviewStepState.detailText,
-                        value: state.infoStepState.satisfaction,
-                        cons: cons,
-                        placeName: selectedPlace.placeName,
-                        placeAddress: selectedPlace.placeAddress,
-                        placeRoadAddress: selectedPlace.placeRoadAddress,
-                        latitude: selectedPlace.latitude,
-                        longitude: selectedPlace.longitude,
-                        categoryId: selectedCategory.id,
-                        menuList: state.infoStepState.recommendTexts.map { $0.text },
-                        imagesData: state.reviewStepState.uploadImages.compactMap { $0.imageData }
+                        info: info,
+                        imagesData: images
                     ) else {
                         await send(.updateIsPosting(false))
                         await send(.delegate(.presentToast(.serverError)))
@@ -204,18 +212,25 @@ struct RegisterFeature {
                 }
             case let .editPostRequest(selectedCategory):
                 guard let postId = state.postId else { return .none }
+                
+                let info = EditEntity(
+                    postId: postId,
+                    description: state.reviewStepState.detailText,
+                    value: state.infoStepState.satisfaction,
+                    cons: state.reviewStepState.weakPointText,
+                    categoryId: selectedCategory.id,
+                    menuList: state.infoStepState.recommendTexts.map { $0.text },
+                    deleteImageUrlList: state.reviewStepState.deleteImagesUrl
+                )
+                
+                let images = state.reviewStepState.uploadImages.compactMap { $0.imageData }
+                
                 state.isPosting = true
                 
-                return .run { [state, postId, selectedCategory] send in
+                return .run { [info, images] send in
                     guard let success = try? await editPostUseCase.execute(
-                        postId: postId,
-                        description: state.reviewStepState.detailText,
-                        value: state.infoStepState.satisfaction,
-                        cons: state.reviewStepState.weakPointText,
-                        categoryId: selectedCategory.id,
-                        menuList: state.infoStepState.recommendTexts.map { $0.text },
-                        deleteImageUrlList: state.reviewStepState.deleteImagesUrl,
-                        imagesData: state.reviewStepState.uploadImages.compactMap { $0.imageData }
+                        info: info,
+                        imagesData: images
                     ) else {
                         await send(.updateIsPosting(false))
                         await send(.delegate(.presentToast(.serverError)))

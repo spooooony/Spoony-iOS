@@ -20,3 +20,21 @@ struct RegisterPostRequestDTO: Codable {
     let categoryId: Int
     let menuList: [String]
 }
+
+extension RegisterPostRequestDTO {
+    static func toDTO(from info: RegisterEntity) -> Self {
+        return .init(
+            title: info.title,
+            description: info.description,
+            value: info.value,
+            cons: info.cons,
+            placeName: info.placeName,
+            placeAddress: info.placeAddress,
+            placeRoadAddress: info.placeRoadAddress,
+            latitude: info.latitude,
+            longitude: info.longitude,
+            categoryId: info.categoryId,
+            menuList: info.menuList
+        )
+    }
+}

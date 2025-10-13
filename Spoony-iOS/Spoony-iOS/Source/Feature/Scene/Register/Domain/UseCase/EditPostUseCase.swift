@@ -8,16 +8,7 @@
 import Foundation
 
 protocol EditPostUseCaseProtocol {
-    func execute(
-        postId: Int,
-        description: String,
-        value: Double,
-        cons: String,
-        categoryId: Int,
-        menuList: [String],
-        deleteImageUrlList: [String],
-        imagesData: [Data]
-    ) async throws -> Bool
+    func execute(info: EditEntity, imagesData: [Data]) async throws -> Bool
 }
 
 struct EditPostUseCase: EditPostUseCaseProtocol {
@@ -27,25 +18,7 @@ struct EditPostUseCase: EditPostUseCaseProtocol {
         self.repository = repository
     }
     
-    func execute(
-        postId: Int,
-        description: String,
-        value: Double,
-        cons: String,
-        categoryId: Int,
-        menuList: [String],
-        deleteImageUrlList: [String],
-        imagesData: [Data]
-    ) async throws -> Bool {
-        try await repository.editPost(
-            postId: postId,
-            description: description,
-            value: value,
-            cons: cons,
-            categoryId: categoryId,
-            menuList: menuList,
-            deleteImageUrlList: deleteImageUrlList,
-            imagesData: imagesData
-        )
+    func execute(info: EditEntity, imagesData: [Data]) async throws -> Bool {
+        try await repository.editPost(info: info, imagesData: imagesData)
     }
 }
