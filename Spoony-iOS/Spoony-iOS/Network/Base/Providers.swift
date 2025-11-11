@@ -48,7 +48,7 @@ extension MoyaProvider {
                             response: response.response
                         )
                     )
-                case .failure(let error):
+                case .failure:
                     continuation.resume(throwing: SNError.networkFail)
                 }
             }
