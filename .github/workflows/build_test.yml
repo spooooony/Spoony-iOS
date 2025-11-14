@@ -33,12 +33,11 @@ jobs:
     # 빌드 테스트    
     - name: Build with xcodebuild
       run: |
-        # 사용 가능한 iOS 17버전 iPhone 시뮬레이터 중 첫 번째 선택
-        DEVICE=$(xcrun simctl list devices available | grep "iPhone" | grep "(17" | head -n 1 | awk -F '(' '{print $1}' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        # 사용 가능한 iPhone 시뮬레이터 중 첫 번째 선택
+        DEVICE=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | awk -F '(' '{print $1}' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
         echo "Using Simulator: $DEVICE"
 
-        set -o pipefail
-        
+        set -o pipefail        
         # Clean + Build
         xcodebuild \
           -project Spoony-iOS/Spoony.xcodeproj \
