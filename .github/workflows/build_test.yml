@@ -33,16 +33,11 @@ jobs:
     # 빌드 테스트
     - name: ✅ Build with xcodebuild
       run: |
-        # 사용 가능한 iPhone 시뮬레이터 중 첫 번째 선택
-        DEVICE_NAME=$(xcrun simctl list devices available | grep "iPhone" | grep "OS:18.4" | head -n 1 | sed -E 's/.*name:(.*), OS:(.*)\)/\1/')
-
-        echo "Using Simulator: $DEVICE_NAME"
-
         set -o pipefail
 
         xcodebuild \
         -project Spoony-iOS/Spoony.xcodeproj \
         -scheme Spoony-iOS \
         -sdk iphonesimulator \
-        -destination "platform=iOS Simulator,name=${DEVICE_NAME}" \
+        -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
         clean build | xcpretty
