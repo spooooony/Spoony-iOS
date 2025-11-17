@@ -34,12 +34,9 @@ jobs:
     - name: Build with xcodebuild
       run: |
         # 사용 가능한 iPhone 시뮬레이터 중 첫 번째 선택
-        LINE=$(xcrun simctl list devices available | grep "iPhone" | head -n 1)
+        DEVICE_NAME=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | awk -F '(' '{print $1}' | sed 's/[[:space:]]*$//')
 
-        DEVICE_NAME=$(echo "$LINE" | awk -F '(' '{print $1}' | sed 's/[[:space:]]*$//')
-        OS_VERSION=$(echo "$LINE" | sed -n 's/.*(\([0-9]\+\.[0-9]\+\)).*/\1/p')
-
-        echo "Using Simulator: $DEVICE_NAME (iOS $OS_VERSION)"
+        echo "Using Simulator: $DEVICE_NAME"
 
         set -o pipefail
 
@@ -47,6 +44,5 @@ jobs:
         -project Spoony-iOS/Spoony.xcodeproj \
         -scheme Spoony-iOS \
         -sdk iphonesimulator \
-        -destination "platform=iOS Simulator,name=${DEVICE_NAME},OS=${OS_VERSION}" \
+        -destination "platform=iOS Simulator,name=${DEVICE_NAME}" \
         clean build | xcpretty
-
