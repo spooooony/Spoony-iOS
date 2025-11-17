@@ -29,7 +29,10 @@ jobs:
       env:
         CONFIG: ${{ secrets.CONFIG }}
         KAKAO_APP_KEY: ${{ secrets.KAKAO_APP_KEY }}
-
+    
+    - name: 🔍 Check installed simulators
+      run: xcrun simctl list | grep "iPhone"
+    
     # 빌드 테스트
     - name: ✅ Build with xcodebuild
       run: |
