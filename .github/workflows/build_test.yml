@@ -29,20 +29,22 @@ jobs:
       env:
         CONFIG: ${{ secrets.CONFIG }}
         KAKAO_APP_KEY: ${{ secrets.KAKAO_APP_KEY }}
+    
+    - name: 🛠️ Select an iOS 18 simulator
+      id: sim
+      run: |
+        DEVICE=$(xcrun simctl list devices available | grep "iPhone" | grep "(OS 18" | head -n 1 | sed -E 's/^[[:space:]]*//; s/\s*\(.*//')
+        echo "device_name=$DEVICE" >> $GITHUB_OUTPUT
+        echo "Selected simulator: $DEVICE"
 
     # 빌드 테스트
     - name: ✅ Build with xcodebuild
       run: |
         set -o pipefail
-        
-        DEVICE=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | sed -E 's/.*name:(.*), OS:(.*)\)/\1/')
-        OS=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | sed -E 's/.*OS:(.*)\)/\1/')
-
-        echo "Using Simulator: $DEVICE (OS $OS)"
-
+                
         xcodebuild \
         -project Spoony-iOS/Spoony.xcodeproj \
         -scheme Spoony-iOS \
         -sdk iphonesimulator \
-        -destination "platform=iOS Simulator,name=$DEVICE,OS=$OS" \
+        -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device_name }}" \
         clean build | xcpretty
