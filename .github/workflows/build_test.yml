@@ -19,7 +19,11 @@ jobs:
     # Xcode Version 설정  
     - name: 🛠️ Setting Xcode Version
       run: sudo xcode-select -s /Applications/Xcode_16.4.app
-    
+      
+    # 의존성 해결
+    - name: 📦 Resolve Dependencies
+      run: xcodebuild -resolvePackageDependencies
+      
     # Config 설정
     - name: 🛠️ Setting Config
       run: |
