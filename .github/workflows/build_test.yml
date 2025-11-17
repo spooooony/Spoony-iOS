@@ -13,15 +13,15 @@ jobs:
 
     steps:
     # 가상 머신에 체크아웃(clone)
-    - name: Checkout
+    - name: ✅ Checkout
       uses: actions/checkout@v4
       
     # Xcode Version 설정  
-    - name: Setting Xcode Version
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app
+    - name: 🛠️ Setting Xcode Version
+      run: sudo xcode-select -s /Applications/Xcode_15.4.app
     
     # Config 설정
-    - name: Setting Config
+    - name: 🛠️ Setting Config
       run: |
         mkdir -p Spoony-iOS/Config
         echo "${CONFIG}" | base64 --decode > Spoony-iOS/Config/Config.swift
@@ -31,7 +31,7 @@ jobs:
         KAKAO_APP_KEY: ${{ secrets.KAKAO_APP_KEY }}
 
     # 빌드 테스트
-    - name: Build with xcodebuild
+    - name: ✅ Build with xcodebuild
       run: |
         # 사용 가능한 iPhone 시뮬레이터 중 첫 번째 선택
         DEVICE_NAME=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | awk -F '(' '{print $1}' | sed 's/[[:space:]]*$//')
