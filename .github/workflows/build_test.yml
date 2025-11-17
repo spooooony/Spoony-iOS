@@ -30,17 +30,17 @@ jobs:
         CONFIG: ${{ secrets.CONFIG }}
         KAKAO_APP_KEY: ${{ secrets.KAKAO_APP_KEY }}
     
-    - name: 🔍 Check installed simulators
-      run: xcrun simctl list
-    
     # 빌드 테스트
     - name: ✅ Build with xcodebuild
       run: |
-        set -o pipefail
+        DEVICE=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | awk -F '(' '{print $1}' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
+        echo "Using simulator: $DEVICE"
+        
+        set -o pipefail
         xcodebuild \
-        -project Spoony.xcodeproj \
-        -scheme Spoony-iOS \
-        -sdk iphonesimulator \
-        -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
-        clean build | xcpretty
+          -project Spoony-iOS/Spoony.xcodeproj \
+          -scheme Spoony-iOS \
+          -sdk iphonesimulator \
+          -destination "platform=iOS Simulator,name=${DEVICE}" \
+          clean build | xcpretty
