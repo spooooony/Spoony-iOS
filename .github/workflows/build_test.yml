@@ -25,7 +25,7 @@ jobs:
       run: xcodebuild -project Spoony-iOS/Spoony.xcodeproj -resolvePackageDependencies
       
     # Config 설정
-    - name: 🛠️ Setting Config
+    - name: 🛠️ Setting Config 
       run: |
         mkdir -p Spoony-iOS/Config
         echo "${CONFIG}" | base64 --decode > Spoony-iOS/Config/Config.swift
