@@ -31,7 +31,7 @@ jobs:
         KAKAO_APP_KEY: ${{ secrets.KAKAO_APP_KEY }}
     
     - name: 🔍 Check installed simulators
-      run: xcrun simctl list | grep "iPhone"
+      run: xcrun simctl list | grep "Available" -A 10
     
     # 빌드 테스트
     - name: ✅ Build with xcodebuild
