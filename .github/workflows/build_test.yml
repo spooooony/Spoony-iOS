@@ -47,4 +47,5 @@ jobs:
           -scheme Spoony-iOS \
           -sdk iphonesimulator \
           -destination "platform=iOS Simulator,name=${DEVICE}" \
-          clean build | tee xcodebuild.log
+          OTHER_SWIFT_FLAGS="-Xfrontend -enable-experimental-feature -Xfrontend MacroExpressions" \
+          clean build | xcpretty
