@@ -22,7 +22,7 @@ jobs:
       
     # 의존성 해결
     - name: 📦 Resolve Dependencies
-      run: xcodebuild -resolvePackageDependencies
+      run: xcodebuild -project Spoony-iOS/Spoony.xcodeproj -resolvePackageDependencies
       
     # Config 설정
     - name: 🛠️ Setting Config
