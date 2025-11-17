@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-15
 
     steps:
     # 가상 머신에 체크아웃(clone)
@@ -18,7 +18,7 @@ jobs:
       
     # Xcode Version 설정  
     - name: 🛠️ Setting Xcode Version
-      run: sudo xcode-select -s /Applications/Xcode_16.app
+      run: sudo xcode-select -s /Applications/Xcode_16.0.app
     
     - name: List available devices
       run: xcrun simctl list devices
