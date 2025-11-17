@@ -34,10 +34,15 @@ jobs:
     - name: ✅ Build with xcodebuild
       run: |
         set -o pipefail
+        
+        DEVICE=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | sed -E 's/.*name:(.*), OS:(.*)\)/\1/')
+        OS=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | sed -E 's/.*OS:(.*)\)/\1/')
+
+        echo "Using Simulator: $DEVICE (OS $OS)"
 
         xcodebuild \
         -project Spoony-iOS/Spoony.xcodeproj \
         -scheme Spoony-iOS \
         -sdk iphonesimulator \
-        -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+        -destination "platform=iOS Simulator,name=$DEVICE,OS=$OS" \
         clean build | xcpretty
