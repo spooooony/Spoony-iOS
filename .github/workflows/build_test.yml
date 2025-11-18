@@ -46,6 +46,10 @@ jobs:
         DEVICE=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | awk -F '(' '{print $1}' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
         echo "Using simulator: $DEVICE"
+
+        # 매크로 검증 우회 설정
+        defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
+        defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidatation -bool YES
         
         set -o pipefail
         xcodebuild \
@@ -53,6 +57,4 @@ jobs:
           -scheme Spoony-iOS \
           -sdk iphonesimulator \
           -destination "platform=iOS Simulator,name=${DEVICE}" \
-	  defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
-          defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidatation -bool YES
           clean build | tee xcodebuild.log
