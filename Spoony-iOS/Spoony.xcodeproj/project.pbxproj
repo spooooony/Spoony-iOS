@@ -443,7 +443,7 @@
 				78C002152D1D9FC500DA101C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		78C002162D1D9FC500DA101C /* Build configuration list for PBXNativeTarget "Spoony" */ = {
 			isa = XCConfigurationList;
@@ -452,7 +452,7 @@
 				78C002182D1D9FC500DA101C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 

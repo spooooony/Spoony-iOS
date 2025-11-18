@@ -45,6 +45,6 @@ jobs:
           -project Spoony-iOS/Spoony.xcodeproj \
           -scheme Spoony-iOS \
           -sdk iphonesimulator \
-          -destination 'platform=iOS Simulator,name=iPhone 14 Pro,OS=17.2' \
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
         
           clean build | tee xcodebuild.log
