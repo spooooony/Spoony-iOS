@@ -33,7 +33,14 @@ jobs:
       env:
         CONFIG: ${{ secrets.CONFIG }}
         KAKAO_APP_KEY: ${{ secrets.KAKAO_APP_KEY }}
-    
+
+    # SPM 캐시 정리 (매크로 빌드 문제 해결)
+    - name: 🧹 Clean SPM Cache
+      run: |
+        rm -rf ~/Library/Caches/org.swift.swiftpm
+        rm -rf ~/Library/Developer/Xcode/DerivedData
+        rm -rf .build    
+
     # 빌드 테스트
     - name: ✅ Build with xcodebuild
       run: |
@@ -51,4 +58,6 @@ jobs:
           -scheme Spoony-iOS \
           -sdk iphonesimulator \
           -destination "platform=iOS Simulator,name=${DEVICE}" \
+          -skipMacroValidation \
+          -skipPackagePluginValidation \
           clean build | xcpretty
