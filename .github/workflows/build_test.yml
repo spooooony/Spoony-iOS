@@ -53,4 +53,6 @@ jobs:
           -scheme Spoony-iOS \
           -sdk iphonesimulator \
           -destination "platform=iOS Simulator,name=${DEVICE}" \
+	  defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
+          defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidatation -bool YES
           clean build | tee xcodebuild.log
