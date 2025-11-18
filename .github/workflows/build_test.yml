@@ -15,7 +15,10 @@ jobs:
     # 가상 머신에 체크아웃(clone)
     - name: ✅ Checkout
       uses: actions/checkout@v4
-      
+    
+    - name: Show available Xcode versions
+      run: ls /Applications | grep Xcode
+
     # Xcode Version 설정  
     - name: 🛠️ Setting Xcode Version
       run: sudo xcode-select -s /Applications/Xcode_15.4.app
