@@ -22,12 +22,9 @@ jobs:
         rm -rf ~/Library/Caches/org.swift.swiftpm
         rm -rf ~/Library/Developer/Xcode/DerivedData
     
-    # 의존성 해결 (매크로 포함)
+    # 의존성 해결
     - name: 📦 Resolve Dependencies
-      run: |
-        xcodebuild -project Spoony-iOS/Spoony.xcodeproj -resolvePackageDependencies
-        # 매크로 타겟 사전 빌드
-        xcodebuild -project Spoony-iOS/Spoony.xcodeproj -scheme Spoony-iOS -destination generic/platform=macOS clean build-for-testing -skipTesting
+      run: xcodebuild -project Spoony-iOS/Spoony.xcodeproj -resolvePackageDependencies -skipPackagePluginValidation -skipMacroValidation
       
     # Config 설정
     - name: 🛠️ Setting Config 
@@ -44,7 +41,6 @@ jobs:
       run: |
         rm -rf ~/Library/Caches/org.swift.swiftpm
         rm -rf ~/Library/Developer/Xcode/DerivedData
-        rm -rf .build
     
     # 빌드 테스트
     - name: ✅ Build with xcodebuild
