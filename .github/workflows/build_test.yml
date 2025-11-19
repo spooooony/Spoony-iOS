@@ -50,16 +50,17 @@ jobs:
     # 6️⃣ 의존성 해결
     - name: 📦 Resolve Dependencies
       run: |
-	xcodebuild
-	  -project Spoony-iOS/Spoony.xcodeproj \
-	  -resolvePackageDependencies -scheme Spoony-iOS
+        xcodebuild \
+          -project Spoony-iOS/Spoony.xcodeproj \
+          -resolvePackageDependencies \
+          -scheme Spoony-iOS
 
     # 7️⃣ 최종 빌드
     - name: ✅ Build with xcodebuild
       run: |
         DEVICE=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | awk -F '(' '{print $1}' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
-        echo "Using simulator: $DEVICE"
+        echo "Using simulator: ${DEVICE}"
 
         # 매크로 검증 우회 설정
         defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
