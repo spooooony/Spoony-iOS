@@ -1,21 +1,25 @@
 # This workflow will build a Swift project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
+
 name: Build_Test
+
 on:
   pull_request:
     branches: ["juri"]
+
 jobs:
   build:
     runs-on: macos-latest
+
     steps:
     # 1️⃣ 체크아웃
     - name: ✅ Checkout
       uses: actions/checkout@v4
-      
+
     # 2️⃣ Xcode Version 설정
     - name: 🛠️ Setting Xcode Version
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app
-      
+      run: sudo xcode-select -s /Applications/Xcode_16.5.app
+
     # 3️⃣ Config 설정
     - name: 🛠️ Setting Config
       run: |
@@ -25,50 +29,37 @@ jobs:
       env:
         CONFIG: ${{ secrets.CONFIG }}
         KAKAO_APP_KEY: ${{ secrets.KAKAO_APP_KEY }}
-        
-    # 4️⃣ SPM 캐시 정리 (매크로 문제 해결용)
+
+    # 4️⃣ SPM 캐시 정리
     - name: 🧹 Clean SPM Cache
       run: |
         rm -rf ~/Library/Caches/org.swift.swiftpm
         rm -rf ~/Library/Developer/Xcode/DerivedData
-        
+
     # 5️⃣ 의존성 해결
     - name: 📦 Resolve Dependencies
       run: |
         xcodebuild \
           -project Spoony-iOS/Spoony.xcodeproj \
           -resolvePackageDependencies
-    
-    # 5.5️⃣ 매크로 타겟을 macOS용으로 사전 빌드
-    - name: 🔨 Build Macros for macOS
-      run: |
-        xcodebuild build \
-          -project Spoony-iOS/Spoony.xcodeproj \
-          -scheme Spoony-iOS \
-          -destination 'platform=macOS' \
-          -derivedDataPath ./DerivedData \
-          ONLY_ACTIVE_ARCH=NO \
-          BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
-          CODE_SIGNING_ALLOWED=NO \
-          || echo "Macro build completed (some errors expected)"
-          
+
     # 6️⃣ 최종 빌드
     - name: ✅ Build with xcodebuild
       run: |
         DEVICE=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | awk -F '(' '{print $1}' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
         echo "Using simulator: ${DEVICE}"
-        
+
         # 매크로 검증 우회 설정
         defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
         defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidation -bool YES
-        
+
         set -o pipefail
         xcodebuild \
           -project Spoony-iOS/Spoony.xcodeproj \
           -scheme Spoony-iOS \
           -sdk iphonesimulator \
           -destination "platform=iOS Simulator,name=${DEVICE}" \
-          -derivedDataPath ./DerivedData \
           -skipMacroValidation \
           -skipPackagePluginValidation \
           clean build | xcpretty
