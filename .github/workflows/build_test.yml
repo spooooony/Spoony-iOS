@@ -36,17 +36,7 @@ jobs:
         rm -rf ~/Library/Caches/org.swift.swiftpm
         rm -rf ~/Library/Developer/Xcode/DerivedData
 
-    # 5️⃣ 의존 패키지 먼저 빌드 (Macro 포함)
-    - name: ⚡ Build Dependencies (Macro)
-      run: |
-        DEVICE=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | awk -F '(' '{print $1}' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        xcodebuild -project Spoony-iOS/Spoony.xcodeproj \
-          -scheme TCACoordinators \
-          -sdk iphonesimulator \
-          -destination "platform=iOS Simulator,name=${DEVICE}" \
-          clean build
-
-    # 6️⃣ 의존성 해결
+    # 5️⃣ 의존성 해결
     - name: 📦 Resolve Dependencies
       run: |
         xcodebuild \
@@ -54,7 +44,7 @@ jobs:
           -resolvePackageDependencies \
           -scheme Spoony-iOS
 
-    # 7️⃣ 최종 빌드
+    # 6️⃣ 최종 빌드
     - name: ✅ Build with xcodebuild
       run: |
         DEVICE=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | awk -F '(' '{print $1}' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
