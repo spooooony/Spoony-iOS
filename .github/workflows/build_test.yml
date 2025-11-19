@@ -24,9 +24,9 @@ jobs:
     # 3️⃣ Config 설정
     - name: 🛠️ Setting Config
       run: |
-        mkdir -p Spoony-iOS/Config
-        echo "${CONFIG}" | base64 --decode > Spoony-iOS/Config/Config.swift
-        echo "KAKAO_APP_KEY = ${KAKAO_APP_KEY}" > Spoony-iOS/Config/Config.xcconfig
+        mkdir -p Spoony-iOS/Spoony-iOS/Config
+        echo "${CONFIG}" | base64 --decode > Spoony-iOS/Spoony-iOS/Config/Config.swift
+        echo "KAKAO_APP_KEY = ${KAKAO_APP_KEY}" > Spoony-iOS/Spoony-iOS/Config/Config.xcconfig
       env:
         CONFIG: ${{ secrets.CONFIG }}
         KAKAO_APP_KEY: ${{ secrets.KAKAO_APP_KEY }}
