@@ -18,7 +18,8 @@ jobs:
 
     # 2️⃣ Xcode Version 설정
     - name: 🛠️ Setting Xcode Version
-      run: sudo xcode-select -s /Applications/Xcode_16.5.app
+      # Xcode 16.4 버전 설정
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
 
     # 3️⃣ Config 설정
     - name: 🛠️ Setting Config
@@ -30,27 +31,33 @@ jobs:
         CONFIG: ${{ secrets.CONFIG }}
         KAKAO_APP_KEY: ${{ secrets.KAKAO_APP_KEY }}
 
-    # 4️⃣ SPM 캐시 정리
-    - name: 🧹 Clean SPM Cache
+    # 4️⃣ SPM 캐시 정리 및 DerivedData 초기화 (강화)
+    - name: 🧹 Clean Cache and DerivedData
       run: |
+        # SPM 캐시 및 DerivedData를 강제로 삭제하여 이전 빌드 아티팩트 제거
         rm -rf ~/Library/Caches/org.swift.swiftpm
         rm -rf ~/Library/Developer/Xcode/DerivedData
+        # 프로젝트 내부 DerivedData 경로도 삭제 (추가적인 안정성 확보)
+        rm -rf ./Spoony-iOS/DerivedData
 
-    # 5️⃣ 의존성 해결
-    - name: 📦 Resolve Dependencies
+    # 5️⃣ 의존성 해결 (매크로 안정성을 위해 'clean' 옵션 추가)
+    - name: 📦 Resolve Dependencies (Cleaned)
       run: |
         xcodebuild \
           -project Spoony-iOS/Spoony.xcodeproj \
+          -scheme Spoony-iOS \
+          **clean** \
           -resolvePackageDependencies
 
     # 6️⃣ 최종 빌드
     - name: ✅ Build with xcodebuild
       run: |
+        # 사용 가능한 시뮬레이터 장치 이름 가져오기
         DEVICE=$(xcrun simctl list devices available | grep "iPhone" | head -n 1 | awk -F '(' '{print $1}' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
         echo "Using simulator: ${DEVICE}"
 
-        # 매크로 검증 우회 설정
+        # 매크로 검증 우회 설정 (xcodebuild 옵션과 함께 사용)
         defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
         defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidation -bool YES
 
