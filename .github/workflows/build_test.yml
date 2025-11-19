@@ -46,7 +46,7 @@ jobs:
         xcodebuild \
           -project Spoony-iOS/Spoony.xcodeproj \
           -scheme Spoony-iOS \
-          **clean** \
+          clean \
           -resolvePackageDependencies
 
     # 6️⃣ 최종 빌드
