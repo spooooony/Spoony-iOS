@@ -41,8 +41,7 @@ jobs:
       run: |
         xcodebuild \
           -project Spoony-iOS/Spoony.xcodeproj \
-          -resolvePackageDependencies \
-          -scheme Spoony-iOS
+          -resolvePackageDependencies
 
     # 6️⃣ 최종 빌드
     - name: ✅ Build with xcodebuild
@@ -60,6 +59,7 @@ jobs:
           -project Spoony-iOS/Spoony.xcodeproj \
           -scheme Spoony-iOS \
           -sdk iphonesimulator \
-          -arch x86_64 \
           -destination "platform=iOS Simulator,name=${DEVICE}" \
+          -skipMacroValidation \
+          -skipPackagePluginValidation \
           clean build | xcpretty
