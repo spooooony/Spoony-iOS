@@ -43,7 +43,6 @@ jobs:
         xcodebuild -project Spoony-iOS/Spoony.xcodeproj \
           -scheme TCACoordinators \
           -sdk iphonesimulator \
-          -arch x86_64 \
           -destination "platform=iOS Simulator,name=${DEVICE}" \
           clean build
 
