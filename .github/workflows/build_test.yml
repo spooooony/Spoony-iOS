@@ -65,7 +65,6 @@ jobs:
         xcodebuild \
           -project Spoony-iOS/Spoony.xcodeproj \
           -scheme Spoony-iOS \
-          -sdk iphonesimulator \
           -destination "platform=iOS Simulator,name=${DEVICE}" \
           -skipMacroValidation \
           -skipPackagePluginValidation \
