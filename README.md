@@ -39,7 +39,7 @@
 
 # **⚒️** Tech stack & Architecture
 <img src="https://img.shields.io/badge/SwiftUI-2C68B5?&style=flat-square&logo=Swift&logoColor=white"/> <img src="https://img.shields.io/badge/Xcode_16-147EFB?style=flat-square&logo=Xcode&logoColor=white"/> <img src="https://img.shields.io/badge/Swift_Concurrency-FF3E00?style=flat-square&logo=Swift&logoColor=white"/>
-
+[![Build_Test](https://github.com/spooooony/Spoony-iOS/actions/workflows/build_test.yml/badge.svg)](https://github.com/spooooony/Spoony-iOS/actions/workflows/build_test.yml)
 
 <img width="750" alt="스크린샷 2025-01-07 오후 3 08 01" src="https://github.com/user-attachments/assets/be8e0f11-aa88-43d5-8050-1a798a12ec47" />
 
