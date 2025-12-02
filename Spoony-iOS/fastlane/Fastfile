@@ -1,0 +1,115 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Build app and upload to TestFlight"
+
+  #########################################
+  # ✅ 모든 lane 성공 시 호출
+  #########################################
+  after_all do |lane|
+    send_discord_message("⭐️ TestFlight 업로드 성공!", true)
+  end
+
+  #########################################
+  # 🚨 에러 발생 시 호출
+  #########################################
+  error do |lane, exception|
+    send_discord_message("❌ TestFlight 업로드 실패\n\n에러 내용: #{exception.message}", false)
+  end
+
+  #########################################
+  # 🔐 키체인 생성 lane
+  #########################################
+  lane :setup_keychain do
+    create_keychain(
+      name: ENV["KEYCHAIN_NAME"],
+      password: ENV["KEYCHAIN_PASSWORD"],
+      timeout: 1800,
+      default_keychain: true,
+      unlock: true,
+      lock_when_sleeps: false
+    )
+  end
+
+  #########################################
+  # 🛠 Match lane
+  #########################################
+  lane :setup_match do
+    match(
+      git_url: ENV["PRIVATE_REPOSITORY"],
+      storage_mode: "git",
+      type: "appstore",
+      readonly: true,
+      keychain_name: ENV["KEYCHAIN_NAME"],
+      keychain_password: ENV["KEYCHAIN_PASSWORD"]
+    )
+  end
+
+  #########################################
+  # 📦 테스트플라이트 배포 lane
+  #########################################
+  lane :beta do
+    # 1️⃣ Keychain 설정
+    setup_keychain
+
+    # 2️⃣ Match 인증서/프로비저닝 설정
+    setup_match
+
+    # 3️⃣ 빌드 넘버 설정 (날짜 기반)
+    build_number = date_based_build_number
+    increment_build_number(
+      build_number: build_number
+    )
+
+    # 4️⃣ 앱 빌드
+    build_app(
+      workspace: "Spoony.xcworkspace",
+      scheme: "Spoony",
+      configuration: "Release"
+    )
+
+    # 5️⃣ TestFlight 업로드
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  #########################################
+  # 🔔 Discord 메시지 전송 함수
+  #########################################
+  def send_discord_message(message, success)
+    version = get_version_number(xcodeproj: "Spoony.xcodeproj")
+    build_number = get_build_number(xcodeproj: "Spoony.xcodeproj")
+    title_text = success ? "🚀 TestFlight 업로드 성공" : "🚨 TestFlight 업로드 실패"
+
+    discord_notifier(
+      webhook_url: ENV["SPOONY_DISCORD"],
+      username: "Fastlane Bot",
+      title: "#{title_text} — v#{version} (#{build_number})",
+      description: message,
+      footer: "빌드 완료 시간: #{Time.now}"
+    )
+  end
+
+  #########################################
+  # 🗓 날짜 기반 빌드 번호
+  #########################################
+  def date_based_build_number
+    Time.now.in_time_zone("Asia/Seoul").strftime("%Y.%m%d.%H%M")
+  end
+end

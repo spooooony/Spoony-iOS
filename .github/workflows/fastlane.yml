@@ -1,0 +1,67 @@
+# This workflow will build a Swift project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
+
+name: TestFlight 
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: CI/CD By Using Fastlane
+    runs-on: macos-latest
+
+    steps:
+    # 1️⃣ 체크아웃
+    - name: 1️⃣ Checkout
+      uses: actions/checkout@v4
+      
+    # 2️⃣ Xcode Version 설정
+    - name: 2️⃣ Setting Xcode Version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
+      
+    # 3️⃣ Config 설정
+    - name: 3️⃣ Setting Config
+      run: |
+        mkdir -p Spoony-iOS/Spoony-iOS/Config
+        echo "${CONFIG}" | base64 --decode > Spoony-iOS/Spoony-iOS/Config/Config.swift
+        echo "KAKAO_APP_KEY = ${KAKAO_APP_KEY}" > Spoony-iOS/Spoony-iOS/Config/Config.xcconfig
+      env:
+        CONFIG: ${{ secrets.CONFIG }}
+        KAKAO_APP_KEY: ${{ secrets.KAKAO_APP_KEY }}
+        
+    # 4️⃣ fastlane 설치
+    - name: 4️⃣ Install fastlane
+      run: brew install fastlane
+    - name: Fastlane Version Check
+      run: fastlane --version
+      
+    # 5️⃣ Install SSH
+    - name: 5️⃣ SSH key 설치
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SSH_KEY }}
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
+    
+    # 6️⃣ Run Fastlane
+    - name: Run Fastlane
+      run: fastlane beta
+      env: 
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
+        APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+        APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+        APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+        FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
+        FASTLANE_ITC_TEAM_ID: ${{ secrets.FASTLANE_ITC_TEAM_ID }}
+        GIT_BRANCH: ${{ secrets.GIT_BRANCH }}
+        KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+        KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        PRIVATE_REPOSITORY: ${{ secrets.PRIVATE_REPOSITORY }}
+        SPOONY_DISCORD: ${{ secrets.PRIVATE_REPOSITORY }}
+        TEAM_ID: ${{ secrets.TEAM_ID }}
+
