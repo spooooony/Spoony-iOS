@@ -49,6 +49,7 @@ jobs:
     # 6️⃣ Run Fastlane
     - name: Run Fastlane
       run: fastlane beta
+      working-directory: Spoony-iOS
       env: 
         APPLE_ID: ${{ secrets.APPLE_ID }}
         APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
@@ -62,6 +63,6 @@ jobs:
         KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         PRIVATE_REPOSITORY: ${{ secrets.PRIVATE_REPOSITORY }}
-        SPOONY_DISCORD: ${{ secrets.PRIVATE_REPOSITORY }}
+        SPOONY_DISCORD: ${{ secrets.SPOONY_DISCORD }}
         TEAM_ID: ${{ secrets.TEAM_ID }}
 
