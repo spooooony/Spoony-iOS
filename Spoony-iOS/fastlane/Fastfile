@@ -110,6 +110,6 @@ platform :ios do
   # 🗓 날짜 기반 빌드 번호
   #########################################
   def date_based_build_number
-    Time.now.in_time_zone("Asia/Seoul").strftime("%Y.%m%d.%H%M")
+    Time.new.strftime("%Y.%m%d.%H%M")
   end
 end
