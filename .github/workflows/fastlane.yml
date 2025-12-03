@@ -65,4 +65,3 @@ jobs:
         PRIVATE_REPOSITORY: ${{ secrets.PRIVATE_REPOSITORY }}
         SPOONY_DISCORD: ${{ secrets.SPOONY_DISCORD }}
         TEAM_ID: ${{ secrets.TEAM_ID }}
-
