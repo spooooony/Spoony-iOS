@@ -101,7 +101,7 @@ platform :ios do
       webhook_url: ENV["SPOONY_DISCORD"],
       title: "#{title_text} — v#{version} (#{build_number})",
       description: message,
-      footer: "빌드 완료 시간: #{Time.now}"
+      success: success
     )
   end
 
