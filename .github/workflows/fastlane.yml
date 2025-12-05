@@ -53,6 +53,7 @@ jobs:
     
     # 7️⃣ Run Fastlane
     - name: Run Fastlane
+      working-directory: ./Spoony-iOS
       run: fastlane beta
       env: 
         APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
