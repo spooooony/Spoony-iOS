@@ -56,8 +56,7 @@ platform :ios do
       type: "appstore",
       readonly: true,
       keychain_name: ENV["KEYCHAIN_NAME"],
-      keychain_password: ENV["KEYCHAIN_PASSWORD"],
-      api_key: app_store_connect_api_key
+      keychain_password: ENV["KEYCHAIN_PASSWORD"]
     )
   end
 
@@ -77,21 +76,21 @@ platform :ios do
       build_number: build_number
     )
 
-    # 4️⃣ 앱 빌드
-    build_app(
-      workspace: "Spoony.xcworkspace",
-      scheme: "Spoony",
-      configuration: "Release"
-    )
-
-    # ✨ API Key 방식 TestFlight 업로드
+    # 4️⃣ API Key 방식 TestFlight 업로드
     api_key = app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
       issuer_id: ENV["APP_STORE_CONNECT_API_ISSUER_ID"],
       key_content: ENV["APP_STORE_CONNECT_API_KEY_CONTENT"]
     ) 
 
-    # 5️⃣ TestFlight 업로드
+    # 5️⃣ 앱 빌드
+    build_app(
+      workspace: "Spoony.xcworkspace",
+      scheme: "Spoony",
+      configuration: "Release"
+    )
+
+    # 6️⃣ TestFlight 업로드
     upload_to_testflight(
       api_key: api_key,
       skip_waiting_for_build_processing: true
