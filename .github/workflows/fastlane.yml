@@ -51,12 +51,10 @@ jobs:
       run: fastlane beta
       working-directory: Spoony-iOS/Spoony-iOS
       env: 
-        APPLE_ID: ${{ secrets.APPLE_ID }}
         APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
         APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
         APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
         APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-        FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
         FASTLANE_ITC_TEAM_ID: ${{ secrets.FASTLANE_ITC_TEAM_ID }}
         GIT_BRANCH: ${{ secrets.GIT_BRANCH }}
         KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
