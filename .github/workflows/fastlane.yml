@@ -22,7 +22,18 @@ jobs:
     # 2️⃣ Xcode Version 설정
     - name: 2️⃣ Setting Xcode Version
       run: sudo xcode-select -s /Applications/Xcode_16.4.app
+    
+    - name: 🧹 Clean DerivedData
+      run: rm -rf ~/Library/Developer/Xcode/DerivedData
       
+    - name: Resolve Dependencies
+      run: xcodebuild -resolvePackageDependencies -project Spoony-iOS/Spoony.xcodeproj
+
+    - name: Skip Macro Validation
+      run: |
+        defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
+        defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidation -bool YES
+    
     # 3️⃣ Config 설정
     - name: 3️⃣ Setting Config
       run: |
