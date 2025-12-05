@@ -86,7 +86,7 @@ platform :ios do
     # 5️⃣ 앱 빌드
     build_app(
       project: "Spoony.xcodeproj",
-      scheme: "Spoony",
+      scheme: "Spoony-iOS",
       configuration: "Release"
     )
 
