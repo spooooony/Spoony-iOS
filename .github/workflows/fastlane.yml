@@ -32,21 +32,26 @@ jobs:
       env:
         CONFIG: ${{ secrets.CONFIG }}
         KAKAO_APP_KEY: ${{ secrets.KAKAO_APP_KEY }}
-        
-    # 4️⃣ fastlane 설치
+    
+    # 4️⃣ ruby 설치
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7
+    
+    # 5️⃣ fastlane 설치
     - name: 4️⃣ Install fastlane
       run: brew install fastlane
     - name: Fastlane Version Check
       run: fastlane --version
       
-    # 5️⃣ Install SSH
+    # 6️⃣ Install SSH
     - name: 5️⃣ SSH key 설치
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.SSH_KEY }}
         known_hosts: ${{ secrets.KNOWN_HOSTS }}
     
-    # 6️⃣ Run Fastlane
+    # 7️⃣ Run Fastlane
     - name: Run Fastlane
       run: fastlane beta
       env: 
