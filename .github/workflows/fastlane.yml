@@ -54,7 +54,7 @@ jobs:
     # 7️⃣ Run Fastlane
     - name: Run Fastlane
       run: fastlane beta
-      working-directory: Spoony-iOS
+      working-directory: Spoony-iOS/Spoony-iOS
       env: 
         APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
         APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
