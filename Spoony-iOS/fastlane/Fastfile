@@ -85,7 +85,7 @@ platform :ios do
 
     # 5️⃣ 앱 빌드
     build_app(
-      workspace: "Spoony-iOS/Spoony.xcworkspace",
+      workspace: "Spoony.xcworkspace",
       scheme: "Spoony-iOS",
       configuration: "Release"
     )
