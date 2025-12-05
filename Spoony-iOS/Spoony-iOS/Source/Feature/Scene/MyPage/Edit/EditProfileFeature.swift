@@ -37,7 +37,7 @@ struct EditProfileFeature {
         var initSubRegion: Region?
         
         // 나중에 삭제
-        var nicknameErrorState: NicknameTextFieldErrorState = .initial
+        var nicknameErrorState: NicknameErrorType = .initial
         
         var isPresentProfileBottomSheet: Bool = false
         var isPresentBirthdateBottomSheet: Bool = false
@@ -51,7 +51,7 @@ struct EditProfileFeature {
         case didTapQuesetionButton
         case profileInfoResponse(ProfileInfo)
         case profileImagesResponse([ProfileImage])
-        case setNicknameError(NicknameTextFieldErrorState)
+        case setNicknameError(NicknameErrorType)
         case regionsResponse([Region])
         case didTapProfileImage(ProfileImage)
         case checkNickname
@@ -59,9 +59,12 @@ struct EditProfileFeature {
         
         case sendMixpanelEvent
         
-        // MARK: - TabRootCoordinator Action
-        case routeToPreviousScreen
-        case presentToast(message: String)
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate: Equatable {
+            case routeToPreviousScreen
+            case presentToast(ToastType)
+        }
     }
     
     private enum CancelID {
@@ -71,7 +74,8 @@ struct EditProfileFeature {
     }
     
     @Dependency(\.myPageService) var mypageService: MypageServiceProtocol
-    @Dependency(\.authService) var authService: AuthProtocol
+    @Dependency(\.authService) var authService: AuthServiceProtocol
+    @Dependency(\.checkNicknameDuplicateUseCase) var checkNicknameUseCase: CheckNicknameDuplicateUseCaseProtocol
     
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -95,6 +99,7 @@ struct EditProfileFeature {
                 return .none
                 
             case .binding: return .none
+                
             case .onAppear:
                 state.isLoading = true
                 return .run { send in
@@ -110,7 +115,7 @@ struct EditProfileFeature {
                         await send(.profileInfoResponse(info))
                     } catch {
                         await send(.updateLoadError)
-                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n 잠시 후 다시 시도해 주세요."))
+                        await send(.delegate(.presentToast(.serverError)))
                     }
                 }
                 .cancellable(id: CancelID.profileLoad, cancelInFlight: true)
@@ -166,10 +171,10 @@ struct EditProfileFeature {
                     
                     if success {
                         await send(.sendMixpanelEvent)
-                        await send(.routeToPreviousScreen)
+                        await send(.delegate(.routeToPreviousScreen))
                     } else {
-                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
-                        await send(.routeToPreviousScreen)
+                        await send(.delegate(.presentToast(.serverError)))
+                        await send(.delegate(.routeToPreviousScreen))
                     }
                 }
                 .cancellable(id: CancelID.editProfile, cancelInFlight: true)
@@ -220,7 +225,7 @@ struct EditProfileFeature {
                     if state.nicknameErrorState == .noError {
                         return .run { [state] send in
                             do {
-                                let isDuplicated = try await authService.nicknameDuplicateCheck(userName: state.userNickname)
+                                let isDuplicated = try await checkNicknameUseCase.execute(nickname: state.userNickname)
                                 
                                 if isDuplicated {
                                     await send(.setNicknameError(.duplicateNicknameError))
@@ -254,22 +259,25 @@ struct EditProfileFeature {
                 state.imageLevel = image.imageLevel
                 return .none
                 
-            case .routeToPreviousScreen:
-                return .merge(
-                    .cancel(id: CancelID.profileLoad),
-                    .cancel(id: CancelID.editProfile),
-                    .cancel(id: CancelID.nicknameCheck)
-                )
-                
-            case .presentToast:
-                state.isLoading = false
-                return .none
-                
             case .updateLoadError:
                 state.isLoadError = true
                 state.isDisableRegisterButton = true
                 state.profileImages = [.init(url: "", spoonName: "", imageLevel: 1, unlockCondition: "", isUnlocked: true)]
                 return .none
+                
+            case let .delegate(action):
+                switch action {
+                case .routeToPreviousScreen:
+                    return .merge(
+                        .cancel(id: CancelID.profileLoad),
+                        .cancel(id: CancelID.editProfile),
+                        .cancel(id: CancelID.nicknameCheck)
+                    )
+                    
+                case .presentToast:
+                    state.isLoading = false
+                    return .none
+                }
             }
         }
     }

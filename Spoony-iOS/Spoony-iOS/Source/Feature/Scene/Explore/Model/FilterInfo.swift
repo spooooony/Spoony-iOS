@@ -9,13 +9,13 @@ import Foundation
 
 struct FilterInfo: Equatable {
     var local: String
-    var categories: [CategoryChip]
+    var categories: [CategoryChipEntity]
     var locations: [Region]
     var ages: [String]
     
     init(
         local: String = "로컬 리뷰",
-        categories: [CategoryChip],
+        categories: [CategoryChipEntity],
         locations: [Region],
         ages: [String] = AgeType.allCases.map { $0.title }
     ) {

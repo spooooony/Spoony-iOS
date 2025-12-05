@@ -24,7 +24,7 @@ struct EditProfileView: View {
                 style: .backOnly,
                 searchText: .constant(""),
                 onBackTapped: {
-                    store.send(.routeToPreviousScreen)
+                    store.send(.delegate(.routeToPreviousScreen))
                 }
             )
             

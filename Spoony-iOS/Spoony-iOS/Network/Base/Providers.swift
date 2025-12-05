@@ -23,18 +23,35 @@ struct Providers {
 extension MoyaProvider {
     convenience init(withAuth: Bool) {
         if withAuth {
-            let credential = TokenCredential(
-                accessToken: TokenManager.shared.currentToken ?? "",
-                refreshToken: TokenManager.shared.currentRefreshToken ?? ""
-            )
-            let authenticator = TokenAuthenticator(refreshService: DefaultRefreshService.shared)
-            let interceptor = AuthenticationInterceptor(authenticator: authenticator, credential: credential)
+            let tokenInterceptor = TokenInterceptor(refreshService: DefaultRefreshService.shared)
+            
             self.init(
-                session: Session(interceptor: interceptor),
+                session: Session(interceptor: tokenInterceptor),
                 plugins: [SpoonyLoggingPlugin()]
             )
         } else {
             self.init(plugins: [SpoonyLoggingPlugin()])
+        }
+    }
+}
+
+extension MoyaProvider {
+    func request(_ target: Target) async throws -> NetworkResponse {
+        return try await withCheckedThrowingContinuation { continuation in
+            request(target) { result in
+                switch result {
+                case .success(let response):
+                    continuation.resume(
+                        returning: NetworkResponse(
+                            statusCode: response.statusCode,
+                            data: response.data,
+                            response: response.response
+                        )
+                    )
+                case .failure:
+                    continuation.resume(throwing: SNError.networkFail)
+                }
+            }
         }
     }
 }

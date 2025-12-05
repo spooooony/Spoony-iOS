@@ -26,7 +26,7 @@ struct ExploreSearchView: View {
                     placeholder: store.state.viewType.placeholder,
                     searchText: $store.searchText,
                     onBackTapped: {
-                        store.send(.routeToPreviousScreen)
+                        store.send(.delegate(.routeToPreviousScreen))
                     }, tappedAction: {
                         store.send(.onSubmit)
                     }
@@ -185,9 +185,9 @@ extension ExploreSearchView {
                         userCell(user)
                             .onTapGesture {
                                 if user.isMine {
-                                    store.send(.routeToMyProfileScreen)
+                                    store.send(.delegate(.routeToMyProfileScreen))
                                 } else {
-                                    store.send(.routeToUserProfileScreen(user.id))
+                                    store.send(.delegate(.routeToUserProfileScreen(user.id)))
                                 }
                             }
                     }
@@ -196,12 +196,12 @@ extension ExploreSearchView {
                         if feed.isMine {
                             myExploreCell(feed)
                                 .onTapGesture {
-                                    store.send(.routeToPostScreen(feed))
+                                    store.send(.delegate(.routeToPostScreen(feed)))
                                 }
                         } else {
                             otherExploreCell(feed)
                                 .onTapGesture {
-                                    store.send(.routeToPostScreen(feed))
+                                    store.send(.delegate(.routeToPostScreen(feed)))
                                 }
                         }
                         
@@ -235,7 +235,7 @@ extension ExploreSearchView {
                 Text(user.userName)
                     .customFont(.body2m)
                 if let region = user.regionName {
-                    Text("\(region) 스푼")
+                    Text("서울 \(region) 스푼")
                         .customFont(.caption1m)
                         .foregroundStyle(.gray400)
                 }
@@ -277,7 +277,7 @@ extension ExploreSearchView {
                 store.send(.deleteMyReview(feed.postId))
             },
             onEdit: { feed in
-                store.send(.routeToEditReviewScreen(feed.postId))
+                store.send(.delegate(.routeToEditReviewScreen(feed.postId)))
             }
         )
     }
@@ -286,7 +286,7 @@ extension ExploreSearchView {
         ExploreCell(
             feed: feed,
             onReport: { feed in
-                store.send(.routeToPostReportScreen(feed.postId))
+                store.send(.delegate(.routeToPostReportScreen(feed.postId)))
             }
         )
     }

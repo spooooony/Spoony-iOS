@@ -39,10 +39,16 @@ struct ReportFeature {
         case reportPostReasonButtonTapped(PostReportType)
         case reportUserReasonButtonTapped(UserReportType)
         case reportPostButtonTapped
-        case routeToPreviousScreen
+        
         case presentAlert(AlertType, Alert)
-        case routeToRoot
-        case presentToast(message: String)
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate: Equatable {
+            case routeToPreviousScreen
+            case routeToRoot
+            case presentToast(ToastType)
+        }
     }
     
     @Dependency(\.reportService) var reportService: ReportProtocol
@@ -60,12 +66,15 @@ struct ReportFeature {
                 }
                 print("report type: \(state.reportType)")
                 return .none
+                
             case .reportPostReasonButtonTapped(let type):
                 state.selectedPostReport = type
                 return .none
+                
             case .reportUserReasonButtonTapped(let type):
                 state.selectedUserReport = type
                 return .none
+                
             case .reportPostButtonTapped:
                 return .run { [state] send in
                     do {
@@ -95,20 +104,19 @@ struct ReportFeature {
                             )
                         )
                     } catch {
-                        await send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
+                        await send(.delegate(.presentToast(.serverError)))
                     }
                 }
-            case .routeToPreviousScreen:
-                return .none
+                
             case let .presentAlert(type, alert):
                 state.alertType = type
                 state.alert = alert
                 state.isAlertPresented = true
                 return .none
-            case .routeToRoot:
+                
+            case .delegate:
                 return .none
-            case .presentToast:
-                return .none
+                
             case .binding:
                 return .none
             }

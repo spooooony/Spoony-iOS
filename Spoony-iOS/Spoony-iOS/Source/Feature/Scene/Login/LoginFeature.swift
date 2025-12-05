@@ -33,109 +33,83 @@ struct LoginFeature {
         
         var socialType: SocialType = .KAKAO
         var token: String = ""
-        var isLoading: Bool = false
     }
     
     enum Action {
         case tempHomeButtonTapped
-        
-        case onAppear
         case kakaoLoginButtonTapped
         case appleLoginButtonTapped
-        case login(SocialType, String)
+        case login(SocialType, String, String?)
 
         case error(Error)
         
-        // MARK: Navigation Action
-        case routToTermsOfServiceScreen
-        case routToTabCoordinatorScreen
-        case presentToast(message: String)
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToTermsOfServiceScreen
+            case routeToTabCoordinatorScreen
+            case presentToast(ToastType)
+        }
     }
         
     private let authenticationManager = AuthenticationManager.shared
     @Dependency(\.socialLoginService) var socialLoginService: SocialLoginServiceProtocol
-    @Dependency(\.authService) var authService: AuthProtocol
+    @Dependency(\.authService) var authService: AuthServiceProtocol
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .tempHomeButtonTapped:
-                return .send(.routToTabCoordinatorScreen)
-            case .onAppear:
-                if authenticationManager.checkAutoLogin() {
-                    Mixpanel.mainInstance().track(
-                        event: ConversionAnalysisEvents.Name.loginsuccess
-                    )
-                    
-                    if let userId = UserManager.shared.userId {
-                        Mixpanel.mainInstance().identify(distinctId: "\(userId)")
-                    }
-                    
-                    return .send(.routToTabCoordinatorScreen)
-                } else {
-                    return .none
-                }
+                return .send(.delegate(.routeToTabCoordinatorScreen))
             case .kakaoLoginButtonTapped:
-                state.isLoading = true
-                
                 return .run { send in
                     do {
                         let result = try await socialLoginService.kakaoLogin()
                         authenticationManager.setToken(.KAKAO, result)
-                        await send(.login(.KAKAO, result))
+                        await send(.login(.KAKAO, result, nil))
                     } catch {
-                        await send(.error(LoginError.kakaoTokenError))
+//                        await send(.error(LoginError.kakaoTokenError))
                     }
                 }
             case .appleLoginButtonTapped:
-                state.isLoading = true
-                
                 return .run { send in
                     do {
                         let result = try await socialLoginService.appleLogin()
-                        authenticationManager.setToken(.APPLE, result)
-                        await send(.login(.APPLE, result))
+                        authenticationManager.setToken(.APPLE, result.token, result.code)
+                        await send(.login(.APPLE, result.token, result.code))
                     } catch {
-                        await send(.error(LoginError.appleTokenError))
+//                        await send(.error(LoginError.appleTokenError))
                     }
                 }
-            case .login(let type, let token):
+            case let .login(type, token, code):
                 return .run { send in
                     do {
-                        let isExists = try await authService.login(platform: type.rawValue, token: token)
+                        let isExists = try await authService.login(platform: type.rawValue, token: token, code: code)
                         if isExists {
                             Mixpanel.mainInstance().track(
                                 event: ConversionAnalysisEvents.Name.loginsuccess
                             )
-                            await send(.routToTabCoordinatorScreen)
+                            await send(.delegate(.routeToTabCoordinatorScreen))
                         } else {
                             Mixpanel.mainInstance().track(
                                 event: ConversionAnalysisEvents.Name.signupCompleted,
                                 properties: ConversionAnalysisEvents.SignupProperty(method: type).dictionary
                             )
-                            await send(.routToTermsOfServiceScreen)
+                            await send(.delegate(.routeToTermsOfServiceScreen))
                         }
                     } catch {
                         await send(.error(LoginError.serverLoginError))
                     }
                 }
+                
             case .error(let error):
                 #if DEBUG
                 print(error.localizedDescription)
                 #endif
                 
-                state.isLoading = false
-                return .send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
+                return .send(.delegate(.presentToast(.serverError)))
                 
-            // 회원 가입 Flow
-            case .routToTermsOfServiceScreen:
-                state.isLoading = false
-                return .none
-            // 로그인 성공
-            case .routToTabCoordinatorScreen:
-                state.isLoading = false
-                return .none
-            case .presentToast:
+            case .delegate:
                 return .none
             }
         }

@@ -13,9 +13,9 @@ extension DependencyValues {
         set { self[MyPageServiceKey.self] = newValue }
     }
     
-    var postUseCase: PostUseCase {
-        get { self[PostUseCaseKey.self] }
-        set { self[PostUseCaseKey.self] = newValue }
+    var postService: PostServiceProtocol {
+        get { self[PostServiceKey.self] }
+        set { self[PostServiceKey.self] = newValue }
     }
     
     var homeService: HomeServiceType {
@@ -28,7 +28,7 @@ extension DependencyValues {
         set { self[SocialLoginServiceKey.self] = newValue }
     }
     
-    var authService: AuthProtocol {
+    var authService: AuthServiceProtocol {
         get { self[AuthServiceKey.self] }
         set { self[AuthServiceKey.self] = newValue }
     }
@@ -38,9 +38,9 @@ extension DependencyValues {
         set { self[RegisterServiceKey.self] = newValue }
     }
     
-    var followUseCase: FollowUseCase {
-        get { self[FollowUseCaseKey.self] }
-        set { self[FollowUseCaseKey.self] = newValue }
+    var followService: FollowServiceProtocol {
+        get { self[FollowServiceKey.self] }
+        set { self[FollowServiceKey.self] = newValue }
     }
     
     var reportService: ReportProtocol {

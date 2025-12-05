@@ -13,12 +13,11 @@ import KakaoSDKAuth
 
 protocol SocialLoginServiceProtocol {
     func kakaoLogin() async throws -> String
-    func appleLogin() async throws -> String
+    func appleLogin() async throws -> (token: String, code: String)
 }
 
-final class Resumable {
+actor Resumable {
     private var isResumed = false
-    private let lock = NSLock()
     private let continuation: CheckedContinuation<String, Error>
     
     init(continuation: CheckedContinuation<String, any Error>) {
@@ -26,18 +25,12 @@ final class Resumable {
     }
     
     func resume(throwing: Error) {
-        lock.lock()
-        defer { lock.unlock() }
-        
         guard !isResumed else { return }
         isResumed = true
         continuation.resume(throwing: throwing)
     }
     
     func resume(returning: String) {
-        lock.lock()
-        defer { lock.unlock() }
-        
         guard !isResumed else { return }
         isResumed = true
         continuation.resume(returning: returning)
@@ -45,8 +38,8 @@ final class Resumable {
 }
 
 final class DefaultSocialLoginService: NSObject, SocialLoginServiceProtocol {
-    private var appleLoginContinuation: CheckedContinuation<String, Error>?
-
+    private var appleLoginContinuation: CheckedContinuation<(token: String, code: String), Error>?
+    
     func kakaoLogin() async throws -> String {
         try await kakaoLoginLogic()
     }
@@ -55,41 +48,31 @@ final class DefaultSocialLoginService: NSObject, SocialLoginServiceProtocol {
         return try await withCheckedThrowingContinuation { continuation in
             let resumable = Resumable(continuation: continuation)
             let resultHandler: (OAuthToken?, Error?) -> Void = { oauthToken, error in
-                if let error = error {
-                    resumable.resume(throwing: error)
-                } else if let oauthToken = oauthToken {
-                    let token = oauthToken.accessToken
-#if DEBUG
-                    print("kakao token: \(token)")
-#endif
-                    resumable.resume(returning: token)
+                Task {
+                    if let error = error {
+                        await resumable.resume(throwing: error)
+                    } else if let oauthToken = oauthToken {
+                        let token = oauthToken.accessToken
+                        await resumable.resume(returning: token)
+                    }
                 }
             }
             
-            let cancellationTask = Task {
-                try? await Task.sleep(for: .seconds(5))
-                resumable.resume(throwing: CancellationError())
-            }
-            
             Task { @MainActor in
-                // 앱으로 로그인
                 if UserApi.isKakaoTalkLoginAvailable() {
                     UserApi.shared.loginWithKakaoTalk { token, error in
                         resultHandler(token, error)
-                        cancellationTask.cancel()
                     }
                 } else {
-                    // 웹으로 로그인
                     UserApi.shared.loginWithKakaoAccount { token, error in
                         resultHandler(token, error)
-                        cancellationTask.cancel()
                     }
                 }
             }
         }
     }
     
-    func appleLogin() async throws -> String {
+    func appleLogin() async throws -> (token: String, code: String) {
         return try await withCheckedThrowingContinuation { continuation in
             appleLoginContinuation = continuation
             
@@ -121,7 +104,7 @@ extension DefaultSocialLoginService: ASAuthorizationControllerDelegate, ASAuthor
         didCompleteWithAuthorization authorization: ASAuthorization
     ) {
         guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential else { return }
-
+        
         let code = String(data: appleIDCredential.authorizationCode!, encoding: .utf8)
         let token = String(data: appleIDCredential.identityToken!, encoding: .utf8)
         
@@ -132,8 +115,9 @@ extension DefaultSocialLoginService: ASAuthorizationControllerDelegate, ASAuthor
         #endif
         
         if let continuation = appleLoginContinuation,
-           let token {
-            continuation.resume(returning: token)
+           let token,
+           let code {
+            continuation.resume(returning: (token, code))
         } else {
             appleLoginContinuation?.resume(throwing: LoginError.appleTokenError)
         }

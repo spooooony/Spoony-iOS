@@ -52,10 +52,16 @@ struct SearchFeature {
         case searchCompletedSuccess([SearchResult])
         case searchCompletedFailure(String)
         case updateRecentSearches([String])
-        case routeToPreviousScreen
+        
         case goBack
         case loadRecentSearches
-        case routeToSearchLocation(SearchResult)
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate: Equatable {
+            case routeToPreviousScreen
+            case routeToSearchLocation(SearchResult)
+        }
     }
     
     var body: some ReducerOf<Self> {
@@ -113,10 +119,7 @@ struct SearchFeature {
                 
             case let .selectLocation(result):
                 state.isSearching = false
-                return .send(.routeToSearchLocation(result))
-            
-            case .routeToSearchLocation:
-                return .none
+                return .send(.delegate(.routeToSearchLocation(result)))
 
             case let .selectRecentSearch(searchText):
                 state.searchText = searchText
@@ -184,9 +187,6 @@ struct SearchFeature {
                 state.recentSearches = searches
                 return .none
                 
-            case .routeToPreviousScreen:
-                return .none
-                
             case let .setFirstAppear(isFirst):
                 state.isFirstAppear = isFirst
                 return .none
@@ -195,7 +195,10 @@ struct SearchFeature {
                 state.searchText = ""
                 state.searchResults = []
                 state.errorMessage = nil
-                return .send(.routeToPreviousScreen)
+                return .send(.delegate(.routeToPreviousScreen))
+                
+            case .delegate:
+                return .none
                 
             }
         }

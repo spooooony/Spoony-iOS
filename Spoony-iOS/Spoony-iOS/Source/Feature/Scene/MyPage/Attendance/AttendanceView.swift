@@ -66,18 +66,12 @@ struct AttendanceView: View {
                 title: "출석체크",
                 spoonCount: store.spoonCount,
                 onBackTapped: {
-                    store.send(.routeToPreviousScreen)
+                    store.send(.delegate(.routeToPreviousScreen))
                 }
             )
             
             trackerContentView
                 .padding(.horizontal, 20)
-            
-            if !store.hasDrawnSpoonToday {
-                dailySpoonSection
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 24)
-            }
             
             noticeView
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -116,39 +110,6 @@ struct AttendanceView: View {
             Text(store.dateRange)
                 .font(.body2m)
                 .foregroundColor(.gray400)
-        }
-    }
-    
-    private var dailySpoonSection: some View {
-        VStack(spacing: 16) {
-            Divider()
-                .background(Color.gray100)
-            
-            VStack(spacing: 12) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("오늘의 스푼 받기")
-                            .font(.title3b)
-                            .foregroundColor(.spoonBlack)
-                        
-                        Text("아직 오늘 스푼을 받지 않았어요")
-                            .font(.body2m)
-                            .foregroundColor(.gray500)
-                    }
-                    
-                    Spacer()
-                    
-                    SpoonyButton(
-                        style: .secondary,
-                        size: .xsmall,
-                        title: "스푼 받기",
-                        isIcon: false,
-                        disabled: .constant(false)
-                    ) {
-                        store.send(.setShowDailySpoonPopup(true))
-                    }
-                }
-            }
         }
     }
     

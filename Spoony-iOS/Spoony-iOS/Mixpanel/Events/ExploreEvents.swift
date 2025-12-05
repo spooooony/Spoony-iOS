@@ -17,7 +17,7 @@ struct ExploreEvents {
         var sortType: SortType
         
         var dictionary: [String: MixpanelType] {
-            ["sort_type": sortType.rawValue]
+            ["sort_type": sortType.mixpanelKey]
         }
     }
     

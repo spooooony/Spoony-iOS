@@ -40,7 +40,7 @@ struct PlaceCard: View {
                             if let callback = onCardTapped {
                                 callback(place)
                             } else {
-                                store.send(.routeToPostView(postId: place.postId))
+                                store.send(.delegate(.routeToPostView(postId: place.postId)))
                             }
                         }
                 }

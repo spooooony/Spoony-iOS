@@ -15,12 +15,12 @@ struct AttendanceFeature {
     @ObservableState
     struct State: Equatable {
         var isLoading: Bool = false
-        var errorMessage: String? = nil
-        var spoonDrawData: SpoonDrawResponseWrapper.SpoonDrawData? = nil
+        var errorMessage: String?
+        var spoonDrawData: SpoonDrawResponseWrapper.SpoonDrawData?
         
         var spoonCount: Int = 0
         var isLoadingSpoonCount: Bool = false
-        var spoonCountErrorMessage: String? = nil
+        var spoonCountErrorMessage: String?
         
         var dateRange: String
         var currentWeekDates: [Date] = []
@@ -28,14 +28,14 @@ struct AttendanceFeature {
         var weekdayDateMap: [String: Date] = [:]
         var attendedWeekdays: [String: SpoonDrawResponse] = [:]
         
-        var selectedDay: String? = nil
+        var selectedDay: String?
         var showDrawResultPopup: Bool = false
-        var lastDrawnSpoon: SpoonDrawResponse? = nil
+        var lastDrawnSpoon: SpoonDrawResponse?
         
         var showDailySpoonPopup: Bool = false
         var isDrawingSpoon: Bool = false
-        var drawnSpoon: SpoonDrawResponse? = nil
-        var spoonDrawError: String? = nil
+        var drawnSpoon: SpoonDrawResponse?
+        var spoonDrawError: String?
         var hasVisitedToday: Bool = false
         
         let noticeItems = [
@@ -165,7 +165,6 @@ struct AttendanceFeature {
     }
 
     enum Action {
-        case routeToPreviousScreen
         case onAppear
         case fetchSpoonDrawInfo
         case spoonDrawResponse(TaskResult<SpoonDrawResponseWrapper>)
@@ -180,6 +179,12 @@ struct AttendanceFeature {
         case setShowDailySpoonPopup(Bool)
         case drawDailySpoon
         case dailySpoonDrawResponse(TaskResult<SpoonDrawResponse>)
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToPreviousScreen
+        }
     }
     
     @Dependency(\.spoonDrawService) var spoonDrawService
@@ -188,9 +193,6 @@ struct AttendanceFeature {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .routeToPreviousScreen:
-                return .none
-                
             case .onAppear:
                 return .merge(
                     .send(.fetchSpoonDrawInfo),
@@ -265,7 +267,7 @@ struct AttendanceFeature {
                     state.updateAttendedWeekdays()
                     
                     return .send(.checkDailyVisit)
-                } else if let errorMessage = response.error?.message {
+                } else if let errorMessage = response.error?.description {
                     state.errorMessage = errorMessage
                 }
                 return .none
@@ -332,6 +334,9 @@ struct AttendanceFeature {
                 state.showDrawResultPopup = false
                 state.lastDrawnSpoon = nil
                 state.selectedDay = nil
+                return .none
+                
+            case .delegate:
                 return .none
             }
         }

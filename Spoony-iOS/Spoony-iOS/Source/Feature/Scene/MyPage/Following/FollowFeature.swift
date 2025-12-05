@@ -23,7 +23,7 @@ struct FollowFeature {
         var followingCount: Int = 0
         var isLoading: Bool = false
         var initialTab: Int = 0
-        var targetUserId: Int? = nil
+        var targetUserId: Int?
         var currentTab: Int = 0
         
         static let initialState = State()
@@ -43,14 +43,19 @@ struct FollowFeature {
         case followingsResponse(Result<FollowListDTO, Error>)
         case followButtonTapped(userId: Int, isFollowing: Bool)
         case followActionResponse(Result<Void, Error>)
-        case routeToPreviousScreen
-        case routeToUserProfileScreen(userId: Int)
-        case routeToMyProfileScreen
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToPreviousScreen
+            case routeToUserProfileScreen(userId: Int)
+            case routeToMyProfileScreen
+        }
     }
     
     // MARK: - Dependencies
     
-    @Dependency(\.followUseCase) var followUseCase
+    @Dependency(\.followService) var followService
     
     // MARK: - Body
     
@@ -65,9 +70,9 @@ struct FollowFeature {
                         do {
                             let followers: FollowListDTO
                             if let userId = targetUserId {
-                                followers = try await followUseCase.getFollowers(userId: userId)
+                                followers = try await followService.getFollowers(userId: userId)
                             } else {
-                                followers = try await followUseCase.getMyFollowers()
+                                followers = try await followService.getMyFollowers()
                             }
                             await send(.followersResponse(.success(followers)))
                         } catch {
@@ -78,9 +83,9 @@ struct FollowFeature {
                         do {
                             let followings: FollowListDTO
                             if let userId = targetUserId {
-                                followings = try await followUseCase.getFollowings(userId: userId)
+                                followings = try await followService.getFollowings(userId: userId)
                             } else {
-                                followings = try await followUseCase.getMyFollowings()
+                                followings = try await followService.getMyFollowings()
                             }
                             await send(.followingsResponse(.success(followings)))
                         } catch {
@@ -152,7 +157,7 @@ struct FollowFeature {
                 
                 return .run { _ in
                     do {
-                        try await followUseCase.toggleFollow(userId: userId, isFollowing: isFollowing)
+                        try await followService.toggleFollow(userId: userId, isFollowing: isFollowing)
                         // ✅ 성공했지만 새로고침은 하지 않음
 //                        await send(.followActionResponse(.success(())))
                     } catch {
@@ -168,11 +173,8 @@ struct FollowFeature {
                     print("❌ 팔로우 로직 실패 : \(error.localizedDescription)")
                     return .none
                 }
-            case .routeToUserProfileScreen:
-                return .none
-            case .routeToPreviousScreen:
-                return .none
-            case .routeToMyProfileScreen:
+                
+            case .delegate:
                 return .none
             }
         }

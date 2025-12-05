@@ -63,22 +63,25 @@ struct ExploreFeature {
         case fetchFollowingFeed
         
         case setFeed([FeedEntity], String?)
-        case setFilterInfo(category: [CategoryChip], location: [Region])
+        case setFilterInfo(category: [CategoryChipEntity], location: [Region])
         
         case deleteMyReview(Int)
         case confirmDeleteReview
         case deleteReviewResult(Bool)
         
         case error(SNError)
-        
-        // MARK: - Navigation
-        case routeToExploreSearchScreen
-        case routeToPostScreen(FeedEntity)
-        case routeToReportScreen(Int)
-        case routeToEditReviewScreen(Int)
-        case tabSelected(TabType)
         case presentAlert(AlertType, Alert)
-        case presentToast(message: String)
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate: Equatable {
+            case routeToExploreSearchScreen
+            case routeToPostScreen(FeedEntity)
+            case routeToReportScreen(Int)
+            case routeToEditReviewScreen(Int)
+            case changeSelectedTab(TabType)
+            case presentToast(ToastType)
+        }
     }
     
     @Dependency(\.exploreService) var exploreService: ExploreProtocol
@@ -122,7 +125,7 @@ struct ExploreFeature {
                 
                 return .run { send in
                     do {
-                        let categories = try await exploreService.getCategoryList().toModel()
+                        let categories = try await exploreService.getCategoryList().toEntity()
                         let locations = try await exploreService.getRegionList().toEntity()
                         
                         await send(.setFilterInfo(category: categories, location: locations))
@@ -130,16 +133,17 @@ struct ExploreFeature {
                         await send(.error(SNError.networkFail))
                     }
                 }
-            case .routeToPostScreen:
-                return .none
+                
             case .searchButtonTapped:
-                return .send(.routeToExploreSearchScreen)
+                return .send(.delegate(.routeToExploreSearchScreen))
+                
             case .goButtonTapped:
                 if state.viewType == .all {
-                    return .send(.tabSelected(.register))
+                    return .send(.delegate(.changeSelectedTab(.register)))
                 } else {
-                    return .send(.routeToExploreSearchScreen)
+                    return .send(.delegate(.routeToExploreSearchScreen))
                 }
+                
             case .fetchFilteredFeed:
                 return .run { [state] send in
                     // TODO: throttle 공부하고 적용
@@ -182,6 +186,7 @@ struct ExploreFeature {
                 state.nextCursor = nil
                 state.isLast = false
                 return .send(.fetchFilteredFeed)
+                
             case .fetchFollowingFeed:
                 return .run { send in
                     do {
@@ -191,6 +196,7 @@ struct ExploreFeature {
                         await send(.error(SNError.networkFail))
                     }
                 }
+                
             case .setFeed(let list, let nextCursor):
                 if state.viewType == .all {
                     state.allList += list
@@ -205,11 +211,13 @@ struct ExploreFeature {
                 state.isLoading = false
                 state.nextCursor = nextCursor
                 return .none
+                
             case .setFilterInfo(let category, let region):
                 state.filterInfo.categories = category
                 state.filterInfo.locations = region
                 state.isFilterPresented = true
                 return .none
+                
             case .deleteMyReview(let postId):
                 state.deleteReviewID = postId
                 
@@ -224,6 +232,7 @@ struct ExploreFeature {
                         )
                     )
                 )
+                
             case .confirmDeleteReview:
                 return .run { [state] send in
                     do {
@@ -234,19 +243,13 @@ struct ExploreFeature {
                         await send(.error(SNError.networkFail))
                     }
                 }
+                
             case .deleteReviewResult(let success):
                 if !success {
                     return .send(.error(SNError.networkFail))
                 }
                 return .send(.refreshFilteredFeed)
-            case .routeToEditReviewScreen:
-                return .none
-            case .routeToExploreSearchScreen:
-                return .none
-            case .routeToReportScreen:
-                return .none
-            case .tabSelected:
-                return .none
+
             case .binding(\.selectedFilter):
                 state.selectedFilterButton = []
                 
@@ -270,11 +273,13 @@ struct ExploreFeature {
                     state.selectedFilterButton.append(.filter)
                 }
                 return .send(.refreshFilteredFeed)
+                
             case let .presentAlert(type, alert):
                 state.alertType = type
                 state.alert = alert
                 state.isAlertPresented = true
                 return .none
+                
             case .binding(\.selectedSort):
                 let property = ExploreEvents.SortSelectedProperty(sortType: state.selectedSort)
                 
@@ -284,12 +289,15 @@ struct ExploreFeature {
                 )
                 
                 return .send(.refreshFilteredFeed)
+                
             case .binding:
                 return .none
+                
             case .error:
                 state.isLoading = false
-                return .send(.presentToast(message: "서버에 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요."))
-            case .presentToast:
+                return .send(.delegate(.presentToast(.serverError)))
+                
+            case .delegate:
                 return .none
             }
         }

@@ -19,24 +19,29 @@ struct WithdrawFeature {
         static let initialState = State()
         
         var isAgreed: Bool = false
-        var withdrawAlert: WithdrawAlert? = nil
+        var withdrawAlert: WithdrawAlert?
         var isWithdrawing: Bool = false
-        var withdrawErrorMessage: String? = nil
+        var withdrawErrorMessage: String?
     }
     
     enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case routeToPreviousScreen
         case toggleAgreement
         case withdrawButtonTapped
         case confirmWithdraw
         case cancelWithdraw
         case performWithdraw
         case withdrawResult(TaskResult<Bool>)
-        case routeToLoginScreen
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToLoginScreen
+            case routeToPreviousScreen
+        }
     }
     
-    @Dependency(\.authService) var authService: AuthProtocol
+    @Dependency(\.authService) var authService: AuthServiceProtocol
     
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -44,9 +49,6 @@ struct WithdrawFeature {
         Reduce { state, action in
             switch action {
             case .binding:
-                return .none
-                
-            case .routeToPreviousScreen:
                 return .none
                 
             case .toggleAgreement:
@@ -96,7 +98,7 @@ struct WithdrawFeature {
                     UserManager.shared.exploreReviewRecentSearches = nil
                     
                     print("✅ 회원탈퇴 성공 - 모든 데이터 정리 완료")
-                    return .send(.routeToLoginScreen)
+                    return .send(.delegate(.routeToLoginScreen))
                 } else {
                     state.withdrawErrorMessage = "회원탈퇴에 실패했습니다."
                     print("❌ 회원탈퇴 실패 - API에서 false 반환")
@@ -107,10 +109,9 @@ struct WithdrawFeature {
                 state.isWithdrawing = false
                 state.withdrawErrorMessage = error.localizedDescription
                 print("❌ 회원탈퇴 API 호출 실패: \(error.localizedDescription)")
-                return .send(.routeToLoginScreen)
+                return .send(.delegate(.routeToLoginScreen))
 
-            case .routeToLoginScreen:
-                print("🔄 로그인 화면으로 이동 요청")
+            case .delegate:
                 return .none
             }
         }

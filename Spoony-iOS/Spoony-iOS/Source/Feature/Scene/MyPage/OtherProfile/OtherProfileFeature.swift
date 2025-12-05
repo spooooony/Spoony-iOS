@@ -25,16 +25,14 @@ struct OtherProfileFeature {
         var isFollowing: Bool = false
         var isBlocked: Bool = false
         var isLoading: Bool = false
-        var errorMessage: String? = nil
+        var errorMessage: String?
         
-        var reviews: [FeedEntity]? = nil
+        var reviews: [FeedEntity]?
         var isLoadingReviews: Bool = false
-        var reviewsErrorMessage: String? = nil
+        var reviewsErrorMessage: String?
         
         var isMenuPresented: Bool = false
         var showUnblockAlert: Bool = false
-        
-        var toast: Toast? = nil
         
         var isAlertPresented: Bool = false
         var alertType: AlertType = .normalButtonTwo
@@ -72,14 +70,10 @@ struct OtherProfileFeature {
         case userInfoResponse(TaskResult<UserInfoResponse>)
         case fetchUserReviews
         case userReviewsResponse(TaskResult<[FeedEntity]>)
-        case routeToPreviousScreen
         case followButtonTapped
         case followActionResponse(TaskResult<Void>)
         
-        case routeToFollowingScreen
-        case routeToFollowerScreen
-        case routeToFollowScreen(tab: Int)
-        
+        case backButtonTapped
         case kebabMenuTapped
         case menuItemSelected(String)
         case dismissMenu
@@ -91,19 +85,28 @@ struct OtherProfileFeature {
         case confirmUnblock
         case blockActionResponse(TaskResult<Void>)
         case unblockActionResponse(TaskResult<Void>)
-        case routeToReviewDetail(Int)
-        
-        case hideToast
-        case routeToPostReportScreen(Int)
-        case routeToUserReportScreen(Int)
-        
+                
         case presentAlert(AlertType, Alert)
-        
         case selectReviewFilter(ReviewFilterType)
+        
+        case routeToFollowingScreen
+        case routeToFollowerScreen
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToReviewDetail(Int)
+            case routeToRoot
+            case routeToPreviousScreen
+            case routeToFollowScreen(tab: Int)
+            case routeToPostReportScreen(Int)
+            case routeToUserReportScreen(Int)
+            case presentToast(ToastType)
+        }
     }
     
     @Dependency(\.myPageService) var myPageService: MypageServiceProtocol
-    @Dependency(\.followUseCase) var followUseCase: FollowUseCase
+    @Dependency(\.followService) var followService: FollowServiceProtocol
     @Dependency(\.blockService) var blockService: BlockServiceProtocol
     
     var body: some ReducerOf<Self> {
@@ -212,7 +215,7 @@ struct OtherProfileFeature {
                 
                 return .run { [userId = state.userId, isFollowing = state.isFollowing] send in
                     await send(.followActionResponse(
-                        TaskResult { try await followUseCase.toggleFollow(userId: userId, isFollowing: isFollowing) }
+                        TaskResult { try await followService.toggleFollow(userId: userId, isFollowing: isFollowing) }
                     ))
                 }
                 
@@ -248,10 +251,10 @@ struct OtherProfileFeature {
                 return .none
                 
             case .routeToFollowingScreen:
-                return .send(.routeToFollowScreen(tab: 1))
+                return .send(.delegate(.routeToFollowScreen(tab: 1)))
                 
             case .routeToFollowerScreen:
-                return .send(.routeToFollowScreen(tab: 0))
+                return .send(.delegate(.routeToFollowScreen(tab: 0)))
                 
             case .kebabMenuTapped:
                 state.isMenuPresented.toggle()
@@ -297,7 +300,7 @@ struct OtherProfileFeature {
                 )
                 
             case .reportUser:
-                return .send(.routeToUserReportScreen(state.userId))
+                return .send(.delegate(.routeToUserReportScreen(state.userId)))
                 
             case .confirmAction:
                 if state.isBlocked {
@@ -325,43 +328,39 @@ struct OtherProfileFeature {
                 state.isBlocked = true
                 state.isFollowing = false
                 state.reviews = []
-                state.toast = Toast(
-                    style: .gray,
-                    message: "해당 유저가 차단되었어요.",
-                    yOffset: UIScreen.main.bounds.height - 200.adjustedH
-                )
-
-                return .run { send in
-                    try await Task.sleep(nanoseconds: 2_000_000_000)
-                    await send(.hideToast)
-                }
-                
+                return .send(.delegate(.presentToast(.blockUser)))
+           
             case let .blockActionResponse(.failure(error)):
                 print("Block action failed: \(error.localizedDescription)")
                 return .none
                 
             case .unblockActionResponse(.success):
                 state.isBlocked = false
-                return .send(.fetchUserReviews)
-                
+                return .merge(
+                    .send(.delegate(.presentToast(.unBlockUser))),
+                    .send(.fetchUserReviews)
+                )
             case let .unblockActionResponse(.failure(error)):
                 print("Unblock action failed: \(error.localizedDescription)")
                 return .none
-                
-            case .hideToast:
-                state.toast = nil
-                return .none
-                
-            case .routeToPreviousScreen, .routeToReviewDetail, .routeToUserReportScreen, .routeToPostReportScreen, .routeToFollowScreen:
-                return .none
-                
+
             case let .presentAlert(type, alert):
                 state.alertType = type
                 state.alert = alert
                 state.isAlertPresented = true
                 return .none
                 
+            case .backButtonTapped:
+                if state.isBlocked {
+                    return .send(.delegate(.routeToRoot))
+                } else {
+                    return .send(.delegate(.routeToPreviousScreen))
+                }
+                
             case .binding:
+                return .none
+                
+            case .delegate:
                 return .none
             }
         }

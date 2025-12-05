@@ -15,7 +15,6 @@ import ComposableArchitecture
 @main
 struct SpoonyApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-//    @StateObject private var navigationManager = NavigationManager()
     
     init() {
         NMFAuthManager.shared().ncpKeyId = Config.naverMapsClientId

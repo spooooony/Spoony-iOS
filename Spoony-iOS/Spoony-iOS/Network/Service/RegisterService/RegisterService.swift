@@ -10,133 +10,96 @@ import Foundation
 import Moya
 
 protocol RegisterServiceType {
-    func searchPlace(query: String) async throws -> SearchPlaceResponse
-    func validatePlace(request: ValidatePlaceRequest) async throws -> ValidatePlaceResponse
-    func registerPost(request: RegisterPostRequest, imagesData: [Data]) async throws -> Bool
-    func editPost(request: EditPostRequest, imagesData: [Data]) async throws -> Bool
+    func searchPlace(query: String) async throws -> SearchPlaceResponseDTO
+    func validatePlace(request: ValidatePlaceRequestDTO) async throws -> ValidatePlaceResponseDTO
+    func registerPost(request: RegisterPostRequestDTO, imagesData: [Data]) async throws -> Bool
+    func editPost(request: EditPostRequestDTO, imagesData: [Data]) async throws -> Bool
     func getRegisterCategories() async throws -> CategoryListResponse
-    func getReviewInfo(postId: Int) async throws -> ReviewResponse
+    func getReviewInfo(postId: Int) async throws -> ReviewResponseDTO
 }
 
 final class RegisterService: RegisterServiceType {
     private let provider = Providers.registerProvider
     
-    func searchPlace(query: String) async throws -> SearchPlaceResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.searchPlace(query: query)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<SearchPlaceResponse>.self)
-                        guard let data = responseDto.data else { return }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+    func searchPlace(query: String) async throws -> SearchPlaceResponseDTO {
+        do {
+            let result = try await provider.request(.searchPlace(query: query))
+                .map(to: BaseResponse<SearchPlaceResponseDTO>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
-    func validatePlace(request: ValidatePlaceRequest) async throws -> ValidatePlaceResponse {
-        return try await withCheckedThrowingContinuation { continutaion in
-            provider.request(.validatePlace(request: request)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<ValidatePlaceResponse>.self)
-                        guard let data = responseDto.data else { return }
-                        
-                        continutaion.resume(returning: data)
-                    } catch {
-                        continutaion.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continutaion.resume(throwing: error)
-                }
+    func validatePlace(request: ValidatePlaceRequestDTO) async throws -> ValidatePlaceResponseDTO {
+        do {
+            let result = try await provider.request(.validatePlace(request: request))
+                .map(to: BaseResponse<ValidatePlaceResponseDTO>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
-    func registerPost(request: RegisterPostRequest, imagesData: [Data]) async throws -> Bool {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.registerPost(request: request, imagesDate: imagesData)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<BlankData>.self)
-                        
-                        continuation.resume(returning: responseDto.success)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
+    func registerPost(request: RegisterPostRequestDTO, imagesData: [Data]) async throws -> Bool {
+        do {
+            let result = try await provider.request(.registerPost(request: request, imagesDate: imagesData))
+                .map(to: BaseResponse<BlankData>.self)
+            
+            return result.success
+        } catch {
+            throw error
         }
     }
     
-    func editPost(request: EditPostRequest, imagesData: [Data]) async throws -> Bool {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.editPost(request: request, imagesDate: imagesData)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<BlankData>.self)
-                        
-                        continuation.resume(returning: responseDto.success)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
+    func editPost(request: EditPostRequestDTO, imagesData: [Data]) async throws -> Bool {
+        do {
+            let result = try await provider.request(.editPost(request: request, imagesDate: imagesData))
+                .map(to: BaseResponse<BlankData>.self)
+            
+            return result.success
+        } catch {
+            throw error
         }
     }
     
     func getRegisterCategories() async throws -> CategoryListResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.getRegisterCategories) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<CategoryListResponse>.self)
-                        guard let data = responseDto.data else { return }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+        do {
+            let result = try await provider.request(.getRegisterCategories)
+                .map(to: BaseResponse<CategoryListResponse>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
     
-    func getReviewInfo(postId: Int) async throws -> ReviewResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(.getReviewInfo(postId: postId)) { result in
-                switch result {
-                case .success(let response):
-                    do {
-                        let responseDto = try response.map(BaseResponse<ReviewResponse>.self)
-                        guard let data = responseDto.data else { return }
-                        
-                        continuation.resume(returning: data)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+    func getReviewInfo(postId: Int) async throws -> ReviewResponseDTO {
+        do {
+            let result = try await provider.request(.getReviewInfo(postId: postId))
+                .map(to: BaseResponse<ReviewResponseDTO>.self)
+            
+            guard let data = result.data else {
+                throw SNError.noData
             }
+            
+            return data
+        } catch {
+            throw error
         }
     }
 }

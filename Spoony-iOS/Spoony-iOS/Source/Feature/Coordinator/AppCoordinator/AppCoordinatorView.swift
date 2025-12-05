@@ -12,7 +12,6 @@ import TCACoordinators
 
 struct AppCoordinatorView: View {
     private let store: StoreOf<AppCoordinator>
-    @StateObject private var authManager = AuthenticationManager.shared
     
     init(store: StoreOf<AppCoordinator>) {
         self.store = store
@@ -21,6 +20,8 @@ struct AppCoordinatorView: View {
     var body: some View {
         TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
             switch screen.case {
+            case let .splash(store):
+                SplashView(store: store)
             case let .auth(store):
                 LoginView(store: store)
                 

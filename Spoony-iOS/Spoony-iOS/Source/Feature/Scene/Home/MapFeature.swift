@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import UIKit
 import ComposableArchitecture
 import CoreLocation
 import Mixpanel
@@ -20,17 +20,17 @@ struct MapFeature {
         var pickList: [PickListCardResponse] = []
         var filteredPickList: [PickListCardResponse] = []
         var focusedPlaces: [CardPlace] = []
-        var selectedPlace: CardPlace? = nil
+        var selectedPlace: CardPlace?
         
         var currentPage: Int = 0
         var isLoading: Bool = false
         var isLocationFocused: Bool = false
-        var userLocation: CLLocation? = nil
-        var selectedLocation: (latitude: Double, longitude: Double)? = nil
+        var userLocation: CLLocation?
+        var selectedLocation: (latitude: Double, longitude: Double)?
         var hasInitialLocationFocus: Bool = false
         
-        var categories: [CategoryChip] = []
-        var selectedCategories: [CategoryChip] = []
+        var categories: [CategoryChipEntity] = []
+        var selectedCategories: [CategoryChipEntity] = []
         var spoonCount: Int = 0
         
         var currentBottomSheetStyle: BottomSheetStyle = .half
@@ -42,10 +42,12 @@ struct MapFeature {
         
         var showDailySpoonPopup: Bool = false
         var isDrawingSpoon: Bool = false
-        var drawnSpoon: SpoonDrawResponse? = nil
-        var spoonDrawError: String? = nil
+        var drawnSpoon: SpoonDrawResponse?
+        var spoonDrawError: String?
         
         var isAuthenticationChecked: Bool = false
+        var showLocationPermissionAlert: Bool = false
+        var locationErrorMessage: String?
         
         static func == (lhs: State, rhs: State) -> Bool {
             lhs.pickList == rhs.pickList &&
@@ -71,14 +73,14 @@ struct MapFeature {
             lhs.isDrawingSpoon == rhs.isDrawingSpoon &&
             lhs.drawnSpoon == rhs.drawnSpoon &&
             lhs.spoonDrawError == rhs.spoonDrawError &&
-            lhs.isAuthenticationChecked == rhs.isAuthenticationChecked
+            lhs.isAuthenticationChecked == rhs.isAuthenticationChecked &&
+            lhs.showLocationPermissionAlert == rhs.showLocationPermissionAlert &&
+            lhs.locationErrorMessage == rhs.locationErrorMessage
         }
     }
     
-    enum Action {
-        case routToSearchScreen
-        case routeToExploreTab
-        case routeToPostView(postId: Int)
+    enum Action: BindableAction {
+        case binding(BindingAction<State>)
         
         case fetchPickList
         case pickListResponse(TaskResult<ResturantpickListResponse>)
@@ -89,7 +91,7 @@ struct MapFeature {
         case fetchSpoonCount
         case spoonCountResponse(TaskResult<Int>)
         case fetchCategories
-        case categoriesResponse(TaskResult<[CategoryChip]>)
+        case categoriesResponse(TaskResult<[CategoryChipEntity]>)
         
         case fetchUserInfo
         case userInfoResponse(TaskResult<UserInfoResponse>)
@@ -100,7 +102,7 @@ struct MapFeature {
         case moveToUserLocation
         case updateUserLocation(CLLocation)
         case focusToLocation(CLLocationCoordinate2D)
-        case selectCategory(CategoryChip)
+        case selectCategory(CategoryChipEntity)
         case setBottomSheetStyle(BottomSheetStyle)
         case setSearchText(String)
         case applyFilters
@@ -112,15 +114,35 @@ struct MapFeature {
         case setShowDailySpoonPopup(Bool)
         case drawDailySpoon
         case spoonDrawResponse(TaskResult<SpoonDrawResponse>)
+        
+        case requestLocationPermission
+        case locationPermissionResponse(CLAuthorizationStatus)
+        case locationError(Error)
+        case setShowLocationPermissionAlert(Bool)
+        case openSettings
+        
+        // MARK: - Route Action: 화면 전환 이벤트를 상위 Reducer에 전달 시 사용
+        case delegate(Delegate)
+        enum Delegate {
+            case routeToSearchScreen
+            case routeToPostView(postId: Int)
+            case changeSelectedTab(TabType)
+        }
     }
     
     @Dependency(\.homeService) var homeService
     @Dependency(\.registerService) private var registerService
     @Dependency(\.myPageService) private var myPageService
+    private let locationManager = CLLocationManager()
     
     var body: some ReducerOf<Self> {
+        BindingReducer()
+        
         Reduce { state, action in
             switch action {
+            case .binding:
+                return .none
+                
             case .checkAuthentication:
                 return .run { send in
                     let hasToken = TokenManager.shared.currentToken != nil
@@ -136,9 +158,6 @@ struct MapFeature {
                     return .none
                 }
                 
-            case .routeToExploreTab:
-                return .none
-                
             case .fetchUserInfo:
                 return .run { send in
                     let result = await TaskResult {
@@ -149,6 +168,7 @@ struct MapFeature {
                 
             case let .userInfoResponse(.success(userInfo)):
                 state.userName = userInfo.userName
+                UserManager.shared.userName = userInfo.userName
                 
                 if !state.isAuthenticationChecked {
                     return .send(.authenticationChecked(true))
@@ -212,12 +232,6 @@ struct MapFeature {
             case let .spoonDrawResponse(.failure(error)):
                 state.isDrawingSpoon = false
                 state.spoonDrawError = error.localizedDescription
-                return .none
-                
-            case .routToSearchScreen:
-                return .none
-                
-            case let .routeToPostView(postId):
                 return .none
                 
             case .fetchPickList:
@@ -291,7 +305,7 @@ struct MapFeature {
                     
                     switch categoryResponse {
                     case .success(let response):
-                        let categories = await TaskResult { try await response.toModel() }
+                        let categories = await TaskResult { try await response.toEntity() }
                         await send(.categoriesResponse(categories))
                     case .failure(let error):
                         print("Error fetching categories: \(error)")
@@ -407,25 +421,76 @@ struct MapFeature {
                 }
 
             case .moveToUserLocation:
-                guard let userLocation = state.userLocation else {
+                switch locationManager.authorizationStatus {
+                case .authorizedWhenInUse, .authorizedAlways:
+                    if state.isLocationFocused {
+                        return .send(.toggleGPSTracking)
+                    } else {
+                        guard let userLocation = state.userLocation else {
+                            locationManager.requestLocation()
+                            return .none
+                        }
+                        print("📍 현재 사용자 위치: \(userLocation.coordinate.latitude), \(userLocation.coordinate.longitude)")
+                        state.isLocationFocused = true
+                        state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
+                        return .send(.clearFocusedPlaces)
+                    }
+                case .denied, .restricted:
+                    return .send(.setShowLocationPermissionAlert(true))
+                case .notDetermined:
+                    return .send(.requestLocationPermission)
+                @unknown default:
                     return .none
                 }
-                
-                print("📍 현재 사용자 위치: \(userLocation.coordinate.latitude), \(userLocation.coordinate.longitude)")
-                state.isLocationFocused = true
-                state.selectedLocation = (userLocation.coordinate.latitude, userLocation.coordinate.longitude)
-                
-                return .send(.clearFocusedPlaces)
 
             case let .focusedPlaceResponse(.failure(error)):
                 state.isLoading = false
                 print("포커스 장소 조회 실패: \(error)")
                 return .none
+                
+            case .requestLocationPermission:
+                return .run { send in
+                    switch locationManager.authorizationStatus {
+                    case .notDetermined:
+                        locationManager.requestWhenInUseAuthorization()
+                    default:
+                        await send(.locationPermissionResponse(locationManager.authorizationStatus))
+                    }
+                }
+                
+            case let .locationPermissionResponse(status):
+                switch status {
+                case .authorizedWhenInUse, .authorizedAlways:
+                    locationManager.startUpdatingLocation()
+                case .denied, .restricted:
+                    locationManager.stopUpdatingLocation()
+                default:
+                    break
+                }
+                return .none
+                
+            case let .locationError(error):
+                state.locationErrorMessage = error.localizedDescription
+                print("위치 오류: \(error.localizedDescription)")
+                return .none
+                
+            case let .setShowLocationPermissionAlert(show):
+                state.showLocationPermissionAlert = show
+                return .none
+                
+            case .openSettings:
+                return .run { _ in
+                    if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                        await UIApplication.shared.open(settingsUrl)
+                    }
+                }
+            case .delegate:
+                return .none
             }
         }
     }
     
-    private func filterPickList(_ pickList: [PickListCardResponse], with categories: [CategoryChip]) -> [PickListCardResponse] {
+    private func filterPickList(_ pickList: [PickListCardResponse], with categories: [CategoryChipEntity]) -> [PickListCardResponse] {
         if categories.isEmpty || categories.contains(where: { $0.id == 0 }) {
             return pickList
         }

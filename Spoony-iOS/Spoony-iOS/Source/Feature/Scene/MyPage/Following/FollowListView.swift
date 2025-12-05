@@ -23,7 +23,7 @@ struct FollowListView: View {
         VStack(spacing: 0) {
             
             CustomNavigationBar(style: .backOnly, onBackTapped: {
-                store.send(.routeToPreviousScreen)
+                store.send(.delegate(.routeToPreviousScreen))
             })
             
             pageControlSection
@@ -102,9 +102,9 @@ extension FollowListView {
                         },
                         onUserTap: {
                             if user.isMine {
-                                store.send(.routeToMyProfileScreen)
+                                store.send(.delegate(.routeToMyProfileScreen))
                             } else {
-                                store.send(.routeToUserProfileScreen(userId: user.userId))
+                                store.send(.delegate(.routeToUserProfileScreen(userId: user.userId)))
                             }
                         }
                     )
@@ -131,9 +131,9 @@ extension FollowListView {
                         },
                         onUserTap: {
                             if user.isMine {
-                                store.send(.routeToMyProfileScreen)
+                                store.send(.delegate(.routeToMyProfileScreen))
                             } else {
-                                store.send(.routeToUserProfileScreen(userId: user.userId))
+                                store.send(.delegate(.routeToUserProfileScreen(userId: user.userId)))
                             }
                         }
                     )

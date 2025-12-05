@@ -150,4 +150,44 @@ Config.swift
 
 # 또는 모든 Config.xcconfig 파일을 무시하도록
 **/Config.xcconfig
+
+### fastlane ###
+# fastlane - A streamlined workflow tool for Cocoa deployment
+#
+# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
+# screenshots whenever they are needed.
+# For more information about the recommended setup visit:
+# https://docs.fastlane.tools/best-practices/source-control/#source-control
+
+# fastlane specific
+**/fastlane/report.xml
+
+# deliver temporary files
+**/fastlane/Preview.html
+
+# snapshot generated screenshots
+**/fastlane/screenshots
+
+# scan temporary files
+**/fastlane/test_output
+
+# Fastlane.swift runner binary
+**/fastlane/FastlaneRunner
+
+# End of https://www.toptal.com/developers/gitignore/api/fastlane
+
+Gemfile.lock
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots/**/*.png
+**/fastlane/screenshots/
+**/fastlane/BuildOutputs
+**/fastlane/metadata
+**/fastlane/Deliverfile
+
+
+**/fastlane/.env.default
+
+**Gemfile.lock
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,swift,xcode,cocoapods

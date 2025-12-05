@@ -11,6 +11,7 @@ import CoreLocation
 
 struct Home: View {
     @Bindable private var store: StoreOf<MapFeature>
+    
     @State private var locationManager = CLLocationManager()
     @State private var locationDelegate: LocationManagerDelegate?
     
@@ -46,7 +47,7 @@ struct Home: View {
                         store.send(.setShowDailySpoonPopup(true))
                     },
                     tappedAction: {
-                        store.send(.routToSearchScreen)
+                        store.send(.delegate(.routeToSearchScreen))
                     }
                 )
                 .frame(height: 56.adjusted)
@@ -54,14 +55,14 @@ struct Home: View {
                 HStack(spacing: 8) {
                     if store.categories.isEmpty {
                         ForEach(0..<4, id: \.self) { _ in
-                            CategoryChipsView(category: CategoryChip.placeholder)
+                            CategoryChipsView(category: CategoryChipEntity.placeholder)
                                 .redacted(reason: .placeholder)
                         }
                     } else {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
                                 CategoryChipsView(
-                                    category: CategoryChip(
+                                    category: CategoryChipEntity(
                                         image: "",
                                         selectedImage: "",
                                         title: "전체",
@@ -70,7 +71,7 @@ struct Home: View {
                                     isSelected: store.selectedCategories.isEmpty || store.selectedCategories.contains { $0.id == 0 }
                                 )
                                 .onTapGesture {
-                                    store.send(.selectCategory(CategoryChip(
+                                    store.send(.selectCategory(CategoryChipEntity(
                                         image: "",
                                         selectedImage: "",
                                         title: "전체",
@@ -101,7 +102,7 @@ struct Home: View {
             ZStack(alignment: .bottomTrailing) {
                 if store.currentBottomSheetStyle != .full && store.focusedPlaces.isEmpty {
                     Button(action: {
-                        handleGPSButtonTap()
+                        store.send(.moveToUserLocation)
                     }) {
                         ZStack {
                             Circle()
@@ -179,12 +180,15 @@ struct Home: View {
         .navigationBarHidden(true)
         .toolbar(store.showDailySpoonPopup ? .hidden : .visible, for: .tabBar)
         .task {
-            setupLocationManager()
             store.send(.checkAuthentication)
             store.send(.fetchUserInfo)
             store.send(.fetchSpoonCount)
             store.send(.fetchPickList)
             store.send(.fetchCategories)
+            store.send(.requestLocationPermission)
+        }
+        .onAppear {
+            setupLocationManager()
         }
         .overlay {
             if store.showDailySpoonPopup {
@@ -202,8 +206,24 @@ struct Home: View {
                 )
             }
         }
+        .alert("위치 권한 필요", isPresented: Binding(
+            get: { store.showLocationPermissionAlert },
+            set: { store.send(.setShowLocationPermissionAlert($0)) }
+        )) {
+            Button("설정으로 이동") {
+                store.send(.openSettings)
+                store.send(.setShowLocationPermissionAlert(false))
+            }
+            Button("취소", role: .cancel) {
+                store.send(.setShowLocationPermissionAlert(false))
+            }
+        } message: {
+            Text("현재 위치를 확인하려면 위치 권한이 필요합니다. 설정에서 위치 권한을 허용해주세요.")
+        }
     }
-    
+}
+
+private extension Home {
     private func setupLocationManager() {
         locationDelegate = LocationManagerDelegate(onLocationUpdate: { location in
             store.send(.updateUserLocation(location))
@@ -212,99 +232,5 @@ struct Home: View {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
-    }
-    
-    private func handleGPSButtonTap() {
-        switch locationManager.authorizationStatus {
-        case .authorizedWhenInUse, .authorizedAlways:
-            if store.isLocationFocused {
-                store.send(.toggleGPSTracking)
-            } else {
-                if let currentLocation = locationManager.location {
-                    store.send(.updateUserLocation(currentLocation))
-                    store.send(.moveToUserLocation)
-                } else {
-                    locationManager.requestLocation()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        if let location = locationManager.location {
-                            store.send(.updateUserLocation(location))
-                            store.send(.moveToUserLocation)
-                        }
-                    }
-                }
-            }
-        case .denied, .restricted:
-            showLocationPermissionAlert()
-        case .notDetermined:
-            locationManager.requestWhenInUseAuthorization()
-        default:
-            break
-        }
-    }
-    
-    private func showLocationPermissionAlert() {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first else { return }
-        
-        let alert = UIAlertController(
-            title: "위치 권한 필요",
-            message: "현재 위치를 확인하려면 위치 권한이 필요합니다. 설정에서 위치 권한을 허용해주세요.",
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(title: "설정으로 이동", style: .default) { _ in
-            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
-                UIApplication.shared.open(settingsUrl)
-            }
-        })
-        
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        
-        window.rootViewController?.present(alert, animated: true)
-    }
-}
-
-class LocationManagerDelegate: NSObject, CLLocationManagerDelegate, ObservableObject {
-    let onLocationUpdate: (CLLocation) -> Void?
-    
-    init(onLocationUpdate: @escaping (CLLocation) -> Void) {
-        self.onLocationUpdate = onLocationUpdate
-        super.init()
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.last {
-            onLocationUpdate(location)
-        }
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        
-        if let clError = error as? CLError {
-            switch clError.code {
-            case .locationUnknown:
-                print("📍 위치를 확인할 수 없습니다")
-            case .denied:
-                print("📍 위치 권한이 거부되었습니다")
-            case .network:
-                print("📍 네트워크 오류로 위치를 확인할 수 없습니다")
-            default:
-                print("📍 기타 위치 오류: \(clError.localizedDescription)")
-            }
-        }
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        
-        switch status {
-        case .authorizedWhenInUse, .authorizedAlways:
-            manager.startUpdatingLocation()
-        case .denied, .restricted:
-            manager.stopUpdatingLocation()
-        case .notDetermined:
-            print("📍 위치 권한 미결정")
-        default:
-            break
-        }
     }
 }
