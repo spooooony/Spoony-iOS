@@ -56,7 +56,8 @@ platform :ios do
       type: "appstore",
       readonly: true,
       keychain_name: ENV["KEYCHAIN_NAME"],
-      keychain_password: ENV["KEYCHAIN_PASSWORD"]
+      keychain_password: ENV["KEYCHAIN_PASSWORD"],
+      api_key: app_store_connect_api_key
     )
   end
 
